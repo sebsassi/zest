@@ -39,7 +39,7 @@ public:
     explicit SHRotor(std::size_t lmax);
 
     /*
-    Apply a rotation to a real spherical harmonic expansion via Wigner's D-matrix.
+    General rotation of a real spherical harmonic expansion via Wigner's D-matrix.
 
     The rotation uses the standard ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
     */
@@ -48,11 +48,22 @@ public:
         const std::array<double, 3>& euler_angles,
         RotationType convention = RotationType::OBJECT);
 
+    /*
+    General rotation of a real spherical harmonic expansion via Wigner's D-matrix.
+
+    The rotation uses the standard ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+    */
     void rotate(
         RealSHExpansionSpan<std::array<double, 2>, SHNorm::GEO, SHPhase::NONE> expansion, const std::array<std::array<double, 3>, 3>& matrix)
     {
         rotate(expansion, euler_angles_from_rotation_matrix(matrix));
     }
+
+    /*
+    Rotation about the Z-axis of a real spherical harmonic expansion
+    */
+    void polar_rotate(
+        RealSHExpansionSpan<std::array<double, 2>, SHNorm::GEO, SHPhase::NONE> expansion, double angle, RotationType convention);
 
     const WignerdCollection& wigner_d_pi2() const { return m_wigner_d_pi2; } 
 

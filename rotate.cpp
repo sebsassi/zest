@@ -91,6 +91,12 @@ constexpr std::array<double, 3> convert(
         return {-gamma_rot, -beta_rot, -alpha_rot};
 }
 
+constexpr double convert(double angle, RotationType convention)
+{
+    const double sign = (convention == RotationType::OBJECT) ? 1.0 : -1.0;
+    return angle*sign;
+}
+
 void SHRotor::rotate(
         RealSHExpansionSpan<std::array<double, 2>, SHNorm::GEO, SHPhase::NONE> expansion,
         const std::array<double, 3>& euler_angles,
@@ -280,6 +286,36 @@ void SHRotor::rotate(
             const std::complex<double> rot = m_exp_alpha[m];
 
             // Standard complex multiplication not used because it has additional logic for `Inf` components. We assume finite values
+            expansion_l[m] = {
+                coeff.real()*rot.real() - coeff.imag()*rot.imag(),
+                coeff.real()*rot.imag() + coeff.imag()*rot.real()
+            };
+        }
+    }
+
+    to_real_expansion<SHNorm::GEO, SHPhase::NONE>(complex_expansion);
+}
+
+void SHRotor::polar_rotate(
+    RealSHExpansionSpan<std::array<double, 2>, SHNorm::GEO, SHPhase::NONE> expansion, double angle, RotationType convention)
+{
+    RealSHExpansionSpan<std::complex<double>, SHNorm::QM, SHPhase::CS> complex_expansion
+                = to_complex_expansion<SHNorm::QM, SHPhase::CS>(expansion);
+    
+    const double angle_rot = convert(angle, convention);
+    for (std::size_t l = 0; l <= complex_expansion.lmax(); ++l)
+        m_exp_alpha[l] = std::polar(1.0, -double(l)*angle_rot);
+    
+    for (std::size_t l = 1; l <= complex_expansion.lmax(); ++l)
+    {
+        std::span<std::complex<double>> expansion_l = complex_expansion(l);
+
+        for (std::size_t m = 0; m <= l; ++m)
+        {
+            const std::complex<double> coeff = expansion_l[m];
+            const std::complex<double> rot = m_exp_alpha[m];
+
+            // Standard complex multiplication not used because it has additional logic for `Inf` components. We assume finite valuess
             expansion_l[m] = {
                 coeff.real()*rot.real() - coeff.imag()*rot.imag(),
                 coeff.real()*rot.imag() + coeff.imag()*rot.real()
