@@ -1,6 +1,6 @@
 #pragma once
 
-#include "multifit/linearfit.hpp"
+#include "linearfit/linearfit.hpp"
 #include "plm_recursion.hpp"
 #include "real_sh_expansion.hpp"
 

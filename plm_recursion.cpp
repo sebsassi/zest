@@ -4,6 +4,8 @@
 
 namespace zest
 {
+namespace st
+{
 
 PlmRecursion::PlmRecursion(std::size_t lmax):
     m_sqrl(2*lmax + 1), m_alm((lmax + 1)*(lmax + 1)),
@@ -72,4 +74,5 @@ void PlmRecursion::expand_vec(std::size_t vec_size)
     }
 }
 
+}
 }

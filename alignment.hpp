@@ -8,13 +8,12 @@
 namespace zest
 {
 
-template <typename T>
-concept arithmetic = std::integral<T> || std::floating_point<T>;
-
 struct NoAlignment
 {
     static constexpr std::size_t byte_alignment = 1;
-    static constexpr std::size_t vector_size = 1;
+    
+    template <typename T>
+    static constexpr std::size_t vector_size() { return 1; }
 };
 
 template <std::size_t BYTE_ALIGNMENT>
@@ -23,10 +22,9 @@ struct VectorAlignment
     static constexpr std::size_t byte_alignment = BYTE_ALIGNMENT;
 
     template <typename T>
-        requires (not std::same_as<T, long double>)
     static constexpr std::size_t vector_size()
     {
-        return byte_alignment/sizeof(T);
+        return std::max(1, byte_alignment/sizeof(T));
     }
 };
 
@@ -35,6 +33,9 @@ using AVXAlignment = VectorAlignment<32>;
 using AVX512Alignment = VectorAlignment<64>;
 using CacheLineAlignment = VectorAlignment<64>;
 
+/*
+Figure out the number of bytes needed to store `n` elements with given byte alignment.
+*/
 template<typename T, std::size_t BYTE_ALIGNMENT>
 constexpr std::size_t aligned_size(std::size_t n)
 {

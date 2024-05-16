@@ -171,7 +171,7 @@ void GLQTransformer::resize(std::size_t lmax)
     m_plm_recursion.expand(lmax);
     m_zernike_recursion.expand(lmax);
 
-    gl_nodes_and_weights<double, gl::GLLayout::UNPACKED, gl::GLNodeStyle::COS>(
+    gl::gl_nodes_and_weights<double, gl::GLLayout::UNPACKED, gl::GLNodeStyle::COS>(
             m_glq_nodes, m_glq_weights, m_glq_weights.size());
     
     m_zernike_grid.resize((lmax + 2)*RadialZernikeLayout::size(lmax));
