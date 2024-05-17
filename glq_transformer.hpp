@@ -617,13 +617,14 @@ private:
         const std::size_t fft_order = GridLayout::fft_size(m_lmax);
         const std::size_t num_unique_nodes = m_glq_weights.size();
 
-        std::span coeffs = expansion.span();
-        std::ranges::fill(expansion.span(), std::array<double, 2>{});
+        std::span coeffs = expansion.flatten();
+        std::ranges::fill(coeffs, std::array<double, 2>{});
         if constexpr (GridLayout::lon_axis == 1)
         {
             for (std::size_t i = 0; i < num_unique_nodes; ++i)
             {
                 PlmSpan<const double, SHNorm::GEO, SHPhase::NONE> plm(m_plm_grid, i, lmax());
+                std::span plm_flat = plm.flatten();
                 for (std::size_t l = 0; l <= min_lmax; ++l)
                 {
                     std::span<const std::complex<double>> fft(
@@ -631,8 +632,8 @@ private:
                     for (std::size_t m = 0; m <= l; ++m)
                     {
                         const std::size_t ind = TriangleLayout::idx(l,m);
-                        coeffs[ind][0] += plm[ind]*fft[m].real();
-                        coeffs[ind][1] += plm[ind]*fft[m].imag();
+                        coeffs[ind][0] += plm_flat[ind]*fft[m].real();
+                        coeffs[ind][1] += plm_flat[ind]*fft[m].imag();
                     }
                 }
             }
@@ -695,7 +696,7 @@ private:
                         coeff[1] += partial_sum[i + 1];
                     }
 
-                    expansion.span()[ind] = coeff;
+                    coeffs[ind] = coeff;
                 }
             }
         }
@@ -708,7 +709,7 @@ private:
         const std::size_t num_unique_nodes = m_glq_weights.size();
         const std::size_t num_plm = num_unique_nodes;
 
-        std::span coeffs = expansion.span();
+        std::span coeffs = expansion.flatten();
         std::ranges::fill(m_symm_asymm, std::complex<double>{});
 
         if constexpr (GridLayout::lon_axis == 1)
@@ -718,16 +719,18 @@ private:
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
                 PlmSpan<const double, SHNorm::GEO, SHPhase::NONE> plm(m_plm_grid, i, lmax());
+                std::span plm_flat = plm.flatten();
                 for (std::size_t l = 0; l <= min_lmax; ++l)
                 {
                     const std::size_t ind = TriangleLayout::idx(l, 0);
                     symm_asymm[(l & 1)*fft_order] += std::complex<double>{
-                        plm[ind]*coeffs[ind][0], -plm[ind]*coeffs[ind][1]
+                        plm_flat[ind]*coeffs[ind][0],
+                        -plm_flat[ind]*coeffs[ind][1]
                     };
                     for (std::size_t m = 1; m <= l; ++m)
                     {
                         const std::size_t ind = TriangleLayout::idx(l, m);
-                        const double weight = 0.5*plm[ind];
+                        const double weight = 0.5*plm_flat[ind];
                         symm_asymm[(l & 1)*fft_order + m]
                             += std::complex<double>{
                                 weight*coeffs[ind][0],

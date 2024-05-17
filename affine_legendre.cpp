@@ -101,7 +101,7 @@ void AffineLegendreRecursion::evaluate_scaled(
 {
     expand(expansion.lmax());
 
-    std::ranges::fill(expansion.span(), 0.0);
+    std::ranges::fill(expansion.flatten(), 0.0);
     expansion(0, 0) = 1.0;
     expansion(1, 1) = scale;
 

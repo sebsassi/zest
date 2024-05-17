@@ -82,30 +82,33 @@ private:
     void plm_impl(
         PlmSpan<double, NORM, PHASE> plm, double z, double norm)
     {
+        const std::size_t lmax = plm.lmax();
         if (std::fabs(z) > 1.0)
             throw std::invalid_argument("z must be between -1 and 1");
 
-        expand(plm.lmax());
+        expand(lmax);
         
         const double u = std::sqrt((1.0 - z)*(1.0 + z));
 
         if constexpr (NORM == SHNorm::GEO)
-            plm[0] = 1.0;
+            plm(0, 0) = 1.0;
         else if constexpr (NORM == SHNorm::QM)
-            plm[0] = 1.0/std::sqrt(4.0*std::numbers::pi);
+            plm(0, 0) = 1.0/std::sqrt(4.0*std::numbers::pi);
 
-        if (plm.lmax() == 0) return;
+        if (lmax == 0) return;
 
         if constexpr (NORM == SHNorm::GEO)
-            plm[1] = m_sqrl[2]*z;
+            plm(1, 0) = m_sqrl[2]*z;
         else if constexpr (NORM == SHNorm::QM)
-            plm[1] = m_sqrl[2]*z*(1.0/std::sqrt(4.0*std::numbers::pi));
+            plm(1, 0) = m_sqrl[2]*z*(1.0/std::sqrt(4.0*std::numbers::pi));
+
+        std::span<double> plm_flat = plm.flatten();
 
         // Calculate P(l,0)
-        for (std::size_t l = 2; l <= plm.lmax(); ++l)
+        for (std::size_t l = 2; l <= lmax; ++l)
         {
             const std::size_t ind = TriangleLayout::idx(l,0);
-            plm[ind] = m_alm[ind]*z*plm[ind - l] - m_blm[ind]*plm[ind - 2*l + 1];
+            plm_flat[ind] = m_alm[ind]*z*plm_flat[ind - l] - m_blm[ind]*plm_flat[ind - 2*l + 1];
         }
 
         constexpr double underflow_compensation = 1.0e-280;
@@ -121,41 +124,41 @@ private:
         // by the presence of `underflow_compensation` in `pmm`.
         double u_scaled = 1.0/underflow_compensation;
 
-        for (std::size_t m = 1; m < plm.lmax(); ++m)
+        for (std::size_t m = 1; m < lmax; ++m)
         {
             u_scaled *= u;
 
             // `P(m,m) = u*sqrt((2m + 1)/(2m))*P(m - 1,m - 1)`
             // NOTE: multiplication by `u` happens later
             pmm *= double(PHASE)*m_sqrl[2*m]/m_sqrl[2*m - 1];
-            plm[TriangleLayout::idx(m, m)] = pmm;
+            plm(m, m) = pmm;
 
             // `P(m+1,m) = z*sqrt(2m + 3)*P(m,m)`
-            plm[TriangleLayout::idx(m + 1, m)] = z*m_sqrl[2*m + 2]*pmm;
+            plm(m + 1, m) = z*m_sqrl[2*m + 2]*pmm;
 
-            for (std::size_t l = m + 2; l <= plm.lmax(); ++l)
+            for (std::size_t l = m + 2; l <= lmax; ++l)
             {
                 // P(l,m) = z*a(l,m)*P(l - 1,m) - b(l,m)*P(l - 2,m)
                 const std::size_t ind = TriangleLayout::idx(l, m);
-                plm[ind] = z*m_alm[ind]*plm[ind - l] - m_blm[ind]*plm[ind - 2*l + 1];
+                plm_flat[ind] = z*m_alm[ind]*plm_flat[ind - l] - m_blm[ind]*plm_flat[ind - 2*l + 1];
                 
                 // Multiplication by `u` for `m <= l <= lmax - 2`
-                plm[ind - 2*l + 1] *= u_scaled;
+                plm_flat[ind - 2*l + 1] *= u_scaled;
             }
 
             // Multiplication by `u` for `l = lmax`
-            plm[TriangleLayout::idx(plm.lmax(), m)] *= u_scaled;
+            plm(lmax, m) *= u_scaled;
 
             // Multiplication by `u` for `l = lmax - 1`
-            plm[TriangleLayout::idx(plm.lmax() - 1, m)] *= u_scaled;
+            plm(lmax - 1, m) *= u_scaled;
         }
 
         u_scaled *= u;
 
         // P(lmax,lmax)
-        plm[TriangleLayout::idx(plm.lmax(), plm.lmax())]
-                = double(PHASE)*pmm*u_scaled*m_sqrl[2*plm.lmax()]
-                /m_sqrl[2*plm.lmax() - 1];
+        plm(lmax, lmax)
+                = double(PHASE)*pmm*u_scaled*m_sqrl[2*lmax]
+                /m_sqrl[2*lmax - 1];
     }
     
 

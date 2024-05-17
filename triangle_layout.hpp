@@ -6,7 +6,7 @@ namespace zest
 {
 
 /*
-2D layout with indexing
+Contiguous 2D layout with indexing
 ```
                      (0,0)
               (1,-1) (1,0) (1,1)
@@ -39,7 +39,7 @@ struct DualTriangleLayout
 
 
 /*
-2D layout with indexing
+Contiguous 2D layout with indexing
 ```
 (0,0)
 (1,0) (1,1)
@@ -72,6 +72,122 @@ struct TriangleLayout
 };
 
 /*
+Contiguous 2D layout with indexing
+```
+(0,0)
+      (1,1)
+(2,0)       (2,2)
+      (3,1)       (3,3)
+(4,0)       (4,2)       (4,4)
+```
+*/
+struct EvenDiagonalTriangleLayout
+{
+    static constexpr std::size_t size(std::size_t lmax) noexcept
+    {
+        // OEIS A002620
+        return ((lmax + 2)*(lmax + 2)) >> 2; 
+    }
+    
+    static constexpr std::size_t idx(std::size_t n, std::size_t l) noexcept
+    {
+         return (((n + 1)*(n + 1)) >> 2) + (l >> 1);
+    }
+
+    [[nodiscard]] static constexpr
+    std::size_t line_length(std::size_t l) noexcept
+    {
+        return (l >> 1) + 1;
+    }
+};
+
+/*
+Contiguous 2D layout with indexing
+```
+(0,0)
+
+(2,0) (2,1) (2,2)
+
+(4,0) (4,1) (4,2) (4,3) (4,4)
+```
+*/
+struct EvenPrimaryTriangleLayout
+{
+    static constexpr std::size_t size(std::size_t n) noexcept
+    {
+        return ((n + 1)*(n + 1)) >> 2;
+    }
+
+    static constexpr std::size_t idx(std::size_t l, std::size_t m) noexcept
+    {
+        return ((l*l) >> 2) + m;
+    }
+
+    [[nodiscard]] static constexpr
+    std::size_t line_length(std::size_t l) noexcept
+    {
+        return l + 1;
+    }
+};
+
+/*
+Contiguous 3D layout with indexing
+```
+(0,0,0)
+
+(1,1,0) (1,1,1)
+
+(2,0,0)
+(2,2,0) (2,2,1) (2,2,2)...
+```
+*/
+struct EvenSemiDiagonalTetrahedralLayout
+{
+    static constexpr std::size_t size(std::size_t lmax) noexcept
+    {
+        // OEIS A002623
+        return (lmax + 2)*(lmax + 4)*(2*lmax + 3)/24;
+    }
+
+    static constexpr std::size_t idx(
+        std::size_t n, std::size_t l, std::size_t m) noexcept
+    {
+        return (n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2) + m;
+    }
+};
+
+/*
+A non-owning view where adjacent even and odd indices refer to the same value.
+
+Given index `i`, the corresponding offset in the underlying buffer is given by `i/2`.
+*/
+template <typename T>
+class EvenOddSpan
+{
+public:
+    using element_type = T;
+    using value_type = std::remove_cv_t<T>;
+    using size_type = std::size_t;
+
+    EvenOddSpan(std::span<T> buffer, std::size_t idx, std::size_t size):
+        m_span(buffer.begin() + idx*size, size), 
+        m_size(size) {}
+    EvenOddSpan(std::span<T> buffer, std::size_t n):
+        m_span(buffer.begin(), size), m_size(size) {}
+    
+    [[nodiscard]] std::size_t size() const noexcept { return m_size; }
+
+    operator std::span<T>() { return m_span; }
+    [[nodiscard]] T operator[](std::size_t i)
+    {
+        return m_span[i >> 1];
+    }
+private:
+    std::span<T> m_span;
+    std::size_t m_size;
+};
+
+/*
 A non-owning view modeling 2D data with triangular layout.
 */
 template <typename T, typename LayoutType>
@@ -91,7 +207,7 @@ public:
         m_span(buffer.begin(), Layout::size(lmax)), m_lmax(lmax) {}
 
     [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
-    [[nodiscard]] std::span<T> span() const noexcept { return m_span; }
+    [[nodiscard]] std::span<T> flatten() const noexcept { return m_span; }
     [[nodiscard]] const T* data() const noexcept { return m_span.data(); }
 
     operator std::span<T>() { return m_span; }
@@ -112,6 +228,18 @@ public:
                 m_span.begin() + Layout::idx(l,0), Layout::line_length(l));
     }
 
+    [[nodiscard]] std::span<const T> operator[](size_type l) const
+    {
+        return std::span<const T>(
+                m_span.begin() + Layout::idx(l,0), Layout::line_length(l));
+    }
+
+    [[nodiscard]] std::span<T> operator[](IndexType l)
+    {
+        return std::span<T>(
+                m_span.begin() + Layout::idx(l,0), Layout::line_length(l));
+    }
+
     [[nodiscard]] T operator()(IndexType l, IndexType m) const
     {
         return m_span[Layout::idx(l,m)];
@@ -120,13 +248,6 @@ public:
     {
         return m_span[Layout::idx(l,m)];
     }
-
-    [[nodiscard]] T operator[](std::size_t idx) const
-    {
-        return m_span[idx];
-    }
-
-    T& operator[](std::size_t idx) { return m_span[idx]; }
 
 private:
     std::span<T> m_span;

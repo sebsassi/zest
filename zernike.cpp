@@ -534,21 +534,13 @@ std::array<std::vector<double>, 4> UniformGridEvaluator::evaluate(
             {
                 for (std::size_t l = n & 1; l <= n; l += 2)
                 {
-                    const std::size_t zer_ind = RadialZernikeLayout::idx(n, l);
-                    const std::size_t plm_ind = TriangleLayout::idx(l, 0);
-                    const std::size_t exp_ind = ZernikeLayout::idx(n, l, 0);
-                    const double zer = zernike[zer_ind];
-
-                    const auto& coeff = coeffs[exp_ind];
-                    fft[0] += (zer*plm[plm_ind])*std::complex<double>{coeff[0], -coeff[1]};
+                    const double zer = zernike(n, l);
+                    const auto& coeff = expansion(n, l, 0);
+                    fft[0] += (zer*plm(l, 0))*std::complex<double>{coeff[0], -coeff[1]};
                     for (std::size_t m = 1; m <= l; ++m)
                     {
-                        const std::size_t exp_ind = ZernikeLayout::idx(n, l, m);
-                        const std::size_t plm_ind
-                                = TriangleLayout::idx(l, m);
-
-                        const auto& coeff = coeffs[exp_ind];
-                        fft[m] += (0.5*zer*plm[plm_ind])*std::complex<double>{coeff[0], -coeff[1]};
+                        const auto& coeff = expansion(n, l, m);
+                        fft[m] += (0.5*zer*plm(l, m))*std::complex<double>{coeff[0], -coeff[1]};
                     }
                 }
             }

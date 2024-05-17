@@ -151,7 +151,7 @@ to_complex_expansion(
     }
 
     return RealSHExpansionSpan<std::complex<double>, DEST_NORM, DEST_PHASE>(
-            as_complex_span(expansion.span()), expansion.lmax());
+            as_complex_span(expansion.flatten()), expansion.lmax());
 }
 
 /*
@@ -170,7 +170,7 @@ to_real_expansion(
     constexpr double norm = shnorm*cnorm;
 
     RealSHExpansionSpan<std::array<double, 2>, DEST_NORM, DEST_PHASE> res(
-            as_array_span(expansion.span()), expansion.lmax());
+            as_array_span(expansion.flatten()), expansion.lmax());
 
     if constexpr (DEST_PHASE == SRC_PHASE)
     {

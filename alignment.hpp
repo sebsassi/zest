@@ -24,7 +24,7 @@ struct VectorAlignment
     template <typename T>
     static constexpr std::size_t vector_size()
     {
-        return std::max(1, byte_alignment/sizeof(T));
+        return std::max(1UL, byte_alignment/sizeof(T));
     }
 };
 

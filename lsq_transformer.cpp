@@ -40,7 +40,7 @@ void LSQTransformer::transform(
     m_coeffs.resize(m_sh_values.ncols());
     m_fitter.fit_parameters(m_sh_values, m_coeffs, data);
 
-    std::span coeffs = expansion.span();
+    std::span coeffs = expansion.flatten();
     for (std::size_t l = 0; l <= expansion.lmax(); ++l)
     {
         coeffs[Expansion::Layout::idx(l, 0)] = {

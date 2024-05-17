@@ -97,14 +97,12 @@ public:
                 
                 if constexpr (std::is_same_v<T, SequentialRealYlmPacking>)
                 {
-                    ylm[T::Layout::idx(int(l), int(m))]
-                            = ass_leg_poly*m_cossin[m][0];
-                    ylm[T::Layout::idx(int(l), -int(m))]
-                            = ass_leg_poly*m_cossin[m][1];
+                    ylm(int(l), int(m)) = ass_leg_poly*m_cossin[m][0];
+                    ylm(int(l), -int(m)) = ass_leg_poly*m_cossin[m][1];
                 }
                 else if constexpr (std::is_same_v<T, PairedRealYlmPacking>)
                 {
-                    ylm[T::Layout::idx(l, m)] = {
+                    ylm(l, m) = {
                         ass_leg_poly*m_cossin[m][0],
                         ass_leg_poly*m_cossin[m][1]
                     };

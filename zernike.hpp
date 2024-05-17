@@ -17,64 +17,8 @@ namespace zt
 /* Zernike polynomial normalization switch */
 enum class ZernikeNorm { NORMED, UNNORMED };
 
-/*
-Layout for storage of radial 3D Zernike polynomials.
-
-The zernike polynomails are indexed by `(n,l)` with `n - l` even, and `0 <= l <= n`.
-
-Given columns indexed by `n` and rows indexed by `l`, the rows are packed contiguous in memory in ascending order. That is, given an element indexed by `(n,l)`, the members are stored in memory as:
-    `(0,0) (1,1) (2,0) (2,2) (3,1) (3,3) (4,0) (4,2) (4,4)...`
-*/
-struct RadialZernikeLayout
-{
-    static constexpr std::size_t size(std::size_t lmax) noexcept
-    {
-        // OEIS A002620
-        return ((lmax + 2)*(lmax + 2)) >> 2; 
-    }
-    
-    static constexpr std::size_t idx(std::size_t n, std::size_t l) noexcept
-    {
-         return (((n + 1)*(n + 1)) >> 2) + (l >> 1);
-    }
-};
-
-/*
-Layout for storage of 3D Zernike functions.
-
-The zernike functions are indexed by `(n,l,m)` with `n - l` even, and `0 <= abs(m) <= l <= n`.
-
-The values for `m` and `-m` are stored in pairs, indexed by positive `m`. Then the pairs indexed by `(n,l,m)` are contiguous in memory with the order:
-    `(0,0,0) (1,1,0) (1,1,1) (2,0,0) (2,2,0) (2,2,1) (2,2,2)...`
-That is, the rows of contiguous `m`, indexed by `(n,l)` have the order of `RadialZernikeLayout`
-*/
-struct ZernikeLayout
-{
-    static constexpr std::size_t size(std::size_t lmax) noexcept
-    {
-        // OEIS A002623
-        return (lmax + 2)*(lmax + 4)*(2*lmax + 3)/24;
-    }
-
-    static constexpr std::size_t idx(
-        std::size_t n, std::size_t l, std::size_t m) noexcept
-    {
-        return (n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2) + m;
-    }
-};
-
-struct ZernikeLMLayout
-{
-    static constexpr std::size_t size(std::size_t n) noexcept
-    {
-        return ((n + 1)*(n + 1)) >> 2;
-    }
-
-    static constexpr std::size_t idx(std::size_t l, std::size_t m) noexcept
-    {
-        return ((l*l) >> 2) + m;
-    }
-};
+using RadialZernikeLayout = EvenDiagonalTriangleLayout;
+using ZernikeLayout = EvenSemiDiagonalTetrahedralLayout;
 
 /*
 Non-owning view over values of radial 3D Zernike polynomials.
@@ -84,7 +28,7 @@ template <typename T>
 class RadialZernikeSpan
 {
 public:
-    using Layout = RadialZernikeLayout;
+    using Layout = EvenDiagonalTriangleLayout;
 
     RadialZernikeSpan(std::span<T> buffer, std::size_t idx, std::size_t lmax):
         m_span(buffer.begin() + idx*Layout::size(lmax), Layout::size(lmax)), 
@@ -111,12 +55,25 @@ public:
         return m_span[Layout::idx(n,l)];
     }
 
-    [[nodiscard]] T operator[](std::size_t idx) const noexcept
+    [[nodiscard]] EvenOddSpan<const T> operator()(std::size_t n) const noexcept
     {
-        return m_span[idx];
+        return EvenOddSpan(m_span.begin() + Layout::idx(n,0), Layout::line_length(n));
     }
 
-    T& operator[](std::size_t idx) noexcept { return m_span[idx]; }
+    [[nodiscard]] EvenOddSpan<T> operator()(std::size_t n) noexcept
+    {
+        return EvenOddSpan(m_span.begin() + Layout::idx(n,0), Layout::line_length(n));
+    }
+
+    [[nodiscard]] EvenOddSpan<const T> operator[](std::size_t n) const noexcept
+    {
+        return EvenOddSpan(m_span.begin() + Layout::idx(n,0), Layout::line_length(n));
+    }
+
+    [[nodiscard]] EvenOddSpan<T> operator[](std::size_t n) noexcept
+    {
+        return EvenOddSpan(m_span.begin() + Layout::idx(n,0), Layout::line_length(n));
+    }
 
 private:
     std::span<T> m_span;
@@ -131,7 +88,7 @@ template <typename T>
 class RadialZernikeVecSpan
 {
 public:
-    using Layout = RadialZernikeLayout;
+    using Layout = EvenDiagonalTriangleLayout;
 
     RadialZernikeVecSpan(
         std::span<T> buffer, std::size_t idx, std::size_t lmax,
@@ -240,7 +197,7 @@ public:
         {
             for (std::size_t l = n & 1; l <= n - 4; l += 2)
             {
-                const std::size_t ind = RadialZernikeLayout::idx(n,l);
+                const std::size_t ind = EvenDiagonalTriangleLayout::idx(n,l);
                 zernike(n, l) = (m_k2[ind] + m_k1[ind]*r2)*zernike(n - 2, l) + m_k3[ind]*zernike(n - 4, l);
 
                 if constexpr (NORM == ZernikeNorm::NORMED)
@@ -339,7 +296,7 @@ public:
         {
             for (std::size_t l = n & 1; l <= n - 4; l += 2)
             {
-                const std::size_t ind = RadialZernikeLayout::idx(n,l);
+                const std::size_t ind = EvenDiagonalTriangleLayout::idx(n,l);
                 auto z_nl = zernike(n, l);
                 auto z_nm2l = zernike(n - 2, l);
                 auto z_nm4l = zernike(n - 4, l);
@@ -396,30 +353,7 @@ class ZernikeExpansionSpan;
 
 template <typename T>
     requires std::same_as<std::remove_const_t<T>, std::array<double, 2>>
-class ZernikeExpansionLMSpan
-{
-public:
-    using element_type = std::remove_cv_t<T>;
-    using value_type = std::remove_cv_t<T>;
-    using size_type = std::size_t;
-    using Layout = ZernikeLMLayout;
-
-    ZernikeExpansionLMSpan(ZernikeExpansionSpan<T> buffer, std::size_t offset, std::size_t n):
-        m_span(buffer.begin() + offset, Layout::size(n)), m_n(n) {}
-    
-    [[nodiscard]] T operator()(std::size_t l, std::size_t m) const noexcept
-    {
-        return m_span[Layout::idx(l,m)];
-    }
-    T& operator()(std::size_t l, std::size_t m) noexcept
-    {
-        return m_span[Layout::idx(l,m)];
-    }
-
-private:
-    std::span<T> m_span;
-    std::size_t m_n;
-};
+using ZernikeExpansionLMSpan = TriangleSpan<T, EvenPrimaryTriangleLayout>;
 
 /*
 A non-owning view of a function expansion in the basis of real Zernike functions.
@@ -432,7 +366,7 @@ public:
     using element_type = std::remove_cv_t<T>;
     using value_type = std::remove_cv_t<T>;
     using size_type = std::size_t;
-    using Layout = ZernikeLayout;
+    using Layout = EvenSemiDiagonalTetrahedralLayout;
 
     static constexpr std::size_t size(std::size_t lmax) noexcept
     {
@@ -492,7 +426,7 @@ public:
     using value_type = std::array<double, 2>;
     using size_type = std::size_t;
     using Element = std::array<double, 2>;
-    using Layout = ZernikeLayout;
+    using Layout = EvenSemiDiagonalTetrahedralLayout;
     using View = ZernikeExpansionSpan<Element>;
     using ConstView = ZernikeExpansionSpan<const Element>;
 
