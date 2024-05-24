@@ -395,14 +395,15 @@ public:
     {
         return m_span[Layout::idx(n,l,m)];
     }
+    
     T& operator()(std::size_t n, std::size_t l, std::size_t m) noexcept
     {
         return m_span[Layout::idx(n,l,m)];
     }
 
-    [[nodiscard]] T operator[](std::size_t idx) const noexcept
+    [[nodiscard]] ZernikeExpansionLMSpan<const T> operator()(std::size_t n) const noexcept
     {
-        return m_span[idx];
+        return ZernikeExpansionLMSpan<const T>(m_span, Layout::idx(n, 0, 0), n);
     }
 
     [[nodiscard]] ZernikeExpansionLMSpan<T> operator()(std::size_t n) noexcept
@@ -410,7 +411,15 @@ public:
         return ZernikeExpansionLMSpan<T>(m_span, Layout::idx(n, 0, 0), n);
     }
 
-    T& operator[](std::size_t idx) { return m_span[idx]; }
+    [[nodiscard]] ZernikeExpansionLMSpan<const T> operator[](std::size_t n) const noexcept
+    {
+        return ZernikeExpansionLMSpan<const T>(m_span, Layout::idx(n, 0, 0), n);
+    }
+
+    [[nodiscard]] ZernikeExpansionLMSpan<T> operator[](std::size_t n) noexcept
+    {
+        return ZernikeExpansionLMSpan<T>(m_span, Layout::idx(n, 0, 0), n);
+    }
 
 private:
     std::span<T> m_span;
