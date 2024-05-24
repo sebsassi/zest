@@ -358,7 +358,7 @@ bool test_glq_geo_evaluates_Y00()
     zest::st::GLQTransformer<GridLayout> transformer(lmax);
 
     auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.forward_transform(expansion, lmax);
+    auto grid = transformer.backward_transform(expansion, lmax);
 
     constexpr double tol = 1.0e-10;
 
@@ -408,7 +408,7 @@ bool test_glq_geo_evaluates_Y10()
     zest::st::GLQTransformer<GridLayout> transformer(lmax);
 
     auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.forward_transform(expansion, lmax);
+    auto grid = transformer.backward_transform(expansion, lmax);
 
     constexpr double tol = 1.0e-10;
 
@@ -458,7 +458,7 @@ bool test_glq_geo_evaluates_Y21()
     zest::st::GLQTransformer<GridLayout> transformer(lmax);
 
     auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.forward_transform(expansion, lmax);
+    auto grid = transformer.backward_transform(expansion, lmax);
 
     constexpr double tol = 1.0e-10;
 
@@ -508,7 +508,7 @@ bool test_glq_geo_evaluates_Y31()
     zest::st::GLQTransformer<GridLayout> transformer(lmax);
 
     auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.forward_transform(expansion, lmax);
+    auto grid = transformer.backward_transform(expansion, lmax);
 
     constexpr double tol = 1.0e-10;
 
@@ -558,7 +558,7 @@ bool test_glq_geo_evaluates_Y4m3()
     zest::st::GLQTransformer<GridLayout> transformer(lmax);
 
     auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.forward_transform(expansion, lmax);
+    auto grid = transformer.backward_transform(expansion, lmax);
 
     constexpr double tol = 1.0e-10;
 
@@ -608,7 +608,7 @@ bool test_glq_geo_evaluates_Y31_plus_Y4m3()
     zest::st::GLQTransformer<GridLayout> transformer(lmax);
 
     auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.forward_transform(expansion, lmax);
+    auto grid = transformer.backward_transform(expansion, lmax);
 
     constexpr double tol = 1.0e-10;
 
