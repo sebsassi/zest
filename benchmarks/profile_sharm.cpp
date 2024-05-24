@@ -20,7 +20,7 @@ void run_glq_transformer(std::size_t lmax)
     expansion(lmax);
 
     for (std::size_t i = 0; i < 1000000; ++i)
-        transformer.transform(grid, expansion);
+        transformer.forward_transform(grid, expansion);
 }
 
 int main([[maybe_unused]] int argc, char** argv)

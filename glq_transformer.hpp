@@ -370,6 +370,9 @@ public:
     [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
     [[nodiscard]] SHPhase phase() const noexcept { return m_phase; }
 
+    /*
+    Resize transformer for specified expansion order `lmax`
+    */
     void resize(std::size_t lmax)
     {
         if (lmax == this->lmax()) return;
@@ -416,7 +419,14 @@ public:
         m_lmax = lmax;
     }
 
-    void transform(
+    /*
+    Forward transform from Gauss-Legendre quadrature grid to spherical harmonic coefficients.
+
+    Parameters:
+    `values`: values on the spherical quadrature grid.
+    `expansion`: coefficients of the expansion.
+    */
+    void forward_transform(
         SphereGLQGridSpan<const double, GridLayout> values,
         RealSHExpansionSpan<std::array<double, 2>, SHNorm::GEO, SHPhase::NONE> expansion)
     {
@@ -430,7 +440,14 @@ public:
         integrate_latitudinal(expansion, min_lmax);
     }
 
-    void transform(
+    /*
+    Backward transform from spherical harmonic coefficients to Gauss-Legendre quadrature grid.
+
+    Parameters:
+    `values`: values on the spherical quadrature grid.
+    `expansion`: coefficients of the expansion.
+    */
+    void backward_transform(
         RealSHExpansionSpan<const std::array<double, 2>, SHNorm::GEO, SHPhase::NONE> expansion,
         SphereGLQGridSpan<double, GridLayout> values)
     {
@@ -445,23 +462,40 @@ public:
         sum_m(values);
     }
     
+    /*
+    Forward transform from Gauss-Legendre quadrature grid to spherical harmonic coefficients.
+
+    Parameters:
+    `values`: values on the spherical quadrature grid.
+    `lmax: order of expansion.
+    */
     RealSHExpansion<SHNorm::GEO, SHPhase::NONE>
-    transform(
+    forward_transform(
         SphereGLQGridSpan<const double, GridLayout> values, std::size_t lmax)
     {
         RealSHExpansion<SHNorm::GEO, SHPhase::NONE> expansion(lmax);
-        transform(values, expansion);
+        forward_transform(values, expansion);
         return expansion;
     }
 
-    SphereGLQGrid<double, GridLayout> transform(
+    /*
+    Backward transform from spherical harmonic coefficients to Gauss-Legendre quadrature grid.
+
+    Parameters:
+    `values`: values on the spherical quadrature grid.
+    `expansion`: coefficients of the expansion.
+    */
+    SphereGLQGrid<double, GridLayout> backward_transform(
         RealSHExpansionSpan<const std::array<double, 2>, SHNorm::GEO, SHPhase::NONE> expansion, std::size_t lmax)
     {
         SphereGLQGrid<double, GridLayout> grid(lmax);
-        transform(expansion, grid);
+        backward_transform(expansion, grid);
         return grid;
     }
 
+    /*
+    Compute coefficients of the product of two spherical harmonic expansions.
+    */
     void multiply(
         RealSHExpansionSpan<const std::array<double, 2>, SHNorm::GEO, SHPhase::NONE> a,
         RealSHExpansionSpan<const std::array<double, 2>, SHNorm::GEO, SHPhase::NONE> b,
@@ -472,13 +506,13 @@ public:
                     "lmax of out is not equal to the sum of lmax of inputs");
 
         resize(a.lmax() + b.lmax());
-        transform(a, m_grids.first);
-        transform(b, m_grids.second);
+        backward_transform(a, m_grids.first);
+        backward_transform(b, m_grids.second);
 
         for (std::size_t i = 0; i < m_grids.first.values().size(); ++i)
             m_grids.first.values()[i] *= m_grids.second.values()[i];
         
-        transform(m_grids.first, out);
+        forward_transform(m_grids.first, out);
     }
 
 private:

@@ -11,20 +11,32 @@ namespace zest
 namespace gl
 {
 /*
-Gauss-Legendre nodes on the interval [-1,1] are distributed symmetrically about 0, such that for any node `x` the point `-x` is also a node with the same weight. Therefore the nodes and weights only need to be produced for nonnegative `x`, and can then be copied for `-x`.
+Layout of Gauss-Legendre coefficients:
 
-This `enum` can be used to control whether the node and weight vectors should only include the `PACKED` nonnegative nodes, or whether all `UNPACKED` nodes are desired.
+`PACKED`: only include nonnegative nodes.
+`UNPACKED`: include negative nodes.
+
+Notes:
+Gauss-Legendre nodes on the interval [-1,1] are distributed symmetrically about 0, such that for any node `x` the point `-x` is also a node with the same weight. Therefore the nodes and weights only need to be produced for nonnegative `x`. For the negative portion of the interval the nodes are `-x`, and the weights are given by the corresponding weights.
 */
 enum class GLLayout {
     UNPACKED, PACKED
 };
 
+/*
+Style of Gauss-Legendre nodes:
+`ANGLE`: nodes as angles in the interval [0,pi]
+`COS`: nodes as consines of the angles in the interval [-1,1]
+*/
 enum class GLNodeStyle {
     ANGLE, COS
 };
 
 namespace detail {
 
+/*
+Returns `k`th zero of the Bessel function J_0.
+*/
 template <typename FloatType>
 [[nodiscard]] constexpr FloatType bessel_zero(std::size_t k) noexcept
 {
@@ -63,6 +75,9 @@ template <typename FloatType>
     return ak + x*(c[0] + x2*(c[1] + x2*(c[2] + x2*(c[3] + x2*c[4]))));
 }
 
+/*
+Returns the square of the Bessel function J_1 evaluated at the `k`th zero of the Bessel function J_0.
+*/
 template <typename FloatType>
 [[nodiscard]] constexpr FloatType bessel_J2_k(std::size_t k) noexcept
 {
@@ -772,6 +787,17 @@ void gl_nodes_and_weights_table(
 
 }
 
+/*
+Returns Gauss-Legendre nodes for a given number of nodes.
+
+Notes:
+For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
+    I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026)
+
+The nodes returned are accurate to double macine epsilon.
+
+The implementation is based on the reference implementation by Bogaert.
+*/
 template <typename FloatType, GLLayout LAYOUT, GLNodeStyle NODE>
 void gl_nodes(std::vector<FloatType>& nodes, std::size_t num_nodes)
 {
@@ -782,6 +808,17 @@ void gl_nodes(std::vector<FloatType>& nodes, std::size_t num_nodes)
         detail::gl_nodes_bogaert<FloatType, LAYOUT, NODE>(nodes, num_nodes);
 }
 
+/*
+Returns Gauss-Legendre weights for a given number of nodes.
+
+Notes:
+For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
+    I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026)
+
+The weights returned are accurate to double macine epsilon.
+
+The implementation is based on the reference implementation by Bogaert.
+*/
 template <typename FloatType, GLLayout LAYOUT>
 void gl_weights(std::vector<FloatType>& weights, std::size_t num_nodes)
 {
@@ -792,6 +829,17 @@ void gl_weights(std::vector<FloatType>& weights, std::size_t num_nodes)
         detail::gl_weights_bogaert<FloatType, LAYOUT>(weights, num_nodes);
 }
 
+/*
+Returns Gauss-Legendre nodes and weights for a given number of nodes.
+
+Notes:
+For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
+    I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026)
+
+The nodes and weights returned are accurate to double macine epsilon.
+
+The implementation is based on the reference implementation by Bogaert.
+*/
 template <typename FloatType, GLLayout LAYOUT, GLNodeStyle NODE>
 void gl_nodes_and_weights(
     std::vector<FloatType>& nodes, std::vector<FloatType>& weights,

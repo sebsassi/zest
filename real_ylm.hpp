@@ -45,8 +45,64 @@ Non-owfning view of eral spherical harmonics.
 template <real_ylm_packing T, SHNorm NORM, SHPhase PHASE>
 using RealYlmSpan = SHLMSpan<typename T::Element, typename T::Layout, NORM, PHASE>;
 
+template <
+    SHNorm NORM, SHPhase PHASE, real_ylm_packing PackingType>
+    requires std::same_as<typename PackingType::Element, std::array<double, 2>>
+        || std::same_as<typename PackingType::Element, std::complex<double>>
+class RealYlm
+{
+public:
+    using Packing = PackingType;
+    using Layout = typename PackingType::Layout;
+    using Element = typename PackingType::Element;
+    using IndexType = Layout::IndexType;
+    using View = RealYlmSpan<Element, NORM, PHASE>;
+    using ConstView = RealYlmSpan<const Element, NORM, PHASE>;
+
+    RealYlm(): RealYlm(0) {}
+    explicit RealYlm(std::size_t lmax):
+        m_coeffs(Layout::size(lmax)), m_lmax(lmax) {}
+
+    operator View()
+    {
+        return View(m_coeffs, m_lmax);
+    };
+
+    operator ConstView() const
+    {
+        return ConstView(m_coeffs, m_lmax);
+    };
+    
+    [[nodiscard]] Element operator()(IndexType l, IndexType m) const noexcept
+    {
+        return m_coeffs[Layout::idx(l,m)];
+    }
+    Element& operator()(IndexType l, IndexType m)
+    {
+        return m_coeffs[Layout::idx(l,m)];
+    }
+
+    [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
+    [[nodiscard]] std::span<const Element> coeffs() const noexcept
+    {
+        return m_coeffs;
+    }
+
+    std::span<Element> coeffs() noexcept { return m_coeffs; }
+
+    void resize(std::size_t lmax)
+    {
+        m_lmax = lmax;
+        m_coeffs.resize(Layout::size(lmax));
+    }
+
+private:
+    std::vector<Element> m_coeffs;
+    std::size_t m_lmax;
+};
+
 /*
-Class for recursive generation of real spherical harmonics
+Generation of real spherical harmonics based on recursion of associated Legendre polynomials.
 */
 class RealYlmGenerator
 {
@@ -61,6 +117,9 @@ public:
 
     void expand(std::size_t lmax);
 
+    /*
+    Generate spherical harmonics at longitude and latitude values `lon`, `lat`
+    */
     template <real_ylm_packing T, SHNorm NORM, SHPhase PHASE>
     void generate(
         RealYlmSpan<T, NORM, PHASE> ylm, double lon, double lat)

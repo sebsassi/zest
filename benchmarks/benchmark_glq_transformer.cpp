@@ -21,7 +21,7 @@ void benchmark_glq_transformer(
     expansion(lmax);
 
     bench.run(name, [&](){
-        transformer.transform(grid, expansion);
+        transformer.forward_transform(grid, expansion);
     });
 }
 

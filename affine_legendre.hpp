@@ -25,14 +25,26 @@ public:
 
     [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
 
+    /*
+    Expand the number of cached recursion coefficients up to order `lmax`.
+    */
     void expand(std::size_t lmax);
 
+    /*
+    Evaluate recursion of Legendre polynomials with affine transformed argument `y = shift + scale*x`.
+    */
     void evaluate_affine(
         TriangleSpan<double, TriangleLayout> expansion, double shift, double scale);
 
+    /*
+    Evaluate recursion of Legendre polynomials with shifted argument `y = shift + x`.
+    */
     void evaluate_shifted(
         TriangleSpan<double, TriangleLayout> expansion, double shift);
 
+    /*
+    Evaluate recursion of Legendre polynomials with scaled argument `y = scale*x`.
+    */
     void evaluate_scaled(
         TriangleSpan<double, TriangleLayout> expansion, double scale);
 

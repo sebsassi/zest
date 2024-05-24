@@ -6,7 +6,7 @@ MULTIFIT_LIBS = -lblas -llapack
 TOP_DIR = ../..
 
 PLM_RECURSION_SRC = ../plm_recursion.cpp
-LSQ_TRANSFORMER_SRC = ../linearfit/linearfit.cpp $(PLM_RECURSION_SRC) ../lsq_transformer.cpp
+LSQ_TRANSFORMER_SRC = ../linearfit/linearfit.cpp $(PLM_RECURSION_SRC) ../lsq_transformer.cpp ../real_ylm.cpp
 GLQ_TRANSFORMER_SRC = $(PLM_RECURSION_SRC)
 ROTATE_SRC = ../rotate.cpp
 ZERNIKE_SRC = $(PLM_RECURSION_SRC) ../zernike.cpp

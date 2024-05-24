@@ -9,8 +9,8 @@ namespace st
 
 /*
 Switch for whether rotation applies to object or coordinate system
-    OBJECT object is rotated
-    COORDINATE coordinate system is rotated
+    `OBJECT`: object is rotated
+    `COORDINATE`: coordinate system is rotated
 */
 enum class RotationType { OBJECT, COORDINATE };
 

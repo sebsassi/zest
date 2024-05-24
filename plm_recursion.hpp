@@ -29,7 +29,10 @@ template <typename T, SHNorm NORM, SHPhase PHASE>
 using PlmVecSpan = SHLMVecSpan<T, TriangleLayout, NORM, PHASE>;
 
 /*
-Recursion of associated Legendre polynomials described in (Holmes and Featherstone 2002, J. Geodesy, 76, 279-299).
+Recursion of associated Legendre polynomials
+
+Notes:
+The recursion described in (Holmes and Featherstone 2002, J. Geodesy, 76, 279-299).
 */
 class PlmRecursion
 {
@@ -39,17 +42,15 @@ public:
 
     [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
 
-    void expand(std::size_t lmax);
-    void expand_vec(std::size_t vec_size);
     /*
-    void plm_schmidt(
-        PlmSpan plm, double z, int csphase, bool complex_norm);
-    
-    void p_legendre_a(
-        PlmSpan plm, double z, int csphase, bool complex_norm);
-    
-    void plm_on(
-        PlmSpan plm, double z, int csphase, bool complex_norm);
+    Expand the number of cached recursion coefficients up to order `lmax`.
+    */
+    void expand(std::size_t lmax);
+
+    void expand_vec(std::size_t vec_size);
+
+    /*
+    Evaluate recursion of associated Legendre polynomials with argument `z`.
     */
     template <SHNorm NORM, SHPhase PHASE>
     void plm_real(PlmSpan<double, NORM, PHASE> plm, double z)
@@ -57,6 +58,9 @@ public:
         return plm_impl(plm, z, std::sqrt(2.0));
     }
 
+    /*
+    Evaluate recursion of associated Legendre polynomials with range of arguments `z`.
+    */
     template <SHNorm NORM, SHPhase PHASE>
     void plm_real(
         PlmVecSpan<double, NORM, PHASE> plm, std::span<const double> z)
@@ -64,12 +68,18 @@ public:
         return plm_impl(plm, z, std::sqrt(2.0));
     }
 
+    /*
+    Evaluate recursion of associated Legendre polynomials with argument `z`.
+    */
     template <SHNorm NORM, SHPhase PHASE>
     void plm_complex(PlmSpan<double, NORM, PHASE> plm, double z)
     {
         return plm_impl(plm, z, 1.0);
     }
 
+    /*
+    Evaluate recursion of associated Legendre polynomials with range of arguments `z`.
+    */
     template <SHNorm NORM, SHPhase PHASE>
     void plm_complex(
         PlmVecSpan<double, NORM, PHASE> plm, std::span<const double> z)

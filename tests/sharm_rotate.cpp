@@ -65,7 +65,7 @@ int main()
     const zest::st::SphereGLQGrid grid = grid_points.generate_values(func, lmax);
 
     zest::st::GLQTransformer<> transformer(lmax);
-    zest::st::RealSHExpansion expansion = transformer.transform(grid, lmax);
+    zest::st::RealSHExpansion expansion = transformer.forward_transform(grid, lmax);
 
     [[maybe_unused]] const std::array<double, 3> euler_angles = {
         0.5*std::numbers::pi, 0.25*std::numbers::pi, 0.0*std::numbers::pi 
