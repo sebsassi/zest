@@ -63,7 +63,7 @@ public:
     Rotation about the Z-axis of a real spherical harmonic expansion
     */
     void polar_rotate(
-        RealSHExpansionSpan<std::array<double, 2>, SHNorm::GEO, SHPhase::NONE> expansion, double angle, RotationType convention);
+        RealSHExpansionSpan<std::array<double, 2>, SHNorm::GEO, SHPhase::NONE> expansion, double angle, RotationType convention = RotationType::OBJECT);
 
     const WignerdCollection& wigner_d_pi2() const { return m_wigner_d_pi2; } 
 

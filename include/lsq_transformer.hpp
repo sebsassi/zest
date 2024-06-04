@@ -1,6 +1,6 @@
 #pragma once
 
-#include "linearfit/linearfit.hpp"
+#include "linearfit.hpp"
 #include "real_sh_expansion.hpp"
 #include "real_ylm.hpp"
 

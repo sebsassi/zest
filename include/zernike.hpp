@@ -480,6 +480,26 @@ public:
         m_coeffs.resize(Layout::size(lmax));
     }
 
+    [[nodiscard]] auto operator()(std::size_t n) const noexcept
+    {
+        return ZernikeExpansionLMSpan<const Element>(m_coeffs, Layout::idx(n, 0, 0), n);
+    }
+
+    [[nodiscard]] auto operator()(std::size_t n) noexcept
+    {
+        return ZernikeExpansionLMSpan<Element>(m_coeffs, Layout::idx(n, 0, 0), n);
+    }
+
+    [[nodiscard]] auto operator[](std::size_t n) const noexcept
+    {
+        return ZernikeExpansionLMSpan<const Element>(m_coeffs, Layout::idx(n, 0, 0), n);
+    }
+
+    [[nodiscard]] auto operator[](std::size_t n) noexcept
+    {
+        return ZernikeExpansionLMSpan<Element>(m_coeffs, Layout::idx(n, 0, 0), n);
+    }
+
 private:
     std::vector<std::array<double, 2>> m_coeffs;
     std::size_t m_lmax;

@@ -51,7 +51,6 @@ Contiguous 2D layout with indexing
 struct TriangleLayout
 {
     using IndexType = std::size_t;
-
     [[nodiscard]] static constexpr
     std::size_t idx(IndexType l, IndexType m) noexcept
     {
@@ -83,6 +82,7 @@ Contiguous 2D layout with indexing
 */
 struct EvenDiagonalTriangleLayout
 {
+    using IndexType = std::size_t;
     static constexpr std::size_t size(std::size_t lmax) noexcept
     {
         // OEIS A002620
@@ -113,6 +113,7 @@ Contiguous 2D layout with indexing
 */
 struct EvenPrimaryTriangleLayout
 {
+    using IndexType = std::size_t;
     static constexpr std::size_t size(std::size_t n) noexcept
     {
         return ((n + 1)*(n + 1)) >> 2;
@@ -143,6 +144,7 @@ Contiguous 3D layout with indexing
 */
 struct EvenSemiDiagonalTetrahedralLayout
 {
+    using IndexType = std::size_t;
     static constexpr std::size_t size(std::size_t lmax) noexcept
     {
         // OEIS A002623

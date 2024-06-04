@@ -77,6 +77,9 @@ public:
     {
         return ConstView(m_coeffs, m_lmax);
     };
+
+    [[nodiscard]] std::span<double> flatten() noexcept { return m_coeffs; }
+    [[nodiscard]] std::span<const double> flatten() const noexcept { return m_coeffs; }
     
     [[nodiscard]] Element operator()(IndexType l, IndexType m) const noexcept
     {

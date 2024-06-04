@@ -147,9 +147,9 @@ public:
     [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
 
     [[nodiscard]] std::span<const element_type>
-    values() const noexcept { return m_values; }
+    flatten() const noexcept { return m_values; }
 
-    std::span<element_type> values() noexcept { return m_values; }
+    std::span<element_type> flatten() noexcept { return m_values; }
 
     [[nodiscard]] element_type
     operator()(std::size_t i, std::size_t j) const noexcept
@@ -193,9 +193,9 @@ public:
     [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
 
     [[nodiscard]] std::span<const element_type>
-    values() const noexcept { return m_values; }
+    flatten() const noexcept { return m_values; }
 
-    std::span<element_type> values() noexcept { return m_values; }
+    std::span<element_type> flatten() noexcept { return m_values; }
 
     operator View()
     {

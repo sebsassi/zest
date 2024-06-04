@@ -6,13 +6,15 @@ MULTIFIT_LIBS = -lblas -llapack
 TOP_DIR = ../..
 
 PLM_RECURSION_SRC = ../plm_recursion.cpp
-LSQ_TRANSFORMER_SRC = ../linearfit/linearfit.cpp $(PLM_RECURSION_SRC) ../lsq_transformer.cpp ../real_ylm.cpp
+LSQ_TRANSFORMER_SRC = ..linearfit.cpp $(PLM_RECURSION_SRC) ../lsq_transformer.cpp ../real_ylm.cpp
 GLQ_TRANSFORMER_SRC = $(PLM_RECURSION_SRC)
 ROTATE_SRC = ../rotate.cpp
 ZERNIKE_SRC = $(PLM_RECURSION_SRC) ../zernike.cpp
 AFFINE_LEGENDRE_SRC = ../affine_legendre.cpp
+LINEAR_MULTIFIT_SRC = ../linearfit.cpp
 
-TESTS = test_gauss_legendre test_plm_recursion test_lsq_transformer test_glq_transformer test_rotate test_zernike test_affine_legendre
+
+TESTS = test_gauss_legendre test_plm_recursion test_lsq_transformer test_glq_transformer test_rotate test_zernike test_affine_legendre test_linear_multifit
 
 tests: $(TESTS)
 
@@ -36,6 +38,9 @@ test_zernike: %: %.cpp
 
 test_affine_legendre: %: %.cpp
 	$(CXX) $(CXXFLAGS) -I$(TOP_DIR) -o $@.test $< $(AFFINE_LEGENDRE_SRC)
+
+test_linear_multifit: %: %.cpp
+	$(CXX) $(CXXFLAGS) -I$(TOP_DIR) -o $@.test $< $(LINEAR_MULTIFIT_SRC)
 
 OTHER = sharm_rotate
 
