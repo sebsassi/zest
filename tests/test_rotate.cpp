@@ -1,8 +1,8 @@
-#include "../plm_recursion.hpp"
-#include "../lsq_transformer.hpp"
-#include "../glq_transformer.hpp"
-#include "../rotate.hpp"
-#include "../uniform_grid_evaluator.hpp"
+#include "plm_recursion.hpp"
+#include "lsq_transformer.hpp"
+#include "glq_transformer.hpp"
+#include "rotate.hpp"
+#include "uniform_grid_evaluator.hpp"
 
 #include <random>
 #include <cmath>

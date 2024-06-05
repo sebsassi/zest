@@ -1,4 +1,4 @@
-#include "../zernike.hpp"
+#include "zernike.hpp"
 
 #include <cassert>
 

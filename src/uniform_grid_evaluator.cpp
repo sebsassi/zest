@@ -90,7 +90,6 @@ std::array<std::vector<double>, 3> UniformGridEvaluator::evaluate(
             = linspace(0.0, std::numbers::pi, num_lat);
     std::vector<double> grid(num_lat*num_lon);
     
-    std::span coeffs = expansion.span();
     std::ranges::fill(m_ffts, std::complex<double>{});
     for (std::size_t i = 0; i < num_lat; ++i)
     {
@@ -103,12 +102,14 @@ std::array<std::vector<double>, 3> UniformGridEvaluator::evaluate(
         m_recursion.plm_real(plm, z);
         for (std::size_t l = 0; l <= expansion.lmax(); ++l)
         {
+            auto plm_l = plm[l];
+            auto exp_l = expansion[l];
             const std::size_t ind = TriangleLayout::idx(l, 0);
-            fft[0] += plm[ind]*std::complex<double>{coeffs[ind][0], -coeffs[ind][1]};
+            fft[0] += plm_l[0]*std::complex<double>{exp_l[0][0], -exp_l[0][1]};
             for (std::size_t m = 1; m <= l; ++m)
             {
                 const std::size_t ind = TriangleLayout::idx(l, m);
-                fft[m] += (0.5*plm[ind])*std::complex<double>{coeffs[ind][0], -coeffs[ind][1]};
+                fft[m] += (0.5*plm_l[m])*std::complex<double>{exp_l[m][0], -exp_l[m][1]};
             }
         }
     }

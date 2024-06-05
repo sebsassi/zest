@@ -1,4 +1,4 @@
-#include "../gauss_legendre.hpp"
+#include "gauss_legendre.hpp"
 
 #include <cstdio>
 #include <cassert>

@@ -1,4 +1,4 @@
-#include "../uniform_grid_evaluator.hpp"
+#include "uniform_grid_evaluator.hpp"
 
 #include <random>
 #include <cmath>

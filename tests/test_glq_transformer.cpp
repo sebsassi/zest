@@ -1,4 +1,4 @@
-#include "../glq_transformer.hpp"
+#include "glq_transformer.hpp"
 
 #include <random>
 #include <cmath>

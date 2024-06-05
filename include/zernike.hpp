@@ -677,6 +677,46 @@ public:
         return grid;
     }
 
+#ifdef ZEST_USE_OMP
+    template <typename FuncType>
+    void generate_values(BallGLQGridSpan<double> grid, FuncType&& f, std::size_t num_threads)
+    {
+        std::size_t nthreads = (num_threads) ?
+                num_threads : std::size_t(omp_get_max_threads());
+        resize(grid.lmax());
+        #pragma omp parallel for num_threads(nthreads)
+        for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
+        {
+            const double r = 0.5*(1.0 + std::cos(m_glq_nodes[i]));
+            for (std::size_t j = 0; j < m_glq_nodes.size(); ++j)
+            {
+                const double colatitude = m_glq_nodes[j];
+                for (std::size_t k = 0; k < m_longitudes.size(); ++k)
+                {
+                    const double lon = m_longitudes[k];
+                    grid(i, j, k) = f(r, lon, colatitude);
+                }
+            }
+        }
+    }
+
+    template <typename FuncType>
+    BallGLQGrid generate_values(FuncType&& f, std::size_t lmax, std::size_t num_threads)
+    {
+        BallGLQGrid grid(lmax);
+        generate_values(grid, f, num_threads);
+        return grid;
+    }
+
+    template <typename FuncType>
+    BallGLQGrid generate_values(FuncType&& f, std::size_t num_threads)
+    {
+        BallGLQGrid grid(m_lmax);
+        generate_values(grid, f, num_threads);
+        return grid;
+    }
+#endif
+
 private:
     std::vector<double> m_longitudes;
     std::vector<double> m_glq_nodes;
@@ -755,6 +795,100 @@ private:
     std::vector<std::ptrdiff_t> m_pocketfft_stride_fft = {0, 0, 0};
     std::array<std::size_t, 3> m_shape;
     std::size_t m_lmax;
+};
+
+/*
+Function concept taking Cartesian coordinates as inputs.
+*/
+template <typename Func>
+concept cartesian_function = requires (Func f, std::array<double, 3> x)
+{
+    { f(x) } -> std::same_as<double>;
+};
+
+/*
+Function concept taking spherical coordinates as inputs.
+*/
+template <typename Func>
+concept spherical_function = requires (Func f, double r, double lon, double colat)
+{
+    { f(r, lon, colat) } -> std::same_as<double>;
+};
+
+/*
+High-level interface for taking Zernike transforms of functions on balls of arbitrary radii.
+*/
+class ZernikeTransformer
+{
+public:
+    ZernikeTransformer(std::size_t lmax);
+
+    void resize(std::size_t lmax);
+
+    template <spherical_function Func>
+    void transform(
+        Func&& f, double radius, ZernikeExpansionSpan<std::array<double, 2>> expansion)
+    {
+        auto f_scaled = [&](double r, double lon, double colat) {
+            return f(r*radius, lon, colat);
+        };
+        resize(expansion.lmax());
+        m_points.generate_values(m_grid, f_scaled);
+        m_transformer.transform(m_grid, expansion);
+    }
+
+    template <spherical_function Func>
+    ZernikeExpansion transform(
+        Func&& f, double radius, std::size_t lmax)
+    {
+        auto f_scaled = [&](double r, double lon, double colat) {
+            return f(r*radius, lon, colat);
+        };
+        resize(lmax);
+        m_points.generate_values(m_grid, f_scaled);
+        return m_transformer.transform(m_grid, lmax);
+    }
+
+    template <cartesian_function Func>
+    void transform(
+        Func&& f, double radius, ZernikeExpansionSpan<std::array<double, 2>> expansion)
+    {
+        auto f_scaled = [&](double r, double lon, double colat) {
+            const double rad = r*radius;
+            const double scolat = std::sin(colat);
+            const std::array<double, 3> x = {
+                rad*scolat*std::cos(lon), rad*scolat*std::sin(lon),
+                rad*std::cos(colat)
+            };
+            return f(x);
+        };
+        resize(expansion.lmax());
+        m_points.generate_values(m_grid, f_scaled);
+        m_transformer.transform(m_grid, expansion);
+    }
+
+    template <cartesian_function Func>
+    ZernikeExpansion transform(
+        Func&& f, double radius, std::size_t lmax)
+    {
+        auto f_scaled = [&](double r, double lon, double colat) {
+            const double rad = r*radius;
+            const double scolat = std::sin(colat);
+            const std::array<double, 3> x = {
+                rad*scolat*std::cos(lon), rad*scolat*std::sin(lon),
+                rad*std::cos(colat)
+            };
+            return f(x);
+        };
+        resize(lmax);
+        m_points.generate_values(m_grid, f_scaled);
+        return m_transformer.transform(m_grid, lmax);
+    }
+
+private:
+    BallGLQGrid m_grid;
+    BallGLQGridPoints m_points;
+    GLQTransformer m_transformer;
 };
 
 }

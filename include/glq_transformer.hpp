@@ -523,7 +523,7 @@ private:
         constexpr double sh_normalization = 1.0/(4.0*std::numbers::pi);
         const double prefactor = sh_normalization*(2.0*std::numbers::pi)/double(values.shape()[lon_axis]);
         pocketfft::r2c(
-            m_pocketfft_shape_grid, m_pocketfft_stride_grid, m_pocketfft_stride_fft, lon_axis, pocketfft::FORWARD, values.values().data(), m_ffts.data(), prefactor);
+            m_pocketfft_shape_grid, m_pocketfft_stride_grid, m_pocketfft_stride_fft, lon_axis, pocketfft::FORWARD, values.flatten().data(), m_ffts.data(), prefactor);
     }
 
     void apply_gl_weights() noexcept
@@ -876,7 +876,7 @@ private:
         constexpr std::size_t lon_axis = GridLayout::lon_axis;
         constexpr double prefactor = 1.0;
         pocketfft::c2r(
-            m_pocketfft_shape_grid, m_pocketfft_stride_fft, m_pocketfft_stride_grid, lon_axis, pocketfft::BACKWARD, m_ffts.data(), values.values().data(), prefactor);
+            m_pocketfft_shape_grid, m_pocketfft_stride_fft, m_pocketfft_stride_grid, lon_axis, pocketfft::BACKWARD, m_ffts.data(), values.flatten().data(), prefactor);
     }
 
     PlmRecursion m_recursion;

@@ -1,4 +1,4 @@
-#include "../linearfit.hpp"
+#include "linearfit.hpp"
 
 #include <cassert>
 #include <cmath>

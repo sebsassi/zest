@@ -7,7 +7,7 @@ project(zest
 add_library(zest 
     src/affine_legendre.cpp src/lsq_transformer.cpp src/plm_recursion.cpp
     src/power_spectra.cpp src/real_ylm.cpp src/rotate.cpp src/zernike.cpp
-    src/linearfit.cpp
+    src/linearfit.cpp src/uniform_grid_evaluator.cpp
 )
 
 target_include_directories(zest
@@ -32,3 +32,8 @@ install(TARGETS zest
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
 )
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    enable_testing()
+    add_subdirectory(tests)
+endif()

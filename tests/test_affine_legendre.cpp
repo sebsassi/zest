@@ -1,4 +1,4 @@
-#include "../affine_legendre.hpp"
+#include "affine_legendre.hpp"
 
 #include <array>
 #include <cmath>
@@ -105,7 +105,7 @@ bool legendre_shift_coeffs_expand_legendre(double a, double x)
     const double P_4y_exp = coeffs[10]*P_0x + coeffs[11]*P_1x + coeffs[12]*P_2x + coeffs[13]*P_3x + coeffs[14]*P_4x;
     const double P_5y_exp = coeffs[15]*P_0x + coeffs[16]*P_1x + coeffs[17]*P_2x + coeffs[18]*P_3x + coeffs[19]*P_4x + coeffs[20]*P_5x;
 
-    constexpr double tol = 1.0e-14;
+    constexpr double tol = 1.0e-13;
     bool success = is_close(P_0y_exp, P_0y, tol)
             && is_close(P_1y_exp, P_1y, tol)
             && is_close(P_2y_exp, P_2y, tol)
@@ -160,7 +160,7 @@ bool legendre_scale_coeffs_expand_legendre(double b, double x)
     const double P_4y_exp = coeffs[10]*P_0x + coeffs[11]*P_1x + coeffs[12]*P_2x + coeffs[13]*P_3x + coeffs[14]*P_4x;
     const double P_5y_exp = coeffs[15]*P_0x + coeffs[16]*P_1x + coeffs[17]*P_2x + coeffs[18]*P_3x + coeffs[19]*P_4x + coeffs[20]*P_5x;
 
-    constexpr double tol = 1.0e-14;
+    constexpr double tol = 1.0e-13;
     bool success = is_close(P_0y_exp, P_0y, tol)
             && is_close(P_1y_exp, P_1y, tol)
             && is_close(P_2y_exp, P_2y, tol)

@@ -1,4 +1,4 @@
-#include "../lsq_transformer.hpp"
+#include "lsq_transformer.hpp"
 
 #include <random>
 #include <cmath>

@@ -564,5 +564,15 @@ std::array<std::vector<double>, 4> UniformGridEvaluator::evaluate(
     return {radii, longitudes, colatitudes, grid};
 }
 
+ZernikeTransformer::ZernikeTransformer(std::size_t lmax):
+    m_grid(lmax), m_points(lmax), m_transformer(lmax) {}
+
+void ZernikeTransformer::resize(std::size_t lmax)
+{
+    m_grid.resize(lmax);
+    m_points.resize(lmax);
+    m_transformer.resize(lmax);
+}
+
 }
 }
