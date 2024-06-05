@@ -57,4 +57,36 @@ std::vector<double> power_spectrum(
 }
 
 }
+
+namespace zt
+{
+
+void power_spectrum(
+    ZernikeExpansionSpan<const std::array<double, 2>> expansion,
+    RadialZernikeSpan<double> out)
+{
+    std::size_t min_lmax = std::min(out.lmax(), expansion.lmax());
+
+    for (std::size_t n = 0; n < min_lmax; ++n)
+    {
+        for (std::size_t l = n & 1; l < n; l += 2)
+        {
+            out(n, l) = expansion(n, l, 0)[0]*expansion(n, l, 0)[0];
+            for (std::size_t m = 1; m <= l; ++m)
+                out(n, l) += expansion(n, l, m)[0]*expansion(n, l, m)[0]
+                        + expansion(n, l, m)[1]*expansion(n, l, m)[1];
+        }
+    }
+}
+
+std::vector<double> power_spectrum(
+    ZernikeExpansionSpan<const std::array<double, 2>> expansion)
+{
+    std::vector<double> res(RadialZernikeLayout::size(expansion.lmax()));
+    power_spectrum(expansion, RadialZernikeSpan<double>(res, expansion.lmax()));
+    return res;
+}
+
+}
+
 }

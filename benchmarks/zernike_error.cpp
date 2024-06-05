@@ -1,4 +1,4 @@
-#include "../zernike.hpp"
+#include "zernike.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -81,7 +81,9 @@ void produce_error(Func&& f, const char* fname, bool do_relative_error)
 
 int main()
 {
-
+    /*
+    anisotropic Gaussian with arbitrary covariance.
+    */
     auto aniso_gaussian = [](double r, double lon, double colat)
     {
         constexpr std::array<std::array<double, 3>, 3> sigma = {
@@ -94,6 +96,9 @@ int main()
         return std::exp(-0.5*quadratic_form(sigma, x));
     };
 
+    /*
+    linear combination of four isotropic Gaussians of different means and widths.
+    */
     auto four_gaussians = [](double r, double lon, double colat)
     {
         constexpr double sqrt_pi = 1.0/std::numbers::inv_sqrtpi;
@@ -130,6 +135,9 @@ int main()
         return res;
     };
 
+    /*
+    linear combination of a centered wide isotropic Gaussian with shifted narrow isotropic Gaussian.
+    */
     auto shm_plus_stream = [](double r, double lon, double colat)
     {
         constexpr double ve = 544.0;
@@ -158,6 +166,9 @@ int main()
         return 0.8*shm_part + 0.2*stream_part;
     };
 
+    /*
+    anisotropic Gaussian.
+    */
     auto shmpp_aniso = [](double r, double lon, double colat)
     {
         constexpr double beta = 0.9;
@@ -174,6 +185,9 @@ int main()
         return std::exp(-quad);
     };
 
+    /*
+    linear combination of an isotropic and an anisotropic Gaussian.
+    */
     auto shmpp = [](double r, double lon, double colat)
     {
         constexpr double eta = 0.3;

@@ -1,6 +1,6 @@
 #include "plm_recursion.hpp"
 #include "lsq_transformer.hpp"
-#include "glq_transformer.hpp"
+#include "sh_glq_transformer.hpp"
 #include "rotate.hpp"
 #include "uniform_grid_evaluator.hpp"
 

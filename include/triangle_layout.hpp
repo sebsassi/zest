@@ -174,7 +174,7 @@ public:
     EvenOddSpan(std::span<T> buffer, std::size_t idx, std::size_t size):
         m_span(buffer.begin() + idx*size, size), 
         m_size(size) {}
-    EvenOddSpan(std::span<T> buffer, std::size_t n):
+    EvenOddSpan(std::span<T> buffer, std::size_t size):
         m_span(buffer.begin(), size), m_size(size) {}
     
     [[nodiscard]] std::size_t size() const noexcept { return m_size; }
@@ -201,6 +201,11 @@ public:
     using element_type = T;
     using value_type = std::remove_cv_t<T>;
     using size_type = std::size_t;
+
+    static constexpr std::size_t size(std::size_t lmax) noexcept
+    {
+        return Layout::size(lmax);
+    }
 
     TriangleSpan(std::span<T> buffer, std::size_t idx, std::size_t lmax):
         m_span(buffer.begin() + idx*Layout::size(lmax), Layout::size(lmax)), 

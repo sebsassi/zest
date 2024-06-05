@@ -1,33 +1,8 @@
-#include "../zernike.hpp"
+#include "zernike.hpp"
 
 #include "nanobench.h"
 
 #include <random>
-
-double quadratic_form(
-    const std::array<std::array<double, 3>, 3>& arr,
-    const std::array<double, 3>& vec)
-{
-    double res = 0.0;
-    for (std::size_t i = 0; i < 3; ++i)
-    {
-        for (std::size_t j = 0; j < 3; ++j)
-            res += vec[i]*arr[i][j]*vec[j];
-    }
-
-    return res;
-}
-
-class ZernikeBench
-{
-public:
-    ZernikeBench();
-
-private:
-    zest::zt::UniformGridEvaluator evaluator;
-    zest::zt::BallGLQGridPoints points;
-    zest::zt::GLQTransformer transformer;
-};
 
 void benchmark_zernike(
     ankerl::nanobench::Bench& bench, const char* name, std::size_t lmax)
@@ -58,12 +33,12 @@ int main()
     ankerl::nanobench::Bench bench{};
     bench.performanceCounters(true);
 
-    std::vector<std::size_t> lmax_values = {
+    std::vector<std::size_t> lmax_vec = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 200, 250, 300, 400
     };
 
     bench.title("zernike::GLQTransformer");
-    for (auto lmax : lmax_values)
+    for (auto lmax : lmax_vec)
     {
         char name[32] = {};
         std::sprintf(name, "%lu", lmax);

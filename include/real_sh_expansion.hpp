@@ -64,6 +64,11 @@ public:
     using View = RealSHExpansionSpan<Element, NORM, PHASE>;
     using ConstView = RealSHExpansionSpan<const Element, NORM, PHASE>;
 
+    static constexpr std::size_t size(std::size_t lmax) noexcept
+    {
+        return Layout::size(lmax);
+    }
+
     RealSHExpansion(): RealSHExpansion(0) {}
     explicit RealSHExpansion(std::size_t lmax):
         m_coeffs(Layout::size(lmax)), m_lmax(lmax) {}
