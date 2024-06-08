@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/benchmark_sh_glq_transformer.bench.dir/benchmark_sh_glq_transformer.cpp.o CMakeFiles/benchmark_sh_glq_transformer.bench.dir/nanobench.cpp.o -o benchmark_sh_glq_transformer.bench  ../libzest.a 

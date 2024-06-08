@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/test_gauss_legendre.test.dir/test_gauss_legendre.cpp.o -o test_gauss_legendre.test  ../libzest.a -llapack -lblas 

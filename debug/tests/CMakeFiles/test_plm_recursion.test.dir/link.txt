@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/test_plm_recursion.test.dir/test_plm_recursion.cpp.o -o test_plm_recursion.test  ../libzest.a -llapack -lblas 
