@@ -47,7 +47,7 @@ GLQTransformer::GLQTransformer(std::size_t lmax):
     m_pocketfft_stride_grid(3), m_pocketfft_stride_fft(3), m_lmax(lmax)
 {
     gl::gl_nodes_and_weights<double, gl::GLLayout::UNPACKED, gl::GLNodeStyle::COS>(
-            m_glq_nodes, m_glq_weights, m_glq_weights.size());
+            m_glq_nodes, m_glq_weights, m_glq_weights.size() & 1);
     
     for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
     {
@@ -83,8 +83,10 @@ void GLQTransformer::resize(std::size_t lmax)
     m_plm_recursion.expand(lmax);
     m_zernike_recursion.expand(lmax);
 
+    m_glq_nodes.resize(lmax + 2);
+    m_glq_weights.resize(lmax + 2);
     gl::gl_nodes_and_weights<double, gl::GLLayout::UNPACKED, gl::GLNodeStyle::COS>(
-            m_glq_nodes, m_glq_weights, m_glq_weights.size());
+            m_glq_nodes, m_glq_weights, m_glq_weights.size() & 1);
     
     m_zernike_grid.resize((lmax + 2)*RadialZernikeLayout::size(lmax));
     for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)

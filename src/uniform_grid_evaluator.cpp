@@ -104,13 +104,9 @@ std::array<std::vector<double>, 3> UniformGridEvaluator::evaluate(
         {
             auto plm_l = plm[l];
             auto exp_l = expansion[l];
-            const std::size_t ind = TriangleLayout::idx(l, 0);
             fft[0] += plm_l[0]*std::complex<double>{exp_l[0][0], -exp_l[0][1]};
             for (std::size_t m = 1; m <= l; ++m)
-            {
-                const std::size_t ind = TriangleLayout::idx(l, m);
                 fft[m] += (0.5*plm_l[m])*std::complex<double>{exp_l[m][0], -exp_l[m][1]};
-            }
         }
     }
 

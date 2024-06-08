@@ -337,7 +337,7 @@ public:
         m_lmax(lmax)
     {
         gl::gl_nodes_and_weights<double, gl::GLLayout::PACKED, gl::GLNodeStyle::COS>(
-                m_glq_nodes, m_glq_weights, GridLayout::lat_size(lmax));
+                m_glq_nodes, m_glq_weights, m_glq_weights.size() & 1);
         m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(lmax));
         
         if constexpr (GridLayout::lon_axis == 1)
@@ -379,8 +379,10 @@ public:
 
         m_recursion.expand(lmax);
 
+        m_glq_nodes.resize(GridLayout::lat_size(lmax));
+        m_glq_weights.resize(GridLayout::lat_size(lmax));
         gl::gl_nodes_and_weights<double, gl::GLLayout::PACKED, gl::GLNodeStyle::COS>(
-                m_glq_nodes, m_glq_weights, lmax + 1);
+                m_glq_nodes, m_glq_weights, m_glq_weights.size() & 1);
         m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(lmax));
         
         m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(lmax));

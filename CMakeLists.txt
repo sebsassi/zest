@@ -4,6 +4,10 @@ project(zest
     LANGUAGES CXX
 )
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
 add_library(zest 
     src/affine_legendre.cpp src/lsq_transformer.cpp src/plm_recursion.cpp
     src/power_spectra.cpp src/real_ylm.cpp src/rotate.cpp src/linearfit.cpp
@@ -22,7 +26,7 @@ target_include_directories(zest
 target_compile_options(zest
     PRIVATE
         $<$<CONFIG:Debug>:-Wall;-Wextra;-Wpedantic;-Wconversion;-Werror;-g;-O0>
-        $<$<CONFIG:Release>:-Wall;-Wextra;-Wpedantic;-Wconversion;-g;-O3>
+        $<$<CONFIG:Release>:-Wall;-Wextra;-Wpedantic;-Wconversion;-g;-O3;-mavx2;-mfma>
 )
 
 target_compile_features(zest PUBLIC cxx_std_20)

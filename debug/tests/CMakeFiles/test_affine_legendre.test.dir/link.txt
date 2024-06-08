@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/test_affine_legendre.test.dir/test_affine_legendre.cpp.o -o test_affine_legendre.test  ../libzest.a -llapack -lblas 

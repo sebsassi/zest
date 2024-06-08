@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <cassert>
+#include <vector>
 
 bool is_close(double x, double y, double abserr)
 {
@@ -19,36 +20,36 @@ bool test_num_nodes_can_be_zero()
 template <std::size_t num_nodes>
 bool test_unpacked_layout_numbers_of_nodes_and_weights_are_same()
 {
-    std::vector<double> nodes{};
-    std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(num_nodes));
+    std::vector<double> nodes(num_nodes);
+    std::vector<double> weights(num_nodes);
+    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
     return nodes.size() == weights.size();
 }
 
 template <std::size_t num_nodes>
 bool test_unpacked_layout_num_nodes_is_correct()
 {
-    std::vector<double> nodes{};
-    std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(num_nodes));
+    std::vector<double> nodes(num_nodes);
+    std::vector<double> weights(num_nodes);
+    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
     return nodes.size() == num_nodes;
 }
 
 template <std::size_t num_nodes>
 bool test_unpacked_layout_first_node_is_negative()
 {
-    std::vector<double> nodes{};
-    std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(num_nodes));
+    std::vector<double> nodes(num_nodes);
+    std::vector<double> weights(num_nodes);
+    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
     return nodes.front() < 0.0;
 }
 
 template <std::size_t num_nodes>
 bool test_unpacked_layout_node_order_is_increasing()
 {
-    std::vector<double> nodes{};
-    std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(num_nodes));
+    std::vector<double> nodes(num_nodes);
+    std::vector<double> weights(num_nodes);
+    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
     for (std::size_t i = 1; i < nodes.size(); ++i)
         if (nodes[i] <= nodes[i - 1]) return false;
     return true;
@@ -58,9 +59,9 @@ template <std::size_t num_nodes>
     requires requires () { num_nodes % 2 == 0; }
 bool test_unpacked_layout_even_middle_nodes_are_negative_and_positive()
 {
-    std::vector<double> nodes{};
-    std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(num_nodes));
+    std::vector<double> nodes(num_nodes);
+    std::vector<double> weights(num_nodes);
+    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
     std::size_t half = nodes.size() >> 1;
     return nodes[half - 1] < 0.0 && 0.0 < nodes[half];
 }
@@ -69,9 +70,9 @@ template <std::size_t num_nodes>
     requires requires () { num_nodes % 2 == 1; }
 bool test_unpacked_layout_odd_middle_node_is_near_zero()
 {
-    std::vector<double> nodes{};
-    std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(num_nodes));
+    std::vector<double> nodes(num_nodes);
+    std::vector<double> weights(num_nodes);
+    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
     std::size_t half = nodes.size() >> 1;
     return is_close(nodes[half], 0.0, 1.0e-15);
 }
@@ -79,27 +80,27 @@ bool test_unpacked_layout_odd_middle_node_is_near_zero()
 template <std::size_t num_nodes>
 bool test_packed_layout_numbers_of_nodes_and_weights_are_same()
 {
-    std::vector<double> nodes{};
-    std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::PACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(num_nodes));
+    std::vector<double> nodes(num_nodes);
+    std::vector<double> weights(num_nodes);
+    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::PACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
     return nodes.size() == weights.size();
 }
 
 template <std::size_t num_nodes>
 bool test_packed_layout_num_nodes_is_correct()
 {
-    std::vector<double> nodes{};
-    std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::PACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(num_nodes));
+    std::vector<double> nodes(num_nodes);
+    std::vector<double> weights(num_nodes);
+    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::PACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
     return nodes.size() == (num_nodes + 1)/2;
 }
 
 template <std::size_t num_nodes>
 bool test_packed_layout_node_order_is_increasing()
 {
-    std::vector<double> nodes{};
-    std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::PACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(num_nodes));
+    std::vector<double> nodes(num_nodes);
+    std::vector<double> weights(num_nodes);
+    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::PACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
     for (std::size_t i = 1; i < nodes.size(); ++i)
         if (nodes[i] <= nodes[i - 1]) return false;
     return true;
@@ -109,9 +110,9 @@ template <std::size_t num_nodes>
     requires requires () { num_nodes % 2 == 0; }
 bool test_packed_layout_even_first_node_is_positive()
 {
-    std::vector<double> nodes{};
-    std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::PACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(num_nodes));
+    std::vector<double> nodes(num_nodes);
+    std::vector<double> weights(num_nodes);
+    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::PACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
     return nodes.front() > 0.0;
 }
 
@@ -119,9 +120,9 @@ template <std::size_t num_nodes>
     requires requires () { num_nodes % 2 == 1; }
 bool test_packed_layout_odd_first_node_is_near_zero()
 {
-    std::vector<double> nodes{};
-    std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::PACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(num_nodes));
+    std::vector<double> nodes(num_nodes);
+    std::vector<double> weights(num_nodes);
+    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::PACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
     return is_close(nodes.front(), 0.0, 1.0e-15);
 }
 
@@ -131,7 +132,9 @@ bool test_unpacked_weights_sum_to_two_for_num_nodes_less_than_71()
     std::vector<double> weights{};
     for (std::size_t num_nodes = 1; num_nodes < 71; ++num_nodes)
     {
-        zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(num_nodes));
+        nodes.resize(num_nodes);
+        weights.resize(num_nodes);
+        zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
         double sum = 0.0;
         for (const auto& weight : weights)
             sum += weight;
@@ -148,7 +151,9 @@ bool test_unpacked_weights_sum_to_two_for_num_nodes_between_71_and_100()
     bool success_status = true;
     for (std::size_t num_nodes = 71; num_nodes < 100; ++num_nodes)
     {
-        zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(num_nodes));
+        nodes.resize(num_nodes);
+        weights.resize(num_nodes);
+        zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
         double sum = 0.0;
         for (const auto& weight : weights)
             sum += weight;
@@ -165,7 +170,7 @@ void compare_nodes_and_weights(std::size_t num_nodes)
 {
     std::vector<double> nodes{};
     std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(num_nodes));
+    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
     for (const auto& node : nodes)
         std::printf("%.15Lf\n", (long double)node);
     std::printf("\n");

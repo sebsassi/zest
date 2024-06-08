@@ -1,7 +1,6 @@
 #pragma once
 
 #include <array>
-#include <vector>
 #include <cmath>
 #include <span>
 #include <numbers>
@@ -272,17 +271,14 @@ gl_weight_bogaert(FloatType vn, FloatType vn_sq, std::size_t k) noexcept
 }
 
 template <typename FloatType, GLLayout LAYOUT, GLNodeStyle NODE>
-void gl_nodes_bogaert(std::vector<FloatType>& nodes, std::size_t num_nodes)
+void gl_nodes_bogaert(std::span<FloatType> nodes, std::size_t parity)
 {
-    const std::size_t m = num_nodes >> 1;
-    const std::size_t parity = num_nodes & 1;
-    const std::size_t num_unique_nodes = m + parity;
-    const FloatType vn = 1.0/(FloatType(num_nodes) + 0.5);
-    const FloatType vn_sq = vn*vn;
-
     if constexpr (LAYOUT == GLLayout::PACKED)
     {
-        nodes.resize(m + parity);
+        const std::size_t num_unique_nodes = nodes.size();
+        const std::size_t num_nodes = 2*num_unique_nodes + 1;
+        const FloatType vn = 1.0/(FloatType(num_nodes) + 0.5);
+        const FloatType vn_sq = vn*vn;
         for (std::size_t k = 1; k <= num_unique_nodes; ++k)
         {
             const auto node = gl_node_bogaert<FloatType, NODE>(vn, vn_sq, k);
@@ -291,7 +287,12 @@ void gl_nodes_bogaert(std::vector<FloatType>& nodes, std::size_t num_nodes)
     }
     else if constexpr (LAYOUT == GLLayout::UNPACKED)
     {
-        nodes.resize(num_nodes);
+        const std::size_t num_nodes = nodes.size();
+        const std::size_t m = num_nodes >> 1;
+        const std::size_t parity = num_nodes & 1;
+        const std::size_t num_unique_nodes = m + parity;
+        const FloatType vn = 1.0/(FloatType(num_nodes) + 0.5);
+        const FloatType vn_sq = vn*vn;
         if (parity)
         {
             const auto node = gl_node_bogaert<FloatType, NODE>(
@@ -335,17 +336,14 @@ void gl_nodes_bogaert(std::vector<FloatType>& nodes, std::size_t num_nodes)
 }
 
 template <typename FloatType, GLLayout LAYOUT>
-void gl_weights_bogaert(std::vector<FloatType>& weights, std::size_t num_nodes)
+void gl_weights_bogaert(std::span<FloatType> weights, std::size_t parity)
 {
-    const std::size_t m = num_nodes >> 1;
-    const std::size_t parity = num_nodes & 1;
-    const std::size_t num_unique_nodes = m + parity;
-    const FloatType vn = 1.0/(FloatType(num_nodes) + 0.5);
-    const FloatType vn_sq = vn*vn;
-
     if constexpr (LAYOUT == GLLayout::PACKED)
     {
-        weights.resize(m + parity);
+        const std::size_t num_unique_nodes = weights.size();
+        const std::size_t num_nodes = 2*num_unique_nodes + 1;
+        const FloatType vn = 1.0/(FloatType(num_nodes) + 0.5);
+        const FloatType vn_sq = vn*vn;
         for (std::size_t k = 1; k <= num_unique_nodes; ++k)
         {
             const auto weight = gl_weight_bogaert(vn, vn_sq, k);
@@ -354,7 +352,12 @@ void gl_weights_bogaert(std::vector<FloatType>& weights, std::size_t num_nodes)
     }
     else if constexpr (LAYOUT == GLLayout::UNPACKED)
     {
-        weights.resize(num_nodes);
+        const std::size_t num_nodes = weights.size();
+        const std::size_t m = num_nodes >> 1;
+        const std::size_t parity = num_nodes & 1;
+        const std::size_t num_unique_nodes = m + parity;
+        const FloatType vn = 1.0/(FloatType(num_nodes) + 0.5);
+        const FloatType vn_sq = vn*vn;
         if (parity)
         {
             const auto weight = gl_weight_bogaert(
@@ -383,19 +386,15 @@ void gl_weights_bogaert(std::vector<FloatType>& weights, std::size_t num_nodes)
 
 template <typename FloatType, GLLayout LAYOUT, GLNodeStyle NODE>
 void gl_nodes_and_weights_bogaert(
-    std::vector<FloatType>& nodes, std::vector<FloatType>& weights,
-    std::size_t num_nodes)
+    std::span<FloatType> nodes, std::span<FloatType> weights,
+    std::size_t parity)
 {
-    const std::size_t m = num_nodes >> 1;
-    const std::size_t parity = num_nodes & 1;
-    const std::size_t num_unique_nodes = m + parity;
-    const FloatType vn = 1.0/(FloatType(num_nodes) + 0.5);
-    const FloatType vn_sq = vn*vn;
-
     if constexpr (LAYOUT == GLLayout::PACKED)
     {
-        nodes.resize(m + parity);
-        weights.resize(m + parity);
+        const std::size_t num_unique_nodes = weights.size();
+        const std::size_t num_nodes = 2*num_unique_nodes + 1;
+        const FloatType vn = 1.0/(FloatType(num_nodes) + 0.5);
+        const FloatType vn_sq = vn*vn;
         for (std::size_t k = 1; k <= num_unique_nodes; ++k)
         {
             const auto& [node, weight]
@@ -406,8 +405,12 @@ void gl_nodes_and_weights_bogaert(
     }
     else if constexpr (LAYOUT == GLLayout::UNPACKED)
     {
-        nodes.resize(num_nodes);
-        weights.resize(num_nodes);
+        const std::size_t num_nodes = weights.size();
+        const std::size_t m = num_nodes >> 1;
+        const std::size_t parity = num_nodes & 1;
+        const std::size_t num_unique_nodes = m + parity;
+        const FloatType vn = 1.0/(FloatType(num_nodes) + 0.5);
+        const FloatType vn_sq = vn*vn;
         if (parity)
         {
             const auto& [node, weight]
@@ -441,7 +444,7 @@ void gl_nodes_and_weights_bogaert(
 }
 
 template <typename FloatType, GLLayout LAYOUT, GLNodeStyle NODE>
-void gl_nodes_table(std::vector<FloatType>& nodes, std::size_t num_nodes)
+void gl_nodes_table(std::span<FloatType> nodes, std::size_t parity)
 {
     // The theta values from the reference implementation for `num_nodes <= 70`.
     constexpr const FloatType nodes_2[1] = {
@@ -592,17 +595,13 @@ void gl_nodes_table(std::vector<FloatType>& nodes, std::size_t num_nodes)
         nullptr, nodes_1, nodes_2, nodes_3, nodes_4, nodes_5, nodes_6, nodes_7, nodes_8, nodes_9, nodes_10, nodes_11, nodes_12, nodes_13, nodes_14, nodes_15, nodes_16, nodes_17, nodes_18, nodes_19, nodes_20, nodes_21, nodes_22, nodes_23, nodes_24, nodes_25, nodes_26, nodes_27, nodes_28, nodes_29, nodes_30, nodes_31, nodes_32, nodes_33, nodes_34, nodes_35, nodes_36, nodes_37, nodes_38, nodes_39, nodes_40, nodes_41, nodes_42, nodes_43, nodes_44, nodes_45, nodes_46, nodes_47, nodes_48, nodes_49, nodes_50, nodes_51, nodes_52, nodes_53, nodes_54, nodes_55, nodes_56, nodes_57, nodes_58, nodes_59, nodes_60, nodes_61, nodes_62, nodes_63, nodes_64, nodes_65, nodes_66, nodes_67, nodes_68, nodes_69, nodes_70
     };
 
-    const std::size_t m = num_nodes >> 1;
-    const std::size_t parity = num_nodes & 1;
-    const std::size_t num_unique_nodes = m + parity;
+    if (nodes.size() == 0) return;
 
-    if (num_nodes == 0) return;
-
-    const FloatType* node_arr = node_arrs[num_nodes];
-    
     if constexpr (LAYOUT == GLLayout::PACKED)
     {
-        nodes.resize(m + parity);
+        const std::size_t num_unique_nodes = nodes.size();
+        const std::size_t num_nodes = 2*num_unique_nodes + parity;
+        const FloatType* node_arr = node_arrs[num_nodes];
         for (std::size_t i = 0; i < num_unique_nodes; ++i)
         {
             if constexpr (NODE == GLNodeStyle::COS)
@@ -614,7 +613,11 @@ void gl_nodes_table(std::vector<FloatType>& nodes, std::size_t num_nodes)
     }
     else if constexpr (LAYOUT == GLLayout::UNPACKED)
     {
-        nodes.resize(num_nodes);
+        const std::size_t num_nodes = nodes.size();
+        const std::size_t m = num_nodes >> 1;
+        const std::size_t parity = num_nodes & 1;
+        const std::size_t num_unique_nodes = m + parity;
+        const FloatType* node_arr = node_arrs[num_nodes];
         if (parity)
         {
             if constexpr (NODE == GLNodeStyle::COS)
@@ -658,7 +661,7 @@ void gl_nodes_table(std::vector<FloatType>& nodes, std::size_t num_nodes)
 }
 
 template <typename FloatType, GLLayout LAYOUT>
-void gl_weights_table(std::vector<FloatType>& weights, std::size_t num_nodes)
+void gl_weights_table(std::span<FloatType> weights, std::size_t parity)
 {
     // The weights listed here have been copied over from the reference 
     // implementation. 
@@ -738,23 +741,23 @@ void gl_weights_table(std::vector<FloatType>& weights, std::size_t num_nodes)
         nullptr, weights_1, weights_2, weights_3, weights_4, weights_5, weights_6, weights_7, weights_8, weights_9, weights_10, weights_11, weights_12, weights_13, weights_14, weights_15, weights_16, weights_17, weights_18, weights_19, weights_20, weights_21, weights_22, weights_23, weights_24, weights_25, weights_26, weights_27, weights_28, weights_29, weights_30, weights_31, weights_32, weights_33, weights_34, weights_35, weights_36, weights_37, weights_38, weights_39, weights_40, weights_41, weights_42, weights_43, weights_44, weights_45, weights_46, weights_47, weights_48, weights_49, weights_50, weights_51, weights_52, weights_53, weights_54, weights_55, weights_56, weights_57, weights_58, weights_59, weights_60, weights_61, weights_62, weights_63, weights_64, weights_65, weights_66, weights_67, weights_68, weights_69, weights_70
     };
 
-    const std::size_t m = num_nodes >> 1;
-    const std::size_t parity = num_nodes & 1;
-    const std::size_t num_unique_nodes = m + parity;
-
-    if (num_nodes == 0) return;
-
-    const FloatType* weight_arr = weight_arrs[num_nodes];
+    if (weights.size == 0) return;
     
     if constexpr (LAYOUT == GLLayout::PACKED)
     {
-        weights.resize(m + parity);
+        const std::size_t num_unique_nodes = weights.size();
+        const std::size_t num_nodes = 2*num_unique_nodes + parity;
+        const FloatType* weight_arr = weight_arrs[num_nodes];
         for (std::size_t i = 0; i < num_unique_nodes; ++i)
             weights[i] = weight_arr[i];
     }
     else if constexpr (LAYOUT == GLLayout::UNPACKED)
     {
-        weights.resize(num_nodes);
+        const std::size_t num_nodes = weights.size();
+        const std::size_t m = num_nodes >> 1;
+        const std::size_t parity = num_nodes & 1;
+        const std::size_t num_unique_nodes = m + parity;
+        const FloatType* weight_arr = weight_arrs[num_nodes];
         if (parity)
         {
             weights[m] = weight_arr[0];
@@ -778,13 +781,22 @@ void gl_weights_table(std::vector<FloatType>& weights, std::size_t num_nodes)
 // Table lookup of nodes and weights where the Bogaert algorithm is inaccurate.
 template <typename FloatType, GLLayout LAYOUT, GLNodeStyle NODE>
 void gl_nodes_and_weights_table(
-    std::vector<FloatType>& nodes, std::vector<FloatType>& weights,
-    std::size_t num_nodes)
+    std::span<FloatType> nodes, std::span<FloatType> weights,
+    std::size_t parity)
 {
-    gl_nodes_table<FloatType, LAYOUT, NODE>(nodes, num_nodes);
-    gl_weights_table<FloatType, LAYOUT>(weights, num_nodes);
+    gl_nodes_table<FloatType, LAYOUT, NODE>(nodes, parity);
+    gl_weights_table<FloatType, LAYOUT>(weights, parity);
 }
 
+}
+
+template <GLLayout LAYOUT>
+std::size_t total_nodes(std::size_t count, std::size_t parity)
+{
+    if constexpr (LAYOUT == GLLayout::PACKED)
+        return 2*count + parity;
+    if constexpr (LAYOUT == GLLayout::UNPACKED)
+        return count;
 }
 
 /*
@@ -799,13 +811,13 @@ The nodes returned are accurate to double macine epsilon.
 The implementation is based on the reference implementation by Bogaert.
 */
 template <typename FloatType, GLLayout LAYOUT, GLNodeStyle NODE>
-void gl_nodes(std::vector<FloatType>& nodes, std::size_t num_nodes)
+void gl_nodes(std::span<FloatType> nodes, std::size_t parity)
 {
-    if (num_nodes == 0) return;
-    else if (num_nodes < 70)
-        detail::gl_nodes_table<FloatType, LAYOUT, NODE>(nodes, num_nodes);
+    if (nodes.size() == 0) return;
+    else if (total_nodes<LAYOUT>(nodes.size(), parity) < 70)
+        detail::gl_nodes_table<FloatType, LAYOUT, NODE>(nodes, parity);
     else
-        detail::gl_nodes_bogaert<FloatType, LAYOUT, NODE>(nodes, num_nodes);
+        detail::gl_nodes_bogaert<FloatType, LAYOUT, NODE>(nodes, parity);
 }
 
 /*
@@ -820,13 +832,13 @@ The weights returned are accurate to double macine epsilon.
 The implementation is based on the reference implementation by Bogaert.
 */
 template <typename FloatType, GLLayout LAYOUT>
-void gl_weights(std::vector<FloatType>& weights, std::size_t num_nodes)
+void gl_weights(std::span<FloatType> weights, std::size_t parity)
 {
-    if (num_nodes == 0) return;
-    else if (num_nodes < 70)
-        detail::gl_weights_table<FloatType, LAYOUT>(weights, num_nodes);
+    if (weights.size() == 0) return;
+    else if (total_nodes<LAYOUT>(weights.size(), parity) < 70)
+        detail::gl_weights_table<FloatType, LAYOUT>(weights, parity);
     else
-        detail::gl_weights_bogaert<FloatType, LAYOUT>(weights, num_nodes);
+        detail::gl_weights_bogaert<FloatType, LAYOUT>(weights, parity);
 }
 
 /*
@@ -842,16 +854,16 @@ The implementation is based on the reference implementation by Bogaert.
 */
 template <typename FloatType, GLLayout LAYOUT, GLNodeStyle NODE>
 void gl_nodes_and_weights(
-    std::vector<FloatType>& nodes, std::vector<FloatType>& weights,
-    std::size_t num_nodes)
+    std::span<FloatType> nodes, std::span<FloatType> weights,
+    std::size_t parity)
 {
-    if (num_nodes == 0) return;
-    else if (num_nodes < 70)
+    if (nodes.size() == 0) return;
+    else if (total_nodes<LAYOUT>(nodes.size(), parity) < 70)
         detail::gl_nodes_and_weights_table<FloatType, LAYOUT, NODE>(
-                nodes, weights, num_nodes);
+                nodes, weights, parity);
     else
         detail::gl_nodes_and_weights_bogaert<FloatType, LAYOUT, NODE>(
-                nodes, weights, num_nodes);
+                nodes, weights, parity);
 }
 
 }

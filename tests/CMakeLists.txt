@@ -1,6 +1,8 @@
 macro(create_test TESTNAME)
     add_executable(${TESTNAME}.test ${TESTNAME}.cpp)
-    target_include_directories(${TESTNAME}.test PRIVATE ${PROJECT_SOURCE_DIR}/include)
+    target_include_directories(${TESTNAME}.test
+        PRIVATE ${PROJECT_SOURCE_DIR}/include
+    )
     target_link_libraries(${TESTNAME}.test zest lapack blas)
     add_test(NAME ${TESTNAME} COMMAND ${TESTNAME}.test)
 endmacro()

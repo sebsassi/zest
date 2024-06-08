@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/benchmark_sh_rotor.bench.dir/benchmark_sh_rotor.cpp.o CMakeFiles/benchmark_sh_rotor.bench.dir/nanobench.cpp.o -o benchmark_sh_rotor.bench  ../libzest.a 
