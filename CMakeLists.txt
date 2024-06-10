@@ -9,7 +9,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 add_library(zest 
-    src/affine_legendre.cpp src/lsq_transformer.cpp src/plm_recursion.cpp
+    src/lsq_transformer.cpp src/plm_recursion.cpp
     src/power_spectra.cpp src/real_ylm.cpp src/rotate.cpp src/linearfit.cpp
     src/uniform_grid_evaluator.cpp src/zernike_glq_transformer.cpp
     src/radial_zernike_recursion.cpp

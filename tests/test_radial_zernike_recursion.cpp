@@ -265,7 +265,7 @@ bool test_radial_zernike_normed_recursion_is_orthonormal()
     const std::size_t glq_order = lmax + 2;
     std::vector<double> glq_nodes(glq_order);
     std::vector<double> glq_weights(glq_order);
-    zest::gl::gl_nodes_and_weights<double, zest::gl::GLLayout::UNPACKED, zest::gl::GLNodeStyle::COS>(
+    zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::COS>(
             glq_nodes, glq_weights, glq_weights.size());
     
     std::vector<double>

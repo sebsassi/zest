@@ -4,6 +4,7 @@
 #include <cmath>
 #include <span>
 #include <numbers>
+#include <ranges>
 
 namespace zest
 {
@@ -22,6 +23,36 @@ enum class GLLayout {
     UNPACKED, PACKED
 };
 
+struct PackedLayout
+{
+    static std::size_t size(std::size_t num_total_nodes)
+    {
+        return (num_total_nodes + 1) >> 1;
+    }
+
+    static std::size_t total_nodes(std::size_t size, std::size_t parity)
+    {
+        return 2*size - parity;
+    }
+};
+
+struct UnpackedLayout
+{
+    static std::size_t size(std::size_t num_total_nodes)
+    {
+        return num_total_nodes;
+    }
+
+    static std::size_t total_nodes(
+        std::size_t size, [[maybe_unused]] std::size_t parity)
+    {
+        return size;
+    }
+};
+
+template <typename T>
+concept gl_layout = std::same_as<T, PackedLayout> || std::same_as<T, UnpackedLayout>;
+
 /*
 Style of Gauss-Legendre nodes:
 `ANGLE`: nodes as angles in the interval [0,pi]
@@ -36,7 +67,7 @@ namespace detail {
 /*
 Returns `k`th zero of the Bessel function J_0.
 */
-template <typename FloatType>
+template <std::floating_point FloatType>
 [[nodiscard]] constexpr FloatType bessel_zero(std::size_t k) noexcept
 {
     constexpr std::size_t BESSEL_LUT_MAX = 20;
@@ -77,7 +108,7 @@ template <typename FloatType>
 /*
 Returns the square of the Bessel function J_1 evaluated at the `k`th zero of the Bessel function J_0.
 */
-template <typename FloatType>
+template <std::floating_point FloatType>
 [[nodiscard]] constexpr FloatType bessel_J2_k(std::size_t k) noexcept
 {
     constexpr std::size_t BESSEL_LUT_MAX = 20;
@@ -115,9 +146,8 @@ template <typename FloatType>
     return (1.0/std::numbers::pi)*x*(2.0 + x2*x2*(c[0] + x2*(c[1] + x2*(c[2] + x2*(c[3] + x2*c[4])))));
 }
 
-template <typename FloatType, GLNodeStyle NODE>
-[[nodiscard]] constexpr FloatType
-gl_node_bogaert(
+template <std::floating_point FloatType, GLNodeStyle NODE>
+[[nodiscard]] constexpr FloatType gl_node_bogaert(
     FloatType vn_sq, FloatType an_k, FloatType inv_sinc_an_k, FloatType vis_sq, FloatType x)
 {
     constexpr std::array<FloatType, 7> c_f1 = {
@@ -159,9 +189,8 @@ gl_node_bogaert(
         return an_k*(1.0 + vn_sq*inv_sinc_an_k*f_sum);
 }
 
-template <typename FloatType>
-[[nodiscard]] constexpr FloatType
-gl_weight_bogaert(
+template <std::floating_point FloatType>
+[[nodiscard]] constexpr FloatType gl_weight_bogaert(
     FloatType vn_sq, FloatType inv_sinc_an_k, FloatType vis_sq, FloatType x, std::size_t k)
 {
     constexpr std::array<FloatType, 10> c_w1 = {
@@ -218,7 +247,7 @@ The implementation here is based on the reference implementation by Bogaert.
 
 Accurate to double machine epsilon for `num_points > 70`
 */
-template <typename FloatType, GLNodeStyle NODE>
+template <std::floating_point FloatType, GLNodeStyle NODE>
 [[nodiscard]] constexpr std::pair<FloatType, FloatType>
 gl_node_weight_bogaert(FloatType vn, FloatType vn_sq, std::size_t k) noexcept
 {
@@ -237,9 +266,9 @@ gl_node_weight_bogaert(FloatType vn, FloatType vn_sq, std::size_t k) noexcept
     };
 }
 
-template <typename FloatType, GLNodeStyle NODE>
-[[nodiscard]] constexpr FloatType
-gl_node_bogaert(FloatType vn, FloatType vn_sq, std::size_t k) noexcept
+template <std::floating_point FloatType, GLNodeStyle NODE>
+[[nodiscard]] constexpr FloatType gl_node_bogaert(
+    FloatType vn, FloatType vn_sq, std::size_t k) noexcept
 {
     const FloatType j0_k = bessel_zero<FloatType>(k);
 
@@ -254,9 +283,9 @@ gl_node_bogaert(FloatType vn, FloatType vn_sq, std::size_t k) noexcept
             vn_sq, an_k, inv_sinc_an_k, vis_sq, x);
 }
 
-template <typename FloatType>
-[[nodiscard]] constexpr FloatType
-gl_weight_bogaert(FloatType vn, FloatType vn_sq, std::size_t k) noexcept
+template <std::floating_point FloatType>
+[[nodiscard]] constexpr FloatType gl_weight_bogaert(
+    FloatType vn, FloatType vn_sq, std::size_t k) noexcept
 {
     const FloatType j0_k = bessel_zero<FloatType>(k);
 
@@ -270,13 +299,16 @@ gl_weight_bogaert(FloatType vn, FloatType vn_sq, std::size_t k) noexcept
     return gl_weight_bogaert(vn_sq, inv_sinc_an_k, vis_sq, x, k);
 }
 
-template <typename FloatType, GLLayout LAYOUT, GLNodeStyle NODE>
-void gl_nodes_bogaert(std::span<FloatType> nodes, std::size_t parity)
+template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>
+    requires std::floating_point<
+        typename std::remove_reference_t<R>::value_type>
+constexpr void gl_nodes_bogaert(R&& nodes, std::size_t parity)
 {
-    if constexpr (LAYOUT == GLLayout::PACKED)
+    using FloatType = std::remove_reference_t<R>::value_type;
+    if constexpr (std::same_as<Layout, PackedLayout>)
     {
-        const std::size_t num_unique_nodes = nodes.size();
-        const std::size_t num_nodes = 2*num_unique_nodes + 1;
+        const std::size_t num_unique_nodes = std::ranges::size(nodes);
+        const std::size_t num_nodes = 2*num_unique_nodes - parity;
         const FloatType vn = 1.0/(FloatType(num_nodes) + 0.5);
         const FloatType vn_sq = vn*vn;
         for (std::size_t k = 1; k <= num_unique_nodes; ++k)
@@ -285,9 +317,9 @@ void gl_nodes_bogaert(std::span<FloatType> nodes, std::size_t parity)
             nodes[num_unique_nodes - k] = node;
         }
     }
-    else if constexpr (LAYOUT == GLLayout::UNPACKED)
+    else if constexpr (std::same_as<Layout, UnpackedLayout>)
     {
-        const std::size_t num_nodes = nodes.size();
+        const std::size_t num_nodes = std::ranges::size(nodes);
         const std::size_t m = num_nodes >> 1;
         const std::size_t parity = num_nodes & 1;
         const std::size_t num_unique_nodes = m + parity;
@@ -335,13 +367,16 @@ void gl_nodes_bogaert(std::span<FloatType> nodes, std::size_t parity)
     }
 }
 
-template <typename FloatType, GLLayout LAYOUT>
-void gl_weights_bogaert(std::span<FloatType> weights, std::size_t parity)
+template <gl_layout Layout, std::ranges::random_access_range R>
+    requires std::floating_point<
+        typename std::remove_reference_t<R>::value_type>
+constexpr void gl_weights_bogaert(R&& weights, std::size_t parity)
 {
-    if constexpr (LAYOUT == GLLayout::PACKED)
+    using FloatType = std::remove_reference_t<R>::value_type;
+    if constexpr (std::same_as<Layout, PackedLayout>)
     {
-        const std::size_t num_unique_nodes = weights.size();
-        const std::size_t num_nodes = 2*num_unique_nodes + 1;
+        const std::size_t num_unique_nodes = std::ranges::size(weights);
+        const std::size_t num_nodes = 2*num_unique_nodes - parity;
         const FloatType vn = 1.0/(FloatType(num_nodes) + 0.5);
         const FloatType vn_sq = vn*vn;
         for (std::size_t k = 1; k <= num_unique_nodes; ++k)
@@ -350,9 +385,9 @@ void gl_weights_bogaert(std::span<FloatType> weights, std::size_t parity)
             weights[num_unique_nodes - k] = weight;
         }
     }
-    else if constexpr (LAYOUT == GLLayout::UNPACKED)
+    else if constexpr (std::same_as<Layout, UnpackedLayout>)
     {
-        const std::size_t num_nodes = weights.size();
+        const std::size_t num_nodes = std::ranges::size(weights);
         const std::size_t m = num_nodes >> 1;
         const std::size_t parity = num_nodes & 1;
         const std::size_t num_unique_nodes = m + parity;
@@ -384,15 +419,17 @@ void gl_weights_bogaert(std::span<FloatType> weights, std::size_t parity)
     }
 }
 
-template <typename FloatType, GLLayout LAYOUT, GLNodeStyle NODE>
-void gl_nodes_and_weights_bogaert(
-    std::span<FloatType> nodes, std::span<FloatType> weights,
-    std::size_t parity)
+template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>
+    requires std::floating_point<
+        typename std::remove_reference_t<R>::value_type>
+constexpr void gl_nodes_and_weights_bogaert(
+    R&& nodes, R&& weights, std::size_t parity)
 {
-    if constexpr (LAYOUT == GLLayout::PACKED)
+    using FloatType = std::remove_reference_t<R>::value_type;
+    if constexpr (std::same_as<Layout, PackedLayout>)
     {
-        const std::size_t num_unique_nodes = weights.size();
-        const std::size_t num_nodes = 2*num_unique_nodes + 1;
+        const std::size_t num_unique_nodes = std::ranges::size(weights);
+        const std::size_t num_nodes = 2*num_unique_nodes - parity;
         const FloatType vn = 1.0/(FloatType(num_nodes) + 0.5);
         const FloatType vn_sq = vn*vn;
         for (std::size_t k = 1; k <= num_unique_nodes; ++k)
@@ -403,9 +440,9 @@ void gl_nodes_and_weights_bogaert(
             weights[num_unique_nodes - k] = weight;
         }
     }
-    else if constexpr (LAYOUT == GLLayout::UNPACKED)
+    else if constexpr (std::same_as<Layout, UnpackedLayout>)
     {
-        const std::size_t num_nodes = weights.size();
+        const std::size_t num_nodes = std::ranges::size(weights);
         const std::size_t m = num_nodes >> 1;
         const std::size_t parity = num_nodes & 1;
         const std::size_t num_unique_nodes = m + parity;
@@ -443,9 +480,12 @@ void gl_nodes_and_weights_bogaert(
     }
 }
 
-template <typename FloatType, GLLayout LAYOUT, GLNodeStyle NODE>
-void gl_nodes_table(std::span<FloatType> nodes, std::size_t parity)
+template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>
+    requires std::floating_point<
+        typename std::remove_reference_t<R>::value_type>
+constexpr void gl_nodes_table(R&& nodes, std::size_t parity)
 {
+    using FloatType = std::remove_reference_t<R>::value_type;
     // The theta values from the reference implementation for `num_nodes <= 70`.
     constexpr const FloatType nodes_2[1] = {
         0.9553166181245092781638573e0};
@@ -595,12 +635,12 @@ void gl_nodes_table(std::span<FloatType> nodes, std::size_t parity)
         nullptr, nodes_1, nodes_2, nodes_3, nodes_4, nodes_5, nodes_6, nodes_7, nodes_8, nodes_9, nodes_10, nodes_11, nodes_12, nodes_13, nodes_14, nodes_15, nodes_16, nodes_17, nodes_18, nodes_19, nodes_20, nodes_21, nodes_22, nodes_23, nodes_24, nodes_25, nodes_26, nodes_27, nodes_28, nodes_29, nodes_30, nodes_31, nodes_32, nodes_33, nodes_34, nodes_35, nodes_36, nodes_37, nodes_38, nodes_39, nodes_40, nodes_41, nodes_42, nodes_43, nodes_44, nodes_45, nodes_46, nodes_47, nodes_48, nodes_49, nodes_50, nodes_51, nodes_52, nodes_53, nodes_54, nodes_55, nodes_56, nodes_57, nodes_58, nodes_59, nodes_60, nodes_61, nodes_62, nodes_63, nodes_64, nodes_65, nodes_66, nodes_67, nodes_68, nodes_69, nodes_70
     };
 
-    if (nodes.size() == 0) return;
+    if (std::ranges::size(nodes) == 0) return;
 
-    if constexpr (LAYOUT == GLLayout::PACKED)
+    if constexpr (std::same_as<Layout, PackedLayout>)
     {
-        const std::size_t num_unique_nodes = nodes.size();
-        const std::size_t num_nodes = 2*num_unique_nodes + parity;
+        const std::size_t num_unique_nodes = std::ranges::size(nodes);
+        const std::size_t num_nodes = 2*num_unique_nodes - parity;
         const FloatType* node_arr = node_arrs[num_nodes];
         for (std::size_t i = 0; i < num_unique_nodes; ++i)
         {
@@ -611,9 +651,9 @@ void gl_nodes_table(std::span<FloatType> nodes, std::size_t parity)
 
         }
     }
-    else if constexpr (LAYOUT == GLLayout::UNPACKED)
+    else if constexpr (std::same_as<Layout, UnpackedLayout>)
     {
-        const std::size_t num_nodes = nodes.size();
+        const std::size_t num_nodes = std::ranges::size(nodes);
         const std::size_t m = num_nodes >> 1;
         const std::size_t parity = num_nodes & 1;
         const std::size_t num_unique_nodes = m + parity;
@@ -660,9 +700,12 @@ void gl_nodes_table(std::span<FloatType> nodes, std::size_t parity)
     }
 }
 
-template <typename FloatType, GLLayout LAYOUT>
-void gl_weights_table(std::span<FloatType> weights, std::size_t parity)
+template <gl_layout Layout, std::ranges::random_access_range R>
+    requires std::floating_point<
+        typename std::remove_reference_t<R>::value_type>
+constexpr void gl_weights_table(R&& weights, std::size_t parity)
 {
+    using FloatType = std::remove_reference_t<R>::value_type;
     // The weights listed here have been copied over from the reference 
     // implementation. 
     constexpr const FloatType weights_2[] = {1.0};
@@ -698,7 +741,7 @@ void gl_weights_table(std::span<FloatType> weights, std::size_t parity)
     constexpr const FloatType weights_62[] = {0.5024800037525628168840300e-1, 0.5012106956904328807480410e-1, 0.4986752859495239424476130e-1, 0.4948801791969929252786578e-1, 0.4898349622051783710485112e-1, 0.4835523796347767283480314e-1, 0.4760483018410123227045008e-1, 0.4673416847841552480220700e-1, 0.4574545221457018077723242e-1, 0.4464117897712441429364478e-1, 0.4342413825804741958006920e-1, 0.4209740441038509664302268e-1, 0.4066432888241744096828524e-1, 0.3912853175196308412331100e-1, 0.3749389258228002998561838e-1, 0.3576454062276814128558760e-1, 0.3394484437941054509111762e-1, 0.3203940058162467810633926e-1, 0.3005302257398987007700934e-1, 0.2799072816331463754123820e-1, 0.2585772695402469802709536e-1, 0.2365940720868279257451652e-1, 0.2140132227766996884117906e-1, 0.1908917665857319873250324e-1, 0.1672881179017731628855027e-1, 0.1432619182380651776740340e-1, 0.1188739011701050194481938e-1, 0.9418579428420387637936636e-2, 0.6926041901830960871704530e-2, 0.4416333456930904813271960e-2, 0.1899205679513690480402948e-2};
     constexpr const FloatType weights_64[] = {0.4869095700913972038336538e-1, 0.4857546744150342693479908e-1, 0.4834476223480295716976954e-1, 0.4799938859645830772812614e-1, 0.4754016571483030866228214e-1, 0.4696818281621001732532634e-1, 0.4628479658131441729595326e-1, 0.4549162792741814447977098e-1, 0.4459055816375656306013478e-1, 0.4358372452932345337682780e-1, 0.4247351512365358900733972e-1, 0.4126256324262352861015628e-1, 0.3995374113272034138665686e-1, 0.3855015317861562912896262e-1, 0.3705512854024004604041492e-1, 0.3547221325688238381069330e-1, 0.3380516183714160939156536e-1, 0.3205792835485155358546770e-1, 0.3023465707240247886797386e-1, 0.2833967261425948322751098e-1, 0.2637746971505465867169136e-1, 0.2435270256871087333817770e-1, 0.2227017380838325415929788e-1, 0.2013482315353020937234076e-1, 0.1795171577569734308504602e-1, 0.1572603047602471932196614e-1, 0.1346304789671864259806029e-1, 0.1116813946013112881859029e-1, 0.8846759826363947723030856e-2, 0.6504457968978362856118112e-2, 0.4147033260562467635287472e-2, 0.1783280721696432947292054e-2};
     constexpr const FloatType weights_66[] = {0.4722748126299855484563332e-1, 0.4712209828764473218544518e-1, 0.4691156748762082774625404e-1, 0.4659635863958410362582412e-1, 0.4617717509791597547166640e-1, 0.4565495222527305612043888e-1, 0.4503085530544150021519278e-1, 0.4430627694315316190460328e-1, 0.4348283395666747864757528e-1, 0.4256236377005571631890662e-1, 0.4154692031324188131773448e-1, 0.4043876943895497912586836e-1, 0.3924038386682833018781280e-1, 0.3795443766594162094913028e-1, 0.3658380028813909441368980e-1, 0.3513153016547255590064132e-1, 0.3360086788611223267034862e-1, 0.3199522896404688727128174e-1, 0.3031819621886851919364104e-1, 0.2857351178293187118282268e-1, 0.2676506875425000190879332e-1, 0.2489690251475737263773110e-1, 0.2297318173532665591809836e-1, 0.2099819909186462577733052e-1, 0.1897636172277132593486659e-1, 0.1691218147224521718035102e-1, 0.1481026500273396017364296e-1, 0.1267530398126168187644599e-1, 0.1051206598770575465737803e-1, 0.8325388765990901416725080e-2, 0.6120192018447936365568516e-2, 0.3901625641744248259228942e-2, 0.1677653744007238599334225e-2};
-    constexpr const FloatType weights_68[] = {0.4584938738725097468656398e-1, 0.4575296541606795051900614e-1, 0.4556032425064828598070770e-1, 0.4527186901844377786941174e-1, 0.4488820634542666782635216e-1, 0.4441014308035275590934876e-1, 0.4383868459795605201060492e-1, 0.4317503268464422322584344e-1, 0.4242058301114249930061428e-1, 0.4157692219740291648457550e-1, 0.4064582447595407614088174e-1, 0.3962924796071230802540652e-1, 0.3852933052910671449325372e-1, 0.3734838532618666771607896e-1, 0.3608889590017987071497568e-1, 0.3475351097975151316679320e-1, 0.3334503890398068790314300e-1, 0.3186644171682106493934736e-1, 0.3032082893855398034157906e-1, 0.2871145102748499071080394e-1, 0.27041std::size_t num_nodes519968587633336129308e-1, 0.2170583961037807980146532e-1, 0.1983083208795549829102926e-1, 0.1791412045792315248940600e-1, 0.1595973590961380007213420e-1, 0.1397178917445765581596455e-1, 0.1195446231976944210322336e-1, 0.9912001251585937209131520e-2, 0.7848711393177167415052160e-2, 0.5768969918729952021468320e-2, 0.3677366595011730633570254e-2, 0.1581140256372912939103728e-2};
+    constexpr const FloatType weights_68[] = {0.4584938738725097468656398e-1,0.4575296541606795051900614e-1,0.4556032425064828598070770e-1,0.4527186901844377786941174e-1,0.4488820634542666782635216e-1,0.4441014308035275590934876e-1,0.4383868459795605201060492e-1,0.4317503268464422322584344e-1,0.4242058301114249930061428e-1,0.4157692219740291648457550e-1,0.4064582447595407614088174e-1,0.3962924796071230802540652e-1,0.3852933052910671449325372e-1,0.3734838532618666771607896e-1,0.3608889590017987071497568e-1,0.3475351097975151316679320e-1,0.3334503890398068790314300e-1,0.3186644171682106493934736e-1,0.3032082893855398034157906e-1,0.2871145102748499071080394e-1,0.2704169254590396155797848e-1,0.2531506504517639832390244e-1,0.2353519968587633336129308e-1,0.2170583961037807980146532e-1,0.1983083208795549829102926e-1,0.1791412045792315248940600e-1,0.1595973590961380007213420e-1,0.1397178917445765581596455e-1,0.1195446231976944210322336e-1,0.9912001251585937209131520e-2,0.7848711393177167415052160e-2,0.5768969918729952021468320e-2,0.3677366595011730633570254e-2,0.1581140256372912939103728e-2};
     constexpr const FloatType weights_70[] = {0.4454941715975466720216750e-1, 0.4446096841724637082355728e-1, 0.4428424653905540677579966e-1, 0.4401960239018345875735580e-1, 0.4366756139720144025254848e-1, 0.4322882250506869978939520e-1, 0.4270425678944977776996576e-1, 0.4209490572728440602098398e-1, 0.4140197912904520863822652e-1, 0.4062685273678961635122600e-1, 0.3977106549277656747784952e-1, 0.3883631648407340397900292e-1, 0.3782446156922281719727230e-1, 0.3673750969367269534804046e-1, 0.3557761890129238053276980e-1, 0.3434709204990653756854510e-1, 0.3304837223937242047087430e-1, 0.3168403796130848173465310e-1, 0.3025679798015423781653688e-1, 0.2876948595580828066131070e-1, 0.2722505481866441715910742e-1, 0.2562657090846848279898494e-1, 0.2397720788910029227868640e-1, 0.2228024045225659583389064e-1, 0.2053903782432645338449270e-1, 0.1875705709313342341545081e-1, 0.1693783637630293253183738e-1, 0.1508498786544312768229492e-1, 0.1320219081467674762507440e-1, 0.1129318464993153764963015e-1, 0.9361762769699026811498692e-2, 0.7411769363190210362109460e-2, 0.5447111874217218312821680e-2, 0.3471894893078143254999524e-2, 0.1492721288844515731042666e-2};
 
     constexpr const FloatType weights_1[] = {2.0000000000000000000000000};
@@ -741,19 +784,19 @@ void gl_weights_table(std::span<FloatType> weights, std::size_t parity)
         nullptr, weights_1, weights_2, weights_3, weights_4, weights_5, weights_6, weights_7, weights_8, weights_9, weights_10, weights_11, weights_12, weights_13, weights_14, weights_15, weights_16, weights_17, weights_18, weights_19, weights_20, weights_21, weights_22, weights_23, weights_24, weights_25, weights_26, weights_27, weights_28, weights_29, weights_30, weights_31, weights_32, weights_33, weights_34, weights_35, weights_36, weights_37, weights_38, weights_39, weights_40, weights_41, weights_42, weights_43, weights_44, weights_45, weights_46, weights_47, weights_48, weights_49, weights_50, weights_51, weights_52, weights_53, weights_54, weights_55, weights_56, weights_57, weights_58, weights_59, weights_60, weights_61, weights_62, weights_63, weights_64, weights_65, weights_66, weights_67, weights_68, weights_69, weights_70
     };
 
-    if (weights.size() == 0) return;
+    if (std::ranges::size(weights) == 0) return;
     
-    if constexpr (LAYOUT == GLLayout::PACKED)
+    if constexpr (std::same_as<Layout, PackedLayout>)
     {
-        const std::size_t num_unique_nodes = weights.size();
-        const std::size_t num_nodes = 2*num_unique_nodes + parity;
+        const std::size_t num_unique_nodes = std::ranges::size(weights);
+        const std::size_t num_nodes = 2*num_unique_nodes - parity;
         const FloatType* weight_arr = weight_arrs[num_nodes];
         for (std::size_t i = 0; i < num_unique_nodes; ++i)
             weights[i] = weight_arr[i];
     }
-    else if constexpr (LAYOUT == GLLayout::UNPACKED)
+    else if constexpr (std::same_as<Layout, UnpackedLayout>)
     {
-        const std::size_t num_nodes = weights.size();
+        const std::size_t num_nodes = std::ranges::size(weights);
         const std::size_t m = num_nodes >> 1;
         const std::size_t parity = num_nodes & 1;
         const std::size_t num_unique_nodes = m + parity;
@@ -779,24 +822,16 @@ void gl_weights_table(std::span<FloatType> weights, std::size_t parity)
 }
 
 // Table lookup of nodes and weights where the Bogaert algorithm is inaccurate.
-template <typename FloatType, GLLayout LAYOUT, GLNodeStyle NODE>
-void gl_nodes_and_weights_table(
-    std::span<FloatType> nodes, std::span<FloatType> weights,
-    std::size_t parity)
+template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>
+    requires std::floating_point<
+        typename std::remove_reference_t<R>::value_type>
+constexpr void gl_nodes_and_weights_table(
+    R&& nodes, R&& weights, std::size_t parity)
 {
-    gl_nodes_table<FloatType, LAYOUT, NODE>(nodes, parity);
-    gl_weights_table<FloatType, LAYOUT>(weights, parity);
+    gl_nodes_table<Layout, NODE>(std::forward<R>(nodes), parity);
+    gl_weights_table<Layout>(std::forward<R>(weights), parity);
 }
 
-}
-
-template <GLLayout LAYOUT>
-std::size_t total_nodes(std::size_t count, std::size_t parity)
-{
-    if constexpr (LAYOUT == GLLayout::PACKED)
-        return 2*count + parity;
-    if constexpr (LAYOUT == GLLayout::UNPACKED)
-        return count;
 }
 
 /*
@@ -810,14 +845,15 @@ The nodes returned are accurate to double macine epsilon.
 
 The implementation is based on the reference implementation by Bogaert.
 */
-template <typename FloatType, GLLayout LAYOUT, GLNodeStyle NODE>
-void gl_nodes(std::span<FloatType> nodes, std::size_t parity)
+template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>requires std::floating_point<
+        typename std::remove_reference_t<R>::value_type>
+constexpr void gl_nodes(R&& nodes, std::size_t parity)
 {
     if (nodes.size() == 0) return;
-    else if (total_nodes<LAYOUT>(nodes.size(), parity) < 70)
-        detail::gl_nodes_table<FloatType, LAYOUT, NODE>(nodes, parity);
+    else if (Layout::total_nodes(nodes.size(), parity) < 70)
+        detail::gl_nodes_table<Layout, NODE>(std::forward<R>(nodes), parity);
     else
-        detail::gl_nodes_bogaert<FloatType, LAYOUT, NODE>(nodes, parity);
+        detail::gl_nodes_bogaert<Layout, NODE>(std::forward<R>(nodes), parity);
 }
 
 /*
@@ -831,14 +867,16 @@ The weights returned are accurate to double macine epsilon.
 
 The implementation is based on the reference implementation by Bogaert.
 */
-template <typename FloatType, GLLayout LAYOUT>
-void gl_weights(std::span<FloatType> weights, std::size_t parity)
+template <gl_layout Layout, std::ranges::random_access_range R>
+    requires std::floating_point<
+        typename std::remove_reference_t<R>::value_type>
+constexpr void gl_weights(R&& weights, std::size_t parity)
 {
     if (weights.size() == 0) return;
-    else if (total_nodes<LAYOUT>(weights.size(), parity) < 70)
-        detail::gl_weights_table<FloatType, LAYOUT>(weights, parity);
+    else if (Layout::total_nodes(weights.size(), parity) < 70)
+        detail::gl_weights_table<Layout>(std::forward<R>(weights), parity);
     else
-        detail::gl_weights_bogaert<FloatType, LAYOUT>(weights, parity);
+        detail::gl_weights_bogaert<Layout>(std::forward<R>(weights), parity);
 }
 
 /*
@@ -852,18 +890,20 @@ The nodes and weights returned are accurate to double macine epsilon.
 
 The implementation is based on the reference implementation by Bogaert.
 */
-template <typename FloatType, GLLayout LAYOUT, GLNodeStyle NODE>
-void gl_nodes_and_weights(
-    std::span<FloatType> nodes, std::span<FloatType> weights,
+template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>
+    requires std::floating_point<
+        typename std::remove_reference_t<R>::value_type>
+constexpr void gl_nodes_and_weights(
+    R&& nodes, R&& weights,
     std::size_t parity)
 {
     if (nodes.size() == 0) return;
-    else if (total_nodes<LAYOUT>(nodes.size(), parity) < 70)
-        detail::gl_nodes_and_weights_table<FloatType, LAYOUT, NODE>(
-                nodes, weights, parity);
+    else if (Layout::total_nodes(nodes.size(), parity) < 70)
+        detail::gl_nodes_and_weights_table<Layout, NODE>(
+                std::forward<R>(nodes), std::forward<R>(weights), parity);
     else
-        detail::gl_nodes_and_weights_bogaert<FloatType, LAYOUT, NODE>(
-                nodes, weights, parity);
+        detail::gl_nodes_and_weights_bogaert<Layout, NODE>(
+                std::forward<R>(nodes), std::forward<R>(weights), parity);
 }
 
 }

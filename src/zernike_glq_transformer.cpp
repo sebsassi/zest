@@ -21,7 +21,7 @@ BallGLQGridPoints::BallGLQGridPoints(std::size_t lmax):
     for (std::size_t i = 0; i < m_longitudes.size(); ++i)
         m_longitudes[i] = dlon*double(i);
 
-    gl::gl_nodes<double, gl::GLLayout::UNPACKED, gl::GLNodeStyle::ANGLE>(m_glq_nodes, m_glq_nodes.size());
+    gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::ANGLE>(m_glq_nodes, m_glq_nodes.size());
 }
 
 void BallGLQGridPoints::resize(std::size_t lmax)
@@ -34,7 +34,7 @@ void BallGLQGridPoints::resize(std::size_t lmax)
     for (std::size_t i = 0; i < m_longitudes.size(); ++i)
         m_longitudes[i] = dlon*double(i);
 
-    gl::gl_nodes<double, gl::GLLayout::UNPACKED, gl::GLNodeStyle::ANGLE>(m_glq_nodes, m_glq_nodes.size());
+    gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::ANGLE>(m_glq_nodes, m_glq_nodes.size());
 }
 
 GLQTransformer::GLQTransformer(std::size_t lmax):
@@ -46,7 +46,7 @@ GLQTransformer::GLQTransformer(std::size_t lmax):
     m_ffts((lmax + 2)*(lmax + 2)*(lmax + 1)), m_pocketfft_shape_grid(3),
     m_pocketfft_stride_grid(3), m_pocketfft_stride_fft(3), m_lmax(lmax)
 {
-    gl::gl_nodes_and_weights<double, gl::GLLayout::UNPACKED, gl::GLNodeStyle::COS>(
+    gl::gl_nodes_and_weights<gl::UnpackedLayout, gl::GLNodeStyle::COS>(
             m_glq_nodes, m_glq_weights, m_glq_weights.size() & 1);
     
     for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
@@ -85,7 +85,7 @@ void GLQTransformer::resize(std::size_t lmax)
 
     m_glq_nodes.resize(lmax + 2);
     m_glq_weights.resize(lmax + 2);
-    gl::gl_nodes_and_weights<double, gl::GLLayout::UNPACKED, gl::GLNodeStyle::COS>(
+    gl::gl_nodes_and_weights<gl::UnpackedLayout, gl::GLNodeStyle::COS>(
             m_glq_nodes, m_glq_weights, m_glq_weights.size() & 1);
     
     m_zernike_grid.resize((lmax + 2)*RadialZernikeLayout::size(lmax));

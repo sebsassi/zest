@@ -267,7 +267,7 @@ public:
         if (num_lat != m_glq_nodes.size())
         {
             m_glq_nodes.resize(num_lat);
-            gl::gl_nodes<double, gl::GLLayout::UNPACKED, gl::GLNodeStyle::ANGLE>(m_glq_nodes, m_glq_nodes.size());
+            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::ANGLE>(m_glq_nodes, m_glq_nodes.size() & 1);
         }
     }
 
@@ -328,16 +328,16 @@ public:
     using GridLayout = GridLayoutType;
     GLQTransformer(): GLQTransformer(0) {}
     explicit GLQTransformer(std::size_t lmax):
-        m_recursion(lmax), m_glq_nodes(GridLayout::lat_size(lmax)),
-        m_glq_weights(GridLayout::lat_size(lmax)),
+        m_recursion(lmax), m_glq_nodes(gl::PackedLayout::size(GridLayout::lat_size(lmax))),
+        m_glq_weights(gl::PackedLayout::size(GridLayout::lat_size(lmax))),
         m_plm_grid(GridLayout::lat_size(lmax)*TriangleLayout::size(lmax)),
         m_ffts(GridLayout::lat_size(lmax)*GridLayout::fft_size(lmax)), m_symm_asymm(GridLayout::fft_size(lmax)*((GridLayout::lat_size(lmax) + 1) >> 1)*2),
         m_pocketfft_shape_grid(2), m_pocketfft_stride_grid(2), m_pocketfft_stride_fft(2),
         m_grids{SphereGLQGrid<double, GridLayout>(lmax), SphereGLQGrid<double, GridLayout>(lmax)},
         m_lmax(lmax)
     {
-        gl::gl_nodes_and_weights<double, gl::GLLayout::PACKED, gl::GLNodeStyle::COS>(
-                m_glq_nodes, m_glq_weights, m_glq_weights.size() & 1);
+        gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::COS>(
+                m_glq_nodes, m_glq_weights, GridLayout::lat_size(lmax) & 1);
         m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(lmax));
         
         if constexpr (GridLayout::lon_axis == 1)
@@ -379,10 +379,10 @@ public:
 
         m_recursion.expand(lmax);
 
-        m_glq_nodes.resize(GridLayout::lat_size(lmax));
-        m_glq_weights.resize(GridLayout::lat_size(lmax));
-        gl::gl_nodes_and_weights<double, gl::GLLayout::PACKED, gl::GLNodeStyle::COS>(
-                m_glq_nodes, m_glq_weights, m_glq_weights.size() & 1);
+        m_glq_nodes.resize(gl::PackedLayout::size(GridLayout::lat_size(lmax)));
+        m_glq_weights.resize(gl::PackedLayout::size(GridLayout::lat_size(lmax)));
+        gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::COS>(
+                m_glq_nodes, m_glq_weights, GridLayout::lat_size(lmax) & 1);
         m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(lmax));
         
         m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(lmax));

@@ -20,11 +20,11 @@ double quadratic_form(
 template <typename Func>
 std::array<double, 2> zernike_expansion_error(Func&& function, std::size_t lmax, bool relative_error)
 {
-    constexpr std::array<std::size_t, 3> shape = {30, 30, 401};
+    const std::array<std::size_t, 3> shape = {30, 30, 2*lmax + 1};
 
-    zernike::UniformGridEvaluator evaluator{};
-    zernike::BallGLQGridPoints points(lmax);
-    zernike::GLQTransformer transformer(lmax);
+    zest::zt::UniformGridEvaluator evaluator{};
+    zest::zt::BallGLQGridPoints points(lmax);
+    zest::zt::GLQTransformer transformer(lmax);
 
     auto expansion = transformer.transform(
             points.generate_values(function), lmax);
@@ -63,13 +63,32 @@ std::array<double, 2> zernike_expansion_error(Func&& function, std::size_t lmax,
     return {max_error, rms_error};
 }
 
-template <typename Func>
-void produce_error(Func&& f, const char* fname, bool do_relative_error)
+std::vector<std::size_t> integer_log_range(std::size_t n)
 {
+    std::vector<std::size_t> res = {1};
+    const double factor = std::pow(double(n), 1.0/double(n - 1.0));
+    double term = 1.0;
+
+    while (res.back() < n)
+    {
+        if (std::size_t(term) > res.back())
+            res.push_back(std::size_t(term));
+        term *= factor;
+    }
+    res.back() = n;
+    return res;
+}
+
+template <typename Func>
+void produce_relative_error(Func&& f, std::size_t lmaxmax, const char* fname)
+{
+    std::vector<std::size_t> lmax_range = integer_log_range(lmaxmax);
+    constexpr bool do_relative_error = true;
     std::ofstream output{};
     output.open(fname);
-    for (std::size_t lmax = 0; lmax <= 40; ++lmax)
+    for (auto lmax : lmax_range)
     {
+        std::printf("%s: %lu/%lu\n", fname, lmax, lmaxmax);
         const auto& [max_error, rms_error] = zernike_expansion_error(f, lmax, do_relative_error);
 
         char line[128] = {};
@@ -79,7 +98,26 @@ void produce_error(Func&& f, const char* fname, bool do_relative_error)
     output.close();
 }
 
-int main()
+template <typename Func>
+void produce_absolute_error(Func&& f, std::size_t lmaxmax, const char* fname)
+{
+    std::vector<std::size_t> lmax_range = integer_log_range(lmaxmax);
+    constexpr bool do_relative_error = false;
+    std::ofstream output{};
+    output.open(fname);
+    for (auto lmax : lmax_range)
+    {
+        std::printf("%s: %lu/%lu\n", fname, lmax, lmaxmax);
+        const auto& [max_error, rms_error] = zernike_expansion_error(f, lmax, do_relative_error);
+
+        char line[128] = {};
+        std::sprintf(line, "%lu %.16f %.16f\n", lmax, max_error, rms_error);
+        output << line;
+    }
+    output.close();
+}
+
+int main(int argc, char** argv)
 {
     /*
     anisotropic Gaussian with arbitrary covariance.
@@ -210,12 +248,20 @@ int main()
         return (1.0 - eta)*shm_part + eta*pp_part;
     };
 
-    constexpr bool rel_err = false;
+    std::size_t lmax = 400;
+    if (argc > 1)
+        lmax = std::atoi(argv[1]);
     
-    produce_error(aniso_gaussian, "aniso_gaussian_error.dat", rel_err);
-    produce_error(four_gaussians, "four_gaussians_error.dat", rel_err);
-    produce_error(shm_plus_stream, "shm_plus_stream_error.dat", rel_err);
-    produce_error(shmpp_aniso, "shmpp_aniso_error.dat", rel_err);
-    produce_error(shmpp, "shmpp_error.dat", rel_err);
+    produce_absolute_error(aniso_gaussian, lmax, "aniso_gaussian_abs_err.dat");
+    produce_absolute_error(four_gaussians, lmax, "four_gaussians_abs_err.dat");
+    produce_absolute_error(shm_plus_stream, lmax, "shm_plus_stream_abs_err.dat");
+    produce_absolute_error(shmpp_aniso, lmax, "shmpp_aniso_abs_err.dat");
+    produce_absolute_error(shmpp, lmax, "shmpp_abs_err.dat");
+    
+    produce_relative_error(aniso_gaussian, lmax, "aniso_gaussian_rel_err.dat");
+    produce_relative_error(four_gaussians, lmax, "four_gaussians_rel_err.dat");
+    produce_relative_error(shm_plus_stream, lmax, "shm_plus_stream_rel_err.dat");
+    produce_relative_error(shmpp_aniso, lmax, "shmpp_aniso_rel_err.dat");
+    produce_relative_error(shmpp, lmax, "shmpp_rel_err.dat");
 
 }

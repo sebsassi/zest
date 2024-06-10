@@ -3,11 +3,14 @@ macro(create_test TESTNAME)
     target_include_directories(${TESTNAME}.test
         PRIVATE ${PROJECT_SOURCE_DIR}/include
     )
+    target_compile_options(${TESTNAME}.test
+        PRIVATE
+            $<$<CONFIG:Debug>:-Wall;-Wextra;-Wpedantic;-Wconversion;-Werror;-g;-O0>
+    )
     target_link_libraries(${TESTNAME}.test zest lapack blas)
     add_test(NAME ${TESTNAME} COMMAND ${TESTNAME}.test)
 endmacro()
 
-create_test(test_affine_legendre)
 create_test(test_gauss_legendre)
 create_test(test_sh_glq_transformer)
 create_test(test_lsq_transformer)
