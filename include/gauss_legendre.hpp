@@ -25,12 +25,14 @@ enum class GLLayout {
 
 struct PackedLayout
 {
-    static std::size_t size(std::size_t num_total_nodes)
+    [[nodiscard]] static constexpr std::size_t
+    size(std::size_t num_total_nodes) noexcept
     {
         return (num_total_nodes + 1) >> 1;
     }
 
-    static std::size_t total_nodes(std::size_t size, std::size_t parity)
+    [[nodiscard]] static constexpr std::size_t
+    total_nodes(std::size_t size, std::size_t parity) noexcept
     {
         return 2*size - parity;
     }
@@ -38,13 +40,14 @@ struct PackedLayout
 
 struct UnpackedLayout
 {
-    static std::size_t size(std::size_t num_total_nodes)
+    [[nodiscard]] static constexpr std::size_t
+    size(std::size_t num_total_nodes) noexcept
     {
         return num_total_nodes;
     }
 
-    static std::size_t total_nodes(
-        std::size_t size, [[maybe_unused]] std::size_t parity)
+    [[nodiscard]] static constexpr std::size_t total_nodes(
+        std::size_t size, [[maybe_unused]] std::size_t parity) noexcept
     {
         return size;
     }
@@ -148,7 +151,7 @@ template <std::floating_point FloatType>
 
 template <std::floating_point FloatType, GLNodeStyle NODE>
 [[nodiscard]] constexpr FloatType gl_node_bogaert(
-    FloatType vn_sq, FloatType an_k, FloatType inv_sinc_an_k, FloatType vis_sq, FloatType x)
+    FloatType vn_sq, FloatType an_k, FloatType inv_sinc_an_k, FloatType vis_sq, FloatType x) noexcept
 {
     constexpr std::array<FloatType, 7> c_f1 = {
         -0.416666666666662959639712457549e-1,
@@ -191,7 +194,7 @@ template <std::floating_point FloatType, GLNodeStyle NODE>
 
 template <std::floating_point FloatType>
 [[nodiscard]] constexpr FloatType gl_weight_bogaert(
-    FloatType vn_sq, FloatType inv_sinc_an_k, FloatType vis_sq, FloatType x, std::size_t k)
+    FloatType vn_sq, FloatType inv_sinc_an_k, FloatType vis_sq, FloatType x, std::size_t k) noexcept
 {
     constexpr std::array<FloatType, 10> c_w1 = {
         +0.833333333333333302184063103900e-1,
@@ -302,7 +305,7 @@ template <std::floating_point FloatType>
 template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>
     requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
-constexpr void gl_nodes_bogaert(R&& nodes, std::size_t parity)
+constexpr void gl_nodes_bogaert(R&& nodes, std::size_t parity) noexcept
 {
     using FloatType = std::remove_reference_t<R>::value_type;
     if constexpr (std::same_as<Layout, PackedLayout>)
@@ -370,7 +373,7 @@ constexpr void gl_nodes_bogaert(R&& nodes, std::size_t parity)
 template <gl_layout Layout, std::ranges::random_access_range R>
     requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
-constexpr void gl_weights_bogaert(R&& weights, std::size_t parity)
+constexpr void gl_weights_bogaert(R&& weights, std::size_t parity) noexcept
 {
     using FloatType = std::remove_reference_t<R>::value_type;
     if constexpr (std::same_as<Layout, PackedLayout>)
@@ -423,7 +426,7 @@ template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R
     requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
 constexpr void gl_nodes_and_weights_bogaert(
-    R&& nodes, R&& weights, std::size_t parity)
+    R&& nodes, R&& weights, std::size_t parity) noexcept
 {
     using FloatType = std::remove_reference_t<R>::value_type;
     if constexpr (std::same_as<Layout, PackedLayout>)
@@ -483,7 +486,7 @@ constexpr void gl_nodes_and_weights_bogaert(
 template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>
     requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
-constexpr void gl_nodes_table(R&& nodes, std::size_t parity)
+constexpr void gl_nodes_table(R&& nodes, std::size_t parity) noexcept
 {
     using FloatType = std::remove_reference_t<R>::value_type;
     // The theta values from the reference implementation for `num_nodes <= 70`.
@@ -703,7 +706,7 @@ constexpr void gl_nodes_table(R&& nodes, std::size_t parity)
 template <gl_layout Layout, std::ranges::random_access_range R>
     requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
-constexpr void gl_weights_table(R&& weights, std::size_t parity)
+constexpr void gl_weights_table(R&& weights, std::size_t parity) noexcept
 {
     using FloatType = std::remove_reference_t<R>::value_type;
     // The weights listed here have been copied over from the reference 
@@ -826,7 +829,7 @@ template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R
     requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
 constexpr void gl_nodes_and_weights_table(
-    R&& nodes, R&& weights, std::size_t parity)
+    R&& nodes, R&& weights, std::size_t parity) noexcept
 {
     gl_nodes_table<Layout, NODE>(std::forward<R>(nodes), parity);
     gl_weights_table<Layout>(std::forward<R>(weights), parity);
@@ -847,7 +850,7 @@ The implementation is based on the reference implementation by Bogaert.
 */
 template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
-constexpr void gl_nodes(R&& nodes, std::size_t parity)
+constexpr void gl_nodes(R&& nodes, std::size_t parity) noexcept
 {
     if (nodes.size() == 0) return;
     else if (Layout::total_nodes(nodes.size(), parity) < 70)
@@ -870,7 +873,7 @@ The implementation is based on the reference implementation by Bogaert.
 template <gl_layout Layout, std::ranges::random_access_range R>
     requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
-constexpr void gl_weights(R&& weights, std::size_t parity)
+constexpr void gl_weights(R&& weights, std::size_t parity) noexcept
 {
     if (weights.size() == 0) return;
     else if (Layout::total_nodes(weights.size(), parity) < 70)
@@ -894,8 +897,7 @@ template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R
     requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
 constexpr void gl_nodes_and_weights(
-    R&& nodes, R&& weights,
-    std::size_t parity)
+    R&& nodes, R&& weights, std::size_t parity) noexcept
 {
     if (nodes.size() == 0) return;
     else if (Layout::total_nodes(nodes.size(), parity) < 70)

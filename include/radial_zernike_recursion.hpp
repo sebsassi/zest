@@ -138,7 +138,7 @@ public:
 
         auto z_20 = zernike(2, 0);
         for (std::size_t i = 0; i < zernike.vec_size(); ++i)
-            z_20[i] = (2.5*z_22[i] - 1.5)*r[i];
+            z_20[i] = 2.5*z_22[i] - 1.5;
         if (zernike.lmax() == 2)
         {
             if constexpr (NORM == ZernikeNorm::NORMED)
@@ -162,9 +162,9 @@ public:
         for (std::size_t i = 0; i < zernike.vec_size(); ++i)
             z_31[i] = (3.5*z_22[i] - 2.5)*r[i];
 
-        auto z_33 = zernike(3, 1);
+        auto z_33 = zernike(3, 3);
         for (std::size_t i = 0; i < zernike.vec_size(); ++i)
-            z_31[i] = z_22[i]*r[i];
+            z_33[i] = z_22[i]*r[i];
 
         for (std::size_t n = 4; n <= zernike.lmax(); ++n)
         {
@@ -202,7 +202,7 @@ public:
         {
             for (std::size_t n = zernike.lmax() - 3; n <= zernike.lmax(); ++n)
             {
-                for (std::size_t l = n & 1; l <= n - 4; l += 2)
+                for (std::size_t l = n & 1; l <= n; l += 2)
                 {
                     auto z_nl = zernike(n, l);
                     for (std::size_t i = 0; i < zernike.vec_size(); ++i)

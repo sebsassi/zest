@@ -15,7 +15,7 @@ Pack real spherical harmonics in pairs `(Y(l,m), Y(l,-m))` indexed by `0 <= m <=
 struct PairedRealYlmPacking
 {
     using Layout = TriangleLayout;
-    using Element = std::array<double, 2>;
+    using element_type = std::array<double, 2>;
 };
 
 /*
@@ -24,7 +24,7 @@ Pack real spherical harmonics sequentially indexed by `-l <= m <= l`.
 struct SequentialRealYlmPacking
 {
     using Layout = DualTriangleLayout;
-    using Element = double;
+    using element_type = double;
 };
 
 /*
@@ -43,52 +43,57 @@ concept real_ylm_packing
 Non-owfning view of eral spherical harmonics.
 */
 template <real_ylm_packing T, SHNorm NORM, SHPhase PHASE>
-using RealYlmSpan = SHLMSpan<typename T::Element, typename T::Layout, NORM, PHASE>;
+using RealYlmSpan = SHLMSpan<
+    typename T::element_type, typename T::Layout, NORM, PHASE>;
 
 template <
     SHNorm NORM, SHPhase PHASE, real_ylm_packing PackingType>
-    requires std::same_as<typename PackingType::Element, std::array<double, 2>>
-        || std::same_as<typename PackingType::Element, std::complex<double>>
+    requires std::same_as<
+            typename PackingType::element_type, std::array<double, 2>>
+        || std::same_as<
+            typename PackingType::element_type, std::complex<double>>
 class RealYlm
 {
 public:
     using Packing = PackingType;
     using Layout = typename PackingType::Layout;
-    using Element = typename PackingType::Element;
-    using IndexType = Layout::IndexType;
-    using View = RealYlmSpan<Element, NORM, PHASE>;
-    using ConstView = RealYlmSpan<const Element, NORM, PHASE>;
+    using element_type = typename PackingType::element_type;
+    using index_type = Layout::index_type;
+    using View = RealYlmSpan<element_type, NORM, PHASE>;
+    using ConstView = RealYlmSpan<const element_type, NORM, PHASE>;
 
     RealYlm(): RealYlm(0) {}
     explicit RealYlm(std::size_t lmax):
         m_coeffs(Layout::size(lmax)), m_lmax(lmax) {}
 
-    operator View()
+    [[nodiscard]] operator View()
     {
         return View(m_coeffs, m_lmax);
     };
 
-    operator ConstView() const
+    [[nodiscard]] operator ConstView() const
     {
         return ConstView(m_coeffs, m_lmax);
     };
     
-    [[nodiscard]] Element operator()(IndexType l, IndexType m) const noexcept
+    [[nodiscard]] element_type
+    operator()(index_type l, index_type m) const noexcept
     {
         return m_coeffs[Layout::idx(l,m)];
     }
-    Element& operator()(IndexType l, IndexType m)
+
+    [[nodiscard]] element_type& operator()(index_type l, index_type m)
     {
         return m_coeffs[Layout::idx(l,m)];
     }
 
     [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
-    [[nodiscard]] std::span<const Element> coeffs() const noexcept
+    [[nodiscard]] std::span<const element_type> coeffs() const noexcept
     {
         return m_coeffs;
     }
 
-    std::span<Element> coeffs() noexcept { return m_coeffs; }
+    std::span<element_type> coeffs() noexcept { return m_coeffs; }
 
     void resize(std::size_t lmax)
     {
@@ -97,7 +102,7 @@ public:
     }
 
 private:
-    std::vector<Element> m_coeffs;
+    std::vector<element_type> m_coeffs;
     std::size_t m_lmax;
 };
 
@@ -124,7 +129,7 @@ public:
     void generate(
         RealYlmSpan<T, NORM, PHASE> ylm, double lon, double lat)
     {
-        using IndexType = RealYlmSpan<T, NORM, PHASE>::IndexType;
+        using index_type = RealYlmSpan<T, NORM, PHASE>::index_type;
         expand(ylm.lmax());
 
         const double z = std::sin(lat);
@@ -142,11 +147,11 @@ public:
             const double ass_leg_poly
                     = m_ass_leg_poly[TriangleLayout::idx(l, 0)];
             if constexpr (std::is_same_v<T, SequentialRealYlmPacking>)
-                ylm(IndexType(l), 0) = ass_leg_poly;
+                ylm(index_type(l), 0) = ass_leg_poly;
             else if constexpr (std::is_same_v<T, PairedRealYlmPacking>)
             {
-                ylm(IndexType(l), 0)[0] = ass_leg_poly;
-                ylm(IndexType(l), 0)[1] = 0.0;
+                ylm(index_type(l), 0)[0] = ass_leg_poly;
+                ylm(index_type(l), 0)[1] = 0.0;
             }
             
             for (std::size_t m = 1; m <= l; ++m)

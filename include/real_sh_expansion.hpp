@@ -18,7 +18,19 @@ A non-owning view for storing 2D data related to spherical harmonics
 template <typename ElementType, typename LayoutType, SHNorm NORM, SHPhase PHASE>
 class SHLMSpan: public TriangleSpan<ElementType, LayoutType>
 {
+public:
     using TriangleSpan<ElementType, LayoutType>::TriangleSpan;
+    using TriangleSpan<ElementType, LayoutType>::flatten;
+    using TriangleSpan<ElementType, LayoutType>::lmax;
+
+    static constexpr SHNorm norm = NORM;
+    static constexpr SHPhase phase = PHASE;
+
+    [[nodiscard]] constexpr
+    operator SHLMSpan<const ElementType, LayoutType, NORM, PHASE>()
+    {
+        return SHLMSpan<const ElementType, LayoutType, NORM, PHASE>(flatten(), lmax());
+    }
 };
 
 /*
@@ -27,7 +39,21 @@ A non-owning view for storing 3D data related to spherical harmonics
 template <typename ElementType, typename LayoutType, SHNorm NORM, SHPhase PHASE>
 class SHLMVecSpan: public TriangleVecSpan<ElementType, LayoutType>
 {
+public:
     using TriangleVecSpan<ElementType, LayoutType>::TriangleVecSpan;
+    using TriangleVecSpan<ElementType, LayoutType>::flatten;
+    using TriangleVecSpan<ElementType, LayoutType>::lmax;
+    using TriangleVecSpan<ElementType, LayoutType>::vec_size;
+
+    static constexpr SHNorm norm = NORM;
+    static constexpr SHPhase phase = PHASE;
+
+    [[nodiscard]] constexpr
+    operator SHLMVecSpan<const ElementType, LayoutType, NORM, PHASE>()
+    {
+        return SHLMVecSpan<const ElementType, LayoutType, NORM, PHASE>(
+                flatten(), lmax(), vec_size());
+    }
 };
 
 /*
@@ -59,12 +85,15 @@ class RealSHExpansion
 {
 public:
     using Layout = TriangleLayout;
-    using Element = ElementType;
-    using IndexType = Layout::IndexType;
-    using View = RealSHExpansionSpan<Element, NORM, PHASE>;
-    using ConstView = RealSHExpansionSpan<const Element, NORM, PHASE>;
+    using element_type = ElementType;
+    using IndexType = Layout::index_type;
+    using View = RealSHExpansionSpan<element_type, NORM, PHASE>;
+    using ConstView = RealSHExpansionSpan<const element_type, NORM, PHASE>;
 
-    static constexpr std::size_t size(std::size_t lmax) noexcept
+    static constexpr SHNorm norm = NORM;
+    static constexpr SHPhase phase = PHASE;
+
+    [[nodiscard]] static constexpr std::size_t size(std::size_t lmax) noexcept
     {
         return Layout::size(lmax);
     }
@@ -73,35 +102,40 @@ public:
     explicit RealSHExpansion(std::size_t lmax):
         m_coeffs(Layout::size(lmax)), m_lmax(lmax) {}
 
-    operator View()
+    [[nodiscard]] operator View()
     {
         return View(m_coeffs, m_lmax);
     };
 
-    operator ConstView() const
+    [[nodiscard]] operator ConstView() const
     {
         return ConstView(m_coeffs, m_lmax);
     };
 
-    [[nodiscard]] std::span<double> flatten() noexcept { return m_coeffs; }
-    [[nodiscard]] std::span<const double> flatten() const noexcept { return m_coeffs; }
+    [[nodiscard]] std::span<element_type>
+    flatten() noexcept { return m_coeffs; }
+
+    [[nodiscard]] std::span<const element_type>
+    flatten() const noexcept { return m_coeffs; }
     
-    [[nodiscard]] Element operator()(IndexType l, IndexType m) const noexcept
+    [[nodiscard]] element_type
+    operator()(IndexType l, IndexType m) const noexcept
     {
         return m_coeffs[Layout::idx(l,m)];
     }
-    Element& operator()(IndexType l, IndexType m)
+
+    [[nodiscard]] element_type& operator()(IndexType l, IndexType m)
     {
         return m_coeffs[Layout::idx(l,m)];
     }
 
     [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
-    [[nodiscard]] std::span<const Element> coeffs() const noexcept
+    [[nodiscard]] std::span<const element_type> coeffs() const noexcept
     {
         return m_coeffs;
     }
 
-    std::span<Element> coeffs() noexcept { return m_coeffs; }
+    [[nodiscard]] std::span<element_type> coeffs() noexcept { return m_coeffs; }
 
     void resize(std::size_t lmax)
     {
@@ -110,50 +144,58 @@ public:
     }
 
 private:
-    std::vector<Element> m_coeffs;
+    std::vector<element_type> m_coeffs;
     std::size_t m_lmax;
 };
+
+
+template <typename T>
+concept real_sh_expansion
+    = std::same_as<
+        std::remove_cvref_t<T>,
+        RealSHExpansion<
+            std::remove_cvref_t<T>::norm, std::remove_cvref_t<T>::phase, typename std::remove_cvref_t<T>::element_type>>
+    || std::same_as<
+        std::remove_cvref_t<T>,
+        RealSHExpansionSpan<
+            typename std::remove_cvref_t<T>::element_type, std::remove_cvref_t<T>::norm, std::remove_cvref_t<T>::phase>>;
 
 /*
 Convert real spherical harmonic expansion of a real function to a complex spherical harmonic expansion.
 
 NOTE: this function transforms the data in-place and merely produces a new view over the same data.
 */
-template <
-    SHNorm DEST_NORM, SHPhase DEST_PHASE, SHNorm SRC_NORM, SHPhase SRC_PHASE>
+template <SHNorm DEST_NORM, SHPhase DEST_PHASE, real_sh_expansion ExpansionType>
 RealSHExpansionSpan<std::complex<double>, DEST_NORM, DEST_PHASE>
-to_complex_expansion(
-    RealSHExpansionSpan<std::array<double, 2>, SRC_NORM, SRC_PHASE> expansion)
+to_complex_expansion(ExpansionType&& expansion) noexcept
 {
-    constexpr double shnorm = conversion_const<SRC_NORM, DEST_NORM>();
+    constexpr double shnorm
+        = conversion_const<std::remove_cvref_t<ExpansionType>::norm, DEST_NORM>();
     constexpr double cnorm = 1.0/std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
-    if constexpr (DEST_PHASE == SRC_PHASE)
+    for (std::size_t l = 0; l <= expansion.lmax(); ++l)
     {
-        for (std::size_t l = 0; l <= expansion.lmax(); ++l)
+        std::span<std::array<double, 2>> expansion_l = expansion[l];
+        expansion_l[0][0] *= shnorm;
+        expansion_l[0][1] *= shnorm;
+
+        if constexpr (DEST_PHASE == std::remove_cvref_t<ExpansionType>::phase)
         {
-            expansion(l,0)[0] *= shnorm;
-            expansion(l,0)[1] *= shnorm;
             for (std::size_t m = 1; m <= l; ++m)
             {
-                expansion(l,m)[0] *= norm;
-                expansion(l,m)[1] *= -norm;
+                expansion_l[m][0] *= norm;
+                expansion_l[m][1] *= -norm;
             }
         }
-    }
-    else
-    {
-        for (std::size_t l = 0; l <= expansion.lmax(); ++l)
+        else
         {
-            expansion(l,0)[0] *= shnorm;
-            expansion(l,0)[1] *= shnorm;
             double prefactor = norm;
             for (std::size_t m = 1; m <= l; ++m)
             {
                 prefactor *= -1.0;
-                expansion(l,m)[0] *= prefactor;
-                expansion(l,m)[1] *= -prefactor;
+                expansion_l[m][0] *= prefactor;
+                expansion_l[m][1] *= -prefactor;
             }
         }
     }
@@ -167,44 +209,40 @@ Convert complex spherical harmonic expansion of a real function to a real spheri
 
 NOTE: this function transforms the data in-place and merely produces a new view over the same data.
 */
-template <
-    SHNorm DEST_NORM, SHPhase DEST_PHASE, SHNorm SRC_NORM, SHPhase SRC_PHASE>
+template <SHNorm DEST_NORM, SHPhase DEST_PHASE, real_sh_expansion ExpansionType>
 RealSHExpansionSpan<std::array<double, 2>, DEST_NORM, DEST_PHASE>
-to_real_expansion(
-    RealSHExpansionSpan<std::complex<double>, SRC_NORM, SRC_PHASE> expansion)
+to_real_expansion(ExpansionType&& expansion) noexcept
 {
-    constexpr double shnorm = conversion_const<SRC_NORM, DEST_NORM>();
+    constexpr double shnorm
+        = conversion_const<std::remove_cvref_t<ExpansionType>::norm, DEST_NORM>();
     constexpr double cnorm = std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
     RealSHExpansionSpan<std::array<double, 2>, DEST_NORM, DEST_PHASE> res(
             as_array_span(expansion.flatten()), expansion.lmax());
 
-    if constexpr (DEST_PHASE == SRC_PHASE)
+    for (std::size_t l = 0; l <= expansion.lmax(); ++l)
     {
-        for (std::size_t l = 0; l <= expansion.lmax(); ++l)
+        std::span<std::array<double, 2>> res_l = res[l];
+        res_l[0][0] *= shnorm;
+        res_l[0][1] *= shnorm;
+
+        if constexpr (DEST_PHASE == std::remove_cvref_t<ExpansionType>::phase)
         {
-            res(l,0)[0] *= shnorm;
-            res(l,0)[1] *= shnorm;
             for (std::size_t m = 1; m <= l; ++m)
             {
-                res(l,m)[0] *= norm;
-                res(l,m)[1] *= -norm;
+                res_l[m][0] *= norm;
+                res_l[m][1] *= -norm;
             }
         }
-    }
-    else
-    {
-        for (std::size_t l = 0; l <= expansion.lmax(); ++l)
+        else
         {
-            res(l,0)[0] *= shnorm;
-            res(l,0)[1] *= shnorm;
             double prefactor = norm;
             for (std::size_t m = 1; m <= l; ++m)
             {
                 prefactor *= -1.0;
-                res(l,m)[0] *= prefactor;
-                res(l,m)[1] *= -prefactor;
+                res_l[m][0] *= prefactor;
+                res_l[m][1] *= -prefactor;
             }
         }
     }

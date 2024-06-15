@@ -13,7 +13,8 @@ struct NoAlignment
     static constexpr std::size_t byte_alignment = 1;
     
     template <typename T>
-    static constexpr std::size_t vector_size() { return 1; }
+    [[nodiscard]] static constexpr std::size_t
+    vector_size() noexcept { return 1; }
 };
 
 template <std::size_t BYTE_ALIGNMENT>
@@ -22,7 +23,7 @@ struct VectorAlignment
     static constexpr std::size_t byte_alignment = BYTE_ALIGNMENT;
 
     template <typename T>
-    static constexpr std::size_t vector_size()
+    [[nodiscard]] static constexpr std::size_t vector_size() noexcept
     {
         return std::max(1UL, byte_alignment/sizeof(T));
     }
@@ -37,7 +38,7 @@ using CacheLineAlignment = VectorAlignment<64>;
 Figure out the number of bytes needed to store `n` elements with given byte alignment.
 */
 template<typename T, std::size_t BYTE_ALIGNMENT>
-constexpr std::size_t aligned_size(std::size_t n)
+[[nodiscard]] constexpr std::size_t aligned_size(std::size_t n) noexcept
 {
     if constexpr (BYTE_ALIGNMENT == 1)
         return n*sizeof(T);

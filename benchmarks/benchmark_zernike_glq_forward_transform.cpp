@@ -5,7 +5,7 @@
 #include <random>
 #include <fstream>
 
-void benchmark_zernike(
+void benchmark_zernike_forward_transform(
     ankerl::nanobench::Bench& bench, const char* name, std::size_t lmax)
 {
     std::mt19937 gen;
@@ -20,7 +20,7 @@ void benchmark_zernike(
     std::vector<std::array<double, 2>> expansions(zest::zt::ZernikeExpansion::size(lmax));
 
     bench.run(name, [&](){
-        transformer.transform(
+        transformer.forward_transform(
             zest::zt::BallGLQGridSpan<const double>(grids, lmax), 
             zest::zt::ZernikeExpansionSpan<std::array<double, 2>>(expansions, lmax));
     });
@@ -43,7 +43,7 @@ int main()
     {
         char name[32] = {};
         std::sprintf(name, "%lu", lmax);
-        benchmark_zernike(bench, name, lmax);
+        benchmark_zernike_forward_transform(bench, name, lmax);
     }
 
     const char* fname = "zernike_glq_transformer_bench.json";

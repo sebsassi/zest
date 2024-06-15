@@ -274,7 +274,8 @@ bool test_radial_zernike_normed_recursion_is_orthonormal()
     for (std::size_t i = 0; i < glq_nodes.size(); ++i)
     {
         const double r = 0.5*(1.0 + glq_nodes[i]);
-        zest::zt::RadialZernikeSpan<double> zernike(zernike_grid, i, lmax);
+        zest::zt::RadialZernikeSpan<double> zernike(
+                zernike_grid.data() + i*zest::TriangleLayout::size(lmax), lmax);
         recursion.zernike<zest::zt::ZernikeNorm::NORMED>(zernike, r);
     }
 
@@ -285,7 +286,8 @@ bool test_radial_zernike_normed_recursion_is_orthonormal()
     {
         const double r = 0.5*(1.0 + glq_nodes[i]);
         const double weight = 0.5*r*r*glq_weights[i];
-        zest::zt::RadialZernikeSpan<double> zernike(zernike_grid, i, lmax);
+        zest::zt::RadialZernikeSpan<double> zernike(
+                zernike_grid.data() + i*zest::TriangleLayout::size(lmax), lmax);
         for (std::size_t l = 0; l <= lmax; ++l)
         {
             const std::size_t extent = ((lmax - l) >> 1) + 1;
@@ -343,6 +345,106 @@ bool test_radial_zernike_normed_recursion_is_orthonormal()
     return success;
 }
 
+bool test_radial_zernike_unnormed_vec_recursion_correct_for_lmax_0()
+{
+    const std::size_t vec_size = 4;
+    const std::array<double, vec_size> rad = {0.0, 1.0, 0.5, 0.3};
+    std::vector<double> zernike(
+            zest::zt::RadialZernikeLayout::size(0)*vec_size);
+    zest::zt::RadialZernikeRecursion recursion(0);
+
+    recursion.zernike<zest::zt::ZernikeNorm::UNNORMED>(zest::zt::RadialZernikeVecSpan<double>(zernike, 0, vec_size), rad);
+    bool success = is_close(zernike[0], 1.0, 1.0e-10)
+            && is_close(zernike[1], 1.0, 1.0e-10)
+            && is_close(zernike[2], 1.0, 1.0e-10)
+            && is_close(zernike[3], 1.0, 1.0e-10);
+
+    if (!success)
+    {
+        std::printf("R00(%f) %f\n", rad[0], zernike[0]);
+        std::printf("R00(%f) %f\n", rad[1], zernike[1]);
+        std::printf("R00(%f) %f\n", rad[2], zernike[2]);
+        std::printf("R00(%f) %f\n", rad[3], zernike[3]);
+    }
+    
+    return success;
+}
+
+bool test_radial_zernike_unnormed_vec_recursion_generates_correct_up_to_lmax_6(double r)
+{
+    constexpr std::size_t vec_size = 1;
+    constexpr std::size_t lmax = 6;
+    const std::array<double, 1> x = {r};
+
+    const double R00 = 1.0;
+
+    const double R11 = r;
+
+    const double R20 = 2.5*r*r - 1.5;
+    const double R22 = r*r;
+
+    const double R31 = (3.5*r*r - 2.5)*r;
+    const double R33 = r*r*r;
+
+    const double R40 = (7.875*r*r - 8.75)*r*r + 1.875;
+    const double R42 = (4.5*r*r - 3.5)*r*r;
+    const double R44 = r*r*r*r;
+
+    const double R51 = ((12.375*r*r - 15.75)*r*r + 4.375)*r;
+    const double R53 = (5.5*r*r - 4.5)*r*r*r;
+    const double R55 = r*r*r*r*r;
+
+    const double R60 = ((26.8125*r*r - 43.3125)*r*r + 19.6875)*r*r - 2.1875;
+    const double R62 = ((17.875*r*r - 24.75)*r*r + 7.875)*r*r;
+    const double R64 = (6.5*r*r - 5.5)*r*r*r*r;
+    const double R66 = r*r*r*r*r*r;
+
+    std::vector<double> zernike(
+            zest::zt::RadialZernikeLayout::size(lmax)*vec_size);
+    zest::zt::RadialZernikeRecursion recursion(lmax);
+
+    recursion.zernike<zest::zt::ZernikeNorm::UNNORMED>(zest::zt::RadialZernikeVecSpan(std::span(zernike), lmax, vec_size), x);
+    bool success = is_close(zernike[0], R00, 1.0e-10)
+            && is_close(zernike[1], R11, 1.0e-10)
+            && is_close(zernike[2], R20, 1.0e-10)
+            && is_close(zernike[3], R22, 1.0e-10)
+            && is_close(zernike[4], R31, 1.0e-10)
+            && is_close(zernike[5], R33, 1.0e-10)
+            && is_close(zernike[6], R40, 1.0e-10)
+            && is_close(zernike[7], R42, 1.0e-10)
+            && is_close(zernike[8], R44, 1.0e-10)
+            && is_close(zernike[9], R51, 1.0e-10)
+            && is_close(zernike[10], R53, 1.0e-10)
+            && is_close(zernike[11], R55, 1.0e-10)
+            && is_close(zernike[12], R60, 1.0e-10)
+            && is_close(zernike[13], R62, 1.0e-10)
+            && is_close(zernike[14], R64, 1.0e-10)
+            && is_close(zernike[15], R66, 1.0e-10);
+    
+    if (success)
+        return true;
+    else
+    {
+        std::printf("R00 %f %f\n", zernike[0], R00);
+        std::printf("R11 %f %f\n", zernike[1], R11);
+        std::printf("R20 %f %f\n", zernike[2], R20);
+        std::printf("R22 %f %f\n", zernike[3], R22);
+        std::printf("R31 %f %f\n", zernike[4], R31);
+        std::printf("R33 %f %f\n", zernike[5], R33);
+        std::printf("R40 %f %f\n", zernike[6], R40);
+        std::printf("R42 %f %f\n", zernike[7], R42);
+        std::printf("R44 %f %f\n", zernike[8], R44);
+        std::printf("R51 %f %f\n", zernike[9], R51);
+        std::printf("R53 %f %f\n", zernike[10], R53);
+        std::printf("R55 %f %f\n", zernike[11], R55);
+        std::printf("R60 %f %f\n", zernike[12], R60);
+        std::printf("R62 %f %f\n", zernike[13], R62);
+        std::printf("R64 %f %f\n", zernike[14], R64);
+        std::printf("R66 %f %f\n", zernike[15], R66);
+        return false;
+    }
+}
+
 int main()
 {
     assert(test_radial_zernike_layout_size_is_correct(5));
@@ -358,5 +460,10 @@ int main()
     assert(test_radial_zernike_unnormed_recursion_generates_correct_up_to_lmax_6(0.3));
     assert(test_radial_zernike_normed_recursion_generates_correct_up_to_lmax_6(0.3));
 
-    test_radial_zernike_normed_recursion_is_orthonormal();
+    assert(test_radial_zernike_unnormed_vec_recursion_correct_for_lmax_0());
+    assert(test_radial_zernike_unnormed_vec_recursion_generates_correct_up_to_lmax_6(0.0));
+    assert(test_radial_zernike_unnormed_vec_recursion_generates_correct_up_to_lmax_6(1.0));
+    assert(test_radial_zernike_unnormed_vec_recursion_generates_correct_up_to_lmax_6(0.3));
+
+    assert(test_radial_zernike_normed_recursion_is_orthonormal());
 }

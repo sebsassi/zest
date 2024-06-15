@@ -17,12 +17,22 @@ Spherical harmonic normalization convention
 */
 enum class SHNorm { GEO, QM/*, SCHMIDT, UNNORMALIZED, ORTHONORMAL*/ };
 
+
+template <SHNorm NORM>
+[[nodiscard]] constexpr double normalization() noexcept
+{
+    if constexpr (NORM == SHNorm::QM)
+        return 1.0;
+    else if constexpr (NORM == SHNorm::GEO)
+        return 1.0/(4.0*std::numbers::pi);
+}
+
 /*
 Normalization constant for converting between spherical harmonics conventions.
 */
 template <SHNorm FROM, SHNorm TO>
     requires (FROM == TO)
-constexpr double conversion_const() noexcept
+[[nodiscard]] constexpr double conversion_const() noexcept
 {
     return 1.0;
 }
@@ -31,7 +41,7 @@ constexpr double conversion_const() noexcept
 Normalization constant for converting between spherical harmonics conventions.
 */
 template <SHNorm FROM, SHNorm TO>
-constexpr double conversion_const() noexcept
+[[nodiscard]] constexpr double conversion_const() noexcept
 {
     double from;
     if constexpr (FROM == SHNorm::QM)

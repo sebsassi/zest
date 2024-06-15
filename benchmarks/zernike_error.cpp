@@ -26,7 +26,7 @@ std::array<double, 2> zernike_expansion_error(Func&& function, std::size_t lmax,
     zest::zt::BallGLQGridPoints points(lmax);
     zest::zt::GLQTransformer transformer(lmax);
 
-    auto expansion = transformer.transform(
+    auto expansion = transformer.forward_transform(
             points.generate_values(function), lmax);
     auto [radii, longitudes, colatitudes, error_grid]
             = evaluator.evaluate(expansion, shape);

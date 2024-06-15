@@ -1,4 +1,5 @@
 #include "zernike_glq_transformer.hpp"
+#include "uniform_grid_evaluator.hpp"
 
 #include <cassert>
 
@@ -34,88 +35,54 @@ bool test_glq_geo_expansion_expands_Z000()
         return std::sqrt(3.0);
     };
 
-    zest::zt::BallGLQGridPoints points(lmax);
-    zest::zt::BallGLQGrid grid = points.generate_values(function);
-    zest::zt::GLQTransformer transformer(lmax);
-    zest::zt::ZernikeExpansion expansion = transformer.transform(grid, lmax);
-
-    const auto& coeffs = expansion.coeffs();
+    zest::zt::BallGLQGridPoints points{};
+    zest::zt::BallGLQGrid grid = points.generate_values(function, lmax);
+    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, lmax);
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (std::size_t n = 0; n <= lmax; ++n)
     {
-        if (i == 0)
+        for (std::size_t l = n & 1; l <= n; l += 2)
         {
-            if (is_close(coeffs[i][0], 1.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            for (std::size_t m = 0; m <= l; ++m)
+            {
+                if (n == 0 && l == 0 && m == 0)
+                {
+                    if (is_close(expansion(n,l,m)[0], 1.0, tol)
+                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion(n,l,m)[0], 0.0, tol)
+                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
         }
     }
 
     if (!success)
     {
-        for (const auto& coeff : expansion.coeffs())
-            std::printf("%f %f\n", coeff[0], coeff[1]);
-    }
-    return success;
-}
-
-bool test_glq_geo_expansion_expands_Z110()
-{
-    std::size_t lmax = 5;
-
-    auto function = [](double r, [[maybe_unused]] double lon, double colat)
-    {
-        const double z = std::cos(colat);
-        return std::sqrt(5.0)*r*std::sqrt(3.0)*z;
-    };
-
-    zest::zt::BallGLQGridPoints points(lmax);
-    zest::zt::BallGLQGrid grid = points.generate_values(function);
-    zest::zt::GLQTransformer transformer(lmax);
-    zest::zt::ZernikeExpansion expansion = transformer.transform(grid, lmax);
-
-    const auto& coeffs = expansion.coeffs();
-
-    constexpr double tol = 1.0e-10;
-
-    bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
-    {
-        if (i == 1)
+        for (std::size_t n = 0; n <= lmax; ++n)
         {
-            if (is_close(coeffs[i][0], 1.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            for (std::size_t l = n & 1; l <= n; l += 2)
+            {
+                for (std::size_t m = 0; m <= l; ++m)
+                {
+                    std::printf(
+                            "(%lu,%lu,%lu) %f %f\n", n, l, m,
+                            expansion(n,l,m)[0], expansion(n,l,m)[1]);
+                }
+            }
         }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
-        }
-    }
-
-    if (!success)
-    {
-        for (const auto& coeff : expansion.coeffs())
-            std::printf("%f %f\n", coeff[0], coeff[1]);
     }
     return success;
 }
@@ -130,40 +97,116 @@ bool test_glq_geo_expansion_expands_Z200()
         return std::sqrt(7.0)*(2.5*r*r - 1.5);
     };
 
-    zest::zt::BallGLQGridPoints points(lmax);
-    zest::zt::BallGLQGrid grid = points.generate_values(function);
-    zest::zt::GLQTransformer transformer(lmax);
-    zest::zt::ZernikeExpansion expansion = transformer.transform(grid, lmax);
-
-    const auto& coeffs = expansion.coeffs();
+    zest::zt::BallGLQGridPoints points{};
+    zest::zt::BallGLQGrid grid = points.generate_values(function, lmax);
+    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, lmax);
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (std::size_t n = 0; n <= lmax; ++n)
     {
-        if (i == 3)
+        for (std::size_t l = n & 1; l <= n; l += 2)
         {
-            if (is_close(coeffs[i][0], 1.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            for (std::size_t m = 0; m <= l; ++m)
+            {
+                if (n == 2 && l == 0 && m == 0)
+                {
+                    if (is_close(expansion(n,l,m)[0], 1.0, tol)
+                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion(n,l,m)[0], 0.0, tol)
+                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
         }
     }
 
     if (!success)
     {
-        for (const auto& coeff : expansion.coeffs())
-            std::printf("%f %f\n", coeff[0], coeff[1]);
+        for (std::size_t n = 0; n <= lmax; ++n)
+        {
+            for (std::size_t l = n & 1; l <= n; l += 2)
+            {
+                for (std::size_t m = 0; m <= l; ++m)
+                {
+                    std::printf(
+                            "(%lu,%lu,%lu) %f %f\n", n, l, m,
+                            expansion(n,l,m)[0], expansion(n,l,m)[1]);
+                }
+            }
+        }
+    }
+    return success;
+}
+
+bool test_glq_geo_expansion_expands_Z110()
+{
+    std::size_t lmax = 5;
+
+    auto function = [](double r, [[maybe_unused]] double lon, double colat)
+    {
+        const double z = std::cos(colat);
+        return std::sqrt(5.0)*r*std::sqrt(3.0)*z;
+    };
+
+    zest::zt::BallGLQGridPoints points{};
+    zest::zt::BallGLQGrid grid = points.generate_values(function, lmax);
+    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, lmax);
+
+    constexpr double tol = 1.0e-10;
+
+    bool success = true;
+    for (std::size_t n = 0; n <= lmax; ++n)
+    {
+        for (std::size_t l = n & 1; l <= n; l += 2)
+        {
+            for (std::size_t m = 0; m <= l; ++m)
+            {
+                if (n == 1 && l == 1 && m == 0)
+                {
+                    if (is_close(expansion(n,l,m)[0], 1.0, tol)
+                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion(n,l,m)[0], 0.0, tol)
+                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
+        }
+    }
+
+    if (!success)
+    {
+        for (std::size_t n = 0; n <= lmax; ++n)
+        {
+            for (std::size_t l = n & 1; l <= n; l += 2)
+            {
+                for (std::size_t m = 0; m <= l; ++m)
+                {
+                    std::printf(
+                            "(%lu,%lu,%lu) %f %f\n", n, l, m,
+                            expansion(n,l,m)[0], expansion(n,l,m)[1]);
+                }
+            }
+        }
     }
     return success;
 }
@@ -179,40 +222,54 @@ bool test_glq_geo_expansion_expands_Z221()
         return std::sqrt(7.0)*r*r*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
 
-    zest::zt::BallGLQGridPoints points(lmax);
-    zest::zt::BallGLQGrid grid = points.generate_values(function);
-    zest::zt::GLQTransformer transformer(lmax);
-    zest::zt::ZernikeExpansion expansion = transformer.transform(grid, lmax);
-
-    const auto& coeffs = expansion.coeffs();
+    zest::zt::BallGLQGridPoints points{};
+    zest::zt::BallGLQGrid grid = points.generate_values(function, lmax);
+    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, lmax);
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (std::size_t n = 0; n <= lmax; ++n)
     {
-        if (i == 5)
+        for (std::size_t l = n & 1; l <= n; l += 2)
         {
-            if (is_close(coeffs[i][0], 1.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            for (std::size_t m = 0; m <= l; ++m)
+            {
+                if (n == 2 && l == 2 && m == 1)
+                {
+                    if (is_close(expansion(n,l,m)[0], 1.0, tol)
+                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion(n,l,m)[0], 0.0, tol)
+                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
         }
     }
 
     if (!success)
     {
-        for (const auto& coeff : expansion.coeffs())
-            std::printf("%f %f\n", coeff[0], coeff[1]);
+        for (std::size_t n = 0; n <= lmax; ++n)
+        {
+            for (std::size_t l = n & 1; l <= n; l += 2)
+            {
+                for (std::size_t m = 0; m <= l; ++m)
+                {
+                    std::printf(
+                            "(%lu,%lu,%lu) %f %f\n", n, l, m,
+                            expansion(n,l,m)[0], expansion(n,l,m)[1]);
+                }
+            }
+        }
     }
     return success;
 }
@@ -228,40 +285,54 @@ bool test_glq_geo_expansion_expands_Z33m2()
         return std::sqrt(9.0)*r*r*r*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon);
     };
 
-    zest::zt::BallGLQGridPoints points(lmax);
-    zest::zt::BallGLQGrid grid = points.generate_values(function);
-    zest::zt::GLQTransformer transformer(lmax);
-    zest::zt::ZernikeExpansion expansion = transformer.transform(grid, lmax);
-
-    const auto& coeffs = expansion.coeffs();
+    zest::zt::BallGLQGridPoints points{};
+    zest::zt::BallGLQGrid grid = points.generate_values(function, lmax);
+    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, lmax);
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (std::size_t n = 0; n <= lmax; ++n)
     {
-        if (i == 11)
+        for (std::size_t l = n & 1; l <= n; l += 2)
         {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 1.0, tol))
-                success = success && true;
-            else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            for (std::size_t m = 0; m <= l; ++m)
+            {
+                if (n == 3 && l == 3 && m == 2)
+                {
+                    if (is_close(expansion(n,l,m)[0], 0.0, tol)
+                            && is_close(expansion(n,l,m)[1], 1.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion(n,l,m)[0], 0.0, tol)
+                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
         }
     }
 
     if (!success)
     {
-        for (const auto& coeff : expansion.coeffs())
-            std::printf("%f %f\n", coeff[0], coeff[1]);
+        for (std::size_t n = 0; n <= lmax; ++n)
+        {
+            for (std::size_t l = n & 1; l <= n; l += 2)
+            {
+                for (std::size_t m = 0; m <= l; ++m)
+                {
+                    std::printf(
+                            "(%lu,%lu,%lu) %f %f\n", n, l, m,
+                            expansion(n,l,m)[0], expansion(n,l,m)[1]);
+                }
+            }
+        }
     }
     return success;
 }
@@ -277,40 +348,54 @@ bool test_glq_geo_expansion_expands_Z531()
         return std::sqrt(13.0)*(5.5*r*r - 4.5)*r*r*r*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
 
-    zest::zt::BallGLQGridPoints points(lmax);
-    zest::zt::BallGLQGrid grid = points.generate_values(function);
-    zest::zt::GLQTransformer transformer(lmax);
-    zest::zt::ZernikeExpansion expansion = transformer.transform(grid, lmax);
-
-    const auto& coeffs = expansion.coeffs();
+    zest::zt::BallGLQGridPoints points{};
+    zest::zt::BallGLQGrid grid = points.generate_values(function, lmax);
+    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, lmax);
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (std::size_t n = 0; n <= lmax; ++n)
     {
-        if (i == 25)
+        for (std::size_t l = n & 1; l <= n; l += 2)
         {
-            if (is_close(coeffs[i][0], 1.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            for (std::size_t m = 0; m <= l; ++m)
+            {
+                if (n == 5 && l == 3 && m == 1)
+                {
+                    if (is_close(expansion(n,l,m)[0], 1.0, tol)
+                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion(n,l,m)[0], 0.0, tol)
+                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
         }
     }
 
     if (!success)
     {
-        for (const auto& coeff : expansion.coeffs())
-            std::printf("%f %f\n", coeff[0], coeff[1]);
+        for (std::size_t n = 0; n <= lmax; ++n)
+        {
+            for (std::size_t l = n & 1; l <= n; l += 2)
+            {
+                for (std::size_t m = 0; m <= l; ++m)
+                {
+                    std::printf(
+                            "(%lu,%lu,%lu) %f %f\n", n, l, m,
+                            expansion(n,l,m)[0], expansion(n,l,m)[1]);
+                }
+            }
+        }
     }
     return success;
 }
@@ -323,13 +408,13 @@ bool test_glq_geo_evaluates_Z000()
     {
         return 1.0;
     };
-    zest::zt::BallGLQGridPoints points(lmax);
-    zest::zt::BallGLQGrid test_grid = points.generate_values(function);
+    zest::zt::BallGLQGridPoints points{};
+    zest::zt::BallGLQGrid test_grid = points.generate_values(function, lmax);
 
-    zest::zt::GLQTransformer transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer(lmax);
 
-    auto expansion = transformer.transform(test_grid, lmax);
-    auto grid = transformer.transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, lmax);
+    auto grid = transformer.backward_transform(expansion, lmax);
 
     constexpr double tol = 1.0e-10;
 
@@ -381,13 +466,13 @@ bool test_glq_geo_evaluates_Z110()
         const double z = std::cos(colat);
         return std::sqrt(5.0)*r*std::sqrt(3.0)*z;
     };
-    zest::zt::BallGLQGridPoints points(lmax);
-    zest::zt::BallGLQGrid test_grid = points.generate_values(function);
+    zest::zt::BallGLQGridPoints points{};
+    zest::zt::BallGLQGrid test_grid = points.generate_values(function, lmax);
 
-    zest::zt::GLQTransformer transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer(lmax);
 
-    auto expansion = transformer.transform(test_grid, lmax);
-    auto grid = transformer.transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, lmax);
+    auto grid = transformer.backward_transform(expansion, lmax);
 
     constexpr double tol = 1.0e-10;
 
@@ -440,13 +525,13 @@ bool test_glq_geo_evaluates_Z200()
         return std::sqrt(7.0)*(2.5*r*r - 1.5);
     };
 
-    zest::zt::BallGLQGridPoints points(lmax);
-    zest::zt::BallGLQGrid test_grid = points.generate_values(function);
+    zest::zt::BallGLQGridPoints points{};
+    zest::zt::BallGLQGrid test_grid = points.generate_values(function, lmax);
 
-    zest::zt::GLQTransformer transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer(lmax);
 
-    auto expansion = transformer.transform(test_grid, lmax);
-    auto grid = transformer.transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, lmax);
+    auto grid = transformer.backward_transform(expansion, lmax);
 
     constexpr double tol = 1.0e-10;
 
@@ -500,13 +585,13 @@ bool test_glq_geo_evaluates_Z221()
         return std::sqrt(7.0)*r*r*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
 
-    zest::zt::BallGLQGridPoints points(lmax);
-    zest::zt::BallGLQGrid test_grid = points.generate_values(function);
+    zest::zt::BallGLQGridPoints points{};
+    zest::zt::BallGLQGrid test_grid = points.generate_values(function, lmax);
 
-    zest::zt::GLQTransformer transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer(lmax);
 
-    auto expansion = transformer.transform(test_grid, lmax);
-    auto grid = transformer.transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, lmax);
+    auto grid = transformer.backward_transform(expansion, lmax);
 
     constexpr double tol = 1.0e-10;
 
@@ -560,13 +645,13 @@ bool test_glq_geo_evaluates_Z33m2()
         return std::sqrt(9.0)*r*r*r*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon);
     };
 
-    zest::zt::BallGLQGridPoints points(lmax);
-    zest::zt::BallGLQGrid test_grid = points.generate_values(function);
+    zest::zt::BallGLQGridPoints points{};
+    zest::zt::BallGLQGrid test_grid = points.generate_values(function, lmax);
 
-    zest::zt::GLQTransformer transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer(lmax);
 
-    auto expansion = transformer.transform(test_grid, lmax);
-    auto grid = transformer.transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, lmax);
+    auto grid = transformer.backward_transform(expansion, lmax);
 
     constexpr double tol = 1.0e-10;
 
@@ -620,13 +705,13 @@ bool test_glq_geo_evaluates_Z531()
         return std::sqrt(13.0)*(5.5*r*r - 4.5)*r*r*r*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
 
-    zest::zt::BallGLQGridPoints points(lmax);
-    zest::zt::BallGLQGrid test_grid = points.generate_values(function);
+    zest::zt::BallGLQGridPoints points{};
+    zest::zt::BallGLQGrid test_grid = points.generate_values(function, lmax);
 
-    zest::zt::GLQTransformer transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer(lmax);
 
-    auto expansion = transformer.transform(test_grid, lmax);
-    auto grid = transformer.transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, lmax);
+    auto grid = transformer.backward_transform(expansion, lmax);
 
     constexpr double tol = 1.0e-10;
 
@@ -669,150 +754,11 @@ bool test_glq_geo_evaluates_Z531()
     return success;
 }
 
-bool test_uniform_grid_evaluator_does_constant_function()
-{
-    constexpr std::size_t lmax = 5;
-    constexpr std::size_t num_lon = 14;
-    constexpr std::size_t num_lat = 7;
-    constexpr std::size_t num_rad = 7;
-    
-    std::vector<double> test_grid(num_lon*num_lat*num_rad);
-
-    for (std::size_t i = 0; i < num_rad; ++i)
-    {
-        for (std::size_t j = 0; j < num_lat; ++j)
-        {
-            for (std::size_t k = 0; k < num_lon; ++k)
-                test_grid[(i*num_lat + j)*num_lon + k] = std::sqrt(3.0);
-        }
-    }
-    
-    zest::zt::ZernikeExpansion expansion(lmax);
-    
-    expansion(0,0,0)[0] = 1.0;
-
-    const auto& [radii, longitudes, latitudes, grid]
-        = zest::zt::UniformGridEvaluator{}.evaluate(
-                expansion, {num_rad, num_lat, num_lon});
-    
-    constexpr double tol = 1.0e-13;
-
-    bool success = true;
-    for (std::size_t i = 0; i < num_rad; ++i)
-    {
-        for (std::size_t j = 0; j < num_lat; ++j)
-        {
-            for (std::size_t k = 0; k < num_lon; ++k)
-                if(!is_close(grid[(i*num_lat + j)*num_lon + k], std::sqrt(3.0), tol))
-                    success = false;
-        }
-    }
-
-    if (!success)
-    {
-        for (std::size_t i = 0; i < num_rad; ++i)
-        {
-            for (std::size_t j = 0; j < num_lat; ++j)
-            {
-                for (std::size_t k = 0; k < num_lon; ++k)
-                    std::printf("%f ", grid[(i*num_lat + j)*num_lon + k]);
-                std::printf("\n");
-            }
-            std::printf("\n");
-        }
-    }
-
-    return success;
-}
-
-bool test_uniform_grid_evaluator_does_Z33m2_plus_Z531()
-{
-    constexpr std::size_t lmax = 5;
-    constexpr std::size_t num_lon = 14;
-    constexpr std::size_t num_lat = 7;
-    constexpr std::size_t num_rad = 7;
-    
-    std::vector<double> test_grid(num_lon*num_lat*num_rad);
-
-    auto function = [](double r, double lon, double colat)
-    {
-        const double z = std::cos(colat);
-        return std::sqrt(9.0)*r*r*r*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon) + std::sqrt(13.0)*(5.5*r*r - 4.5)*r*r*r*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
-    };
-
-    std::vector<double> test_radii = linspace(
-            0.0, 1.0, num_rad);
-    std::vector<double> test_longitudes = linspace(
-            0.0, 2.0*std::numbers::pi, num_lon);
-    std::vector<double> test_colatitudes = linspace(
-            0.0, std::numbers::pi, num_lat);
-    
-    for (std::size_t i = 0; i < num_rad; ++i)
-    {
-        for (std::size_t j = 0; j < num_lat; ++j)
-        {
-            for (std::size_t k = 0; k < num_lon; ++k)
-                test_grid[(i*num_lat + j)*num_lon + k] = function(test_radii[i], test_longitudes[k], test_colatitudes[j]);
-        }
-    }
-    
-    zest::zt::ZernikeExpansion expansion(lmax);
-
-    expansion(3,3,2) = {0.0, 1.0};
-    expansion(5,3,1) = {1.0, 0.0};
-
-    const auto& [radii, longitudes, latitudes, grid]
-        = zest::zt::UniformGridEvaluator{}.evaluate(
-                expansion, {num_rad, num_lat, num_lon});
-    
-    constexpr double tol = 1.0e-13;
-
-    bool success = true;
-    for (std::size_t i = 0; i < num_rad; ++i)
-    {
-        for (std::size_t j = 0; j < num_lat; ++j)
-        {
-            for (std::size_t k = 0; k < num_lon; ++k)
-                if(!is_close(grid[(i*num_lat + j)*num_lon + k], test_grid[(i*num_lat + j)*num_lon + k], tol))
-                    success = false;
-        }
-    }
-
-    if (!success)
-    {
-        std::printf("test grid\n");
-        for (std::size_t i = 0; i < num_rad; ++i)
-        {
-            for (std::size_t j = 0; j < num_lat; ++j)
-            {
-                for (std::size_t k = 0; k < num_lon; ++k)
-                    std::printf("%f ", test_grid[(i*num_lat + j)*num_lon + k]);
-                std::printf("\n");
-            }
-            std::printf("\n");
-        }
-
-        std::printf("grid\n");
-        for (std::size_t i = 0; i < num_rad; ++i)
-        {
-            for (std::size_t j = 0; j < num_lat; ++j)
-            {
-                for (std::size_t k = 0; k < num_lon; ++k)
-                    std::printf("%f ", grid[(i*num_lat + j)*num_lon + k]);
-                std::printf("\n");
-            }
-            std::printf("\n");
-        }
-    }
-
-    return success;
-}
-
 int main()
 {
     assert(test_glq_geo_expansion_expands_Z000());
-    assert(test_glq_geo_expansion_expands_Z110());
     assert(test_glq_geo_expansion_expands_Z200());
+    assert(test_glq_geo_expansion_expands_Z110());
     assert(test_glq_geo_expansion_expands_Z221());
     assert(test_glq_geo_expansion_expands_Z33m2());
     assert(test_glq_geo_expansion_expands_Z531());

@@ -13,7 +13,7 @@ public:
         MatrixSpan<const double> model, std::span<const double> data);
 
     void fit_parameters(
-        MatrixSpan<const double> model, std::span<double> parameters, std::span<const double> data);
+        MatrixSpan<const double> model, std::span<double> parameters, std::span<const double> data) noexcept;
 
 private:
     std::vector<double> m_model_data;

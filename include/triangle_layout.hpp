@@ -17,9 +17,9 @@ Contiguous 2D layout with indexing
 */
 struct DualTriangleLayout
 {
-    using IndexType = int;
+    using index_type = int;
     [[nodiscard]] static constexpr
-    std::size_t idx(IndexType l, IndexType m) noexcept
+    std::size_t idx(index_type l, index_type m) noexcept
     {
         return std::size_t(l*(l + 1) + m);
     }
@@ -50,9 +50,9 @@ Contiguous 2D layout with indexing
 */
 struct TriangleLayout
 {
-    using IndexType = std::size_t;
+    using index_type = std::size_t;
     [[nodiscard]] static constexpr
-    std::size_t idx(IndexType l, IndexType m) noexcept
+    std::size_t idx(index_type l, index_type m) noexcept
     {
         return ((l*(l + 1)) >> 1) + m;
     }
@@ -82,14 +82,16 @@ Contiguous 2D layout with indexing
 */
 struct EvenDiagonalTriangleLayout
 {
-    using IndexType = std::size_t;
-    static constexpr std::size_t size(std::size_t lmax) noexcept
+    using index_type = std::size_t;
+    [[nodiscard]] static constexpr
+    std::size_t size(std::size_t lmax) noexcept
     {
         // OEIS A002620
         return ((lmax + 2)*(lmax + 2)) >> 2; 
     }
     
-    static constexpr std::size_t idx(std::size_t n, std::size_t l) noexcept
+    [[nodiscard]] static constexpr std::size_t
+    idx(std::size_t n, std::size_t l) noexcept
     {
          return (((n + 1)*(n + 1)) >> 2) + (l >> 1);
     }
@@ -113,10 +115,10 @@ Contiguous 2D layout with indexing
 */
 struct EvenPrimaryTriangleLayout
 {
-    using IndexType = std::size_t;
-    static constexpr std::size_t size(std::size_t n) noexcept
+    using index_type = std::size_t;
+    static constexpr std::size_t size(std::size_t lmax) noexcept
     {
-        return ((n + 1)*(n + 1)) >> 2;
+        return ((lmax + 2)*(lmax + 2)) >> 2;
     }
 
     static constexpr std::size_t idx(std::size_t l, std::size_t m) noexcept
@@ -144,15 +146,16 @@ Contiguous 3D layout with indexing
 */
 struct EvenSemiDiagonalTetrahedralLayout
 {
-    using IndexType = std::size_t;
-    static constexpr std::size_t size(std::size_t lmax) noexcept
+    using index_type = std::size_t;
+    [[nodiscard]] static constexpr std::size_t
+    size(std::size_t lmax) noexcept
     {
         // OEIS A002623
         return (lmax + 2)*(lmax + 4)*(2*lmax + 3)/24;
     }
 
-    static constexpr std::size_t idx(
-        std::size_t n, std::size_t l, std::size_t m) noexcept
+    [[nodiscard]] static constexpr std::size_t
+    idx(std::size_t n, std::size_t l, std::size_t m) noexcept
     {
         return (n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2) + m;
     }
@@ -163,43 +166,53 @@ A non-owning view where adjacent even and odd indices refer to the same value.
 
 Given index `i`, the corresponding offset in the underlying buffer is given by `i/2`.
 */
-template <typename T>
+template <typename ElementType>
 class EvenOddSpan
 {
 public:
-    using element_type = T;
-    using value_type = std::remove_cv_t<T>;
+    using element_type = ElementType;
+    using value_type = std::remove_cv_t<element_type>;
     using size_type = std::size_t;
 
-    EvenOddSpan(std::span<T> buffer, std::size_t idx, std::size_t size):
-        m_span(buffer.begin() + idx*size, size), 
-        m_size(size) {}
-    EvenOddSpan(std::span<T> buffer, std::size_t size):
+    constexpr EvenOddSpan(
+        std::span<element_type> buffer, std::size_t idx, std::size_t size):
+        m_span(buffer.begin() + idx*size, size), m_size(size) {}
+    constexpr EvenOddSpan(std::span<element_type> buffer, std::size_t size):
         m_span(buffer.begin(), size), m_size(size) {}
     
-    [[nodiscard]] std::size_t size() const noexcept { return m_size; }
+    [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
 
-    operator std::span<T>() { return m_span; }
-    [[nodiscard]] T operator[](std::size_t i)
+    [[nodiscard]] constexpr operator std::span<element_type>() const noexcept
+    {
+        return m_span;
+    }
+
+    [[nodiscard]] constexpr
+    operator EvenOddSpan<const element_type>() const noexcept
+    {
+        return EvenOddSpan<const element_type>(m_span, m_size);
+    }
+
+    [[nodiscard]] constexpr element_type operator[](std::size_t i) const noexcept
     {
         return m_span[i >> 1];
     }
 private:
-    std::span<T> m_span;
+    std::span<element_type> m_span;
     std::size_t m_size;
 };
 
 /*
 A non-owning view modeling 2D data with triangular layout.
 */
-template <typename T, typename LayoutType>
+template <typename ElementType, typename LayoutType>
 class TriangleSpan
 {
 public:
     using Layout = LayoutType;
-    using IndexType = Layout::IndexType;
-    using element_type = T;
-    using value_type = std::remove_cv_t<T>;
+    using index_type = Layout::index_type;
+    using element_type = ElementType;
+    using value_type = std::remove_cv_t<ElementType>;
     using size_type = std::size_t;
 
     static constexpr std::size_t size(std::size_t lmax) noexcept
@@ -207,116 +220,114 @@ public:
         return Layout::size(lmax);
     }
 
-    TriangleSpan(std::span<T> buffer, std::size_t idx, std::size_t lmax):
-        m_span(buffer.begin() + idx*Layout::size(lmax), Layout::size(lmax)), 
-        m_lmax(lmax) {}
-    TriangleSpan(std::span<T> buffer, std::size_t lmax):
+    constexpr TriangleSpan(std::span<element_type> buffer, std::size_t lmax):
         m_span(buffer.begin(), Layout::size(lmax)), m_lmax(lmax) {}
+    constexpr TriangleSpan(element_type* data, std::size_t lmax):
+        m_span(data, Layout::size(lmax)), m_lmax(lmax) {}
 
-    [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
-    [[nodiscard]] std::span<T> flatten() const noexcept { return m_span; }
-    [[nodiscard]] const T* data() const noexcept { return m_span.data(); }
+    [[nodiscard]] constexpr std::size_t lmax() const noexcept { return m_lmax; }
+    [[nodiscard]] constexpr std::span<element_type>
+    flatten() const noexcept { return m_span; }
 
-    operator std::span<T>() { return m_span; }
-    operator TriangleSpan<const T, LayoutType>()
+    [[nodiscard]] constexpr element_type*
+    data() const noexcept { return m_span.data(); }
+
+    [[nodiscard]] constexpr operator std::span<element_type>() const noexcept
     {
-        return TriangleSpan<const T, LayoutType>(m_span, m_lmax);
+        return m_span;
     }
 
-    [[nodiscard]] std::span<const T> operator()(IndexType l) const
+    [[nodiscard]] constexpr
+    operator TriangleSpan<const element_type, LayoutType>() const noexcept
     {
-        return std::span<const T>(
+        return TriangleSpan<const element_type, LayoutType>(m_span, m_lmax);
+    }
+
+    [[nodiscard]] constexpr std::span<element_type>
+    operator()(index_type l) const noexcept
+    {
+        return std::span<element_type>(
                 m_span.begin() + Layout::idx(l,0), Layout::line_length(l));
     }
 
-    [[nodiscard]] std::span<T> operator()(IndexType l)
+    [[nodiscard]] constexpr std::span<element_type>
+    operator[](index_type l) const noexcept
     {
-        return std::span<T>(
+        return std::span<element_type>(
                 m_span.begin() + Layout::idx(l,0), Layout::line_length(l));
     }
 
-    [[nodiscard]] std::span<const T> operator[](size_type l) const
-    {
-        return std::span<const T>(
-                m_span.begin() + Layout::idx(l,0), Layout::line_length(l));
-    }
-
-    [[nodiscard]] std::span<T> operator[](IndexType l)
-    {
-        return std::span<T>(
-                m_span.begin() + Layout::idx(l,0), Layout::line_length(l));
-    }
-
-    [[nodiscard]] T operator()(IndexType l, IndexType m) const
-    {
-        return m_span[Layout::idx(l,m)];
-    }
-    T& operator()(IndexType l, IndexType m)
+    [[nodiscard]] constexpr element_type&
+    operator()(index_type l, index_type m) const noexcept
     {
         return m_span[Layout::idx(l,m)];
     }
 
 private:
-    std::span<T> m_span;
+    std::span<element_type> m_span;
     std::size_t m_lmax;
 };
 
 /*
 A non-owning view modeling 3D data with triangular layout on the first two indices.
 */
-template <typename T, typename LayoutType>
+template <typename ElementType, typename LayoutType>
 class TriangleVecSpan
 {
 public:
     using Layout = LayoutType;
-    using IndexType = Layout::IndexType;
-    using element_type = T;
-    using value_type = std::remove_cv_t<T>;
+    using index_type = Layout::index_type;
+    using element_type = ElementType;
+    using value_type = std::remove_cv_t<element_type>;
     using size_type = std::size_t;
 
-    TriangleVecSpan(
-        std::span<T> buffer, std::size_t idx, std::size_t lmax,
+    constexpr TriangleVecSpan(
+        std::span<element_type> buffer, std::size_t idx, std::size_t lmax,
         std::size_t vec_size):
-        m_span(buffer.begin() + idx*Layout::size(lmax)*vec_size,
-        Layout::size(lmax)*vec_size), m_lmax(lmax), m_vec_size(vec_size) {}
-    TriangleVecSpan(std::span<T> buffer, std::size_t lmax, std::size_t vec_size):
+        m_span(buffer.begin() + idx*Layout::size(lmax)*vec_size, Layout::size(lmax)*vec_size), m_lmax(lmax), m_vec_size(vec_size) {}
+    constexpr TriangleVecSpan(std::span<element_type> buffer, std::size_t lmax, std::size_t vec_size):
         m_span(buffer.begin(), Layout::size(lmax)*vec_size), m_lmax(lmax), 
         m_vec_size(vec_size) {}
 
-    [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
-    [[nodiscard]] std::size_t vec_size() const noexcept { return m_vec_size; }
-    [[nodiscard]] std::span<T> span() const noexcept { return m_span; }
-    [[nodiscard]] const T* data() const noexcept { return m_span.data(); }
+    [[nodiscard]] constexpr std::size_t
+    lmax() const noexcept { return m_lmax; }
 
-    operator std::span<T>() { return m_span; }
-    operator TriangleVecSpan<const T, LayoutType>()
+    [[nodiscard]] constexpr std::size_t
+    vec_size() const noexcept { return m_vec_size; }
+
+    [[nodiscard]] constexpr std::span<element_type>
+    flatten() const noexcept { return m_span; }
+
+    [[nodiscard]] const element_type*
+    data() const noexcept { return m_span.data(); }
+
+    [[nodiscard]] constexpr
+    operator std::span<element_type>() const noexcept
     {
-        return TriangleVecSpan<const T, LayoutType>(m_span, m_lmax, m_vec_size);
+        return m_span;
     }
 
-    [[nodiscard]] std::span<const T> operator()(IndexType l, IndexType m) const
+    [[nodiscard]] constexpr
+    operator TriangleVecSpan<const element_type, LayoutType>() const noexcept
+    {
+        return TriangleVecSpan<const element_type, LayoutType>(m_span, m_lmax, m_vec_size);
+    }
+
+    [[nodiscard]] constexpr std::span<element_type>
+    operator()(index_type l, index_type m) const noexcept
     {
         return std::span(
                 m_span.begin() + Layout::idx(l,m)*m_vec_size, m_vec_size);
     }
-    std::span<T> operator()(IndexType l, IndexType m)
-    {
-        return std::span(
-                m_span.begin() + Layout::idx(l,m)*m_vec_size, m_vec_size);
-    }
 
-    [[nodiscard]] std::span<const T> operator[](std::size_t idx) const
-    {
-        return std::span(m_span.begin() + idx*m_vec_size, m_vec_size);
-    }
-
-    std::span<T> operator[](std::size_t idx)
+    [[nodiscard]] constexpr std::span<element_type>
+    operator[](std::size_t idx) const noexcept
     {
         return std::span(m_span.begin() + idx*m_vec_size, m_vec_size);
     }
 
 private:
-    std::span<T> m_span;
+    std::span<element_type> m_span;
     std::size_t m_lmax;
     std::size_t m_vec_size;
 };

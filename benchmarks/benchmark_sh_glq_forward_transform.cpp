@@ -6,7 +6,7 @@
 #include <fstream>
 
 template <typename GridLayout>
-void benchmark_glq_transformer(
+void benchmark_glq_forward_transform(
     ankerl::nanobench::Bench& bench, const char* name, std::size_t lmax)
 {
     std::mt19937 gen;
@@ -34,15 +34,15 @@ int main()
 
     std::vector<std::size_t> lmax_vec = {2,3,4,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,50,60,70,80,90,100,120,140,160,180,200,250,300,350,400,500,600,700,800,1000};
 
-    bench.title("GLQTransformer LonLatLayout");
+    bench.title("GLQTransformer.forward_transform LonLatLayout");
     for (const auto& lmax : lmax_vec)
     {
         char name[32] = {};
         std::sprintf(name, "%lu", lmax);
-        benchmark_glq_transformer<zest::st::LonLatLayout<>>(bench, name, lmax);
+        benchmark_glq_forward_transform<zest::st::LonLatLayout<>>(bench, name, lmax);
     }
 
-    const char* fname = "sh_glq_transformer_bench.json";
+    const char* fname = "sh_glq_forward_transform_bench.json";
     std::ofstream output{};
     output.open(fname);
     bench.render(ankerl::nanobench::templates::json(), output);
