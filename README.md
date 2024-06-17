@@ -28,7 +28,7 @@ and finally install it to your preferred directory
 cmake --install . --prefix <install directory>
 ```
 
-Note that this library uses C++20 features, so a supporting compiler is required, e.g., GGC 11 or greater or Clang 14 or greater.
+Note that this library uses C++20 features, so a sufficiently modern compiler is required, e.g., GGC 11 or greater or Clang 14 or greater.
 
 ## Usage
 
@@ -75,8 +75,8 @@ int main()
     }
 }
 ```
-After installation of the library, the above code can be compiled with, e.g.
+After installation of the library, the above code can be compiled with, e.g.,
 ```
 g++ -O3 -std=c++20 -o zernike_example zernike_example.cpp -lzest
 ```
-Note the `-std=c++20` required to enable the C++20 required by the library.
+Note the `-std=c++20` needed to enable the C++20 features required by the library.
