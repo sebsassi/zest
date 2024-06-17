@@ -12,9 +12,11 @@ macro(create_nanobench BENCHNAME)
     target_link_libraries(${BENCHNAME}.bench zest)
 endmacro()
 
-create_nanobench(benchmark_zernike_glq_transformer)
-create_nanobench(benchmark_sh_glq_transformer)
-create_nanobench(benchmark_sh_rotor)
+create_nanobench(benchmark_zernike_glq_forward_transform)
+create_nanobench(benchmark_zernike_glq_backward_transform)
+create_nanobench(benchmark_sh_glq_forward_transform)
+create_nanobench(benchmark_sh_glq_backward_transform)
+create_nanobench(benchmark_rotor)
 
 add_executable(zernike_error.out zernike_error.cpp)
 target_include_directories(zernike_error.out

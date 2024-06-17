@@ -70,6 +70,26 @@ template <typename ElementType, SHNorm NORM, SHPhase PHASE>
 using RealSHExpansionSpan = SHLMSpan<ElementType, TriangleLayout, NORM, PHASE>;
 
 /*
+Convenient alias for `RealSHExpansionSpan` with orthonormal spherical harmonics and no Condon-Shortley phase.
+*/
+template <typename ElementType>
+using RealSHExpansionSpanAcoustics
+    = RealSHExpansionSpan<ElementType, SHNorm::QM, SHPhase::NONE>;
+/*
+Convenient alias for `RealSHExpansionSpan` with orthonormal spherical harmonics with Condon-Shortley phase.
+*/
+template <typename ElementType>
+using RealSHExpansionSpanQM
+    = RealSHExpansionSpan<ElementType, SHNorm::QM, SHPhase::CS>;
+
+/*
+Convenient alias for `RealSHExpansionSpan` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+*/
+template <typename ElementType>
+using RealSHExpansionSpanGeo
+    = RealSHExpansionSpan<ElementType, SHNorm::GEO, SHPhase::NONE>;
+
+/*
 A container for spherical harmonic expansion of a real function.
 
 The template parameter `Element` controls the type of expansion:
@@ -86,68 +106,106 @@ class RealSHExpansion
 public:
     using Layout = TriangleLayout;
     using element_type = ElementType;
-    using IndexType = Layout::index_type;
+    using value_type = std::remove_cvref_t<element_type>;
+    using index_type = Layout::index_type;
+    using size_type = std::size_t;
     using View = RealSHExpansionSpan<element_type, NORM, PHASE>;
     using ConstView = RealSHExpansionSpan<const element_type, NORM, PHASE>;
 
     static constexpr SHNorm norm = NORM;
     static constexpr SHPhase phase = PHASE;
 
-    [[nodiscard]] static constexpr std::size_t size(std::size_t lmax) noexcept
+    [[nodiscard]] static constexpr size_type size(size_type lmax) noexcept
     {
         return Layout::size(lmax);
     }
 
     RealSHExpansion(): RealSHExpansion(0) {}
-    explicit RealSHExpansion(std::size_t lmax):
-        m_coeffs(Layout::size(lmax)), m_lmax(lmax) {}
+    explicit RealSHExpansion(size_type lmax):
+        m_data(Layout::size(lmax)), m_lmax(lmax) {}
 
     [[nodiscard]] operator View()
     {
-        return View(m_coeffs, m_lmax);
+        return View(m_data, m_lmax);
     };
 
     [[nodiscard]] operator ConstView() const
     {
-        return ConstView(m_coeffs, m_lmax);
+        return ConstView(m_data, m_lmax);
     };
 
+    [[nodiscard]] size_type lmax() const noexcept { return m_lmax; }
+
     [[nodiscard]] std::span<element_type>
-    flatten() noexcept { return m_coeffs; }
+    flatten() noexcept { return m_data; }
 
     [[nodiscard]] std::span<const element_type>
-    flatten() const noexcept { return m_coeffs; }
+    flatten() const noexcept { return m_data; }
     
     [[nodiscard]] element_type
-    operator()(IndexType l, IndexType m) const noexcept
+    operator()(index_type l, index_type m) const noexcept
     {
-        return m_coeffs[Layout::idx(l,m)];
+        return m_data[Layout::idx(l,m)];
     }
 
-    [[nodiscard]] element_type& operator()(IndexType l, IndexType m)
+    [[nodiscard]] element_type& operator()(index_type l, index_type m)
     {
-        return m_coeffs[Layout::idx(l,m)];
+        return m_data[Layout::idx(l,m)];
     }
 
-    [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
-    [[nodiscard]] std::span<const element_type> coeffs() const noexcept
+    [[nodiscard]] std::span<element_type>
+    operator()(index_type l) noexcept
     {
-        return m_coeffs;
+        return std::span<element_type>(
+                m_data.data() + Layout::idx(l,0), Layout::line_length(l));
     }
 
-    [[nodiscard]] std::span<element_type> coeffs() noexcept { return m_coeffs; }
+    [[nodiscard]] std::span<const element_type>
+    operator()(index_type l) const noexcept
+    {
+        return std::span<const element_type>(
+                m_data.data() + Layout::idx(l,0), Layout::line_length(l));
+    }
 
-    void resize(std::size_t lmax)
+    [[nodiscard]] std::span<element_type>
+    operator[](index_type l) noexcept
+    {
+        return std::span<element_type>(
+                m_data.data() + Layout::idx(l,0), Layout::line_length(l));
+    }
+
+    [[nodiscard]] std::span<const element_type>
+    operator[](index_type l) const noexcept
+    {
+        return std::span<const element_type>(
+                m_data.data() + Layout::idx(l,0), Layout::line_length(l));
+    }
+
+    void resize(size_type lmax)
     {
         m_lmax = lmax;
-        m_coeffs.resize(Layout::size(lmax));
+        m_data.resize(Layout::size(lmax));
     }
 
 private:
-    std::vector<element_type> m_coeffs;
-    std::size_t m_lmax;
+    std::vector<element_type> m_data;
+    size_type m_lmax;
 };
 
+/*
+Convenient alias for `RealSHExpansion` with orthonormal spherical harmonics and no Condon-Shortley phase.
+*/
+using RealSHExpansionAcoustics = RealSHExpansion<SHNorm::QM, SHPhase::NONE>;
+
+/*
+Convenient alias for `RealSHExpansion` with orthonormal spherical harmonics with Condon-Shortley phase.
+*/
+using RealSHExpansionQM = RealSHExpansion<SHNorm::QM, SHPhase::CS>;
+
+/*
+Convenient alias for `RealSHExpansion` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+*/
+using RealSHExpansionGeo = RealSHExpansion<SHNorm::GEO, SHPhase::NONE>;
 
 template <typename T>
 concept real_sh_expansion

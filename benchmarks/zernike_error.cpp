@@ -1,4 +1,5 @@
 #include "zernike_glq_transformer.hpp"
+#include "grid_evaluator.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -17,28 +18,50 @@ double quadratic_form(
     return res;
 }
 
+template <std::floating_point T>
+std::vector<T> linspace(T start, T stop, std::size_t count)
+{
+    if (count == 0) return {};
+    if (count == 1) return {start};
+
+    std::vector<T> res(count);
+    const T step = (stop - start)/T(count - 1);
+    for (std::size_t i = 0; i < count - 1; ++i)
+        res[i] = start + T(i)*step;
+    
+    res[count - 1] = stop;
+
+    return res;
+}
+
 template <typename Func>
 std::array<double, 2> zernike_expansion_error(Func&& function, std::size_t lmax, bool relative_error)
 {
-    const std::array<std::size_t, 3> shape = {30, 30, 2*lmax + 1};
+    const std::size_t num_lon = 60;
+    const std::size_t num_lat = 30;
+    const std::size_t num_rad = 30;
+    std::vector<double> longitudes = linspace(
+            0.0, 2.0*std::numbers::pi, num_lon);
+    std::vector<double> colatitudes = linspace(0.0, std::numbers::pi, num_lat);
+    std::vector<double> radii = linspace(0.0, 1.0, num_rad);
 
-    zest::zt::UniformGridEvaluator evaluator{};
-    zest::zt::BallGLQGridPoints points(lmax);
-    zest::zt::GLQTransformer transformer(lmax);
+    zest::zt::GridEvaluator evaluator(lmax, num_lon, num_lat, num_rad);
+    zest::zt::BallGLQGridPoints points{};
+    zest::zt::GLQTransformerGeo transformer(lmax);
 
     auto expansion = transformer.forward_transform(
-            points.generate_values(function), lmax);
-    auto [radii, longitudes, colatitudes, error_grid]
-            = evaluator.evaluate(expansion, shape);
+            points.generate_values(function, lmax), lmax);
+    auto error_grid = evaluator.evaluate(
+            expansion, longitudes, colatitudes, radii);
     
     std::vector<double> test_grid(error_grid.size());
 
-    for (std::size_t i = 0; i < shape[0]; ++i)
+    for (std::size_t i = 0; i < num_lon; ++i)
     {
-        for (std::size_t j = 0; j < shape[1]; ++j)
+        for (std::size_t j = 0; j < num_lat; ++j)
         {
-            for (std::size_t k = 0; k < shape[2]; ++k)
-                test_grid[(i*shape[1] + j)*shape[2] + k] = function(radii[i], longitudes[k], colatitudes[j]);
+            for (std::size_t k = 0; k < num_rad; ++k)
+                test_grid[(i*num_lat + j)*num_rad + k] = function(radii[i], longitudes[k], colatitudes[j]);
         }
     }
 

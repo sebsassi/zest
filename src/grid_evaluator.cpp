@@ -25,6 +25,9 @@ std::vector<T> linspace(T start, T stop, std::size_t count)
     return res;
 }
 
+namespace detail
+{
+
 void recursive_trig(
     MDSpan<std::array<double, 2>, 2> trigs, std::span<const double> angles)
 {
@@ -48,6 +51,8 @@ void recursive_trig(
             };
         }
     }
+}
+
 }
 
 namespace st
@@ -84,7 +89,7 @@ void GridEvaluator::resize(
     m_lat_size = lat_size;
 }
 
-void GridEvaluator::sum_m(MDSpan<double, 2> values)
+void GridEvaluator::sum_m(MDSpan<double, 2> values) noexcept
 {
     MDSpan<const std::array<double, 2>, 2> cossin_lon(
         m_cossin_lon_grid.data(), {m_lmax, m_lon_size});
@@ -158,7 +163,7 @@ void GridEvaluator::resize(
     m_rad_size = rad_size;
 }
 
-void GridEvaluator::sum_l()
+void GridEvaluator::sum_l() noexcept
 {
     TriangleVecSpan<const std::array<double, 2>, TriangleLayout>
     flm(m_flm_grid, m_lmax, m_rad_size);
@@ -192,7 +197,7 @@ void GridEvaluator::sum_l()
     }
 }
 
-void GridEvaluator::sum_m(MDSpan<double, 3> values)
+void GridEvaluator::sum_m(MDSpan<double, 3> values) noexcept
 {
     MDSpan<const std::array<double, 2>, 2> cossin_lon(
         m_cossin_lon_grid.data(), {m_lmax, m_lon_size});

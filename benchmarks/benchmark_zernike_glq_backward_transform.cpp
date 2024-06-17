@@ -14,13 +14,13 @@ void benchmark_zernike_backward_transform(
     zest::zt::GLQTransformerGeo transformer(lmax);
 
     zest::zt::BallGLQGrid<double> grid(lmax);
-    for (auto& value : grid.flatten())
-        value = dist(gen);
 
     zest::zt::ZernikeExpansionGeo expansion(lmax);
+    for (auto& value : expansion.flatten())
+        value = {dist(gen), dist(gen)};
 
     bench.run(name, [&](){
-        transformer.forward_transform(grid, expansion);
+        transformer.backward_transform(expansion, grid);
     });
 
     
@@ -36,7 +36,7 @@ int main()
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 200, 250, 300, 400
     };
 
-    bench.title("zt::GLQTransformer::forward_transform");
+    bench.title("zt::GLQTransformer::backward_transform");
     for (auto lmax : lmax_vec)
     {
         char name[32] = {};
@@ -44,7 +44,7 @@ int main()
         benchmark_zernike_backward_transform(bench, name, lmax);
     }
 
-    const char* fname = "zernike_glq_forward_transform.json";
+    const char* fname = "zernike_glq_backward_transform.json";
     std::ofstream output{};
     output.open(fname);
     bench.render(ankerl::nanobench::templates::json(), output);

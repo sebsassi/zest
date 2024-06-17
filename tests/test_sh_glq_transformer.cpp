@@ -32,7 +32,7 @@ bool test_glq_geo_expansion_expands_Y00()
     zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, lmax);
     auto expansion = transformer.forward_transform(grid, lmax);
 
-    const auto& coeffs = expansion.coeffs();
+    const auto& coeffs = expansion.flatten();
 
     constexpr double tol = 1.0e-10;
 
@@ -85,7 +85,7 @@ bool test_glq_geo_expansion_expands_Y10()
     zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, lmax);
     auto expansion = transformer.forward_transform(grid, lmax);
 
-    const auto& coeffs = expansion.coeffs();
+    const auto& coeffs = expansion.flatten();
 
     constexpr double tol = 1.0e-10;
 
@@ -138,7 +138,7 @@ bool test_glq_geo_expansion_expands_Y21()
     zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, lmax);
     auto expansion = transformer.forward_transform(grid, lmax);
 
-    const auto& coeffs = expansion.coeffs();
+    const auto& coeffs = expansion.flatten();
 
     constexpr double tol = 1.0e-10;
 
@@ -191,7 +191,7 @@ bool test_glq_geo_expansion_expands_Y31()
     zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, lmax);
     auto expansion = transformer.forward_transform(grid, lmax);
 
-    const auto& coeffs = expansion.coeffs();
+    const auto& coeffs = expansion.flatten();
 
     constexpr double tol = 1.0e-10;
 
@@ -244,7 +244,7 @@ bool test_glq_geo_expansion_expands_Y4m3()
     zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, lmax);
     auto expansion = transformer.forward_transform(grid, lmax);
 
-    const auto& coeffs = expansion.coeffs();
+    const auto& coeffs = expansion.flatten();
 
     constexpr double tol = 1.0e-10;
 
@@ -297,7 +297,7 @@ bool test_glq_geo_expansion_expands_Y31_plus_Y4m3()
     zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, lmax);
     auto expansion = transformer.forward_transform(grid, lmax);
 
-    const auto& coeffs = expansion.coeffs();
+    const auto& coeffs = expansion.flatten();
 
     constexpr double tol = 1.0e-10;
 

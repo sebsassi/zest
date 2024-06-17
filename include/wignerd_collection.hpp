@@ -47,6 +47,9 @@ public:
 
     void resize(std::size_t lmax);
 
+    [[nodiscard]] std::span<const double>
+    matrices() const noexcept { return m_matrices; }
+
     [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
 
     [[nodiscard]] double

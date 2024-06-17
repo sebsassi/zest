@@ -126,8 +126,6 @@ using DefaultLayout = LonLatLayout<>;
 A non-owning view on data modeling a Gauss-Legendre quadrature grid on the sphere.
 */
 template <typename ElementType, typename LayoutType = DefaultLayout>
-    requires std::same_as<std::remove_const_t<ElementType>, double>
-        || std::same_as<std::remove_const_t<ElementType>, std::complex<double>>
 class SphereGLQGridSpan
 {
 public:
@@ -173,13 +171,11 @@ private:
 /*
 Container for Gauss-Legendre quadrature gridded data on the sphere.
 */
-template <typename Element, typename LayoutType = DefaultLayout>
-    requires std::same_as<std::remove_const_t<Element>, double>
-        || std::same_as<std::remove_const_t<Element>, std::complex<double>>
+template <typename ElementType, typename LayoutType = DefaultLayout>
 class SphereGLQGrid
 {
 public:
-    using element_type = Element;
+    using element_type = ElementType;
     using Layout = LayoutType;
     using View = SphereGLQGridSpan<element_type, Layout>;
     using ConstView = SphereGLQGridSpan<const element_type, Layout>;
@@ -273,8 +269,8 @@ public:
         }
     }
 
-    template <typename LayoutType, typename FuncType>
-    void generate_values(SphereGLQGridSpan<typename std::invoke_result<FuncType, double, double>::type, LayoutType> grid, FuncType&& f)
+    template <typename LayoutType = DefaultLayout, typename FuncType>
+    void generate_values(SphereGLQGridSpan<typename std::invoke_result_t<FuncType, double, double>, LayoutType> grid, FuncType&& f)
     {
         constexpr std::size_t lon_axis = LayoutType::lon_axis;
         constexpr std::size_t lat_axis = LayoutType::lat_axis;
@@ -309,7 +305,7 @@ public:
     template <typename LayoutType = DefaultLayout, typename FuncType>
     auto generate_values(FuncType&& f, std::size_t lmax)
     {
-        using CodomainType = std::invoke_result<FuncType, double, double>::type;
+        using CodomainType = std::invoke_result_t<FuncType, double, double>;
         SphereGLQGrid<CodomainType, LayoutType> grid(lmax);
         generate_values<LayoutType, FuncType>(grid, f);
         return grid;
@@ -900,21 +896,21 @@ private:
 };
 
 /*
-`GLQTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
+Convenient alias for `GLQTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerAcoustics
     = GLQTransformer<SHNorm::QM, SHPhase::NONE, GridLayout>;
 
 /*
-`GLQTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
+Convenient alias for `GLQTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerQM
     = GLQTransformer<SHNorm::QM, SHPhase::CS, GridLayout>;
 
 /*
-`GLQTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+Convenient alias for `GLQTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerGeo

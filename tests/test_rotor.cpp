@@ -1,8 +1,8 @@
 #include "plm_recursion.hpp"
 #include "lsq_transformer.hpp"
 #include "sh_glq_transformer.hpp"
-#include "sh_rotor.hpp"
-#include "uniform_grid_evaluator.hpp"
+#include "rotor.hpp"
+#include "grid_evaluator.hpp"
 
 #include <random>
 #include <cmath>
@@ -132,9 +132,7 @@ bool test_wigner_d_pi2_is_correct_to_lmax_4()
     constexpr double d_pi2_4_4_4 = 1.0/16.0;
 
 
-    zest::st::SHRotor rotor(lmax);
-
-    const auto& d_pi2 = rotor.wigner_d_pi2();
+    zest::detail::WignerdCollection d_pi2(lmax);
     
     bool success = is_close(d_pi2(0,0,0), d_pi2_0_0_0, 1.0e-13)
             && is_close(d_pi2(1,0,0), d_pi2_1_0_0, 1.0e-13)
@@ -260,7 +258,7 @@ bool test_trivial_rotation_is_trivial_max_5()
     std::ranges::copy(buffer, test_buffer.begin());
     ExpansionSpan test_expansion(test_buffer, lmax);
 
-    zest::st::SHRotor rotor(lmax);
+    zest::Rotor rotor(lmax);
     rotor.rotate(expansion, std::array<double, 3>{});
 
     bool success = true;

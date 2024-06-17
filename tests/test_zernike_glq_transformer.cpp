@@ -1,5 +1,4 @@
 #include "zernike_glq_transformer.hpp"
-#include "uniform_grid_evaluator.hpp"
 
 #include <cassert>
 

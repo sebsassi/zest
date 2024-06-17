@@ -229,90 +229,137 @@ private:
 };
 
 /*
+Convenient alias for `ZernikeExpansionSpan` with orthonormal spherical harmonics and no Condon-Shortley phase.
+*/
+template <typename ElementType>
+using ZernikeExpansionSpanAcoustics
+    = ZernikeExpansionSpan<ElementType, st::SHNorm::QM, st::SHPhase::NONE>;
+
+/*
+Convenient alias for `ZernikeExpansionSpan` with orthonormal spherical harmonics with Condon-Shortley phase.
+*/
+template <typename ElementType>
+using ZernikeExpansionSpanQM = ZernikeExpansionSpan<ElementType, st::SHNorm::QM, st::SHPhase::CS>;
+
+/*
+Convenient alias for `ZernikeExpansionSpan` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+*/
+template <typename ElementType>
+using ZernikeExpansionSpanGeo
+    = ZernikeExpansionSpan<ElementType, st::SHNorm::GEO, st::SHPhase::NONE>;
+
+/*
 A container for a Zernike expansion of a real function.
 */
 template<st::SHNorm NORM, st::SHPhase PHASE>
 class ZernikeExpansion
 {
 public:
-    using value_type = std::array<double, 2>;
-    using size_type = std::size_t;
-    using element_type = std::array<double, 2>;
     using Layout = EvenSemiDiagonalTetrahedralLayout;
+    using element_type = std::array<double, 2>;
+    using value_type = std::array<double, 2>;
+    using index_type = Layout::index_type;
+    using size_type = std::size_t;
     using View = ZernikeExpansionSpan<element_type, NORM, PHASE>;
     using ConstView = ZernikeExpansionSpan<const element_type, NORM, PHASE>;
 
     static constexpr st::SHNorm norm = NORM;
     static constexpr st::SHPhase phase = PHASE;
 
-    [[nodiscard]] static constexpr std::size_t size(std::size_t lmax) noexcept
+    [[nodiscard]] static constexpr size_type size(size_type lmax) noexcept
     {
         return Layout::size(lmax);
     }
 
     ZernikeExpansion(): ZernikeExpansion(0) {}
-    explicit ZernikeExpansion(std::size_t lmax):
-        m_coeffs(Layout::size(lmax)), m_lmax(lmax) {}
+    explicit ZernikeExpansion(size_type lmax):
+        m_data(Layout::size(lmax)), m_lmax(lmax) {}
 
     [[nodiscard]] operator View()
     {
-        return View(m_coeffs, m_lmax);
+        return View(m_data, m_lmax);
     };
 
     [[nodiscard]] operator ConstView() const
     {
-        return ConstView(m_coeffs, m_lmax);
+        return ConstView(m_data, m_lmax);
     };
-    
-    [[nodiscard]] element_type operator()(std::size_t n, std::size_t l, std::size_t m) const noexcept
-    {
-        return m_coeffs[Layout::idx(n,l,m)];
-    }
-    element_type& operator()(std::size_t n, std::size_t l, std::size_t m) noexcept
-    {
-        return m_coeffs[Layout::idx(n,l,m)];
-    }
 
-    [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
+    [[nodiscard]] size_type lmax() const noexcept { return m_lmax; }
     [[nodiscard]] std::span<const element_type> flatten() const noexcept
     {
-        return m_coeffs;
+        return m_data;
     }
 
-    [[nodiscard]] std::span<element_type> flatten() noexcept { return m_coeffs; }
+    [[nodiscard]] std::span<element_type> flatten() noexcept { return m_data; }
+    
+    [[nodiscard]] element_type operator()(
+        index_type n, index_type l, index_type m) const noexcept
+    {
+        return m_data[Layout::idx(n,l,m)];
+    }
 
-    void resize(std::size_t lmax)
+    [[nodiscard]] element_type& operator()(
+        index_type n, index_type l, index_type m) noexcept
+    {
+        return m_data[Layout::idx(n,l,m)];
+    }
+
+    void resize(size_type lmax)
     {
         m_lmax = lmax;
-        m_coeffs.resize(Layout::size(lmax));
+        m_data.resize(Layout::size(lmax));
     }
 
-    [[nodiscard]] auto operator()(std::size_t n) const noexcept
-    {
-        return ZernikeExpansionLMSpan<const element_type, NORM, PHASE>(m_coeffs, Layout::idx(n, 0, 0), n);
-    }
-
-    [[nodiscard]] auto operator()(std::size_t n) noexcept
-    {
-        return ZernikeExpansionLMSpan<element_type, NORM, PHASE>(m_coeffs, Layout::idx(n, 0, 0), n);
-    }
-
-    [[nodiscard]] auto operator[](std::size_t n) const noexcept
+    [[nodiscard]] ZernikeExpansionLMSpan<const element_type, NORM, PHASE> 
+    operator()(index_type n) const noexcept
     {
         return ZernikeExpansionLMSpan<const element_type, NORM, PHASE>(
-                m_coeffs.data() + Layout::idx(n, 0, 0), n);
+                m_data.data() + Layout::idx(n, 0, 0), n);
     }
 
-    [[nodiscard]] auto operator[](std::size_t n) noexcept
+    [[nodiscard]] ZernikeExpansionLMSpan<element_type, NORM, PHASE>
+    operator()(index_type n) noexcept
     {
         return ZernikeExpansionLMSpan<element_type, NORM, PHASE>(
-                m_coeffs.data() + Layout::idx(n, 0, 0), n);
+                m_data.data() + Layout::idx(n, 0, 0), n);
+    }
+
+    [[nodiscard]] ZernikeExpansionLMSpan<const element_type, NORM, PHASE> 
+    operator[](index_type n) const noexcept
+    {
+        return ZernikeExpansionLMSpan<const element_type, NORM, PHASE>(
+                m_data.data() + Layout::idx(n, 0, 0), n);
+    }
+
+    [[nodiscard]] ZernikeExpansionLMSpan<element_type, NORM, PHASE>
+    operator[](index_type n) noexcept
+    {
+        return ZernikeExpansionLMSpan<element_type, NORM, PHASE>(
+                m_data.data() + Layout::idx(n, 0, 0), n);
     }
 
 private:
-    std::vector<std::array<double, 2>> m_coeffs;
-    std::size_t m_lmax;
+    std::vector<std::array<double, 2>> m_data;
+    size_type m_lmax;
 };
+
+/*
+Convenient alias for `ZernikeExpansion` with orthonormal spherical harmonics and no Condon-Shortley phase.
+*/
+using ZernikeExpansionAcoustics
+    = ZernikeExpansion<st::SHNorm::QM, st::SHPhase::NONE>;
+
+/*
+Convenient alias for `ZernikeExpansion` with orthonormal spherical harmonics with Condon-Shortley phase.
+*/
+using ZernikeExpansionQM = ZernikeExpansion<st::SHNorm::QM, st::SHPhase::CS>;
+
+/*
+Convenient alias for `ZernikeExpansion` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+*/
+using ZernikeExpansionGeo
+    = ZernikeExpansion<st::SHNorm::GEO, st::SHPhase::NONE>;
 
 template <typename T>
 concept zernike_expansion

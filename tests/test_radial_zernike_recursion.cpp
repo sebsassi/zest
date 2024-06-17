@@ -266,7 +266,7 @@ bool test_radial_zernike_normed_recursion_is_orthonormal()
     std::vector<double> glq_nodes(glq_order);
     std::vector<double> glq_weights(glq_order);
     zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::COS>(
-            glq_nodes, glq_weights, glq_weights.size());
+            glq_nodes, glq_weights, glq_weights.size() & 1);
     
     std::vector<double>
     zernike_grid(glq_order*zest::zt::RadialZernikeLayout::size(lmax));
@@ -275,7 +275,7 @@ bool test_radial_zernike_normed_recursion_is_orthonormal()
     {
         const double r = 0.5*(1.0 + glq_nodes[i]);
         zest::zt::RadialZernikeSpan<double> zernike(
-                zernike_grid.data() + i*zest::TriangleLayout::size(lmax), lmax);
+                zernike_grid.data() + i*zest::zt::RadialZernikeLayout::size(lmax), lmax);
         recursion.zernike<zest::zt::ZernikeNorm::NORMED>(zernike, r);
     }
 
@@ -287,7 +287,7 @@ bool test_radial_zernike_normed_recursion_is_orthonormal()
         const double r = 0.5*(1.0 + glq_nodes[i]);
         const double weight = 0.5*r*r*glq_weights[i];
         zest::zt::RadialZernikeSpan<double> zernike(
-                zernike_grid.data() + i*zest::TriangleLayout::size(lmax), lmax);
+                zernike_grid.data() + i*zest::zt::RadialZernikeLayout::size(lmax), lmax);
         for (std::size_t l = 0; l <= lmax; ++l)
         {
             const std::size_t extent = ((lmax - l) >> 1) + 1;

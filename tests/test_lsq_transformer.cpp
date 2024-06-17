@@ -147,7 +147,7 @@ bool test_lsq_geo_expansion_expands_Y00()
 
     auto expansion = transformer.transform(values, lat, lon, lmax);
 
-    const auto& coeffs = expansion.coeffs();
+    const auto& coeffs = expansion.flatten();
 
     constexpr double tol = 1.0e-10;
 
@@ -174,7 +174,7 @@ bool test_lsq_geo_expansion_expands_Y00()
 
     if (!success)
     {
-        for (const auto& coeff : expansion.coeffs())
+        for (const auto& coeff : expansion.flatten())
             std::printf("%f %f\n", coeff[0], coeff[1]);
     }
     return success;
@@ -211,7 +211,7 @@ bool test_lsq_geo_expansion_expands_Y21()
 
     auto expansion = transformer.transform(values, lat, lon, lmax);
 
-    const auto& coeffs = expansion.coeffs();
+    const auto& coeffs = expansion.flatten();
 
     constexpr double tol = 1.0e-10;
 
@@ -238,7 +238,7 @@ bool test_lsq_geo_expansion_expands_Y21()
 
     if (!success)
     {
-        for (const auto& coeff : expansion.coeffs())
+        for (const auto& coeff : expansion.flatten())
             std::printf("%f %f\n", coeff[0], coeff[1]);
     }
     return success;
@@ -275,7 +275,7 @@ bool test_lsq_geo_expansion_expands_Y31()
 
     auto expansion = transformer.transform(values, lat, lon, lmax);
 
-    const auto& coeffs = expansion.coeffs();
+    const auto& coeffs = expansion.flatten();
 
     constexpr double tol = 1.0e-10;
 
@@ -302,7 +302,7 @@ bool test_lsq_geo_expansion_expands_Y31()
 
     if (!success)
     {
-        for (const auto& coeff : expansion.coeffs())
+        for (const auto& coeff : expansion.flatten())
             std::printf("%f %f\n", coeff[0], coeff[1]);
     }
     return success;
@@ -339,7 +339,7 @@ bool test_lsq_geo_expansion_expands_Y4m3()
 
     auto expansion = transformer.transform(values, lat, lon, lmax);
 
-    const auto& coeffs = expansion.coeffs();
+    const auto& coeffs = expansion.flatten();
 
     constexpr double tol = 1.0e-10;
 
@@ -366,7 +366,7 @@ bool test_lsq_geo_expansion_expands_Y4m3()
 
     if (!success)
     {
-        for (const auto& coeff : expansion.coeffs())
+        for (const auto& coeff : expansion.flatten())
             std::printf("%f %f\n", coeff[0], coeff[1]);
     }
     return success;
@@ -403,7 +403,7 @@ bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
 
     auto expansion = transformer.transform(values, lat, lon, lmax);
 
-    const auto& coeffs = expansion.coeffs();
+    const auto& coeffs = expansion.flatten();
 
     constexpr double tol = 1.0e-10;
 
@@ -438,7 +438,7 @@ bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
 
     if (!success)
     {
-        for (const auto& coeff : expansion.coeffs())
+        for (const auto& coeff : expansion.flatten())
             std::printf("%f %f\n", coeff[0], coeff[1]);
     }
     return success;

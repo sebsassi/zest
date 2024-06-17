@@ -81,7 +81,6 @@ using DefaultLayout = LonLatRadLayout<>;
 A non-owning view of gridded data in spherical coordinates in the unit ball.
 */
 template <typename ElementType, typename LayoutType = DefaultLayout>
-    requires std::same_as<std::remove_const_t<ElementType>, double>
 class BallGLQGridSpan: public MDSpan<ElementType, 3>
 {
 public:
@@ -125,10 +124,11 @@ private:
 /*
 Container for gridded data in spherical coordinates in the unit ball.
 */
-template <typename LayoutType = DefaultLayout>
+template <typename ElementType, typename LayoutType = DefaultLayout>
 class BallGLQGrid
 {
 public:
+    using element_type = ElementType;
     using Layout = LayoutType;
     using View = BallGLQGridSpan<double>;
     using ConstView = BallGLQGridSpan<const double>;
@@ -146,44 +146,44 @@ public:
 
     BallGLQGrid(): BallGLQGrid(0) {}
     explicit BallGLQGrid(std::size_t lmax):
-        m_values(Layout::size(lmax)), m_shape(Layout::shape(lmax)),
+        m_data(Layout::size(lmax)), m_shape(Layout::shape(lmax)),
         m_lmax(lmax) {}
 
     [[nodiscard]] std::array<std::size_t, 3> shape() { return m_shape; }
     [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
-    [[nodiscard]] std::span<const double> values() const noexcept { return m_values; }
-    std::span<double> values() noexcept { return m_values; }
+    [[nodiscard]] std::span<const element_type> flatten() const noexcept { return m_data; }
+    std::span<element_type> flatten() noexcept { return m_data; }
 
     [[nodiscard]] operator View()
     {
-        return View(m_values, m_lmax);
+        return View(m_data, m_lmax);
     };
 
     [[nodiscard]] operator ConstView() const
     {
-        return ConstView(m_values, m_lmax);
+        return ConstView(m_data, m_lmax);
     };
 
     void resize(std::size_t lmax)
     {
-        m_values.resize(Layout::size(lmax));
+        m_data.resize(Layout::size(lmax));
         m_shape = Layout::shape(lmax);
         m_lmax = lmax;
     }
 
-    [[nodiscard]] double operator()(
+    [[nodiscard]] element_type operator()(
         std::size_t i, std::size_t j, std::size_t k) const noexcept
     {
-        return m_values[m_shape[2]*(m_shape[1]*i + j) + k];
+        return m_data[m_shape[2]*(m_shape[1]*i + j) + k];
     }
 
-    [[nodiscard]] double& operator()(
+    [[nodiscard]] element_type& operator()(
         std::size_t i, std::size_t j, std::size_t k) noexcept
     {
-        return m_values[m_shape[2]*(m_shape[1]*i + j) + k];
+        return m_data[m_shape[2]*(m_shape[1]*i + j) + k];
     }
 private:
-    std::vector<double> m_values;
+    std::vector<element_type> m_data;
     std::array<std::size_t, 3> m_shape;
     std::size_t m_lmax;
 };
@@ -215,8 +215,9 @@ public:
         return m_lat_glq_nodes;
     }
 
-    template <typename LayoutType, typename FuncType>
-    void generate_values(BallGLQGridSpan<double, LayoutType> grid, FuncType&& f)
+    template <typename LayoutType = DefaultLayout, typename FuncType>
+    void generate_values(
+        BallGLQGridSpan<typename std::invoke_result_t<FuncType, double, double, double>, LayoutType> grid, FuncType&& f)
     {
         constexpr std::size_t lon_axis = LayoutType::lon_axis;
         constexpr std::size_t lat_axis = LayoutType::lat_axis;
@@ -245,7 +246,8 @@ public:
     template <typename LayoutType = DefaultLayout, typename FuncType>
     [[nodiscard]] auto generate_values(FuncType&& f, std::size_t lmax)
     {
-        BallGLQGrid<LayoutType> grid(lmax);
+        using CodomainType = std::invoke_result_t<FuncType, double, double, double>;
+        BallGLQGrid<CodomainType, LayoutType> grid(lmax);
         generate_values<LayoutType, FuncType>(grid, f);
         return grid;
     }
@@ -448,10 +450,10 @@ public:
         return expansion;
     }
 
-    [[nodiscard]] BallGLQGrid<GridLayout> backward_transform(
+    [[nodiscard]] BallGLQGrid<double, GridLayout> backward_transform(
         ZernikeExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion, std::size_t lmax)
     {
-        BallGLQGrid<GridLayout> grid(lmax);
+        BallGLQGrid<double, GridLayout> grid(lmax);
         backward_transform(expansion, grid);
         return grid;
     }
@@ -838,27 +840,27 @@ public:
     }
 
 private:
-    BallGLQGrid<GridLayout> m_grid;
+    BallGLQGrid<double, GridLayout> m_grid;
     BallGLQGridPoints m_points;
     GLQTransformer<NORM, PHASE, GridLayout> m_transformer;
 };
 
 /*
-`GLQTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
+Convenient alias for `GLQTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerAcoustics
     = GLQTransformer<st::SHNorm::QM, st::SHPhase::NONE, GridLayout>;
 
 /*
-`GLQTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
+Convenient alias for `GLQTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerQM
     = GLQTransformer<st::SHNorm::QM, st::SHPhase::CS, GridLayout>;
 
 /*
-`GLQTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+Convenient alias for `GLQTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerGeo
