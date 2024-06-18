@@ -149,7 +149,7 @@ template <std::floating_point FloatType>
     return (1.0/std::numbers::pi)*x*(2.0 + x2*x2*(c[0] + x2*(c[1] + x2*(c[2] + x2*(c[3] + x2*c[4])))));
 }
 
-template <std::floating_point FloatType, GLNodeStyle NODE>
+template <std::floating_point FloatType, GLNodeStyle NODE_STYLE>
 [[nodiscard]] constexpr FloatType gl_node_bogaert(
     FloatType vn_sq, FloatType an_k, FloatType inv_sinc_an_k, FloatType vis_sq, FloatType x) noexcept
 {
@@ -186,7 +186,7 @@ template <std::floating_point FloatType, GLNodeStyle NODE>
     const FloatType f3_cheb = c_f3[0] + x*(c_f3[1] + x*(c_f3[2] + x*(c_f3[3] + x*(c_f3[4] + x*(c_f3[5] + x*c_f3[6])))));
     const FloatType f_sum = f1_cheb + vis_sq*(f2_cheb + vis_sq*f3_cheb);
 
-    if constexpr (NODE == GLNodeStyle::COS)
+    if constexpr (NODE_STYLE == GLNodeStyle::COS)
         return std::cos(an_k*(1.0 + vn_sq*inv_sinc_an_k*f_sum));
     else
         return an_k*(1.0 + vn_sq*inv_sinc_an_k*f_sum);
@@ -250,7 +250,7 @@ The implementation here is based on the reference implementation by Bogaert.
 
 Accurate to double machine epsilon for `num_points > 70`
 */
-template <std::floating_point FloatType, GLNodeStyle NODE>
+template <std::floating_point FloatType, GLNodeStyle NODE_STYLE>
 [[nodiscard]] constexpr std::pair<FloatType, FloatType>
 gl_node_weight_bogaert(FloatType vn, FloatType vn_sq, std::size_t k) noexcept
 {
@@ -264,12 +264,12 @@ gl_node_weight_bogaert(FloatType vn, FloatType vn_sq, std::size_t k) noexcept
     const FloatType x = an_k*an_k;
 
     return {
-        gl_node_bogaert<FloatType, NODE>(vn_sq, an_k, inv_sinc_an_k, vis_sq, x),
+        gl_node_bogaert<FloatType, NODE_STYLE>(vn_sq, an_k, inv_sinc_an_k, vis_sq, x),
         gl_weight_bogaert<FloatType>(vn_sq, inv_sinc_an_k, vis_sq, x, k)
     };
 }
 
-template <std::floating_point FloatType, GLNodeStyle NODE>
+template <std::floating_point FloatType, GLNodeStyle NODE_STYLE>
 [[nodiscard]] constexpr FloatType gl_node_bogaert(
     FloatType vn, FloatType vn_sq, std::size_t k) noexcept
 {
@@ -282,7 +282,7 @@ template <std::floating_point FloatType, GLNodeStyle NODE>
 
     const FloatType x = an_k*an_k;
 
-    return gl_node_bogaert<FloatType, NODE>(
+    return gl_node_bogaert<FloatType, NODE_STYLE>(
             vn_sq, an_k, inv_sinc_an_k, vis_sq, x);
 }
 
@@ -302,7 +302,7 @@ template <std::floating_point FloatType>
     return gl_weight_bogaert(vn_sq, inv_sinc_an_k, vis_sq, x, k);
 }
 
-template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>
+template <gl_layout Layout, GLNodeStyle NODE_STYLE, std::ranges::random_access_range R>
     requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
 constexpr void gl_nodes_bogaert(R&& nodes, std::size_t parity) noexcept
@@ -316,7 +316,7 @@ constexpr void gl_nodes_bogaert(R&& nodes, std::size_t parity) noexcept
         const FloatType vn_sq = vn*vn;
         for (std::size_t k = 1; k <= num_unique_nodes; ++k)
         {
-            const auto node = gl_node_bogaert<FloatType, NODE>(vn, vn_sq, k);
+            const auto node = gl_node_bogaert<FloatType, NODE_STYLE>(vn, vn_sq, k);
             nodes[num_unique_nodes - k] = node;
         }
     }
@@ -330,14 +330,14 @@ constexpr void gl_nodes_bogaert(R&& nodes, std::size_t parity) noexcept
         const FloatType vn_sq = vn*vn;
         if (parity)
         {
-            const auto node = gl_node_bogaert<FloatType, NODE>(
+            const auto node = gl_node_bogaert<FloatType, NODE_STYLE>(
                     vn, vn_sq, num_unique_nodes);
             nodes[m] = node;
             for (std::size_t k = 1; k < num_unique_nodes; ++k)
             {
-                const auto node = gl_node_bogaert<FloatType, NODE>(
+                const auto node = gl_node_bogaert<FloatType, NODE_STYLE>(
                         vn, vn_sq, k);
-                if constexpr (NODE == GLNodeStyle::COS)
+                if constexpr (NODE_STYLE == GLNodeStyle::COS)
                 {
                     nodes[k - 1] = -node;
                     nodes[num_nodes - k] = node;
@@ -353,9 +353,9 @@ constexpr void gl_nodes_bogaert(R&& nodes, std::size_t parity) noexcept
         {
             for (std::size_t k = 1; k <= num_unique_nodes; ++k)
             {
-                const auto node = gl_node_bogaert<FloatType, NODE>(
+                const auto node = gl_node_bogaert<FloatType, NODE_STYLE>(
                         vn, vn_sq, k);
-                if constexpr (NODE == GLNodeStyle::COS)
+                if constexpr (NODE_STYLE == GLNodeStyle::COS)
                 {
                     nodes[k - 1] = -node;
                     nodes[num_nodes - k] = node;
@@ -422,7 +422,7 @@ constexpr void gl_weights_bogaert(R&& weights, std::size_t parity) noexcept
     }
 }
 
-template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>
+template <gl_layout Layout, GLNodeStyle NODE_STYLE, std::ranges::random_access_range R>
     requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
 constexpr void gl_nodes_and_weights_bogaert(
@@ -438,7 +438,7 @@ constexpr void gl_nodes_and_weights_bogaert(
         for (std::size_t k = 1; k <= num_unique_nodes; ++k)
         {
             const auto& [node, weight]
-                    = gl_node_weight_bogaert<FloatType, NODE>(vn, vn_sq, k);
+                    = gl_node_weight_bogaert<FloatType, NODE_STYLE>(vn, vn_sq, k);
             nodes[num_unique_nodes - k] = node;
             weights[num_unique_nodes - k] = weight;
         }
@@ -454,14 +454,14 @@ constexpr void gl_nodes_and_weights_bogaert(
         if (parity)
         {
             const auto& [node, weight]
-                    = gl_node_weight_bogaert<FloatType, NODE>(
+                    = gl_node_weight_bogaert<FloatType, NODE_STYLE>(
                             vn, vn_sq, num_unique_nodes);
             nodes[m] = node;
             weights[m] = weight;
             for (std::size_t k = 1; k < num_unique_nodes; ++k)
             {
                 const auto& [node, weight]
-                        = gl_node_weight_bogaert<FloatType, NODE>(vn, vn_sq, k);
+                        = gl_node_weight_bogaert<FloatType, NODE_STYLE>(vn, vn_sq, k);
                 nodes[k - 1] = -node;
                 nodes[num_nodes - k] = node;
                 weights[k - 1] = weight;
@@ -473,7 +473,7 @@ constexpr void gl_nodes_and_weights_bogaert(
             for (std::size_t k = 1; k <= num_unique_nodes; ++k)
             {
                 const auto& [node, weight]
-                        = gl_node_weight_bogaert<FloatType, NODE>(vn, vn_sq, k);
+                        = gl_node_weight_bogaert<FloatType, NODE_STYLE>(vn, vn_sq, k);
                 nodes[k - 1] = -node;
                 nodes[num_nodes - k] = node;
                 weights[k - 1] = weight;
@@ -483,7 +483,7 @@ constexpr void gl_nodes_and_weights_bogaert(
     }
 }
 
-template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>
+template <gl_layout Layout, GLNodeStyle NODE_STYLE, std::ranges::random_access_range R>
     requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
 constexpr void gl_nodes_table(R&& nodes, std::size_t parity) noexcept
@@ -647,7 +647,7 @@ constexpr void gl_nodes_table(R&& nodes, std::size_t parity) noexcept
         const FloatType* node_arr = node_arrs[num_nodes];
         for (std::size_t i = 0; i < num_unique_nodes; ++i)
         {
-            if constexpr (NODE == GLNodeStyle::COS)
+            if constexpr (NODE_STYLE == GLNodeStyle::COS)
                 nodes[i] = std::cos(node_arr[i]);
             else
                 nodes[i] = node_arr[i];
@@ -663,14 +663,14 @@ constexpr void gl_nodes_table(R&& nodes, std::size_t parity) noexcept
         const FloatType* node_arr = node_arrs[num_nodes];
         if (parity)
         {
-            if constexpr (NODE == GLNodeStyle::COS)
+            if constexpr (NODE_STYLE == GLNodeStyle::COS)
                 nodes[m] = std::cos(node_arr[0]);
             else
                 nodes[m] = node_arr[0];
 
             for (std::size_t i = 1; i < num_unique_nodes; ++i)
             {
-                if constexpr (NODE == GLNodeStyle::COS)
+                if constexpr (NODE_STYLE == GLNodeStyle::COS)
                 {
                     const FloatType node = std::cos(node_arr[i]);
                     nodes[m - i] = -node;
@@ -687,7 +687,7 @@ constexpr void gl_nodes_table(R&& nodes, std::size_t parity) noexcept
         {
             for (std::size_t i = 0; i < num_unique_nodes; ++i)
             {
-                if constexpr (NODE == GLNodeStyle::COS)
+                if constexpr (NODE_STYLE == GLNodeStyle::COS)
                 {
                     const FloatType node = std::cos(node_arr[i]);
                     nodes[m - i - 1] = -node;
@@ -825,13 +825,13 @@ constexpr void gl_weights_table(R&& weights, std::size_t parity) noexcept
 }
 
 // Table lookup of nodes and weights where the Bogaert algorithm is inaccurate.
-template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>
+template <gl_layout Layout, GLNodeStyle NODE_STYLE, std::ranges::random_access_range R>
     requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
 constexpr void gl_nodes_and_weights_table(
     R&& nodes, R&& weights, std::size_t parity) noexcept
 {
-    gl_nodes_table<Layout, NODE>(std::forward<R>(nodes), parity);
+    gl_nodes_table<Layout, NODE_STYLE>(std::forward<R>(nodes), parity);
     gl_weights_table<Layout>(std::forward<R>(weights), parity);
 }
 
@@ -839,6 +839,10 @@ constexpr void gl_nodes_and_weights_table(
 
 /*
 Returns Gauss-Legendre nodes for a given number of nodes.
+
+Parameters:
+`nodes`: range for storing the nodes.
+`parity`: parity of the total number of nodes.
 
 Notes:
 For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
@@ -848,19 +852,23 @@ The nodes returned are accurate to double macine epsilon.
 
 The implementation is based on the reference implementation by Bogaert.
 */
-template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>requires std::floating_point<
+template <gl_layout Layout, GLNodeStyle NODE_STYLE, std::ranges::random_access_range R>requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
 constexpr void gl_nodes(R&& nodes, std::size_t parity) noexcept
 {
     if (nodes.size() == 0) return;
     else if (Layout::total_nodes(nodes.size(), parity) < 70)
-        detail::gl_nodes_table<Layout, NODE>(std::forward<R>(nodes), parity);
+        detail::gl_nodes_table<Layout, NODE_STYLE>(std::forward<R>(nodes), parity);
     else
-        detail::gl_nodes_bogaert<Layout, NODE>(std::forward<R>(nodes), parity);
+        detail::gl_nodes_bogaert<Layout, NODE_STYLE>(std::forward<R>(nodes), parity);
 }
 
 /*
 Returns Gauss-Legendre weights for a given number of nodes.
+
+Parameters:
+`weights`: range for storing the weights.
+`parity`: parity of the total number of nodes.
 
 Notes:
 For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
@@ -885,6 +893,11 @@ constexpr void gl_weights(R&& weights, std::size_t parity) noexcept
 /*
 Returns Gauss-Legendre nodes and weights for a given number of nodes.
 
+Parameters:
+`nodes`: range for storing the nodes.
+`weights`: range for storing the weights.
+`parity`: parity of the total number of nodes.
+
 Notes:
 For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
     I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026)
@@ -893,7 +906,7 @@ The nodes and weights returned are accurate to double macine epsilon.
 
 The implementation is based on the reference implementation by Bogaert.
 */
-template <gl_layout Layout, GLNodeStyle NODE, std::ranges::random_access_range R>
+template <gl_layout Layout, GLNodeStyle NODE_STYLE, std::ranges::random_access_range R>
     requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
 constexpr void gl_nodes_and_weights(
@@ -901,10 +914,10 @@ constexpr void gl_nodes_and_weights(
 {
     if (nodes.size() == 0) return;
     else if (Layout::total_nodes(nodes.size(), parity) < 70)
-        detail::gl_nodes_and_weights_table<Layout, NODE>(
+        detail::gl_nodes_and_weights_table<Layout, NODE_STYLE>(
                 std::forward<R>(nodes), std::forward<R>(weights), parity);
     else
-        detail::gl_nodes_and_weights_bogaert<Layout, NODE>(
+        detail::gl_nodes_and_weights_bogaert<Layout, NODE_STYLE>(
                 std::forward<R>(nodes), std::forward<R>(weights), parity);
 }
 

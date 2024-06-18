@@ -50,7 +50,11 @@ public:
     void expand_vec(std::size_t vec_size);
 
     /*
-    Evaluate recursion of associated Legendre polynomials with argument `z`.
+    Evaluate recursion of associated Legendre polynomials at a point.
+
+    Parameters:
+    `plm`: place to store the evaluated polynomials.
+    `z`: point at which the polynomials are evaluated
     */
     template <SHNorm NORM, SHPhase PHASE>
     void plm_real(PlmSpan<double, NORM, PHASE> plm, double z)
@@ -59,7 +63,11 @@ public:
     }
 
     /*
-    Evaluate recursion of associated Legendre polynomials with range of arguments `z`.
+    Evaluate recursion of associated Legendre polynomials at multiple points.
+
+    Parameters:
+    `plm`: place to store the evaluated polynomials.
+    `z`: points at which the polynomials are evaluated
     */
     template <SHNorm NORM, SHPhase PHASE>
     void plm_real(
@@ -69,7 +77,11 @@ public:
     }
 
     /*
-    Evaluate recursion of associated Legendre polynomials with argument `z`.
+    Evaluate recursion of associated Legendre polynomials at a point.
+
+    Parameters:
+    `plm`: place to store the evaluated polynomials.
+    `z`: point at which the polynomials are evaluated
     */
     template <SHNorm NORM, SHPhase PHASE>
     void plm_complex(PlmSpan<double, NORM, PHASE> plm, double z)
@@ -78,7 +90,11 @@ public:
     }
 
     /*
-    Evaluate recursion of associated Legendre polynomials with range of arguments `z`.
+    Evaluate recursion of associated Legendre polynomials at multiple points.
+
+    Parameters:
+    `plm`: place to store the evaluated polynomials.
+    `z`: points at which the polynomials are evaluated
     */
     template <SHNorm NORM, SHPhase PHASE>
     void plm_complex(

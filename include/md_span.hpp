@@ -26,7 +26,7 @@ auto prod(T a)
 }
 
 /*
-Poor man's mdspan.
+Poor man's mdspan for accessing multidimensional arrays.
 */
 template <typename ElementType, std::size_t NDIM>
 class MDSpan

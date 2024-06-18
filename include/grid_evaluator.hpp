@@ -32,17 +32,45 @@ namespace st
 {
 
 /*
-Evaluate a spherical harmonic expansion on arbitrary uniform grids.
+Class for evaluating spherical harmonic expansions on arbitrary grids.
 */
 class GridEvaluator
 {
 public:
     GridEvaluator() = default;
+
+    /*
+    Construct `GridEvaluator` with memory reserved for a combination of expansion and grid size.
+
+    Parameters:
+    `lmax`: maximum order of spherical harmonic expansion.
+    `lon_size`: size of grid in the longitudinal direction.
+    `lat_size`: size of grid in the latittudinal direction.
+    */
     GridEvaluator(std::size_t lmax, std::size_t lon_size, std::size_t lat_size);
 
+    /*
+    Resize for a combination of expansion and grid size.
+
+    Parameters:
+    `lmax`: maximum order of spherical harmonic expansion.
+    `lon_size`: size of grid in the longitudinal direction.
+    `lat_size`: size of grid in the latittudinal direction.
+    */
     void resize(
         std::size_t lmax, std::size_t lon_size, std::size_t lat_size);
 
+    /*
+    Evaluate spherical harmonic expansion on a grid.
+
+    Parameters:
+    `expansion`: spherical harmonics expansion.
+    `longitudes`: longitude values defining the grid points.
+    `colatitudes`: colatitude values defining the grid points.
+
+    Returns:
+    `std::vector` containing values of the expansion on the grid. The values are ordered as a 2D array with shape `{longitudes.size(), colatitudes.size()}` in row-major order.
+    */
     template <real_sh_expansion ExpansionType>
     [[nodiscard]] std::vector<double> evaluate(
         ExpansionType&& expansion, std::span<const double> longitudes, std::span<const double> colatitudes)
@@ -113,18 +141,52 @@ private:
 namespace zt
 {
 
+/*
+Class for evaluating Zernike expansions on arbitrary grids.
+*/
 class GridEvaluator
 {
 public:
     GridEvaluator() = default;
+
+    /*
+    Construct `GridEvaluator` with memory reserved for a combination of expansion and grid size.
+
+    Parameters:
+    `lmax`: maximum order of Zernike expansion.
+    `lon_size`: size of grid in the longitudinal direction.
+    `lat_size`: size of grid in the latittudinal direction.
+    `rad_size`: size of grid in the radial direction.
+    */
     GridEvaluator(
         std::size_t lmax, std::size_t lon_size, std::size_t lat_size, 
         std::size_t rad_size);
 
+    /*
+    Resize for a combination of expansion and grid size.
+
+    Parameters:
+    `lmax`: maximum order of Zernike expansion.
+    `lon_size`: size of grid in the longitudinal direction.
+    `lat_size`: size of grid in the latittudinal direction.
+    `rad_size`: size of grid in the radial direction.
+    */
     void resize(
         std::size_t lmax, std::size_t lon_size, std::size_t lat_size, 
         std::size_t rad_size);
 
+    /*
+    Evaluate spherical harmonic expansion on a grid.
+
+    Parameters:
+    `expansion`: spherical harmonics expansion.
+    `longitudes`: longitude values defining the grid points.
+    `colatitudes`: colatitude values defining the grid points.
+    `radii`: radius values defining the grid points.
+
+    Returns:
+    `std::vector` containing values of the expansion on the grid. The values are ordered as a 3D array with shape `{longitudes.size(), colatitudes.size(), radii.size()}` in row-major order.
+    */
     template <zernike_expansion ExpansionType>
     [[nodiscard]] std::vector<double> evaluate(
         ExpansionType&& expansion, std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)

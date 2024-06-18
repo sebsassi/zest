@@ -9,6 +9,13 @@ namespace zest
 namespace st
 {
 
+/*
+Compute cross power spectrum of two spherical harmonic expansions.
+
+Parameters:
+´a´, `b`: spherical harmonic expansions.
+`out`: place to store the cross power spectrum.
+*/
 template <SHNorm NORM, SHPhase PHASE>
 void cross_power_spectrum(
     RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> a,
@@ -28,6 +35,16 @@ void cross_power_spectrum(
     }
 }
 
+/*
+Compute cross power spectrum of two spherical harmonic expansions.
+
+Parameters:
+´a´, `b`: spherical harmonic expansions.
+`out`: place to store the cross power spectrum.
+
+Returns:
+`std::vector` storing the the cross power spectrum.
+*/
 template <SHNorm NORM, SHPhase PHASE>
 [[nodiscard]] std::vector<double> cross_power_spectrum(
     RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> a,
@@ -39,6 +56,13 @@ template <SHNorm NORM, SHPhase PHASE>
     return out;
 }
 
+/*
+Compute power spectrum of a spherical harmonic expansions.
+
+Parameters:
+´expansion`: spherical harmonic expansion.
+`out`: place to store the cross power spectrum.
+*/
 template <SHNorm NORM, SHPhase PHASE>
 void power_spectrum(
     RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion,
@@ -57,6 +81,16 @@ void power_spectrum(
     }
 }
 
+
+/*
+Compute power spectrum of a spherical harmonic expansions.
+
+Parameters:
+´expansion`: spherical harmonic expansion.
+
+Returns:
+`std::vector` storing the power spectrum.
+*/
 template <SHNorm NORM, SHPhase PHASE>
 [[nodiscard]] std::vector<double> power_spectrum(
     RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion)
