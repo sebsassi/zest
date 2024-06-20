@@ -6,6 +6,7 @@
 #include "alignment.hpp"
 #include "plm_recursion.hpp"
 #include "gauss_legendre.hpp"
+#include "md_span.hpp"
 
 #include "pocketfft.hpp"
 
@@ -126,45 +127,50 @@ using DefaultLayout = LonLatLayout<>;
 A non-owning view on data modeling a Gauss-Legendre quadrature grid on the sphere.
 */
 template <typename ElementType, typename LayoutType = DefaultLayout>
-class SphereGLQGridSpan
+class SphereGLQGridSpan: public MDSpan<ElementType, 2>
 {
 public:
-    using element_type = ElementType;
-    using value_type = std::remove_const_t<ElementType>;
-    using size_type = std::size_t;
+    using typename MDSpan<ElementType, 2>::element_type;
     using Layout = LayoutType;
+
+    using MDSpan<ElementType, 2>::extents;
+    using MDSpan<ElementType, 2>::data;
+    using MDSpan<ElementType, 2>::size;
+
+    [[nodiscard]] static constexpr std::size_t size(std::size_t lmax) noexcept
+    {
+        return Layout::size(lmax);
+    }
+
+    [[nodiscard]] static constexpr std::array<std::size_t, 2>
+    shape(std::size_t lmax) noexcept
+    {
+        return Layout::shape(lmax);
+    }
 
     constexpr SphereGLQGridSpan(
         std::span<element_type> buffer, std::size_t lmax):
-        m_values(buffer.begin(), Layout::size(lmax)), m_shape(Layout::shape(lmax)), m_lmax(lmax) {}
-    constexpr SphereGLQGridSpan(
-        std::span<element_type> buffer, std::size_t idx, std::size_t lmax):
-        m_values(buffer.begin() + idx*Layout::size(lmax), Layout::size(lmax)), m_shape(Layout::shape(lmax)), m_lmax(lmax) {}
-
-    [[nodiscard]] constexpr std::array<std::size_t, 2>
-    shape() const noexcept { return m_shape; }
+        MDSpan<ElementType, 2>(buffer.data(), Layout::shape(lmax)),
+        m_lmax(lmax) {}
+    constexpr SphereGLQGridSpan(element_type* data, std::size_t lmax):
+        MDSpan<ElementType, 2>(data, Layout::shape(lmax)), m_lmax(lmax) {}
 
     [[nodiscard]] constexpr std::size_t lmax() const noexcept { return m_lmax; }
+    
+    [[nodiscard]] constexpr const std::array<std::size_t, 2>&
+    shape() const noexcept { return extents(); }
 
     [[nodiscard]] constexpr std::span<element_type>
-    flatten() const noexcept { return m_values; }
+    flatten() const noexcept { return std::span<element_type>(data(), size()); }
 
     [[nodiscard]] constexpr
     operator SphereGLQGridSpan<const element_type, Layout>()
     {
         return SphereGLQGridSpan<const element_type, Layout>(
-                m_values, m_shape, m_lmax);
-    }
-
-    [[nodiscard]] constexpr element_type&
-    operator()(std::size_t i, std::size_t j) const noexcept
-    {
-        return m_values[m_shape[1]*i + j];
+                data(), m_lmax);
     }
 
 private:
-    std::span<element_type> m_values;
-    std::array<std::size_t, 2> m_shape;
     std::size_t m_lmax;
 };
 

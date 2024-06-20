@@ -105,9 +105,8 @@ public:
     constexpr BallGLQGridSpan(std::span<element_type> buffer, std::size_t lmax):
         MDSpan<ElementType, 3>(buffer.data(), Layout::shape(lmax)),
         m_lmax(lmax) {}
-    constexpr BallGLQGridSpan(
-        std::span<element_type> buffer, std::size_t idx, std::size_t lmax):
-        MDSpan<ElementType, 3>(buffer.data() + idx*Layout::size(lmax), Layout::shape(lmax)), m_lmax(lmax) {}
+    constexpr BallGLQGridSpan(element_type* data, std::size_t lmax):
+        MDSpan<ElementType, 3>(data, Layout::shape(lmax)), m_lmax(lmax) {}
 
     [[nodiscard]] constexpr std::size_t lmax() const noexcept { return m_lmax; }
     
@@ -116,6 +115,13 @@ public:
 
     [[nodiscard]] constexpr std::span<element_type>
     flatten() const noexcept { return std::span<element_type>(data(), size()); }
+
+    [[nodiscard]] constexpr
+    operator BallGLQGridSpan<const element_type, Layout>()
+    {
+        return BallGLQGridSpan<const element_type, Layout>(
+                data(), m_lmax);
+    }
 
 private:
     std::size_t m_lmax;
@@ -738,6 +744,27 @@ private:
 };
 
 /*
+Convenient alias for `GLQTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
+*/
+template <typename GridLayout = DefaultLayout>
+using GLQTransformerAcoustics
+    = GLQTransformer<st::SHNorm::QM, st::SHPhase::NONE, GridLayout>;
+
+/*
+Convenient alias for `GLQTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
+*/
+template <typename GridLayout = DefaultLayout>
+using GLQTransformerQM
+    = GLQTransformer<st::SHNorm::QM, st::SHPhase::CS, GridLayout>;
+
+/*
+Convenient alias for `GLQTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+*/
+template <typename GridLayout = DefaultLayout>
+using GLQTransformerGeo
+    = GLQTransformer<st::SHNorm::GEO, st::SHPhase::NONE, GridLayout>;
+
+/*
 Function concept taking Cartesian coordinates as inputs.
 */
 template <typename Func>
@@ -846,25 +873,25 @@ private:
 };
 
 /*
-Convenient alias for `GLQTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
+Convenient alias for `ZernikeTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerAcoustics
-    = GLQTransformer<st::SHNorm::QM, st::SHPhase::NONE, GridLayout>;
+using ZernikeTransformerAcoustics
+    = ZernikeTransformer<st::SHNorm::QM, st::SHPhase::NONE, GridLayout>;
 
 /*
-Convenient alias for `GLQTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
+Convenient alias for `ZernikeTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerQM
-    = GLQTransformer<st::SHNorm::QM, st::SHPhase::CS, GridLayout>;
+using ZernikeTransformerQM
+    = ZernikeTransformer<st::SHNorm::QM, st::SHPhase::CS, GridLayout>;
 
 /*
-Convenient alias for `GLQTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+Convenient alias for `ZernikeTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerGeo
-    = GLQTransformer<st::SHNorm::GEO, st::SHPhase::NONE, GridLayout>;
+using ZernikeTransformerGeo
+    = ZernikeTransformer<st::SHNorm::GEO, st::SHPhase::NONE, GridLayout>;
 
 }
 }
