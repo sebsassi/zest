@@ -12,7 +12,7 @@ add_library(zest
     src/lsq_transformer.cpp src/plm_recursion.cpp
     src/power_spectra.cpp src/real_ylm.cpp src/wignerd_collection.cpp
     src/rotor.cpp src/linearfit.cpp src/grid_evaluator.cpp
-    src/zernike_glq_transformer.cpp src/radial_zernike_recursion.cpp
+    src/sh_glq_transformer.cpp src/zernike_glq_transformer.cpp src/radial_zernike_recursion.cpp
 )
 
 target_include_directories(zest

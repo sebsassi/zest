@@ -182,6 +182,7 @@ class SphereGLQGrid
 {
 public:
     using element_type = ElementType;
+    using value_type = std::remove_cvref_t<element_type>;
     using Layout = LayoutType;
     using View = SphereGLQGridSpan<element_type, Layout>;
     using ConstView = SphereGLQGridSpan<const element_type, Layout>;
@@ -237,6 +238,19 @@ private:
     std::size_t m_order;
 };
 
+template <typename T>
+concept sphere_glq_grid
+    = std::same_as<
+        std::remove_cvref_t<T>,
+        SphereGLQGridSpan<
+            typename std::remove_cvref_t<T>::element_type,
+            typename std::remove_cvref_t<T>::Layout>>
+    || std::same_as<
+        std::remove_cvref_t<T>,
+        SphereGLQGrid<
+            typename std::remove_cvref_t<T>::element_type,
+            typename std::remove_cvref_t<T>::Layout>>;
+
 /*
 Points defining a Gauss-Legendre quadrature grid on the sphere.
 */
@@ -259,13 +273,25 @@ public:
         return m_glq_nodes;
     }
 
-    template <typename LayoutType = DefaultLayout, typename FuncType>
-    void generate_values(SphereGLQGridSpan<typename std::invoke_result_t<FuncType, double, double>, LayoutType> grid, FuncType&& f)
+    template <typename LayoutType>
+    void resize(std::size_t order)
     {
         constexpr std::size_t lon_axis = LayoutType::lon_axis;
         constexpr std::size_t lat_axis = LayoutType::lat_axis;
-        const auto shape = grid.shape();
+        const auto shape = LayoutType::shape(order);
         resize(shape[lon_axis], shape[lat_axis]);
+    }
+
+    template <sphere_glq_grid GridType, typename FuncType>
+        requires std::same_as<
+            std::remove_reference_t<
+                typename std::remove_cvref_t<GridType>::element_type>,
+            typename std::remove_cvref_t<GridType>::value_type>
+    void generate_values(GridType&& grid, FuncType&& f)
+    {
+        using LayoutType = typename std::remove_cvref_t<GridType>::Layout;
+        resize<LayoutType>(grid.order());
+
         if constexpr (std::same_as<LayoutType, LatLonLayout<typename LayoutType::Alignment>>)
         {
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
@@ -297,27 +323,13 @@ public:
     {
         using CodomainType = std::invoke_result_t<FuncType, double, double>;
         SphereGLQGrid<CodomainType, LayoutType> grid(order);
-        generate_values<LayoutType, FuncType>(grid, f);
+        generate_values(grid, f);
         return grid;
     }
 
 private:
-    void resize(std::size_t num_lon, std::size_t num_lat)
-    {
-        if (num_lon != m_longitudes.size())
-        {
-            m_longitudes.resize(num_lon);
-            const double dlon = (2.0*std::numbers::pi)/double(m_longitudes.size());
-            for (std::size_t i = 0; i < m_longitudes.size(); ++i)
-                m_longitudes[i] = dlon*double(i);
-        }
-        if (num_lat != m_glq_nodes.size())
-        {
-            m_glq_nodes.resize(num_lat);
-            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::ANGLE>(m_glq_nodes, m_glq_nodes.size() & 1);
-        }
-    }
-    
+    void resize(std::size_t num_lon, std::size_t num_lat);
+
     std::vector<double> m_longitudes;
     std::vector<double> m_glq_nodes;
 };

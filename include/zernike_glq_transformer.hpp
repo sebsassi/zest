@@ -137,6 +137,7 @@ class BallGLQGrid
 {
 public:
     using element_type = ElementType;
+    using value_type = std::remove_cvref_t<element_type>;
     using Layout = LayoutType;
     using View = BallGLQGridSpan<double>;
     using ConstView = BallGLQGridSpan<const double>;
@@ -196,6 +197,19 @@ private:
     std::size_t m_order;
 };
 
+template <typename T>
+concept ball_glq_grid
+    = std::same_as<
+        std::remove_cvref_t<T>,
+        BallGLQGridSpan<
+            typename std::remove_cvref_t<T>::element_type,
+            typename std::remove_cvref_t<T>::Layout>>
+    || std::same_as<
+        std::remove_cvref_t<T>,
+        BallGLQGrid<
+            typename std::remove_cvref_t<T>::element_type,
+            typename std::remove_cvref_t<T>::Layout>>;
+
 /*
 Points defining a grid in spherical coordinates in the unit ball.
 */
@@ -219,15 +233,25 @@ public:
         return m_lat_glq_nodes;
     }
 
-    template <typename LayoutType = DefaultLayout, typename FuncType>
-    void generate_values(
-        BallGLQGridSpan<typename std::invoke_result_t<FuncType, double, double, double>, LayoutType> grid, FuncType&& f)
+    template <typename LayoutType>
+    void resize(std::size_t order)
     {
         constexpr std::size_t lon_axis = LayoutType::lon_axis;
         constexpr std::size_t lat_axis = LayoutType::lat_axis;
         constexpr std::size_t rad_axis = LayoutType::rad_axis;
-        const auto shape = grid.shape();
+        const auto shape = LayoutType::shape(order);
         resize(shape[lon_axis], shape[lat_axis], shape[rad_axis]);
+    }
+
+    template <ball_glq_grid GridType, typename FuncType>
+        requires std::same_as<
+            std::remove_reference_t<
+                typename std::remove_cvref_t<GridType>::element_type>,
+            typename std::remove_cvref_t<GridType>::value_type>
+    void generate_values(GridType&& grid, FuncType&& f)
+    {
+        using LayoutType = typename std::remove_cvref_t<GridType>::Layout;
+        resize<LayoutType>(grid.order());
         
         if constexpr (std::same_as<LayoutType, LonLatRadLayout<typename LayoutType::Alignment>>)
         {
@@ -252,15 +276,16 @@ public:
     {
         using CodomainType = std::invoke_result_t<FuncType, double, double, double>;
         BallGLQGrid<CodomainType, LayoutType> grid(order);
-        generate_values<LayoutType, FuncType>(grid, f);
+        generate_values(grid, f);
         return grid;
     }
 
 #ifdef ZEST_USE_OMP
-    template <typename LayoutType, typename FuncType>
+    template <ball_glq_grid GridType, typename FuncType>
     void generate_values(
         BallGLQGridSpan<double> grid, FuncType&& f, std::size_t num_threads)
     {
+        using LayoutType = typename std::remove_cvref_t<GridType>::Layout;
         constexpr std::size_t lon_axis = LayoutType::lon_axis;
         constexpr std::size_t lat_axis = LayoutType::lat_axis;
         constexpr std::size_t rad_axis = LayoutType::rad_axis;
