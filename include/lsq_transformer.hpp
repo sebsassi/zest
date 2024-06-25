@@ -15,12 +15,12 @@ Least-squares real spherical harmonic expansion fit on arbitrary real valued dat
 class LSQTransformer
 {
 public:
-    LSQTransformer(): LSQTransformer(0) {}
-    explicit LSQTransformer(std::size_t lmax);
+    LSQTransformer() = default;
+    explicit LSQTransformer(std::size_t order);
 
-    [[nodiscard]] std::size_t lmax() const noexcept
+    [[nodiscard]] std::size_t order() const noexcept
     {
-        return m_ylm_gen.lmax();
+        return m_ylm_gen.max_order();
     }
 
     [[nodiscard]] const Matrix<double>& sh_values() const noexcept
@@ -32,7 +32,7 @@ public:
         RealSHExpansionSpan<std::array<double, 2>, SHNorm::GEO, SHPhase::NONE> expansion, std::span<const double> data, std::span<const double> lat, std::span<const double> lon);
     
     RealSHExpansion<SHNorm::GEO, SHPhase::NONE> transform(
-        std::span<const double> data, std::span<const double> lat, std::span<const double> lon, std::size_t lmax);
+        std::span<const double> data, std::span<const double> lat, std::span<const double> lon, std::size_t order);
 
 private:
     RealYlmGenerator m_ylm_gen;

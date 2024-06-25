@@ -38,27 +38,29 @@ class GridEvaluator
 {
 public:
     GridEvaluator() = default;
+    explicit GridEvaluator(std::size_t max_order);
 
     /*
     Construct `GridEvaluator` with memory reserved for a combination of expansion and grid size.
 
     Parameters:
-    `lmax`: maximum order of spherical harmonic expansion.
+    `max_order`: maximum order of spherical harmonic expansion.
     `lon_size`: size of grid in the longitudinal direction.
     `lat_size`: size of grid in the latittudinal direction.
     */
-    GridEvaluator(std::size_t lmax, std::size_t lon_size, std::size_t lat_size);
+    GridEvaluator(
+        std::size_t max_order, std::size_t lon_size, std::size_t lat_size);
 
     /*
     Resize for a combination of expansion and grid size.
 
     Parameters:
-    `lmax`: maximum order of spherical harmonic expansion.
+    `max_order`: maximum order of spherical harmonic expansion.
     `lon_size`: size of grid in the longitudinal direction.
     `lat_size`: size of grid in the latittudinal direction.
     */
     void resize(
-        std::size_t lmax, std::size_t lon_size, std::size_t lat_size);
+        std::size_t max_order, std::size_t lon_size, std::size_t lat_size);
 
     /*
     Evaluate spherical harmonic expansion on a grid.
@@ -80,22 +82,24 @@ public:
         if (longitudes.size() == 0 || colatitudes.size() == 0)
             return std::vector<double>{};
 
-        resize(expansion.lmax(), longitudes.size(), colatitudes.size());
+        const std::size_t order = expansion.order();
+        resize(order, longitudes.size(), colatitudes.size());
 
         for (std::size_t i = 0; i < m_lat_size; ++i)
             m_cos_colat[i] = std::cos(colatitudes[i]);
-        
-        st::PlmVecSpan<double, NORM, PHASE> plm(m_plm_grid, m_lmax, m_lat_size);
+
+        st::PlmVecSpan<double, NORM, PHASE> plm(
+                m_plm_grid, order, m_lat_size);
         m_plm_recursion.plm_real(plm, m_cos_colat);
 
         MDSpan<std::array<double, 2>, 2> cossin_lon(
-            m_cossin_lon_grid.data(), {m_lmax, m_lon_size});
+            m_cossin_lon_grid.data(), {order, m_lon_size});
         detail::recursive_trig(cossin_lon, longitudes);
 
         sum_l(std::forward<ExpansionType>(expansion));
 
         std::vector<double> res(m_lon_size*m_lat_size);
-        sum_m(MDSpan<double, 2>(res.data(), {m_lon_size, m_lat_size}));
+        sum_m(MDSpan<double, 2>(res.data(), {m_lon_size, m_lat_size}), order);
 
         return res;
     }
@@ -104,8 +108,8 @@ private:
     void sum_l(ExpansionType&& expansion) noexcept
     {
         TriangleVecSpan<const double, TriangleLayout> ass_leg(
-                m_plm_grid, m_lmax, m_lat_size);
-        for (std::size_t l = 0; l <= m_lmax; ++l)
+                m_plm_grid, expansion.order(), m_lat_size);
+        for (std::size_t l = 0; l < expansion.order(); ++l)
         {
             for (std::size_t m = 0; m <= l; ++m)
             {
@@ -124,7 +128,7 @@ private:
         }
     }
 
-    void sum_m(MDSpan<double, 2> values) noexcept;
+    void sum_m(MDSpan<double, 2> values, std::size_t order) noexcept;
 
     st::PlmRecursion m_plm_recursion;
     std::vector<double> m_plm_grid;
@@ -133,7 +137,7 @@ private:
     std::vector<std::array<double, 2>> m_fm_grid;
     std::size_t m_lon_size;
     std::size_t m_lat_size;
-    std::size_t m_lmax;
+    std::size_t m_max_order;
 };
 
 }
@@ -148,31 +152,32 @@ class GridEvaluator
 {
 public:
     GridEvaluator() = default;
+    explicit GridEvaluator(std::size_t max_order);
 
     /*
     Construct `GridEvaluator` with memory reserved for a combination of expansion and grid size.
 
     Parameters:
-    `lmax`: maximum order of Zernike expansion.
+    `max_order`: maximum order of Zernike expansion.
     `lon_size`: size of grid in the longitudinal direction.
     `lat_size`: size of grid in the latittudinal direction.
     `rad_size`: size of grid in the radial direction.
     */
     GridEvaluator(
-        std::size_t lmax, std::size_t lon_size, std::size_t lat_size, 
+        std::size_t max_order, std::size_t lon_size, std::size_t lat_size, 
         std::size_t rad_size);
 
     /*
     Resize for a combination of expansion and grid size.
 
     Parameters:
-    `lmax`: maximum order of Zernike expansion.
+    `max_order`: maximum order of Zernike expansion.
     `lon_size`: size of grid in the longitudinal direction.
     `lat_size`: size of grid in the latittudinal direction.
     `rad_size`: size of grid in the radial direction.
     */
     void resize(
-        std::size_t lmax, std::size_t lon_size, std::size_t lat_size, 
+        std::size_t max_order, std::size_t lon_size, std::size_t lat_size, 
         std::size_t rad_size);
 
     /*
@@ -196,31 +201,30 @@ public:
         if (longitudes.size() == 0 || colatitudes.size() == 0 || radii.size() == 0)
             return std::vector<double>{};
         
-        resize(
-                expansion.lmax(), longitudes.size(), colatitudes.size(),
-                radii.size());
+        const std::size_t order = expansion.order();
+        resize(order, longitudes.size(), colatitudes.size(), radii.size());
 
 
         RadialZernikeVecSpan<double> zernike(
-                m_zernike_grid, m_lmax, m_rad_size);
+                m_zernike_grid, order, m_rad_size);
         m_zernike_recursion.zernike<ZernikeNorm::NORMED>(zernike, radii);
 
         for (std::size_t i = 0; i < m_lat_size; ++i)
             m_cos_colat[i] = std::cos(colatitudes[i]);
         
-        st::PlmVecSpan<double, NORM, PHASE> plm(m_plm_grid, m_lmax, m_lat_size);
+        st::PlmVecSpan<double, NORM, PHASE> plm(m_plm_grid, order, m_lat_size);
         m_plm_recursion.plm_real(plm, m_cos_colat);
 
         MDSpan<std::array<double, 2>, 2> cossin_lon(
-                m_cossin_lon_grid.data(), {m_lmax, m_lon_size});
+                m_cossin_lon_grid.data(), {order, m_lon_size});
         detail::recursive_trig(cossin_lon, longitudes);
 
         sum_n(std::forward<ExpansionType>(expansion));
-        sum_l();
+        sum_l(order);
 
         std::vector<double> res(m_lon_size*m_lat_size*m_rad_size);
         sum_m(MDSpan<double, 3>(
-                res.data(), {m_lon_size, m_lat_size, m_rad_size}));
+                res.data(), {m_lon_size, m_lat_size, m_rad_size}), order);
 
         return res;
     }
@@ -229,15 +233,16 @@ private:
     template <zernike_expansion ExpansionType>
     void sum_n(ExpansionType&& expansion) noexcept
     {
+        const std::size_t order = expansion.order();
         RadialZernikeVecSpan<const double> zernike(
-                m_zernike_grid, m_lmax, m_rad_size);
+                m_zernike_grid, order, m_rad_size);
 
         std::ranges::fill(m_flm_grid, std::array<double, 2>{});
 
         TriangleVecSpan<std::array<double, 2>, TriangleLayout>
-        flm(m_flm_grid, m_lmax, m_rad_size);
+        flm(m_flm_grid, order, m_rad_size);
 
-        for (std::size_t n = 0; n <= m_lmax; ++n)
+        for (std::size_t n = 0; n < order; ++n)
         {
             auto expansion_n = expansion[n];
             for (std::size_t l = n & 1; l <= n; l += 2)
@@ -261,9 +266,9 @@ private:
         }
     }
 
-    void sum_l() noexcept;
+    void sum_l(std::size_t order) noexcept;
 
-    void sum_m(MDSpan<double, 3> values) noexcept;
+    void sum_m(MDSpan<double, 3> values, std::size_t order) noexcept;
 
     RadialZernikeRecursion m_zernike_recursion;
     st::PlmRecursion m_plm_recursion;
@@ -276,7 +281,7 @@ private:
     std::size_t m_lon_size;
     std::size_t m_lat_size;
     std::size_t m_rad_size;
-    std::size_t m_lmax;
+    std::size_t m_max_order;
 };
 
 }

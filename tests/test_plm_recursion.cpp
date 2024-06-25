@@ -15,9 +15,9 @@ constexpr bool is_close(
     return std::fabs(a[0] - b[0]) < tol && std::fabs(a[1] - b[1]) < tol;
 }
 
-bool test_plm_real_generates_real_correct_up_to_lmax_4(double z)
+bool test_plm_real_generates_real_correct_up_to_order_5(double z)
 {
-    constexpr std::size_t lmax = 4;
+    constexpr std::size_t order = 5;
 
     const double P00 = 1.0;
 
@@ -39,11 +39,11 @@ bool test_plm_real_generates_real_correct_up_to_lmax_4(double z)
     const double P43 = std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z;
     const double P44 = std::sqrt(315.0/64.0)*(1.0 - z*z)*(1.0 - z*z);
 
-    zest::st::PlmRecursion recursion(lmax);
+    zest::st::PlmRecursion recursion(order);
 
-    std::vector<double> plm(zest::TriangleLayout::size(lmax));
+    std::vector<double> plm(zest::TriangleLayout::size(order));
 
-    recursion.plm_real(zest::st::PlmSpan<double, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(plm, recursion.lmax()), z);
+    recursion.plm_real(zest::st::PlmSpan<double, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(plm, recursion.max_order()), z);
     bool success = is_close(plm[0], P00, 1.0e-10)
             && is_close(plm[1], P10, 1.0e-10)
             && is_close(plm[2], P11, 1.0e-10)
@@ -83,9 +83,9 @@ bool test_plm_real_generates_real_correct_up_to_lmax_4(double z)
     }
 }
 
-bool test_plm_real_generates_real_vec_correct_up_to_lmax_4(double z)
+bool test_plm_real_generates_real_vec_correct_up_to_order_5(double z)
 {
-    constexpr std::size_t lmax = 4;
+    constexpr std::size_t order = 5;
 
     const double P00 = 1.0;
 
@@ -107,11 +107,11 @@ bool test_plm_real_generates_real_vec_correct_up_to_lmax_4(double z)
     const double P43 = std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z;
     const double P44 = std::sqrt(315.0/64.0)*(1.0 - z*z)*(1.0 - z*z);
 
-    zest::st::PlmRecursion recursion(lmax);
+    zest::st::PlmRecursion recursion(order);
 
-    std::vector<double> plm(zest::TriangleLayout::size(lmax));
+    std::vector<double> plm(zest::TriangleLayout::size(order));
 
-    recursion.plm_real(zest::st::PlmVecSpan<double, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(plm, recursion.lmax(), 1), std::array<double, 1>{z});
+    recursion.plm_real(zest::st::PlmVecSpan<double, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(plm, recursion.max_order(), 1), std::array<double, 1>{z});
     bool success = is_close(plm[0], P00, 1.0e-10)
             && is_close(plm[1], P10, 1.0e-10)
             && is_close(plm[2], P11, 1.0e-10)
@@ -153,13 +153,13 @@ bool test_plm_real_generates_real_vec_correct_up_to_lmax_4(double z)
 
 int main()
 {
-    assert(test_plm_real_generates_real_correct_up_to_lmax_4(1.0));
-    assert(test_plm_real_generates_real_correct_up_to_lmax_4(-1.0));
-    assert(test_plm_real_generates_real_correct_up_to_lmax_4(0.0));
-    assert(test_plm_real_generates_real_correct_up_to_lmax_4(0.9741683087648949));
+    assert(test_plm_real_generates_real_correct_up_to_order_5(1.0));
+    assert(test_plm_real_generates_real_correct_up_to_order_5(-1.0));
+    assert(test_plm_real_generates_real_correct_up_to_order_5(0.0));
+    assert(test_plm_real_generates_real_correct_up_to_order_5(0.9741683087648949));
 
-    assert(test_plm_real_generates_real_vec_correct_up_to_lmax_4(1.0));
-    assert(test_plm_real_generates_real_vec_correct_up_to_lmax_4(-1.0));
-    assert(test_plm_real_generates_real_vec_correct_up_to_lmax_4(0.0));
-    assert(test_plm_real_generates_real_vec_correct_up_to_lmax_4(0.9741683087648949));
+    assert(test_plm_real_generates_real_vec_correct_up_to_order_5(1.0));
+    assert(test_plm_real_generates_real_vec_correct_up_to_order_5(-1.0));
+    assert(test_plm_real_generates_real_vec_correct_up_to_order_5(0.0));
+    assert(test_plm_real_generates_real_vec_correct_up_to_order_5(0.9741683087648949));
 }

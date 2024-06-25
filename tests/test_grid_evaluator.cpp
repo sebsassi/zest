@@ -34,7 +34,7 @@ std::vector<T> linspace(T start, T stop, std::size_t count)
 
 bool test_sh_grid_evaluator_does_constant_function()
 {
-    constexpr std::size_t lmax = 5;
+    constexpr std::size_t order = 6;
     constexpr std::size_t num_lon = 30;
     constexpr std::size_t num_lat = 15;
     
@@ -49,14 +49,14 @@ bool test_sh_grid_evaluator_does_constant_function()
     }
     
     zest::st::RealSHExpansion<zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>
-    expansion(lmax);
+    expansion(order);
     
     expansion(0,0)[0] = 1.0;
 
     std::vector<double> longitudes = linspace(0.0, 2.0*std::numbers::pi, num_lon);
     std::vector<double> colatitudes = linspace(0.0, std::numbers::pi, num_lon);
 
-    const auto& grid = zest::st::GridEvaluator{}.evaluate(
+    const auto& grid = zest::st::GridEvaluator(order).evaluate(
             expansion, longitudes, colatitudes);
     
     constexpr double tol = 1.0e-13;
@@ -88,7 +88,7 @@ bool test_sh_grid_evaluator_does_constant_function()
 
 bool test_sh_grid_evaluator_does_Y10()
 {
-    constexpr std::size_t lmax = 5;
+    constexpr std::size_t order = 6;
     constexpr std::size_t num_lon = 30;
     constexpr std::size_t num_lat = 15;
 
@@ -115,11 +115,11 @@ bool test_sh_grid_evaluator_does_Y10()
     }
     
     zest::st::RealSHExpansion<zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>
-    expansion(lmax);
+    expansion(order);
     
     expansion(1,0) = {1.0, 0.0};
 
-    const auto& grid = zest::st::GridEvaluator{}.evaluate(
+    const auto& grid = zest::st::GridEvaluator(order).evaluate(
             expansion, longitudes, colatitudes);
     
     constexpr double tol = 1.0e-13;
@@ -162,7 +162,7 @@ bool test_sh_grid_evaluator_does_Y10()
 
 bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
 {
-    constexpr std::size_t lmax = 5;
+    constexpr std::size_t order = 6;
     constexpr std::size_t num_lon = 30;
     constexpr std::size_t num_lat = 15;
 
@@ -189,12 +189,12 @@ bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
     }
     
     zest::st::RealSHExpansion<zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>
-    expansion(lmax);
+    expansion(order);
     
     expansion(3,1) = {1.0, 0.0};
     expansion(4,3) = {0.0, 1.0};
 
-    const auto& grid = zest::st::GridEvaluator{}.evaluate(
+    const auto& grid = zest::st::GridEvaluator(order).evaluate(
             expansion, longitudes, colatitudes);
     
     constexpr double tol = 1.0e-13;
@@ -237,7 +237,7 @@ bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
 
 bool test_zernike_grid_evaluator_does_constant_function()
 {
-    constexpr std::size_t lmax = 5;
+    constexpr std::size_t order = 6;
     constexpr std::size_t num_lon = 14;
     constexpr std::size_t num_lat = 7;
     constexpr std::size_t num_rad = 7;
@@ -254,7 +254,7 @@ bool test_zernike_grid_evaluator_does_constant_function()
     }
     
     zest::zt::ZernikeExpansion<zest::st::SHNorm::GEO, zest::st::SHPhase::NONE> 
-    expansion(lmax);
+    expansion(order);
     
     expansion(0,0,0)[0] = 1.0;
 
@@ -262,7 +262,7 @@ bool test_zernike_grid_evaluator_does_constant_function()
     std::vector<double> colatitudes = linspace(0.0, std::numbers::pi, num_lat);
     std::vector<double> radii = linspace(0.0, 1.0, num_rad);
 
-    const auto& grid = zest::zt::GridEvaluator{}.evaluate(
+    const auto& grid = zest::zt::GridEvaluator(order).evaluate(
             expansion, longitudes, colatitudes, radii);
     
     constexpr double tol = 1.0e-13;
@@ -297,7 +297,7 @@ bool test_zernike_grid_evaluator_does_constant_function()
 
 bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
 {
-    constexpr std::size_t lmax = 5;
+    constexpr std::size_t order = 6;
     constexpr std::size_t num_lon = 14;
     constexpr std::size_t num_lat = 7;
     constexpr std::size_t num_rad = 7;
@@ -324,12 +324,12 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
     }
     
     zest::zt::ZernikeExpansion<zest::st::SHNorm::GEO, zest::st::SHPhase::NONE> 
-    expansion(lmax);
+    expansion(order);
 
     expansion(3,3,2) = {0.0, 1.0};
     expansion(5,3,1) = {1.0, 0.0};
 
-    const auto& grid = zest::zt::GridEvaluator{}.evaluate(
+    const auto& grid = zest::zt::GridEvaluator(order).evaluate(
             expansion, longitudes, colatitudes, radii);
     
     constexpr double tol = 1.0e-13;

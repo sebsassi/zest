@@ -6,18 +6,18 @@
 #include <fstream>
 
 void benchmark_zernike_backward_transform(
-    ankerl::nanobench::Bench& bench, const char* name, std::size_t lmax)
+    ankerl::nanobench::Bench& bench, const char* name, std::size_t order)
 {
     std::mt19937 gen;
     std::uniform_real_distribution dist{0.0, 1.0};
 
-    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer(order);
 
-    zest::zt::BallGLQGrid<double> grid(lmax);
+    zest::zt::BallGLQGrid<double> grid(order);
     for (auto& value : grid.flatten())
         value = dist(gen);
 
-    zest::zt::ZernikeExpansionGeo expansion(lmax);
+    zest::zt::ZernikeExpansionGeo expansion(order);
 
     bench.run(name, [&](){
         transformer.forward_transform(grid, expansion);
@@ -32,16 +32,16 @@ int main()
     bench.performanceCounters(true);
     bench.minEpochTime(std::chrono::nanoseconds(1000000000));
 
-    std::vector<std::size_t> lmax_vec = {
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 200, 250, 300, 400
+    std::vector<std::size_t> order_vec = {
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 200, 250, 300, 400
     };
 
     bench.title("zt::GLQTransformer::forward_transform");
-    for (auto lmax : lmax_vec)
+    for (auto order : order_vec)
     {
         char name[32] = {};
-        std::sprintf(name, "%lu", lmax);
-        benchmark_zernike_backward_transform(bench, name, lmax);
+        std::sprintf(name, "%lu", order);
+        benchmark_zernike_backward_transform(bench, name, order);
     }
 
     const char* fname = "zernike_glq_forward_transform.json";

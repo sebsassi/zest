@@ -22,14 +22,14 @@ constexpr bool is_close(
 
 bool to_real_is_inverse_of_to_complex()
 {
-    constexpr std::size_t lmax = 5;
+    constexpr std::size_t order = 6;
     
     using ExpansionSpan = zest::st::RealSHExpansionSpan<std::array<double, 2>, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>;
 
-    std::vector<std::array<double, 2>> buffer(ExpansionSpan::Layout::size(lmax));
+    std::vector<std::array<double, 2>> buffer(ExpansionSpan::Layout::size(order));
     
-    ExpansionSpan expansion(buffer, lmax);
-    for (std::size_t l = 0; l <= lmax; ++l)
+    ExpansionSpan expansion(buffer, order);
+    for (std::size_t l = 0; l < order; ++l)
     {
         for (std::size_t m = 1; m <= l; ++m)
             expansion(l,m) = {
@@ -37,16 +37,16 @@ bool to_real_is_inverse_of_to_complex()
             };
     }
 
-    std::vector<std::array<double, 2>> test_buffer(ExpansionSpan::Layout::size(lmax));
+    std::vector<std::array<double, 2>> test_buffer(ExpansionSpan::Layout::size(order));
     std::ranges::copy(buffer, test_buffer.begin());
-    ExpansionSpan test_expansion(test_buffer, lmax);
+    ExpansionSpan test_expansion(test_buffer, order);
 
     zest::st::RealSHExpansionSpan<std::complex<double>, zest::st::SHNorm::QM, zest::st::SHPhase::CS> complex_expansion
             = zest::st::to_complex_expansion<zest::st::SHNorm::QM, zest::st::SHPhase::CS>(expansion);
     zest::st::to_real_expansion<zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(complex_expansion);
 
     bool success = true;
-    for (std::size_t l = 0; l <= lmax; ++l)
+    for (std::size_t l = 0; l < order; ++l)
     {
         for (std::size_t m = 0; m <= l; ++m)
             if (!is_close(expansion(l,m), test_expansion(l,m), 1.0e-13))
@@ -55,7 +55,7 @@ bool to_real_is_inverse_of_to_complex()
 
     if (!success)
     {
-        for (std::size_t l = 0; l <= lmax; ++l)
+        for (std::size_t l = 0; l < order; ++l)
         {
             for (std::size_t m = 0; m <= l; ++m)
                 std::printf(
@@ -67,9 +67,9 @@ bool to_real_is_inverse_of_to_complex()
     return success;
 }
 
-bool test_wigner_d_pi2_is_correct_to_lmax_4()
+bool test_wigner_d_pi2_is_correct_to_order_5()
 {
-    constexpr std::size_t lmax = 4;
+    constexpr std::size_t order = 5;
 
     constexpr double d_pi2_0_0_0 = 1.0;
 
@@ -132,7 +132,7 @@ bool test_wigner_d_pi2_is_correct_to_lmax_4()
     constexpr double d_pi2_4_4_4 = 1.0/16.0;
 
 
-    zest::detail::WignerdCollection d_pi2(lmax);
+    zest::detail::WignerdCollection d_pi2(order);
     
     bool success = is_close(d_pi2(0,0,0), d_pi2_0_0_0, 1.0e-13)
             && is_close(d_pi2(1,0,0), d_pi2_1_0_0, 1.0e-13)
@@ -233,19 +233,19 @@ bool test_wigner_d_pi2_is_correct_to_lmax_4()
     }
 }
 
-bool test_trivial_rotation_is_trivial_max_5()
+bool test_trivial_rotation_is_trivial_order_6()
 {
-    constexpr std::size_t lmax = 5;
+    constexpr std::size_t order = 6;
     
     using ExpansionSpan = zest::st::RealSHExpansionSpan<std::array<double, 2>, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>;
 
-    std::vector<std::array<double, 2>> buffer(ExpansionSpan::Layout::size(lmax));
+    std::vector<std::array<double, 2>> buffer(ExpansionSpan::Layout::size(order));
     
-    ExpansionSpan expansion(buffer, lmax);
+    ExpansionSpan expansion(buffer, order);
 
     constexpr double norm = 1.0/std::sqrt(2.0*std::numbers::pi);
     constexpr double norm2 = 1.0/std::sqrt(4.0*std::numbers::pi);
-    for (std::size_t l = 0; l <= lmax; ++l)
+    for (std::size_t l = 0; l < order; ++l)
     {
         expansion(l,0) = {norm2*double(l)/3.0, 0.0};
         for (std::size_t m = 1; m <= l; ++m)
@@ -254,15 +254,15 @@ bool test_trivial_rotation_is_trivial_max_5()
             };
     }
 
-    std::vector<std::array<double, 2>> test_buffer(ExpansionSpan::Layout::size(lmax));
+    std::vector<std::array<double, 2>> test_buffer(ExpansionSpan::Layout::size(order));
     std::ranges::copy(buffer, test_buffer.begin());
-    ExpansionSpan test_expansion(test_buffer, lmax);
+    ExpansionSpan test_expansion(test_buffer, order);
 
-    zest::Rotor rotor(lmax);
+    zest::Rotor rotor(order);
     rotor.rotate(expansion, std::array<double, 3>{});
 
     bool success = true;
-    for (std::size_t l = 0; l <= lmax; ++l)
+    for (std::size_t l = 0; l < order; ++l)
     {
         for (std::size_t m = 0; m <= l; ++m)
             if (!is_close(expansion(l,m), test_expansion(l,m), 1.0e-13))
@@ -271,7 +271,7 @@ bool test_trivial_rotation_is_trivial_max_5()
 
     if (!success)
     {
-        for (std::size_t l = 0; l <= lmax; ++l)
+        for (std::size_t l = 0; l < order; ++l)
         {
             std::printf(
                     "%lu %lu {%f, %f} {%f, %f}\n", l, 0UL,
@@ -291,6 +291,6 @@ int main()
 {
     assert(to_real_is_inverse_of_to_complex());
 
-    assert(test_wigner_d_pi2_is_correct_to_lmax_4());
-    assert(test_trivial_rotation_is_trivial_max_5());
+    assert(test_wigner_d_pi2_is_correct_to_order_5());
+    assert(test_trivial_rotation_is_trivial_order_6());
 }

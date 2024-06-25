@@ -16,8 +16,8 @@ template <typename T>
 class WignerdSpan
 {
 public:
-    constexpr WignerdSpan(std::span<T> span, std::size_t idx, std::size_t l):
-        m_span(span.begin() + idx, (l + 1)*(l + 1)), m_l(l) {}
+    constexpr WignerdSpan(T* data, std::size_t l):
+        m_span(data, (l + 1)*(l + 1)), m_l(l) {}
     
     [[nodiscard]] constexpr double
     operator()(std::size_t m1, std::size_t m2) const noexcept
@@ -42,15 +42,15 @@ Collection of Wigner (small) d-matrces at pi/2
 class WignerdCollection
 {
 public:
-    WignerdCollection(): WignerdCollection(0) {}
-    explicit WignerdCollection(std::size_t lmax);
+    WignerdCollection() = default;
+    explicit WignerdCollection(std::size_t max_order);
 
-    void resize(std::size_t lmax);
+    void expand(std::size_t max_order);
 
     [[nodiscard]] std::span<const double>
     matrices() const noexcept { return m_matrices; }
 
-    [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
+    [[nodiscard]] std::size_t max_order() const noexcept { return m_max_order; }
 
     [[nodiscard]] double
     operator()(std::size_t l, std::size_t m1, std::size_t m2) const noexcept
@@ -62,7 +62,7 @@ public:
     operator()(std::size_t l) const noexcept
     {
         return WignerdSpan<const double>(
-                m_matrices, (l*(l + 1)*(2*l + 1))/6, l);
+                m_matrices.data() + (l*(l + 1)*(2*l + 1))/6, l);
     }
 
 private:
@@ -75,7 +75,7 @@ private:
     std::vector<double> m_matrices;
     std::vector<double> m_sqrtl_cache;
     std::vector<double> m_inv_sqrtl_cache;
-    std::size_t m_lmax;
+    std::size_t m_max_order;
 };
 
 /*

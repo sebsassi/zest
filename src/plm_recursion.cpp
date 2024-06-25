@@ -7,14 +7,14 @@ namespace zest
 namespace st
 {
 
-PlmRecursion::PlmRecursion(std::size_t lmax):
-    m_sqrl(2*lmax + 1), m_alm((lmax + 1)*(lmax + 1)),
-    m_blm((lmax + 1)*(lmax + 1)), m_u_scaled(), m_u(), m_lmax(lmax)
+PlmRecursion::PlmRecursion(std::size_t max_order):
+    m_sqrl(2*max_order - std::min(1UL, max_order)), m_alm(max_order*max_order),
+    m_blm(max_order*max_order), m_u_scaled(), m_u(), m_max_order(max_order)
 {
     for (std::size_t l = 1; l <= m_sqrl.size(); ++l)
         m_sqrl[l - 1] = std::sqrt(double(l));
 
-    for (std::size_t l = 2; l <= m_lmax; ++l)
+    for (std::size_t l = 2; l < m_max_order; ++l)
     {
         const std::size_t ind = TriangleLayout::idx(l,0);
         m_alm[ind] = m_sqrl[2*l - 2]*m_sqrl[2*l]/double(l);
@@ -33,18 +33,18 @@ PlmRecursion::PlmRecursion(std::size_t lmax):
     }
 }
 
-void PlmRecursion::expand(std::size_t lmax)
+void PlmRecursion::expand(std::size_t max_order)
 {
-    if (lmax <= m_lmax) return;
+    if (max_order <= m_max_order) return;
 
-    m_sqrl.resize(2*lmax + 1);
-    m_alm.resize((lmax + 1)*(lmax + 1));
-    m_blm.resize((lmax + 1)*(lmax + 1));
+    m_sqrl.resize(2*max_order - 1);
+    m_alm.resize(max_order*max_order);
+    m_blm.resize(max_order*max_order);
     
-    for (std::size_t l = 2*m_lmax + 1; l <= m_sqrl.size(); ++l)
+    for (std::size_t l = 2*m_max_order - 1; l <= m_sqrl.size(); ++l)
         m_sqrl[l - 1] = std::sqrt(double(l));
     
-    for (std::size_t l = std::max(2UL, m_lmax); l <= lmax; ++l)
+    for (std::size_t l = std::max(2UL, m_max_order - 1); l < max_order; ++l)
     {
         const std::size_t ind = TriangleLayout::idx(l,0);
         m_alm[ind] = m_sqrl[2*l - 2]*m_sqrl[2*l]/double(l);
@@ -62,7 +62,7 @@ void PlmRecursion::expand(std::size_t lmax)
         }
     }
 
-    m_lmax = lmax;
+    m_max_order = max_order;
 }
 
 void PlmRecursion::expand_vec(std::size_t vec_size)

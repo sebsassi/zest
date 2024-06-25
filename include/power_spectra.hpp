@@ -23,10 +23,10 @@ void cross_power_spectrum(
     std::span<double> out) noexcept
 {
     constexpr double norm = normalization<NORM>();
-    std::size_t min_lmax
-            = std::min(std::min(a.lmax(), b.lmax()), out.size() - 1);
+    std::size_t min_order
+            = std::min(std::min(a.order(), b.order()), out.size() - 1);
     
-    for (std::size_t l = 0; l <= min_lmax; ++l)
+    for (std::size_t l = 0; l < min_order; ++l)
     {
         out[l] = a(l, 0)[0]*b(l, 0)[0];
         for (std::size_t m = 1; m <= l; ++m)
@@ -50,8 +50,8 @@ template <SHNorm NORM, SHPhase PHASE>
     RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> a,
     RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> b)
 {
-    std::size_t min_lmax = std::min(a.lmax(), b.lmax());
-    std::vector<double> out(min_lmax + 1);
+    std::size_t min_order = std::min(a.order(), b.order());
+    std::vector<double> out(min_order);
     cross_power_spectrum(a, b, out);
     return out;
 }
@@ -69,9 +69,9 @@ void power_spectrum(
     std::span<double> out) noexcept
 {
     constexpr double norm = normalization<NORM>();
-    std::size_t min_lmax = std::min(out.size() - 1, expansion.lmax());
+    std::size_t min_order = std::min(out.size(), expansion.order());
     
-    for (std::size_t l = 0; l <= expansion.lmax(); ++l)
+    for (std::size_t l = 0; l < expansion.order(); ++l)
     {
         out[l] = expansion(l, 0)[0]*expansion(l, 0)[0];
         for (std::size_t m = 1; m <= l; ++m)
@@ -95,7 +95,7 @@ template <SHNorm NORM, SHPhase PHASE>
 [[nodiscard]] std::vector<double> power_spectrum(
     RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion)
 {
-    std::vector<double> out(expansion.lmax() + 1);
+    std::vector<double> out(expansion.order());
     power_spectrum(expansion, out);
     return out;
 }
@@ -111,9 +111,9 @@ void power_spectrum(
     RadialZernikeSpan<double> out) noexcept
 {
     constexpr double norm = st::normalization<NORM>();
-    std::size_t min_lmax = std::min(out.lmax(), expansion.lmax());
+    std::size_t min_order = std::min(out.order(), expansion.order());
 
-    for (std::size_t n = 0; n < min_lmax; ++n)
+    for (std::size_t n = 0; n < min_order; ++n)
     {
         for (std::size_t l = n & 1; l < n; l += 2)
         {
@@ -130,8 +130,8 @@ template <st::SHNorm NORM, st::SHPhase PHASE>
 [[nodiscard]] std::vector<double> power_spectrum(
     ZernikeExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion)
 {
-    std::vector<double> res(RadialZernikeLayout::size(expansion.lmax()));
-    power_spectrum(expansion, RadialZernikeSpan<double>(res, expansion.lmax()));
+    std::vector<double> res(RadialZernikeLayout::size(expansion.order()));
+    power_spectrum(expansion, RadialZernikeSpan<double>(res, expansion.order()));
     return res;
 }
 

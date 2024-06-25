@@ -7,17 +7,18 @@ namespace zest
 namespace detail
 {
 
-WignerdCollection::WignerdCollection(std::size_t lmax):
-    m_matrices(((lmax + 1)*(lmax + 2)*(2*lmax + 3))/6), m_sqrtl_cache(2*lmax + 1), m_inv_sqrtl_cache(2*lmax + 1), m_lmax(lmax)
+WignerdCollection::WignerdCollection(std::size_t max_order):
+    m_matrices((max_order*(max_order + 1)*(2*max_order + 1))/6), m_sqrtl_cache(2*max_order - std::min(1UL, max_order)), m_inv_sqrtl_cache(2*max_order - std::min(1UL, max_order)), m_max_order(max_order)
 {
-    for (std::size_t l = 1; l <= 2*lmax + 1; ++l)
+    if (max_order == 0) return;
+    for (std::size_t l = 1; l < m_sqrtl_cache.size(); ++l)
         m_sqrtl_cache[l - 1] = std::sqrt(double(l));
     
-    for (std::size_t i = 0; i < 2*lmax + 1; ++i)
+    for (std::size_t i = 0; i < m_inv_sqrtl_cache.size(); ++i)
         m_inv_sqrtl_cache[i] = 1.0/m_sqrtl_cache[i];
 
     m_matrices[idx(0,0,0)] = 1.0;
-    if (lmax == 0) return;
+    if (max_order == 1) return;
 
     m_matrices[idx(1,0,0)] = 0.0;
     m_matrices[idx(1,1,0)] = -1.0/std::numbers::sqrt2;
@@ -25,7 +26,7 @@ WignerdCollection::WignerdCollection(std::size_t lmax):
     m_matrices[idx(1,1,1)] = 0.5;
 
     double d_l0 = -1.0/std::numbers::sqrt2;
-    for (std::size_t l = 2; l <= lmax; ++l)
+    for (std::size_t l = 2; l < max_order; ++l)
     {
         d_l0 *= -m_sqrtl_cache[2*l - 2]/m_sqrtl_cache[2*l - 1];
 
@@ -77,17 +78,21 @@ WignerdCollection::WignerdCollection(std::size_t lmax):
     }
 }
 
-void WignerdCollection::resize(std::size_t lmax)
+void WignerdCollection::expand(std::size_t max_order)
 {
-    if (lmax <= m_lmax) return;
+    if (max_order <= m_max_order) return;
 
-    for (std::size_t l = 2*m_lmax + 2; l <= 2*lmax + 1; ++l)
+    const std::size_t old_size = m_sqrtl_cache.size();
+    m_sqrtl_cache.resize(2*max_order - 1);
+    m_inv_sqrtl_cache.resize(2*max_order - 1);
+
+    for (std::size_t l = old_size; l < m_sqrtl_cache.size(); ++l)
         m_sqrtl_cache[l - 1] = std::sqrt(double(l));
     
-    for (std::size_t i = 2*m_lmax + 1; i < 2*lmax + 1; ++i)
+    for (std::size_t i = old_size; i < m_inv_sqrtl_cache.size(); ++i)
         m_inv_sqrtl_cache[i] = 1.0/m_sqrtl_cache[i];
 
-    if (m_lmax == 0)
+    if (m_max_order == 0)
     {
         m_matrices[idx(1,0,0)] = 0.0;
         m_matrices[idx(1,1,0)] = -1.0/std::numbers::sqrt2;
@@ -96,10 +101,10 @@ void WignerdCollection::resize(std::size_t lmax)
     }
 
     double d_l0 = -1.0/std::numbers::sqrt2;
-    for (std::size_t l = 2; l <= m_lmax; ++l)    
+    for (std::size_t l = 2; l < m_max_order; ++l)    
         d_l0 *= -m_sqrtl_cache[2*l - 2]/m_sqrtl_cache[2*l - 1];
     
-    for (std::size_t l = m_lmax + 1; l <= lmax; ++l)
+    for (std::size_t l = m_max_order; l < max_order; ++l)
     {
         d_l0 *= -m_sqrtl_cache[2*l - 2]/m_sqrtl_cache[2*l - 1];
 
@@ -150,7 +155,7 @@ void WignerdCollection::resize(std::size_t lmax)
         }
     }
 
-    m_lmax = lmax;
+    m_max_order = max_order;
 }
 
 }    

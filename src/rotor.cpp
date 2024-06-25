@@ -3,18 +3,18 @@
 namespace zest
 {
 
-Rotor::Rotor(std::size_t lmax):
-    m_wigner_d_pi2(lmax), m_temp(lmax + 1), m_exp_alpha(lmax + 1), m_exp_beta(lmax + 1), m_exp_gamma(lmax + 1) {}
+Rotor::Rotor(std::size_t max_order):
+    m_wigner_d_pi2(max_order), m_temp(max_order), m_exp_alpha(max_order), m_exp_beta(max_order), m_exp_gamma(max_order) {}
 
-void Rotor::resize(std::size_t lmax)
+void Rotor::expand(std::size_t max_order)
 {
-    if (lmax <= m_wigner_d_pi2.lmax()) return;
+    if (max_order <= m_wigner_d_pi2.max_order()) return;
 
-    m_wigner_d_pi2.resize(lmax);
-    m_temp.resize(lmax + 1);
-    m_exp_alpha.resize(lmax + 1);
-    m_exp_beta.resize(lmax + 1);
-    m_exp_gamma.resize(lmax + 1);
+    m_wigner_d_pi2.expand(max_order);
+    m_temp.resize(max_order);
+    m_exp_alpha.resize(max_order);
+    m_exp_beta.resize(max_order);
+    m_exp_gamma.resize(max_order);
 }
 
 }

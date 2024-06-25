@@ -29,13 +29,16 @@ public:
     using value_type = std::remove_cv_t<element_type>;
     using size_type = std::size_t;
 
+    constexpr RadialZernikeSpan() = default;
     constexpr RadialZernikeSpan(
-        std::span<element_type> buffer, std::size_t lmax):
-        m_span(buffer.begin(), Layout::size(lmax)), m_lmax(lmax) {}
-    constexpr RadialZernikeSpan(element_type* data, std::size_t lmax):
-        m_span(data, Layout::size(lmax)), m_lmax(lmax) {}
+        std::span<element_type> buffer, std::size_t order):
+        m_span(buffer.begin(), Layout::size(order)), m_order(order) {}
+    constexpr RadialZernikeSpan(element_type* data, std::size_t order):
+        m_span(data, Layout::size(order)), m_order(order) {}
 
-    [[nodiscard]] constexpr std::size_t lmax() const noexcept { return m_lmax; }
+    [[nodiscard]] constexpr std::size_t
+    order() const noexcept { return m_order; }
+
     [[nodiscard]] constexpr std::span<element_type>
     flatten() const noexcept { return m_span; }
 
@@ -47,7 +50,7 @@ public:
 
     [[nodiscard]] operator RadialZernikeSpan<const element_type>()
     {
-        return RadialZernikeSpan<const element_type>(m_span, m_lmax);
+        return RadialZernikeSpan<const element_type>(m_span, m_order);
     }
 
     [[nodiscard]] element_type&
@@ -72,7 +75,7 @@ public:
 
 private:
     std::span<element_type> m_span;
-    std::size_t m_lmax;
+    std::size_t m_order;
 };
 
 /*
@@ -89,16 +92,20 @@ public:
     using value_type = std::remove_cv_t<element_type>;
     using size_type = std::size_t;
 
+    constexpr RadialZernikeVecSpan() = default;
     constexpr RadialZernikeVecSpan(
-        std::span<element_type> buffer, std::size_t lmax, std::size_t vec_size):
-        m_span(buffer.begin(), Layout::size(lmax)*vec_size), m_lmax(lmax), 
+        std::span<element_type> buffer, std::size_t order,
+        std::size_t vec_size):
+        m_span(buffer.begin(), Layout::size(order)*vec_size), m_order(order), 
         m_vec_size(vec_size) {}
     constexpr RadialZernikeVecSpan(
-        element_type* data, std::size_t lmax, std::size_t vec_size):
-        m_span(data, Layout::size(lmax)*vec_size), m_lmax(lmax),
+        element_type* data, std::size_t order, std::size_t vec_size):
+        m_span(data, Layout::size(order)*vec_size), m_order(order),
         m_vec_size(vec_size) {}
 
-    [[nodiscard]] constexpr std::size_t lmax() const noexcept { return m_lmax; }
+    [[nodiscard]] constexpr std::size_t
+    order() const noexcept { return m_order; }
+
     [[nodiscard]] constexpr std::size_t
     vec_size() const noexcept { return m_vec_size; }
 
@@ -113,7 +120,8 @@ public:
 
     [[nodiscard]] constexpr operator RadialZernikeVecSpan<const element_type>()
     {
-        return RadialZernikeVecSpan<const element_type>(m_span, m_lmax, m_vec_size);
+        return RadialZernikeVecSpan<const element_type>(
+                m_span, m_order, m_vec_size);
     }
 
     [[nodiscard]] constexpr std::span<element_type> operator()(
@@ -138,7 +146,7 @@ public:
 
 private:
     std::span<element_type> m_span;
-    std::size_t m_lmax;
+    std::size_t m_order;
     std::size_t m_vec_size;
 };
 
@@ -149,7 +157,7 @@ class ZernikeExpansionLMSpan:
 public:
     using TriangleSpan<ElementType, EvenPrimaryTriangleLayout>::TriangleSpan;
     using TriangleSpan<ElementType, EvenPrimaryTriangleLayout>::flatten;
-    using TriangleSpan<ElementType, EvenPrimaryTriangleLayout>::lmax;
+    using TriangleSpan<ElementType, EvenPrimaryTriangleLayout>::order;
     static constexpr st::SHNorm norm = NORM;
     static constexpr st::SHPhase phase = PHASE;
 
@@ -157,7 +165,7 @@ public:
     operator ZernikeExpansionLMSpan<const ElementType, NORM, PHASE>()
     {
         return ZernikeExpansionLMSpan<const ElementType, NORM, PHASE>(
-                flatten(), lmax());
+                flatten(), order());
     }
 };
 
@@ -176,18 +184,21 @@ public:
     static constexpr st::SHNorm norm = NORM;
     static constexpr st::SHPhase phase = PHASE;
 
-    [[nodiscard]] static constexpr std::size_t size(std::size_t lmax) noexcept
+    [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
     {
-        return Layout::size(lmax);
+        return Layout::size(order);
     }
 
+    constexpr ZernikeExpansionSpan() = default;
     constexpr ZernikeExpansionSpan(
-        std::span<element_type> buffer, std::size_t lmax):
-        m_span(buffer.begin(), Layout::size(lmax)), m_lmax(lmax) {}
-    constexpr ZernikeExpansionSpan(element_type* data, std::size_t lmax):
-        m_span(data, Layout::size(lmax)), m_lmax(lmax) {}
+        std::span<element_type> buffer, std::size_t order):
+        m_span(buffer.begin(), Layout::size(order)), m_order(order) {}
+    constexpr ZernikeExpansionSpan(element_type* data, std::size_t order):
+        m_span(data, Layout::size(order)), m_order(order) {}
 
-    [[nodiscard]] constexpr std::size_t lmax() const noexcept { return m_lmax; }
+    [[nodiscard]] constexpr std::size_t
+    order() const noexcept { return m_order; }
+
     [[nodiscard]] constexpr std::span<element_type>
     span() const noexcept { return m_span; }
 
@@ -200,7 +211,7 @@ public:
     [[nodiscard]] constexpr
     operator ZernikeExpansionSpan<const element_type, NORM, PHASE>() const noexcept
     {
-        return ZernikeExpansionSpan<const element_type, NORM, PHASE>(m_span, m_lmax);
+        return ZernikeExpansionSpan<const element_type, NORM, PHASE>(m_span, m_order);
     }
     
     [[nodiscard]] constexpr element_type& operator()(
@@ -225,7 +236,7 @@ public:
 
 private:
     std::span<element_type> m_span;
-    std::size_t m_lmax;
+    std::size_t m_order;
 };
 
 /*
@@ -266,26 +277,26 @@ public:
     static constexpr st::SHNorm norm = NORM;
     static constexpr st::SHPhase phase = PHASE;
 
-    [[nodiscard]] static constexpr size_type size(size_type lmax) noexcept
+    [[nodiscard]] static constexpr size_type size(size_type order) noexcept
     {
-        return Layout::size(lmax);
+        return Layout::size(order);
     }
 
-    ZernikeExpansion(): ZernikeExpansion(0) {}
-    explicit ZernikeExpansion(size_type lmax):
-        m_data(Layout::size(lmax)), m_lmax(lmax) {}
+    ZernikeExpansion() = default;
+    explicit ZernikeExpansion(size_type order):
+        m_data(Layout::size(order)), m_order(order) {}
 
     [[nodiscard]] operator View()
     {
-        return View(m_data, m_lmax);
+        return View(m_data, m_order);
     };
 
     [[nodiscard]] operator ConstView() const
     {
-        return ConstView(m_data, m_lmax);
+        return ConstView(m_data, m_order);
     };
 
-    [[nodiscard]] size_type lmax() const noexcept { return m_lmax; }
+    [[nodiscard]] size_type order() const noexcept { return m_order; }
     [[nodiscard]] std::span<const element_type> flatten() const noexcept
     {
         return m_data;
@@ -305,10 +316,10 @@ public:
         return m_data[Layout::idx(n,l,m)];
     }
 
-    void resize(size_type lmax)
+    void resize(size_type order)
     {
-        m_lmax = lmax;
-        m_data.resize(Layout::size(lmax));
+        m_data.resize(Layout::size(order));
+        m_order = order;
     }
 
     [[nodiscard]] ZernikeExpansionLMSpan<const element_type, NORM, PHASE> 
@@ -341,7 +352,7 @@ public:
 
 private:
     std::vector<std::array<double, 2>> m_data;
-    size_type m_lmax;
+    size_type m_order;
 };
 
 /*
@@ -386,7 +397,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
     constexpr double cnorm = 1.0/std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
-    for (std::size_t n = 0; n <= expansion.lmax(); ++n)
+    for (std::size_t n = 0; n < expansion.order(); ++n)
     {
         auto expansion_n = expansion[n];
         for (std::size_t l = (n & 1); l <= n; l += 2)
@@ -417,7 +428,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
     }
 
     return RealSHExpansionSpan<std::complex<double>, DEST_NORM, DEST_PHASE>(
-            as_complex_span(expansion.flatten()), expansion.lmax());
+            as_complex_span(expansion.flatten()), expansion.order());
 }
 
 /*
@@ -435,9 +446,9 @@ to_real_expansion(ExpansionType&& expansion) noexcept
     constexpr double norm = shnorm*cnorm;
 
     ZernikeExpansionSpan<std::array<double, 2>, DEST_NORM, DEST_PHASE> res(
-            as_array_span(expansion.flatten()), expansion.lmax());
+            as_array_span(expansion.flatten()), expansion.order());
 
-    for (std::size_t n = 0; n <= expansion.lmax(); ++n)
+    for (std::size_t n = 0; n < expansion.order(); ++n)
     {
         auto res_n = res[n];
         for (std::size_t l = (n & 1); l <= n; l += 2)

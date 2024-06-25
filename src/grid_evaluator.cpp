@@ -58,43 +58,47 @@ void recursive_trig(
 namespace st
 {
 
+GridEvaluator::GridEvaluator(std::size_t max_order):
+    m_plm_recursion(max_order), m_lon_size{}, m_lat_size{},
+    m_max_order(max_order) {}
+
 GridEvaluator::GridEvaluator(
-    std::size_t lmax, std::size_t lon_size, std::size_t lat_size):
-    m_plm_recursion(lmax), m_plm_grid(TriangleLayout::size(lmax)*lat_size),
-    m_cos_colat(lat_size), m_cossin_lon_grid((lmax + 1)*lon_size),
-    m_fm_grid((lmax + 1)*lat_size), m_lon_size(lon_size),
-    m_lat_size(lat_size), m_lmax(lmax) {}
+    std::size_t max_order, std::size_t lon_size, std::size_t lat_size):
+    m_plm_recursion(max_order), m_plm_grid(TriangleLayout::size(max_order)*lat_size),
+    m_cos_colat(lat_size), m_cossin_lon_grid(max_order*lon_size),
+    m_fm_grid(max_order*lat_size), m_lon_size(lon_size),
+    m_lat_size(lat_size), m_max_order(max_order) {}
 
 
 void GridEvaluator::resize(
-    std::size_t lmax, std::size_t lon_size, std::size_t lat_size)
+    std::size_t max_order, std::size_t lon_size, std::size_t lat_size)
 {
-    if (lmax != m_lmax)
-        m_plm_recursion.expand(lmax);
+    if (max_order < m_max_order)
+        m_plm_recursion.expand(max_order);
 
-    if (lmax != m_lmax || lat_size != m_lat_size)
+    if (max_order < m_max_order || lat_size != m_lat_size)
     {
-        m_plm_grid.resize(TriangleLayout::size(lmax)*lat_size);
-        m_fm_grid.resize((lmax + 1)*lat_size);
+        m_plm_grid.resize(TriangleLayout::size(max_order)*lat_size);
+        m_fm_grid.resize(max_order*lat_size);
     }
 
-    if (lmax != m_lmax || lon_size != m_lon_size)
-        m_cossin_lon_grid.resize((lmax + 1)*lon_size);
+    if (max_order < m_max_order || lon_size != m_lon_size)
+        m_cossin_lon_grid.resize(max_order*lon_size);
 
     if (lat_size != m_lat_size)
         m_cos_colat.resize(lat_size);
     
-    m_lmax = lmax;
+    m_max_order = max_order;
     m_lon_size = lon_size;
     m_lat_size = lat_size;
 }
 
-void GridEvaluator::sum_m(MDSpan<double, 2> values) noexcept
+void GridEvaluator::sum_m(MDSpan<double, 2> values, std::size_t order) noexcept
 {
     MDSpan<const std::array<double, 2>, 2> cossin_lon(
-        m_cossin_lon_grid.data(), {m_lmax, m_lon_size});
+        m_cossin_lon_grid.data(), {order, m_lon_size});
     
-    for (std::size_t m = 0; m <= m_lmax; ++m)
+    for (std::size_t m = 0; m < order; ++m)
     {
         std::span<std::array<double, 2>> f_m(
                 m_fm_grid.begin() + m*m_lat_size, m_lat_size);
@@ -118,64 +122,69 @@ void GridEvaluator::sum_m(MDSpan<double, 2> values) noexcept
 namespace zt
 {
 
+GridEvaluator::GridEvaluator(std::size_t max_order):
+    m_zernike_recursion(max_order), m_plm_recursion(max_order), m_lon_size{}, 
+    m_lat_size{}, m_rad_size{}, m_max_order(max_order) {}
+
+
 GridEvaluator::GridEvaluator(
-    std::size_t lmax, std::size_t lon_size, std::size_t lat_size, 
+    std::size_t max_order, std::size_t lon_size, std::size_t lat_size, 
     std::size_t rad_size):
-    m_zernike_recursion(lmax), m_plm_recursion(lmax),
-    m_zernike_grid(RadialZernikeLayout::size(lmax)*rad_size),
-    m_plm_grid(TriangleLayout::size(lmax)*lat_size),
-    m_cos_colat(lat_size), m_cossin_lon_grid((lmax + 1)*lon_size),
-    m_flm_grid(TriangleLayout::size(lmax)*rad_size),
-    m_fm_grid((lmax + 1)*lat_size*rad_size), m_lon_size(lon_size),
-    m_lat_size(lat_size), m_rad_size(rad_size), m_lmax(lmax) {}
+    m_zernike_recursion(max_order), m_plm_recursion(max_order),
+    m_zernike_grid(RadialZernikeLayout::size(max_order)*rad_size),
+    m_plm_grid(TriangleLayout::size(max_order)*lat_size),
+    m_cos_colat(lat_size), m_cossin_lon_grid(max_order*lon_size),
+    m_flm_grid(TriangleLayout::size(max_order)*rad_size),
+    m_fm_grid(max_order*lat_size*rad_size), m_lon_size(lon_size),
+    m_lat_size(lat_size), m_rad_size(rad_size), m_max_order(max_order) {}
 
 void GridEvaluator::resize(
-    std::size_t lmax, std::size_t lon_size, std::size_t lat_size, 
+    std::size_t max_order, std::size_t lon_size, std::size_t lat_size, 
     std::size_t rad_size)
 {
-    if (lmax != m_lmax)
+    if (max_order < m_max_order)
     {
-        m_zernike_recursion.expand(lmax);
-        m_plm_recursion.expand(lmax);
+        m_zernike_recursion.expand(max_order);
+        m_plm_recursion.expand(max_order);
     }
 
-    if (lon_size != m_lon_size || lmax != m_lmax)
-        m_cossin_lon_grid.resize((lmax + 1)*lon_size);
+    if (lon_size != m_lon_size || max_order < m_max_order)
+        m_cossin_lon_grid.resize(max_order*lon_size);
     
     if (lat_size != m_lat_size)
         m_cos_colat.resize(lat_size);
 
-    if (lat_size != m_lat_size || lmax != m_lmax)
+    if (lat_size != m_lat_size || max_order < m_max_order)
     {
-        m_zernike_grid.resize(RadialZernikeLayout::size(lmax)*rad_size);
-        m_plm_grid.resize(TriangleLayout::size(lmax)*lat_size);
+        m_zernike_grid.resize(RadialZernikeLayout::size(max_order)*rad_size);
+        m_plm_grid.resize(TriangleLayout::size(max_order)*lat_size);
     }
 
-    if (rad_size != m_rad_size || lmax != m_lmax)
-        m_flm_grid.resize(TriangleLayout::size(lmax)*rad_size);
+    if (rad_size != m_rad_size || max_order < m_max_order)
+        m_flm_grid.resize(TriangleLayout::size(max_order)*rad_size);
     
-    if (rad_size != m_rad_size || lat_size != m_lat_size || lmax != m_lmax)
-        m_fm_grid.resize((lmax + 1)*lat_size*rad_size);
+    if (rad_size != m_rad_size || lat_size != m_lat_size || max_order < m_max_order)
+        m_fm_grid.resize(max_order*lat_size*rad_size);
     
-    m_lmax = lmax;
+    m_max_order = max_order;
     m_lon_size = lon_size;
     m_lat_size = lat_size;
     m_rad_size = rad_size;
 }
 
-void GridEvaluator::sum_l() noexcept
+void GridEvaluator::sum_l(std::size_t order) noexcept
 {
     TriangleVecSpan<const std::array<double, 2>, TriangleLayout>
-    flm(m_flm_grid, m_lmax, m_rad_size);
+    flm(m_flm_grid, order, m_rad_size);
     
     TriangleVecSpan<const double, TriangleLayout> ass_leg(
-            m_plm_grid, m_lmax, m_lat_size);
+            m_plm_grid, order, m_lat_size);
 
     std::ranges::fill(m_fm_grid, std::array<double, 2>{});
     MDSpan<std::array<double, 2>, 3> fm(
-            m_fm_grid, {m_lmax, m_lat_size, m_rad_size});
+            m_fm_grid, {order, m_lat_size, m_rad_size});
     
-    for (std::size_t l = 0; l <= m_lmax; ++l)
+    for (std::size_t l = 0; l < order; ++l)
     {
         for (std::size_t m = 0; m <= l; ++m)
         {
@@ -197,15 +206,15 @@ void GridEvaluator::sum_l() noexcept
     }
 }
 
-void GridEvaluator::sum_m(MDSpan<double, 3> values) noexcept
+void GridEvaluator::sum_m(MDSpan<double, 3> values, std::size_t order) noexcept
 {
     MDSpan<const std::array<double, 2>, 2> cossin_lon(
-        m_cossin_lon_grid.data(), {m_lmax, m_lon_size});
+        m_cossin_lon_grid.data(), {order, m_lon_size});
 
     MDSpan<const std::array<double, 2>, 3> fm(
-            m_fm_grid, {m_lmax, m_lat_size, m_rad_size});
+            m_fm_grid, {order, m_lat_size, m_rad_size});
     
-    for (std::size_t m = 0; m <= m_lmax; ++m)
+    for (std::size_t m = 0; m < order; ++m)
     {
         MDSpan<const std::array<double, 2>, 1> cossin_lon_m
             = cossin_lon[m];

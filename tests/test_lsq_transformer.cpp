@@ -15,9 +15,9 @@ constexpr bool is_close(
     return std::fabs(a[0] - b[0]) < tol && std::fabs(a[1] - b[1]) < tol;
 }
 
-bool test_ylm_generator_generates_correct_up_to_lmax_4(double lon, double lat)
+bool test_ylm_generator_generates_correct_up_to_order_5(double lon, double lat)
 {
-    constexpr std::size_t lmax = 4;
+    constexpr std::size_t order = 5;
 
     const double z = std::sin(lat);
     const double Y00 = 1.0;
@@ -50,12 +50,12 @@ bool test_ylm_generator_generates_correct_up_to_lmax_4(double lon, double lat)
     const double Y43 = std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::cos(3.0*lon);
     const double Y44 = std::sqrt(315.0/64.0)*(1.0 - z*z)*(1.0 - z*z)*std::cos(4.0*lon);
 
-    zest::st::RealYlmGenerator generator(lmax);
+    zest::st::RealYlmGenerator generator(order);
 
-    std::vector<double> ylm(zest::DualTriangleLayout::size(lmax));
+    std::vector<double> ylm(zest::DualTriangleLayout::size(order));
 
     generator.generate<zest::st::SequentialRealYlmPacking, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(
-            zest::st::RealYlmSpan<zest::st::SequentialRealYlmPacking, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(ylm, lmax), lon, lat);
+            zest::st::RealYlmSpan<zest::st::SequentialRealYlmPacking, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(ylm, order), lon, lat);
 
     bool success = is_close(ylm[0], Y00, 1.0e-10)
             && is_close(ylm[1], Y1m1, 1.0e-10)
@@ -118,7 +118,7 @@ bool test_ylm_generator_generates_correct_up_to_lmax_4(double lon, double lat)
 
 bool test_lsq_geo_expansion_expands_Y00()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
@@ -143,9 +143,9 @@ bool test_lsq_geo_expansion_expands_Y00()
     for (std::size_t i = 0; i < num_points; ++i)
         values[i] = function(lon[i], std::sin(lat[i]));
     
-    zest::st::LSQTransformer transformer(lmax);
+    zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform(values, lat, lon, lmax);
+    auto expansion = transformer.transform(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -182,7 +182,7 @@ bool test_lsq_geo_expansion_expands_Y00()
 
 bool test_lsq_geo_expansion_expands_Y21()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
@@ -207,9 +207,9 @@ bool test_lsq_geo_expansion_expands_Y21()
     for (std::size_t i = 0; i < num_points; ++i)
         values[i] = function(lon[i], std::sin(lat[i]));
     
-    zest::st::LSQTransformer transformer(lmax);
+    zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform(values, lat, lon, lmax);
+    auto expansion = transformer.transform(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -246,7 +246,7 @@ bool test_lsq_geo_expansion_expands_Y21()
 
 bool test_lsq_geo_expansion_expands_Y31()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
@@ -271,9 +271,9 @@ bool test_lsq_geo_expansion_expands_Y31()
     for (std::size_t i = 0; i < num_points; ++i)
         values[i] = function(lon[i], std::sin(lat[i]));
     
-    zest::st::LSQTransformer transformer(lmax);
+    zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform(values, lat, lon, lmax);
+    auto expansion = transformer.transform(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -310,7 +310,7 @@ bool test_lsq_geo_expansion_expands_Y31()
 
 bool test_lsq_geo_expansion_expands_Y4m3()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
@@ -335,9 +335,9 @@ bool test_lsq_geo_expansion_expands_Y4m3()
     for (std::size_t i = 0; i < num_points; ++i)
         values[i] = function(lon[i], std::sin(lat[i]));
     
-    zest::st::LSQTransformer transformer(lmax);
+    zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform(values, lat, lon, lmax);
+    auto expansion = transformer.transform(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -374,7 +374,7 @@ bool test_lsq_geo_expansion_expands_Y4m3()
 
 bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
@@ -399,9 +399,9 @@ bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
     for (std::size_t i = 0; i < num_points; ++i)
         values[i] = function(lon[i], std::sin(lat[i]));
     
-    zest::st::LSQTransformer transformer(lmax);
+    zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform(values, lat, lon, lmax);
+    auto expansion = transformer.transform(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -446,7 +446,7 @@ bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
 
 int main()
 {
-    assert(test_ylm_generator_generates_correct_up_to_lmax_4(0.0, 0.0));
+    assert(test_ylm_generator_generates_correct_up_to_order_5(0.0, 0.0));
 
     assert(test_lsq_geo_expansion_expands_Y00());
     assert(test_lsq_geo_expansion_expands_Y21());

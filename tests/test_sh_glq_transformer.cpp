@@ -19,18 +19,18 @@ constexpr bool is_close(
 template <typename GridLayout>
 bool test_glq_geo_expansion_expands_Y00()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
         return 1.0;
     };
     
-    zest::st::GLQTransformerGeo<GridLayout> transformer(lmax);
+    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
 
     zest::st::SphereGLQGridPoints points{};
-    zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, lmax);
-    auto expansion = transformer.forward_transform(grid, lmax);
+    zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, order);
+    auto expansion = transformer.forward_transform(grid, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -59,7 +59,7 @@ bool test_glq_geo_expansion_expands_Y00()
 
     if (!success)
     {
-        for (std::size_t l = 0; l <= lmax; ++l)
+        for (std::size_t l = 0; l <= order; ++l)
         {
             for (std::size_t m = 0; m <= l; ++m)
                 std::printf("%lu %lu %f %f\n", l, m, expansion(l,m)[0], expansion(l,m)[1]);
@@ -71,7 +71,7 @@ bool test_glq_geo_expansion_expands_Y00()
 template <typename GridLayout>
 bool test_glq_geo_expansion_expands_Y10()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, double colat)
     {
@@ -79,11 +79,11 @@ bool test_glq_geo_expansion_expands_Y10()
         return std::sqrt(3.0)*z;
     };
     
-    zest::st::GLQTransformerGeo<GridLayout> transformer(lmax);
+    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
 
     zest::st::SphereGLQGridPoints points{};
-    zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, lmax);
-    auto expansion = transformer.forward_transform(grid, lmax);
+    zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, order);
+    auto expansion = transformer.forward_transform(grid, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -112,7 +112,7 @@ bool test_glq_geo_expansion_expands_Y10()
 
     if (!success)
     {
-        for (std::size_t l = 0; l <= lmax; ++l)
+        for (std::size_t l = 0; l <= order; ++l)
         {
             for (std::size_t m = 0; m <= l; ++m)
                 std::printf("%lu %lu %f %f\n", l, m, expansion(l,m)[0], expansion(l,m)[1]);
@@ -124,7 +124,7 @@ bool test_glq_geo_expansion_expands_Y10()
 template <typename GridLayout>
 bool test_glq_geo_expansion_expands_Y21()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = [](double lon, double colat)
     {
@@ -132,11 +132,11 @@ bool test_glq_geo_expansion_expands_Y21()
         return std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
     
-    zest::st::GLQTransformerGeo<GridLayout> transformer(lmax);
+    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
 
     zest::st::SphereGLQGridPoints points{};
-    zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, lmax);
-    auto expansion = transformer.forward_transform(grid, lmax);
+    zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, order);
+    auto expansion = transformer.forward_transform(grid, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -165,7 +165,7 @@ bool test_glq_geo_expansion_expands_Y21()
 
     if (!success)
     {
-        for (std::size_t l = 0; l <= lmax; ++l)
+        for (std::size_t l = 0; l <= order; ++l)
         {
             for (std::size_t m = 0; m <= l; ++m)
                 std::printf("%lu %lu %f %f\n", l, m, expansion(l,m)[0], expansion(l,m)[1]);
@@ -177,7 +177,7 @@ bool test_glq_geo_expansion_expands_Y21()
 template <typename GridLayout>
 bool test_glq_geo_expansion_expands_Y31()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = [](double lon, double colat)
     {
@@ -185,11 +185,11 @@ bool test_glq_geo_expansion_expands_Y31()
         return std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
     
-    zest::st::GLQTransformerGeo<GridLayout> transformer(lmax);
+    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
 
     zest::st::SphereGLQGridPoints points{};
-    zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, lmax);
-    auto expansion = transformer.forward_transform(grid, lmax);
+    zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, order);
+    auto expansion = transformer.forward_transform(grid, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -218,7 +218,7 @@ bool test_glq_geo_expansion_expands_Y31()
 
     if (!success)
     {
-        for (std::size_t l = 0; l <= lmax; ++l)
+        for (std::size_t l = 0; l <= order; ++l)
         {
             for (std::size_t m = 0; m <= l; ++m)
                 std::printf("%lu %lu %f %f\n", l, m, expansion(l,m)[0], expansion(l,m)[1]);
@@ -230,7 +230,7 @@ bool test_glq_geo_expansion_expands_Y31()
 template <typename GridLayout>
 bool test_glq_geo_expansion_expands_Y4m3()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = [](double lon, double colat)
     {
@@ -238,11 +238,11 @@ bool test_glq_geo_expansion_expands_Y4m3()
         return std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
     };
     
-    zest::st::GLQTransformerGeo<GridLayout> transformer(lmax);
+    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
 
     zest::st::SphereGLQGridPoints points{};
-    zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, lmax);
-    auto expansion = transformer.forward_transform(grid, lmax);
+    zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, order);
+    auto expansion = transformer.forward_transform(grid, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -271,7 +271,7 @@ bool test_glq_geo_expansion_expands_Y4m3()
 
     if (!success)
     {
-        for (std::size_t l = 0; l <= lmax; ++l)
+        for (std::size_t l = 0; l <= order; ++l)
         {
             for (std::size_t m = 0; m <= l; ++m)
                 std::printf("%lu %lu %f %f\n", l, m, expansion(l,m)[0], expansion(l,m)[1]);
@@ -283,7 +283,7 @@ bool test_glq_geo_expansion_expands_Y4m3()
 template <typename GridLayout>
 bool test_glq_geo_expansion_expands_Y31_plus_Y4m3()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = [](double lon, double colat)
     {
@@ -291,11 +291,11 @@ bool test_glq_geo_expansion_expands_Y31_plus_Y4m3()
         return std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
     };
     
-    zest::st::GLQTransformerGeo<GridLayout> transformer(lmax);
+    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
 
     zest::st::SphereGLQGridPoints points{};
-    zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, lmax);
-    auto expansion = transformer.forward_transform(grid, lmax);
+    zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values<GridLayout>(function, order);
+    auto expansion = transformer.forward_transform(grid, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -332,7 +332,7 @@ bool test_glq_geo_expansion_expands_Y31_plus_Y4m3()
 
     if (!success)
     {
-        for (std::size_t l = 0; l <= lmax; ++l)
+        for (std::size_t l = 0; l <= order; ++l)
         {
             for (std::size_t m = 0; m <= l; ++m)
                 std::printf("%lu %lu %f %f\n", l, m, expansion(l,m)[0], expansion(l,m)[1]);
@@ -344,7 +344,7 @@ bool test_glq_geo_expansion_expands_Y31_plus_Y4m3()
 template <typename GridLayout>
 bool test_glq_geo_evaluates_Y00()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
@@ -353,12 +353,12 @@ bool test_glq_geo_evaluates_Y00()
 
     zest::st::SphereGLQGridPoints points{};
 
-    zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values<GridLayout>(function, lmax);
+    zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values<GridLayout>(function, order);
 
-    zest::st::GLQTransformerGeo<GridLayout> transformer(lmax);
+    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
 
-    auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.backward_transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
 
     constexpr double tol = 1.0e-10;
 
@@ -393,7 +393,7 @@ bool test_glq_geo_evaluates_Y00()
 template <typename GridLayout>
 bool test_glq_geo_evaluates_Y10()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, double colat)
     {
@@ -403,12 +403,12 @@ bool test_glq_geo_evaluates_Y10()
 
     zest::st::SphereGLQGridPoints points{};
 
-    zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values<GridLayout>(function, lmax);
+    zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values<GridLayout>(function, order);
 
-    zest::st::GLQTransformerGeo<GridLayout> transformer(lmax);
+    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
 
-    auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.backward_transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
 
     constexpr double tol = 1.0e-10;
 
@@ -443,7 +443,7 @@ bool test_glq_geo_evaluates_Y10()
 template <typename GridLayout>
 bool test_glq_geo_evaluates_Y21()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = [](double lon, double colat)
     {
@@ -453,12 +453,12 @@ bool test_glq_geo_evaluates_Y21()
 
     zest::st::SphereGLQGridPoints points{};
 
-    zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values<GridLayout>(function, lmax);
+    zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values<GridLayout>(function, order);
 
-    zest::st::GLQTransformerGeo<GridLayout> transformer(lmax);
+    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
 
-    auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.backward_transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
 
     constexpr double tol = 1.0e-10;
 
@@ -493,7 +493,7 @@ bool test_glq_geo_evaluates_Y21()
 template <typename GridLayout>
 bool test_glq_geo_evaluates_Y31()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = [](double lon, double colat)
     {
@@ -503,12 +503,12 @@ bool test_glq_geo_evaluates_Y31()
 
     zest::st::SphereGLQGridPoints points{};
 
-    zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values<GridLayout>(function, lmax);
+    zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values<GridLayout>(function, order);
 
-    zest::st::GLQTransformerGeo<GridLayout> transformer(lmax);
+    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
 
-    auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.backward_transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
 
     constexpr double tol = 1.0e-10;
 
@@ -543,7 +543,7 @@ bool test_glq_geo_evaluates_Y31()
 template <typename GridLayout>
 bool test_glq_geo_evaluates_Y4m3()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = [](double lon, double colat)
     {
@@ -553,12 +553,12 @@ bool test_glq_geo_evaluates_Y4m3()
 
     zest::st::SphereGLQGridPoints points{};
 
-    zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values<GridLayout>(function, lmax);
+    zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values<GridLayout>(function, order);
 
-    zest::st::GLQTransformerGeo<GridLayout> transformer(lmax);
+    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
 
-    auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.backward_transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
 
     constexpr double tol = 1.0e-10;
 
@@ -593,7 +593,7 @@ bool test_glq_geo_evaluates_Y4m3()
 template <typename GridLayout>
 bool test_glq_geo_evaluates_Y31_plus_Y4m3()
 {
-    constexpr std::size_t lmax = 5;
+    constexpr std::size_t order = 6;
 
     auto function = [](double lon, double colat)
     {
@@ -603,12 +603,12 @@ bool test_glq_geo_evaluates_Y31_plus_Y4m3()
 
     zest::st::SphereGLQGridPoints points{};
 
-    zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values<GridLayout>(function, lmax);
+    zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values<GridLayout>(function, order);
 
-    zest::st::GLQTransformerGeo<GridLayout> transformer(lmax);
+    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
 
-    auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.backward_transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
 
     constexpr double tol = 1.0e-10;
 

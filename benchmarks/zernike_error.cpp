@@ -35,7 +35,8 @@ std::vector<T> linspace(T start, T stop, std::size_t count)
 }
 
 template <typename Func>
-std::array<double, 2> zernike_expansion_error(Func&& function, std::size_t lmax, bool relative_error)
+std::array<double, 2> zernike_expansion_error(
+    Func&& function, std::size_t order, bool relative_error)
 {
     const std::size_t num_lon = 60;
     const std::size_t num_lat = 30;
@@ -45,12 +46,12 @@ std::array<double, 2> zernike_expansion_error(Func&& function, std::size_t lmax,
     std::vector<double> colatitudes = linspace(0.0, std::numbers::pi, num_lat);
     std::vector<double> radii = linspace(0.0, 1.0, num_rad);
 
-    zest::zt::GridEvaluator evaluator(lmax, num_lon, num_lat, num_rad);
+    zest::zt::GridEvaluator evaluator(order, num_lon, num_lat, num_rad);
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer(order);
 
     auto expansion = transformer.forward_transform(
-            points.generate_values(function, lmax), lmax);
+            points.generate_values(function, order), order);
     auto error_grid = evaluator.evaluate(
             expansion, longitudes, colatitudes, radii);
     
@@ -103,38 +104,38 @@ std::vector<std::size_t> integer_log_range(std::size_t n)
 }
 
 template <typename Func>
-void produce_relative_error(Func&& f, std::size_t lmaxmax, const char* fname)
+void produce_relative_error(Func&& f, std::size_t max_order, const char* fname)
 {
-    std::vector<std::size_t> lmax_range = integer_log_range(lmaxmax);
+    std::vector<std::size_t> lmax_range = integer_log_range(max_order);
     constexpr bool do_relative_error = true;
     std::ofstream output{};
     output.open(fname);
-    for (auto lmax : lmax_range)
+    for (auto order : lmax_range)
     {
-        std::printf("%s: %lu/%lu\n", fname, lmax, lmaxmax);
-        const auto& [max_error, rms_error] = zernike_expansion_error(f, lmax, do_relative_error);
+        std::printf("%s: %lu/%lu\n", fname, order, max_order);
+        const auto& [max_error, rms_error] = zernike_expansion_error(f, order, do_relative_error);
 
         char line[128] = {};
-        std::sprintf(line, "%lu %.16f %.16f\n", lmax, max_error, rms_error);
+        std::sprintf(line, "%lu %.16f %.16f\n", order, max_error, rms_error);
         output << line;
     }
     output.close();
 }
 
 template <typename Func>
-void produce_absolute_error(Func&& f, std::size_t lmaxmax, const char* fname)
+void produce_absolute_error(Func&& f, std::size_t max_order, const char* fname)
 {
-    std::vector<std::size_t> lmax_range = integer_log_range(lmaxmax);
+    std::vector<std::size_t> lmax_range = integer_log_range(max_order);
     constexpr bool do_relative_error = false;
     std::ofstream output{};
     output.open(fname);
-    for (auto lmax : lmax_range)
+    for (auto order : lmax_range)
     {
-        std::printf("%s: %lu/%lu\n", fname, lmax, lmaxmax);
-        const auto& [max_error, rms_error] = zernike_expansion_error(f, lmax, do_relative_error);
+        std::printf("%s: %lu/%lu\n", fname, order, max_order);
+        const auto& [max_error, rms_error] = zernike_expansion_error(f, order, do_relative_error);
 
         char line[128] = {};
-        std::sprintf(line, "%lu %.16f %.16f\n", lmax, max_error, rms_error);
+        std::sprintf(line, "%lu %.16f %.16f\n", order, max_error, rms_error);
         output << line;
     }
     output.close();
@@ -271,20 +272,20 @@ int main(int argc, char** argv)
         return (1.0 - eta)*shm_part + eta*pp_part;
     };
 
-    std::size_t lmax = 400;
+    std::size_t max_order = 400;
     if (argc > 1)
-        lmax = std::atoi(argv[1]);
+        max_order = std::atoi(argv[1]);
     
-    produce_absolute_error(aniso_gaussian, lmax, "aniso_gaussian_abs_err.dat");
-    produce_absolute_error(four_gaussians, lmax, "four_gaussians_abs_err.dat");
-    produce_absolute_error(shm_plus_stream, lmax, "shm_plus_stream_abs_err.dat");
-    produce_absolute_error(shmpp_aniso, lmax, "shmpp_aniso_abs_err.dat");
-    produce_absolute_error(shmpp, lmax, "shmpp_abs_err.dat");
+    produce_absolute_error(aniso_gaussian, max_order, "aniso_gaussian_abs_err.dat");
+    produce_absolute_error(four_gaussians, max_order, "four_gaussians_abs_err.dat");
+    produce_absolute_error(shm_plus_stream, max_order, "shm_plus_stream_abs_err.dat");
+    produce_absolute_error(shmpp_aniso, max_order, "shmpp_aniso_abs_err.dat");
+    produce_absolute_error(shmpp, max_order, "shmpp_abs_err.dat");
     
-    produce_relative_error(aniso_gaussian, lmax, "aniso_gaussian_rel_err.dat");
-    produce_relative_error(four_gaussians, lmax, "four_gaussians_rel_err.dat");
-    produce_relative_error(shm_plus_stream, lmax, "shm_plus_stream_rel_err.dat");
-    produce_relative_error(shmpp_aniso, lmax, "shmpp_aniso_rel_err.dat");
-    produce_relative_error(shmpp, lmax, "shmpp_rel_err.dat");
+    produce_relative_error(aniso_gaussian, max_order, "aniso_gaussian_rel_err.dat");
+    produce_relative_error(four_gaussians, max_order, "four_gaussians_rel_err.dat");
+    produce_relative_error(shm_plus_stream, max_order, "shm_plus_stream_rel_err.dat");
+    produce_relative_error(shmpp_aniso, max_order, "shmpp_aniso_rel_err.dat");
+    produce_relative_error(shmpp, max_order, "shmpp_rel_err.dat");
 
 }

@@ -62,18 +62,18 @@ public:
     using View = RealYlmSpan<element_type, NORM, PHASE>;
     using ConstView = RealYlmSpan<const element_type, NORM, PHASE>;
 
-    RealYlm(): RealYlm(0) {}
-    explicit RealYlm(std::size_t lmax):
-        m_coeffs(Layout::size(lmax)), m_lmax(lmax) {}
+    RealYlm() = default;
+    explicit RealYlm(std::size_t order):
+        m_coeffs(Layout::size(order)), m_order(order) {}
 
     [[nodiscard]] operator View()
     {
-        return View(m_coeffs, m_lmax);
+        return View(m_coeffs, m_order);
     };
 
     [[nodiscard]] operator ConstView() const
     {
-        return ConstView(m_coeffs, m_lmax);
+        return ConstView(m_coeffs, m_order);
     };
     
     [[nodiscard]] element_type
@@ -87,7 +87,7 @@ public:
         return m_coeffs[Layout::idx(l,m)];
     }
 
-    [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
+    [[nodiscard]] std::size_t order() const noexcept { return m_order; }
     [[nodiscard]] std::span<const element_type> coeffs() const noexcept
     {
         return m_coeffs;
@@ -95,15 +95,15 @@ public:
 
     std::span<element_type> coeffs() noexcept { return m_coeffs; }
 
-    void resize(std::size_t lmax)
+    void resize(std::size_t order)
     {
-        m_lmax = lmax;
-        m_coeffs.resize(Layout::size(lmax));
+        m_coeffs.resize(Layout::size(order));
+        m_order = order;
     }
 
 private:
     std::vector<element_type> m_coeffs;
-    std::size_t m_lmax;
+    std::size_t m_order;
 };
 
 /*
@@ -112,15 +112,15 @@ Generation of real spherical harmonics based on recursion of associated Legendre
 class RealYlmGenerator
 {
 public:
-    RealYlmGenerator(): RealYlmGenerator(0) {}
-    explicit RealYlmGenerator(std::size_t lmax);
+    RealYlmGenerator() = default;
+    explicit RealYlmGenerator(std::size_t max_order);
 
-    [[nodiscard]] std::size_t lmax() const noexcept
+    [[nodiscard]] std::size_t max_order() const noexcept
     {
-        return m_recursion.lmax();
+        return m_recursion.max_order();
     }
 
-    void expand(std::size_t lmax);
+    void expand(std::size_t max_order);
 
     /*
     Generate spherical harmonics at longitude and latitude values `lon`, `lat`
@@ -130,19 +130,19 @@ public:
         RealYlmSpan<T, NORM, PHASE> ylm, double lon, double lat)
     {
         using index_type = RealYlmSpan<T, NORM, PHASE>::index_type;
-        expand(ylm.lmax());
+        expand(ylm.order());
 
         const double z = std::sin(lat);
         m_recursion.plm_real(
-                PlmSpan<double, NORM, PHASE>(m_ass_leg_poly, ylm.lmax()), z);
+                PlmSpan<double, NORM, PHASE>(m_ass_leg_poly, ylm.order()), z);
 
-        for (std::size_t m = 0; m <= ylm.lmax(); ++m)
+        for (std::size_t m = 0; m < ylm.order(); ++m)
         {
             const double angle = double(m)*lon;
             m_cossin[m] = {std::cos(angle), std::sin(angle)};
         }
 
-        for (std::size_t l = 0; l <= ylm.lmax(); ++l)
+        for (std::size_t l = 0; l < ylm.order(); ++l)
         {
             const double ass_leg_poly
                     = m_ass_leg_poly[TriangleLayout::idx(l, 0)];

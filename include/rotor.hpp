@@ -54,13 +54,13 @@ Rotations of spherical harmonic and Zernike coefficients.
 class Rotor
 {
 public:
-    Rotor(): Rotor(0) {}
-    explicit Rotor(std::size_t lmax);
+    Rotor() = default;
+    explicit Rotor(std::size_t max_order);
 
-    void resize(std::size_t lmax);
+    void expand(std::size_t max_order);
 
     [[nodiscard]] std::size_t
-    lmax() const noexcept { return m_wigner_d_pi2.lmax(); }
+    max_order() const noexcept { return m_wigner_d_pi2.max_order(); }
 
     /*
     General rotation of a real spherical harmonic expansion via Wigner's D-matrix.
@@ -74,6 +74,10 @@ public:
     {
         constexpr st::SHNorm NORM = std::remove_cvref_t<ExpansionType>::norm;
         constexpr st::SHPhase PHASE = std::remove_cvref_t<ExpansionType>::phase;
+        
+        const std::size_t order = expansion.order();
+        expand(order);
+
         /*
         The rotation here is implemented using the ZXZXZ method, where the Y-rotation is decomposed into a 90 degree rotation about the X-axis, then a rotation by `beta` about the Z-axis, and then a -90 degree rotation about the X-axis.
 
@@ -87,16 +91,16 @@ public:
         const auto& [alpha_rot, beta_rot, gamma_rot]
                 = convert(euler_angles, convention);
 
-        for (std::size_t l = 0; l <= complex_expansion.lmax(); ++l)
+        for (std::size_t l = 0; l < order; ++l)
             m_exp_alpha[l] = std::polar(1.0, -double(l)*alpha_rot);
 
-        for (std::size_t l = 0; l <= complex_expansion.lmax(); ++l)
+        for (std::size_t l = 0; l < order; ++l)
             m_exp_beta[l] = std::polar(1.0, -double(l)*beta_rot);
 
-        for (std::size_t l = 0; l <= complex_expansion.lmax(); ++l)
+        for (std::size_t l = 0; l < order; ++l)
             m_exp_gamma[l] = std::polar(1.0, -double(l)*gamma_rot);
 
-        for (std::size_t l = 1; l <= complex_expansion.lmax(); ++l)
+        for (std::size_t l = 1; l < order; ++l)
             zest::detail::rotate_l(
                 complex_expansion[l], m_wigner_d_pi2(l),
                 m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
@@ -116,6 +120,10 @@ public:
     {
         constexpr st::SHNorm NORM = std::remove_cvref_t<ExpansionType>::norm;
         constexpr st::SHPhase PHASE = std::remove_cvref_t<ExpansionType>::phase;
+        
+        const std::size_t order = expansion.order();
+        expand(order);
+
         /*
         The rotation here is implemented using the ZXZXZ method, where the Y-rotation is decomposed into a 90 degree rotation about the X-axis, then a rotation by `beta` about the Z-axis, and then a -90 degree rotation about the X-axis.
 
@@ -129,16 +137,16 @@ public:
         const auto& [alpha_rot, beta_rot, gamma_rot]
                 = convert(euler_angles, convention);
 
-        for (std::size_t l = 0; l <= complex_expansion.lmax(); ++l)
+        for (std::size_t l = 0; l < order; ++l)
             m_exp_alpha[l] = std::polar(1.0, -double(l)*alpha_rot);
 
-        for (std::size_t l = 0; l <= complex_expansion.lmax(); ++l)
+        for (std::size_t l = 0; l < order; ++l)
             m_exp_beta[l] = std::polar(1.0, -double(l)*beta_rot);
 
-        for (std::size_t l = 0; l <= complex_expansion.lmax(); ++l)
+        for (std::size_t l = 0; l < order; ++l)
             m_exp_gamma[l] = std::polar(1.0, -double(l)*gamma_rot);
 
-        for (std::size_t n = 1; n <= complex_expansion.lmax(); ++n)
+        for (std::size_t n = 1; n < order; ++n)
         {
             auto expansion_n = complex_expansion[n];
             for (std::size_t l = n & 1; l <= n; ++l)
@@ -186,14 +194,17 @@ public:
     {
         constexpr st::SHNorm NORM = std::remove_cvref_t<ExpansionType>::norm;
         constexpr st::SHPhase PHASE = std::remove_cvref_t<ExpansionType>::phase;
+        
+        const std::size_t order = expansion.order();
+        expand(order);
 
         st::RealSHExpansionSpan<std::complex<double>, NORM, PHASE> complex_expansion = to_complex_expansion<NORM, PHASE>(expansion);
         
         const double angle_rot = convert(angle, convention);
-        for (std::size_t l = 0; l <= complex_expansion.lmax(); ++l)
+        for (std::size_t l = 0; l < order; ++l)
             m_exp_alpha[l] = std::polar(1.0, -double(l)*angle_rot);
         
-        for (std::size_t l = 1; l <= complex_expansion.lmax(); ++l)
+        for (std::size_t l = 1; l < order; ++l)
             zest::detail::polar_rotate_l(complex_expansion[l], m_exp_alpha);
 
         to_real_expansion<NORM, PHASE>(complex_expansion);
@@ -209,15 +220,18 @@ public:
     {
         constexpr st::SHNorm NORM = std::remove_cvref_t<ExpansionType>::norm;
         constexpr st::SHPhase PHASE = std::remove_cvref_t<ExpansionType>::phase;
+        
+        const std::size_t order = expansion.order();
+        expand(order);
 
         zt::ZernikeExpansionSpan<std::complex<double>, NORM, PHASE> 
         complex_expansion = to_complex_expansion<NORM, PHASE>(expansion);
         
         const double angle_rot = convert(angle, convention);
-        for (std::size_t l = 0; l <= complex_expansion.lmax(); ++l)
+        for (std::size_t l = 0; l < order; ++l)
             m_exp_alpha[l] = std::polar(1.0, -double(l)*angle_rot);
         
-        for (std::size_t n = 1; n <= complex_expansion.lmax(); ++n)
+        for (std::size_t n = 1; n < order; ++n)
         {
             auto expansion_n = complex_expansion[n];
             for (std::size_t l = n & 1; l <= n; ++l)

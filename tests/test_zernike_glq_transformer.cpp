@@ -25,7 +25,7 @@ std::vector<T> linspace(T start, T stop, std::size_t count)
 
 bool test_glq_geo_expansion_expands_Z000()
 {
-    std::size_t lmax = 5;
+    std::size_t order = 6;
 
     auto function = [](
         [[maybe_unused]] double r, [[maybe_unused]] double lon, 
@@ -35,14 +35,14 @@ bool test_glq_geo_expansion_expands_Z000()
     };
 
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::BallGLQGrid grid = points.generate_values(function, lmax);
-    zest::zt::GLQTransformerGeo transformer(lmax);
-    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, lmax);
+    zest::zt::BallGLQGrid grid = points.generate_values(function, order);
+    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t n = 0; n <= lmax; ++n)
+    for (std::size_t n = 0; n < order; ++n)
     {
         for (std::size_t l = n & 1; l <= n; l += 2)
         {
@@ -70,7 +70,7 @@ bool test_glq_geo_expansion_expands_Z000()
 
     if (!success)
     {
-        for (std::size_t n = 0; n <= lmax; ++n)
+        for (std::size_t n = 0; n <= order; ++n)
         {
             for (std::size_t l = n & 1; l <= n; l += 2)
             {
@@ -88,7 +88,7 @@ bool test_glq_geo_expansion_expands_Z000()
 
 bool test_glq_geo_expansion_expands_Z200()
 {
-    std::size_t lmax = 5;
+    std::size_t order = 6;
 
     auto function = [](
         double r, [[maybe_unused]] double lon, [[maybe_unused]] double colat)
@@ -97,14 +97,14 @@ bool test_glq_geo_expansion_expands_Z200()
     };
 
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::BallGLQGrid grid = points.generate_values(function, lmax);
-    zest::zt::GLQTransformerGeo transformer(lmax);
-    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, lmax);
+    zest::zt::BallGLQGrid grid = points.generate_values(function, order);
+    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t n = 0; n <= lmax; ++n)
+    for (std::size_t n = 0; n < order; ++n)
     {
         for (std::size_t l = n & 1; l <= n; l += 2)
         {
@@ -132,7 +132,7 @@ bool test_glq_geo_expansion_expands_Z200()
 
     if (!success)
     {
-        for (std::size_t n = 0; n <= lmax; ++n)
+        for (std::size_t n = 0; n <= order; ++n)
         {
             for (std::size_t l = n & 1; l <= n; l += 2)
             {
@@ -150,7 +150,7 @@ bool test_glq_geo_expansion_expands_Z200()
 
 bool test_glq_geo_expansion_expands_Z110()
 {
-    std::size_t lmax = 5;
+    std::size_t order = 6;
 
     auto function = [](double r, [[maybe_unused]] double lon, double colat)
     {
@@ -159,16 +159,16 @@ bool test_glq_geo_expansion_expands_Z110()
     };
 
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::BallGLQGrid grid = points.generate_values(function, lmax);
-    zest::zt::GLQTransformerGeo transformer(lmax);
-    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, lmax);
+    zest::zt::BallGLQGrid grid = points.generate_values(function, order);
+    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t n = 0; n <= lmax; ++n)
+    for (std::size_t n = 0; n <= order; ++n)
     {
-        for (std::size_t l = n & 1; l <= n; l += 2)
+        for (std::size_t l = n & 1; l < n; l += 2)
         {
             for (std::size_t m = 0; m <= l; ++m)
             {
@@ -194,7 +194,7 @@ bool test_glq_geo_expansion_expands_Z110()
 
     if (!success)
     {
-        for (std::size_t n = 0; n <= lmax; ++n)
+        for (std::size_t n = 0; n < order; ++n)
         {
             for (std::size_t l = n & 1; l <= n; l += 2)
             {
@@ -212,7 +212,7 @@ bool test_glq_geo_expansion_expands_Z110()
 
 bool test_glq_geo_expansion_expands_Z221()
 {
-    std::size_t lmax = 5;
+    std::size_t order = 6;
 
     auto function = [](
         double r, double lon, double colat)
@@ -222,14 +222,14 @@ bool test_glq_geo_expansion_expands_Z221()
     };
 
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::BallGLQGrid grid = points.generate_values(function, lmax);
-    zest::zt::GLQTransformerGeo transformer(lmax);
-    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, lmax);
+    zest::zt::BallGLQGrid grid = points.generate_values(function, order);
+    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t n = 0; n <= lmax; ++n)
+    for (std::size_t n = 0; n < order; ++n)
     {
         for (std::size_t l = n & 1; l <= n; l += 2)
         {
@@ -257,7 +257,7 @@ bool test_glq_geo_expansion_expands_Z221()
 
     if (!success)
     {
-        for (std::size_t n = 0; n <= lmax; ++n)
+        for (std::size_t n = 0; n <= order; ++n)
         {
             for (std::size_t l = n & 1; l <= n; l += 2)
             {
@@ -275,7 +275,7 @@ bool test_glq_geo_expansion_expands_Z221()
 
 bool test_glq_geo_expansion_expands_Z33m2()
 {
-    std::size_t lmax = 5;
+    std::size_t order = 6;
 
     auto function = [](
         double r, double lon, double colat)
@@ -285,14 +285,14 @@ bool test_glq_geo_expansion_expands_Z33m2()
     };
 
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::BallGLQGrid grid = points.generate_values(function, lmax);
-    zest::zt::GLQTransformerGeo transformer(lmax);
-    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, lmax);
+    zest::zt::BallGLQGrid grid = points.generate_values(function, order);
+    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t n = 0; n <= lmax; ++n)
+    for (std::size_t n = 0; n < order; ++n)
     {
         for (std::size_t l = n & 1; l <= n; l += 2)
         {
@@ -320,7 +320,7 @@ bool test_glq_geo_expansion_expands_Z33m2()
 
     if (!success)
     {
-        for (std::size_t n = 0; n <= lmax; ++n)
+        for (std::size_t n = 0; n <= order; ++n)
         {
             for (std::size_t l = n & 1; l <= n; l += 2)
             {
@@ -338,7 +338,7 @@ bool test_glq_geo_expansion_expands_Z33m2()
 
 bool test_glq_geo_expansion_expands_Z531()
 {
-    std::size_t lmax = 5;
+    std::size_t order = 6;
 
     auto function = [](
         double r, double lon, double colat)
@@ -348,14 +348,14 @@ bool test_glq_geo_expansion_expands_Z531()
     };
 
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::BallGLQGrid grid = points.generate_values(function, lmax);
-    zest::zt::GLQTransformerGeo transformer(lmax);
-    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, lmax);
+    zest::zt::BallGLQGrid grid = points.generate_values(function, order);
+    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t n = 0; n <= lmax; ++n)
+    for (std::size_t n = 0; n < order; ++n)
     {
         for (std::size_t l = n & 1; l <= n; l += 2)
         {
@@ -383,7 +383,7 @@ bool test_glq_geo_expansion_expands_Z531()
 
     if (!success)
     {
-        for (std::size_t n = 0; n <= lmax; ++n)
+        for (std::size_t n = 0; n <= order; ++n)
         {
             for (std::size_t l = n & 1; l <= n; l += 2)
             {
@@ -401,19 +401,19 @@ bool test_glq_geo_expansion_expands_Z531()
 
 bool test_glq_geo_evaluates_Z000()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double r, [[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
         return 1.0;
     };
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::BallGLQGrid test_grid = points.generate_values(function, lmax);
+    zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer(order);
 
-    auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.backward_transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
 
     constexpr double tol = 1.0e-10;
 
@@ -458,7 +458,7 @@ bool test_glq_geo_evaluates_Z000()
 
 bool test_glq_geo_evaluates_Z110()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = [](double r, [[maybe_unused]] double lon, double colat)
     {
@@ -466,12 +466,12 @@ bool test_glq_geo_evaluates_Z110()
         return std::sqrt(5.0)*r*std::sqrt(3.0)*z;
     };
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::BallGLQGrid test_grid = points.generate_values(function, lmax);
+    zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer(order);
 
-    auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.backward_transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
 
     constexpr double tol = 1.0e-10;
 
@@ -516,7 +516,7 @@ bool test_glq_geo_evaluates_Z110()
 
 bool test_glq_geo_evaluates_Z200()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = [](
         double r, [[maybe_unused]] double lon, [[maybe_unused]] double colat)
@@ -525,12 +525,12 @@ bool test_glq_geo_evaluates_Z200()
     };
 
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::BallGLQGrid test_grid = points.generate_values(function, lmax);
+    zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer(order);
 
-    auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.backward_transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
 
     constexpr double tol = 1.0e-10;
 
@@ -575,7 +575,7 @@ bool test_glq_geo_evaluates_Z200()
 
 bool test_glq_geo_evaluates_Z221()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = [](
         double r, double lon, double colat)
@@ -585,12 +585,12 @@ bool test_glq_geo_evaluates_Z221()
     };
 
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::BallGLQGrid test_grid = points.generate_values(function, lmax);
+    zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer(order);
 
-    auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.backward_transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
 
     constexpr double tol = 1.0e-10;
 
@@ -635,7 +635,7 @@ bool test_glq_geo_evaluates_Z221()
 
 bool test_glq_geo_evaluates_Z33m2()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = [](
         double r, double lon, double colat)
@@ -645,12 +645,12 @@ bool test_glq_geo_evaluates_Z33m2()
     };
 
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::BallGLQGrid test_grid = points.generate_values(function, lmax);
+    zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer(order);
 
-    auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.backward_transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
 
     constexpr double tol = 1.0e-10;
 
@@ -695,7 +695,7 @@ bool test_glq_geo_evaluates_Z33m2()
 
 bool test_glq_geo_evaluates_Z531()
 {
-    constexpr std::size_t lmax = 5; 
+    constexpr std::size_t order = 6; 
 
     auto function = [](
         double r, double lon, double colat)
@@ -705,12 +705,12 @@ bool test_glq_geo_evaluates_Z531()
     };
 
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::BallGLQGrid test_grid = points.generate_values(function, lmax);
+    zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer(order);
 
-    auto expansion = transformer.forward_transform(test_grid, lmax);
-    auto grid = transformer.backward_transform(expansion, lmax);
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
 
     constexpr double tol = 1.0e-10;
 

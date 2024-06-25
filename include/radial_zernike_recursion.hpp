@@ -19,20 +19,23 @@ Class for recursive generation of radial 3D Zernike polynomials.
 class RadialZernikeRecursion
 {
 public:
-    RadialZernikeRecursion(): RadialZernikeRecursion(0) {}
-    explicit RadialZernikeRecursion(std::size_t lmax);
+    RadialZernikeRecursion() = default;
+    explicit RadialZernikeRecursion(std::size_t max_order);
 
-    void expand(std::size_t lmax);
+    void expand(std::size_t max_order);
 
     template <ZernikeNorm NORM>
     void zernike(RadialZernikeSpan<double> zernike, double r)
     {
-        expand(zernike.lmax());
+        const std::size_t order = zernike.order();
+        if (order == 0) return;
+
+        expand(order);
 
         const double r2 = r*r;
 
         zernike(0, 0) = 1.0;
-        if (zernike.lmax() == 0)
+        if (order == 1)
         {
             if constexpr (NORM == ZernikeNorm::NORMED)
                 zernike(0, 0) *= std::sqrt(3.0);
@@ -40,7 +43,7 @@ public:
         }
 
         zernike(1, 1) = r;
-        if (zernike.lmax() == 1)
+        if (order == 2)
         {
             if constexpr (NORM == ZernikeNorm::NORMED)
             {
@@ -52,7 +55,7 @@ public:
 
         zernike(2, 0) = 2.5*r2 - 1.5;
         zernike(2, 2) = r2;
-        if (zernike.lmax() == 2)
+        if (order == 3)
         {
             if constexpr (NORM == ZernikeNorm::NORMED)
             {
@@ -67,7 +70,7 @@ public:
         zernike(3, 1) = (3.5*r2 - 2.5)*r;
         zernike(3, 3) = r2*r;
 
-        for (std::size_t n = 4; n <= zernike.lmax(); ++n)
+        for (std::size_t n = 4; n < order; ++n)
         {
             for (std::size_t l = n & 1; l <= n - 4; l += 2)
             {
@@ -86,7 +89,7 @@ public:
 
         if constexpr (NORM == ZernikeNorm::NORMED)
         {
-            for (std::size_t n = zernike.lmax() - 3; n <= zernike.lmax(); ++n)
+            for (std::size_t n = order - 4; n < order; ++n)
             {
                 for (std::size_t l = n & 1; l <= n; l += 2)
                     zernike(n, l) *= m_norms[n];
@@ -95,18 +98,22 @@ public:
     }
 
     template <ZernikeNorm NORM>
-    void zernike(RadialZernikeVecSpan<double> zernike, std::span<const double> r)
+    void zernike(
+        RadialZernikeVecSpan<double> zernike, std::span<const double> r)
     {
+        const std::size_t order = zernike.order();
+        if (order == 0) return;
+
         if (r.size() != zernike.vec_size())
             throw std::invalid_argument(
                     "size of r is incompatible with size of zernike");
         
-        expand(zernike.lmax());
+        expand(order);
         
         auto z_00 = zernike(0, 0);
         for (std::size_t i = 0; i < zernike.vec_size(); ++i)
             z_00[i] = 1.0;
-        if (zernike.lmax() == 0)
+        if (order == 1)
         {
             if constexpr (NORM == ZernikeNorm::NORMED)
             {
@@ -119,7 +126,7 @@ public:
         auto z_11 = zernike(1, 1);
         for (std::size_t i = 0; i < zernike.vec_size(); ++i)
             z_11[i] = r[i];
-        if (zernike.lmax() == 1)
+        if (order == 2)
         {
             if constexpr (NORM == ZernikeNorm::NORMED)
             {
@@ -139,7 +146,7 @@ public:
         auto z_20 = zernike(2, 0);
         for (std::size_t i = 0; i < zernike.vec_size(); ++i)
             z_20[i] = 2.5*z_22[i] - 1.5;
-        if (zernike.lmax() == 2)
+        if (order == 3)
         {
             if constexpr (NORM == ZernikeNorm::NORMED)
             {
@@ -166,7 +173,7 @@ public:
         for (std::size_t i = 0; i < zernike.vec_size(); ++i)
             z_33[i] = z_22[i]*r[i];
 
-        for (std::size_t n = 4; n <= zernike.lmax(); ++n)
+        for (std::size_t n = 4; n < order; ++n)
         {
             for (std::size_t l = n & 1; l <= n - 4; l += 2)
             {
@@ -200,7 +207,7 @@ public:
 
         if constexpr (NORM == ZernikeNorm::NORMED)
         {
-            for (std::size_t n = zernike.lmax() - 3; n <= zernike.lmax(); ++n)
+            for (std::size_t n = order - 4; n < order; ++n)
             {
                 for (std::size_t l = n & 1; l <= n; l += 2)
                 {
@@ -218,7 +225,7 @@ private:
     std::vector<double> m_k1;
     std::vector<double> m_k2;
     std::vector<double> m_k3;
-    std::size_t m_lmax;
+    std::size_t m_max_order;
 };
 
 }

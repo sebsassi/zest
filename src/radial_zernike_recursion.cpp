@@ -7,13 +7,13 @@ namespace zest
 namespace zt
 {
 
-RadialZernikeRecursion::RadialZernikeRecursion(std::size_t lmax):
-    m_norms(lmax + 1),
-    m_k1(RadialZernikeLayout::size(lmax)),
-    m_k2(RadialZernikeLayout::size(lmax)),
-    m_k3(RadialZernikeLayout::size(lmax)), m_lmax(lmax)
+RadialZernikeRecursion::RadialZernikeRecursion(std::size_t max_order):
+    m_norms(max_order),
+    m_k1(RadialZernikeLayout::size(max_order)),
+    m_k2(RadialZernikeLayout::size(max_order)),
+    m_k3(RadialZernikeLayout::size(max_order)), m_max_order(max_order)
 {
-    for (std::size_t n = 0; n <= lmax; ++n)
+    for (std::size_t n = 0; n < max_order; ++n)
     {
         const double dn = double(n);
         m_norms[n] = std::sqrt(2.0*dn + 3.0);
@@ -34,16 +34,16 @@ RadialZernikeRecursion::RadialZernikeRecursion(std::size_t lmax):
     }
 }
 
-void RadialZernikeRecursion::expand(std::size_t lmax)
+void RadialZernikeRecursion::expand(std::size_t max_order)
 {
-    if (lmax <= m_lmax) return;
+    if (max_order <= m_max_order) return;
 
-    m_norms.resize(lmax + 1);
-    m_k1.resize(RadialZernikeLayout::size(lmax));
-    m_k2.resize(RadialZernikeLayout::size(lmax));
-    m_k3.resize(RadialZernikeLayout::size(lmax));
+    m_norms.resize(max_order);
+    m_k1.resize(RadialZernikeLayout::size(max_order));
+    m_k2.resize(RadialZernikeLayout::size(max_order));
+    m_k3.resize(RadialZernikeLayout::size(max_order));
 
-    for (std::size_t n = m_lmax + 1; n <= lmax; ++n)
+    for (std::size_t n = m_max_order; n < max_order; ++n)
     {
         const double dn = double(n);
         m_norms[n] = std::sqrt(2.0*dn + 3.0);
@@ -63,7 +63,7 @@ void RadialZernikeRecursion::expand(std::size_t lmax)
         }
     }
 
-    m_lmax = lmax;
+    m_max_order = max_order;
 }
 
 }

@@ -21,7 +21,7 @@ class SHLMSpan: public TriangleSpan<ElementType, LayoutType>
 public:
     using TriangleSpan<ElementType, LayoutType>::TriangleSpan;
     using TriangleSpan<ElementType, LayoutType>::flatten;
-    using TriangleSpan<ElementType, LayoutType>::lmax;
+    using TriangleSpan<ElementType, LayoutType>::order;
 
     static constexpr SHNorm norm = NORM;
     static constexpr SHPhase phase = PHASE;
@@ -29,7 +29,7 @@ public:
     [[nodiscard]] constexpr
     operator SHLMSpan<const ElementType, LayoutType, NORM, PHASE>()
     {
-        return SHLMSpan<const ElementType, LayoutType, NORM, PHASE>(flatten(), lmax());
+        return SHLMSpan<const ElementType, LayoutType, NORM, PHASE>(flatten(), order());
     }
 };
 
@@ -42,7 +42,7 @@ class SHLMVecSpan: public TriangleVecSpan<ElementType, LayoutType>
 public:
     using TriangleVecSpan<ElementType, LayoutType>::TriangleVecSpan;
     using TriangleVecSpan<ElementType, LayoutType>::flatten;
-    using TriangleVecSpan<ElementType, LayoutType>::lmax;
+    using TriangleVecSpan<ElementType, LayoutType>::order;
     using TriangleVecSpan<ElementType, LayoutType>::vec_size;
 
     static constexpr SHNorm norm = NORM;
@@ -52,7 +52,7 @@ public:
     operator SHLMVecSpan<const ElementType, LayoutType, NORM, PHASE>()
     {
         return SHLMVecSpan<const ElementType, LayoutType, NORM, PHASE>(
-                flatten(), lmax(), vec_size());
+                flatten(), order(), vec_size());
     }
 };
 
@@ -115,26 +115,26 @@ public:
     static constexpr SHNorm norm = NORM;
     static constexpr SHPhase phase = PHASE;
 
-    [[nodiscard]] static constexpr size_type size(size_type lmax) noexcept
+    [[nodiscard]] static constexpr size_type size(size_type order) noexcept
     {
-        return Layout::size(lmax);
+        return Layout::size(order);
     }
 
-    RealSHExpansion(): RealSHExpansion(0) {}
-    explicit RealSHExpansion(size_type lmax):
-        m_data(Layout::size(lmax)), m_lmax(lmax) {}
+    RealSHExpansion() = default;
+    explicit RealSHExpansion(size_type order):
+        m_data(Layout::size(order)), m_order(order) {}
 
     [[nodiscard]] operator View()
     {
-        return View(m_data, m_lmax);
+        return View(m_data, m_order);
     };
 
     [[nodiscard]] operator ConstView() const
     {
-        return ConstView(m_data, m_lmax);
+        return ConstView(m_data, m_order);
     };
 
-    [[nodiscard]] size_type lmax() const noexcept { return m_lmax; }
+    [[nodiscard]] size_type order() const noexcept { return m_order; }
 
     [[nodiscard]] std::span<element_type>
     flatten() noexcept { return m_data; }
@@ -181,15 +181,15 @@ public:
                 m_data.data() + Layout::idx(l,0), Layout::line_length(l));
     }
 
-    void resize(size_type lmax)
+    void resize(size_type order)
     {
-        m_lmax = lmax;
-        m_data.resize(Layout::size(lmax));
+        m_data.resize(Layout::size(order));
+        m_order = order;
     }
 
 private:
     std::vector<element_type> m_data;
-    size_type m_lmax;
+    size_type m_order;
 };
 
 /*
@@ -232,7 +232,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
     constexpr double cnorm = 1.0/std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
-    for (std::size_t l = 0; l <= expansion.lmax(); ++l)
+    for (std::size_t l = 0; l < expansion.order(); ++l)
     {
         std::span<std::array<double, 2>> expansion_l = expansion[l];
         expansion_l[0][0] *= shnorm;
@@ -259,7 +259,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
     }
 
     return RealSHExpansionSpan<std::complex<double>, DEST_NORM, DEST_PHASE>(
-            as_complex_span(expansion.flatten()), expansion.lmax());
+            as_complex_span(expansion.flatten()), expansion.order());
 }
 
 /*
@@ -277,9 +277,9 @@ to_real_expansion(ExpansionType&& expansion) noexcept
     constexpr double norm = shnorm*cnorm;
 
     RealSHExpansionSpan<std::array<double, 2>, DEST_NORM, DEST_PHASE> res(
-            as_array_span(expansion.flatten()), expansion.lmax());
+            as_array_span(expansion.flatten()), expansion.order());
 
-    for (std::size_t l = 0; l <= expansion.lmax(); ++l)
+    for (std::size_t l = 0; l < expansion.order(); ++l)
     {
         std::span<std::array<double, 2>> res_l = res[l];
         res_l[0][0] *= shnorm;

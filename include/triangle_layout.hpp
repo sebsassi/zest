@@ -25,9 +25,9 @@ struct DualTriangleLayout
     }
 
     [[nodiscard]] static constexpr
-    std::size_t size(std::size_t lmax) noexcept
+    std::size_t size(std::size_t order) noexcept
     {
-        return (lmax + 1)*(lmax + 1);
+        return order*order;
     }
 
     [[nodiscard]] static constexpr
@@ -58,9 +58,9 @@ struct TriangleLayout
     }
 
     [[nodiscard]] static constexpr
-    std::size_t size(std::size_t lmax) noexcept
+    std::size_t size(std::size_t order) noexcept
     {
-        return ((lmax + 1)*(lmax + 2)) >> 1;
+        return (order*(order + 1)) >> 1;
     }
 
     [[nodiscard]] static constexpr
@@ -84,10 +84,10 @@ struct EvenDiagonalTriangleLayout
 {
     using index_type = std::size_t;
     [[nodiscard]] static constexpr
-    std::size_t size(std::size_t lmax) noexcept
+    std::size_t size(std::size_t order) noexcept
     {
         // OEIS A002620
-        return ((lmax + 2)*(lmax + 2)) >> 2; 
+        return ((order + 1)*(order + 1)) >> 2; 
     }
     
     [[nodiscard]] static constexpr std::size_t
@@ -116,9 +116,9 @@ Contiguous 2D layout with indexing
 struct EvenPrimaryTriangleLayout
 {
     using index_type = std::size_t;
-    static constexpr std::size_t size(std::size_t lmax) noexcept
+    static constexpr std::size_t size(std::size_t order) noexcept
     {
-        return ((lmax + 2)*(lmax + 2)) >> 2;
+        return ((order + 1)*(order + 1)) >> 2;
     }
 
     static constexpr std::size_t idx(std::size_t l, std::size_t m) noexcept
@@ -148,10 +148,10 @@ struct EvenSemiDiagonalTetrahedralLayout
 {
     using index_type = std::size_t;
     [[nodiscard]] static constexpr std::size_t
-    size(std::size_t lmax) noexcept
+    size(std::size_t order) noexcept
     {
         // OEIS A002623
-        return (lmax + 2)*(lmax + 4)*(2*lmax + 3)/24;
+        return (order + 1)*(order + 3)*(2*order + 1)/24;
     }
 
     [[nodiscard]] static constexpr std::size_t
@@ -215,17 +215,20 @@ public:
     using value_type = std::remove_cv_t<ElementType>;
     using size_type = std::size_t;
 
-    static constexpr std::size_t size(std::size_t lmax) noexcept
+    static constexpr std::size_t size(std::size_t order) noexcept
     {
-        return Layout::size(lmax);
+        return Layout::size(order);
     }
 
-    constexpr TriangleSpan(std::span<element_type> buffer, std::size_t lmax):
-        m_span(buffer.begin(), Layout::size(lmax)), m_lmax(lmax) {}
-    constexpr TriangleSpan(element_type* data, std::size_t lmax):
-        m_span(data, Layout::size(lmax)), m_lmax(lmax) {}
+    constexpr TriangleSpan() = default;
+    constexpr TriangleSpan(std::span<element_type> buffer, std::size_t order):
+        m_span(buffer.begin(), Layout::size(order)), m_order(order) {}
+    constexpr TriangleSpan(element_type* data, std::size_t order):
+        m_span(data, Layout::size(order)), m_order(order) {}
 
-    [[nodiscard]] constexpr std::size_t lmax() const noexcept { return m_lmax; }
+    [[nodiscard]] constexpr std::size_t
+    order() const noexcept { return m_order; }
+
     [[nodiscard]] constexpr std::span<element_type>
     flatten() const noexcept { return m_span; }
 
@@ -240,7 +243,7 @@ public:
     [[nodiscard]] constexpr
     operator TriangleSpan<const element_type, LayoutType>() const noexcept
     {
-        return TriangleSpan<const element_type, LayoutType>(m_span, m_lmax);
+        return TriangleSpan<const element_type, LayoutType>(m_span, m_order);
     }
 
     [[nodiscard]] constexpr std::span<element_type>
@@ -265,7 +268,7 @@ public:
 
 private:
     std::span<element_type> m_span;
-    std::size_t m_lmax;
+    std::size_t m_order;
 };
 
 /*
@@ -281,16 +284,19 @@ public:
     using value_type = std::remove_cv_t<element_type>;
     using size_type = std::size_t;
 
+    constexpr TriangleVecSpan() = default;
     constexpr TriangleVecSpan(
-        std::span<element_type> buffer, std::size_t idx, std::size_t lmax,
+        element_type* data, std::size_t order, std::size_t vec_size):
+        m_span(data, Layout::size(order)*vec_size), m_order(order),
+        m_vec_size(vec_size) {}
+    constexpr TriangleVecSpan(
+        std::span<element_type> buffer, std::size_t order,
         std::size_t vec_size):
-        m_span(buffer.begin() + idx*Layout::size(lmax)*vec_size, Layout::size(lmax)*vec_size), m_lmax(lmax), m_vec_size(vec_size) {}
-    constexpr TriangleVecSpan(std::span<element_type> buffer, std::size_t lmax, std::size_t vec_size):
-        m_span(buffer.begin(), Layout::size(lmax)*vec_size), m_lmax(lmax), 
+        m_span(buffer.begin(), Layout::size(order)*vec_size), m_order(order), 
         m_vec_size(vec_size) {}
 
     [[nodiscard]] constexpr std::size_t
-    lmax() const noexcept { return m_lmax; }
+    order() const noexcept { return m_order; }
 
     [[nodiscard]] constexpr std::size_t
     vec_size() const noexcept { return m_vec_size; }
@@ -310,7 +316,8 @@ public:
     [[nodiscard]] constexpr
     operator TriangleVecSpan<const element_type, LayoutType>() const noexcept
     {
-        return TriangleVecSpan<const element_type, LayoutType>(m_span, m_lmax, m_vec_size);
+        return TriangleVecSpan<const element_type, LayoutType>(
+                m_span, m_order, m_vec_size);
     }
 
     [[nodiscard]] constexpr std::span<element_type>
@@ -328,7 +335,7 @@ public:
 
 private:
     std::span<element_type> m_span;
-    std::size_t m_lmax;
+    std::size_t m_order;
     std::size_t m_vec_size;
 };
 

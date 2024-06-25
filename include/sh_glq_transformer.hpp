@@ -23,41 +23,41 @@ struct LatLonLayout
 {
     using Alignment = AlignmentType;
 
-    [[nodiscard]] static constexpr std::size_t size(std::size_t lmax) noexcept
+    [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
     {
-        return lat_size(lmax)*lon_size(lmax);
+        return lat_size(order)*lon_size(order);
     }
 
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
-    shape(std::size_t lmax) noexcept
+    shape(std::size_t order) noexcept
     {
-        return {lat_size(lmax), lon_size(lmax)};
+        return {lat_size(order), lon_size(order)};
     }
 
     [[nodiscard]] static constexpr std::size_t
-    fft_size(std::size_t lmax) noexcept
+    fft_size(std::size_t order) noexcept
     {
-        return (lon_size(lmax) >> 1) + 1;
+        return (lon_size(order) >> 1) + 1;
     }
 
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
-    fft_stride(std::size_t lmax) noexcept
+    fft_stride(std::size_t order) noexcept
     {
-        return {fft_size(lmax), 1};
+        return {fft_size(order), 1};
     }
 
     [[nodiscard]] static constexpr std::size_t
-    lat_size(std::size_t lmax) noexcept
+    lat_size(std::size_t order) noexcept
     {
-        return lmax + 1UL;
+        return order;
     }
 
     [[nodiscard]] static constexpr std::size_t
-    lon_size(std::size_t lmax) noexcept
+    lon_size(std::size_t order) noexcept
     {
         constexpr std::size_t vector_size
                 = Alignment::template vector_size<double>();
-        const std::size_t min_size = 2UL*lmax + 1UL;
+        const std::size_t min_size = 2UL*order - std::min(1UL, order);
         if constexpr (std::is_same_v<Alignment, NoAlignment>)
             return min_size;
         else
@@ -76,35 +76,35 @@ struct LonLatLayout
 {
     using Alignment = AlignmentType;
 
-    [[nodiscard]] static constexpr std::size_t size(std::size_t lmax) noexcept
+    [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
     {
-        return lat_size(lmax)*lon_size(lmax);
+        return lat_size(order)*lon_size(order);
     }
     
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
-    shape(std::size_t lmax) noexcept
+    shape(std::size_t order) noexcept
     {
-        return {lon_size(lmax), lat_size(lmax)};
+        return {lon_size(order), lat_size(order)};
     }
 
     [[nodiscard]] static constexpr std::size_t
-    fft_size(std::size_t lmax) noexcept
+    fft_size(std::size_t order) noexcept
     {
-        return (lon_size(lmax) >> 1) + 1;
+        return (lon_size(order) >> 1) + 1;
     }
 
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
-    fft_stride(std::size_t lmax)
+    fft_stride(std::size_t order)
     {
-        return {lat_size(lmax), 1};
+        return {lat_size(order), 1};
     }
 
     [[nodiscard]] static constexpr std::size_t
-    lat_size(std::size_t lmax) noexcept
+    lat_size(std::size_t order) noexcept
     {
         constexpr std::size_t vector_size
                 = Alignment::template vector_size<double>();
-        const std::size_t min_size = lmax + 1UL;
+        const std::size_t min_size = order;
         if constexpr (std::is_same_v<Alignment, NoAlignment>)
             return min_size;
         else
@@ -112,9 +112,9 @@ struct LonLatLayout
     }
 
     [[nodiscard]] static constexpr std::size_t
-    lon_size(std::size_t lmax) noexcept
+    lon_size(std::size_t order) noexcept
     {
-        return 2UL*lmax + 1UL;
+        return 2UL*order - std::min(1UL, order);
     }
 
     static constexpr std::size_t lat_axis = 1UL;
@@ -137,25 +137,25 @@ public:
     using MDSpan<ElementType, 2>::data;
     using MDSpan<ElementType, 2>::size;
 
-    [[nodiscard]] static constexpr std::size_t size(std::size_t lmax) noexcept
+    [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
     {
-        return Layout::size(lmax);
+        return Layout::size(order);
     }
 
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
-    shape(std::size_t lmax) noexcept
+    shape(std::size_t order) noexcept
     {
-        return Layout::shape(lmax);
+        return Layout::shape(order);
     }
 
     constexpr SphereGLQGridSpan(
-        std::span<element_type> buffer, std::size_t lmax):
-        MDSpan<ElementType, 2>(buffer.data(), Layout::shape(lmax)),
-        m_lmax(lmax) {}
-    constexpr SphereGLQGridSpan(element_type* data, std::size_t lmax):
-        MDSpan<ElementType, 2>(data, Layout::shape(lmax)), m_lmax(lmax) {}
+        std::span<element_type> buffer, std::size_t order):
+        MDSpan<ElementType, 2>(buffer.data(), Layout::shape(order)),
+        m_order(order) {}
+    constexpr SphereGLQGridSpan(element_type* data, std::size_t order):
+        MDSpan<ElementType, 2>(data, Layout::shape(order)), m_order(order) {}
 
-    [[nodiscard]] constexpr std::size_t lmax() const noexcept { return m_lmax; }
+    [[nodiscard]] constexpr std::size_t order() const noexcept { return m_order; }
     
     [[nodiscard]] constexpr const std::array<std::size_t, 2>&
     shape() const noexcept { return extents(); }
@@ -167,11 +167,11 @@ public:
     operator SphereGLQGridSpan<const element_type, Layout>()
     {
         return SphereGLQGridSpan<const element_type, Layout>(
-                data(), m_lmax);
+                data(), m_order);
     }
 
 private:
-    std::size_t m_lmax;
+    std::size_t m_order;
 };
 
 /*
@@ -186,15 +186,15 @@ public:
     using View = SphereGLQGridSpan<element_type, Layout>;
     using ConstView = SphereGLQGridSpan<const element_type, Layout>;
 
-    SphereGLQGrid(): SphereGLQGrid(0) {}
-    explicit SphereGLQGrid(std::size_t lmax):
-        m_values(Layout::size(lmax)), m_shape(Layout::shape(lmax)), 
-        m_lmax(lmax) {}
+    SphereGLQGrid() = default;
+    explicit SphereGLQGrid(std::size_t order):
+        m_values(Layout::size(order)), m_shape(Layout::shape(order)), 
+        m_order(order) {}
 
     [[nodiscard]] std::array<std::size_t, 2>
     shape() const noexcept { return m_shape; }
 
-    [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
+    [[nodiscard]] std::size_t order() const noexcept { return m_order; }
 
     [[nodiscard]] std::span<const element_type>
     flatten() const noexcept { return m_values; }
@@ -203,19 +203,19 @@ public:
 
     [[nodiscard]] operator View()
     {
-        return View(m_values, m_lmax);
+        return View(m_values, m_order);
     };
 
     [[nodiscard]] operator ConstView() const
     {
-        return ConstView(m_values, m_lmax);
+        return ConstView(m_values, m_order);
     };
 
-    void resize(std::size_t lmax)
+    void resize(std::size_t order)
     {
-        m_values.resize(Layout::size(lmax));
-        m_shape = Layout::shape(lmax);
-        m_lmax = lmax;
+        m_values.resize(Layout::size(order));
+        m_shape = Layout::shape(order);
+        m_order = order;
     }
 
     [[nodiscard]] element_type
@@ -234,7 +234,7 @@ private:
 
     std::vector<element_type, Allocator> m_values;
     std::array<std::size_t, 2> m_shape;
-    std::size_t m_lmax;
+    std::size_t m_order;
 };
 
 /*
@@ -257,22 +257,6 @@ public:
     [[nodiscard]] std::span<const double> glq_nodes() const noexcept
     {
         return m_glq_nodes;
-    }
-
-    void resize(std::size_t num_lon, std::size_t num_lat)
-    {
-        if (num_lon != m_longitudes.size())
-        {
-            m_longitudes.resize(num_lon);
-            const double dlon = (2.0*std::numbers::pi)/double(m_longitudes.size());
-            for (std::size_t i = 0; i < m_longitudes.size(); ++i)
-                m_longitudes[i] = dlon*double(i);
-        }
-        if (num_lat != m_glq_nodes.size())
-        {
-            m_glq_nodes.resize(num_lat);
-            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::ANGLE>(m_glq_nodes, m_glq_nodes.size() & 1);
-        }
     }
 
     template <typename LayoutType = DefaultLayout, typename FuncType>
@@ -309,15 +293,31 @@ public:
     }
 
     template <typename LayoutType = DefaultLayout, typename FuncType>
-    auto generate_values(FuncType&& f, std::size_t lmax)
+    auto generate_values(FuncType&& f, std::size_t order)
     {
         using CodomainType = std::invoke_result_t<FuncType, double, double>;
-        SphereGLQGrid<CodomainType, LayoutType> grid(lmax);
+        SphereGLQGrid<CodomainType, LayoutType> grid(order);
         generate_values<LayoutType, FuncType>(grid, f);
         return grid;
     }
 
 private:
+    void resize(std::size_t num_lon, std::size_t num_lat)
+    {
+        if (num_lon != m_longitudes.size())
+        {
+            m_longitudes.resize(num_lon);
+            const double dlon = (2.0*std::numbers::pi)/double(m_longitudes.size());
+            for (std::size_t i = 0; i < m_longitudes.size(); ++i)
+                m_longitudes[i] = dlon*double(i);
+        }
+        if (num_lat != m_glq_nodes.size())
+        {
+            m_glq_nodes.resize(num_lat);
+            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::ANGLE>(m_glq_nodes, m_glq_nodes.size() & 1);
+        }
+    }
+    
     std::vector<double> m_longitudes;
     std::vector<double> m_glq_nodes;
 };
@@ -330,19 +330,19 @@ class GLQTransformer
 {
 public:
     using GridLayout = GridLayoutType;
-    GLQTransformer(): GLQTransformer(0) {}
-    explicit GLQTransformer(std::size_t lmax):
-        m_recursion(lmax), m_glq_nodes(gl::PackedLayout::size(GridLayout::lat_size(lmax))),
-        m_glq_weights(gl::PackedLayout::size(GridLayout::lat_size(lmax))),
-        m_plm_grid(GridLayout::lat_size(lmax)*TriangleLayout::size(lmax)),
-        m_ffts(GridLayout::lat_size(lmax)*GridLayout::fft_size(lmax)), m_symm_asymm(GridLayout::fft_size(lmax)*((GridLayout::lat_size(lmax) + 1) >> 1)*2),
+    GLQTransformer() = default;
+    explicit GLQTransformer(std::size_t order):
+        m_recursion(order), m_glq_nodes(gl::PackedLayout::size(GridLayout::lat_size(order))),
+        m_glq_weights(gl::PackedLayout::size(GridLayout::lat_size(order))),
+        m_plm_grid(GridLayout::lat_size(order)*TriangleLayout::size(order)),
+        m_ffts(GridLayout::lat_size(order)*GridLayout::fft_size(order)), m_symm_asymm(GridLayout::fft_size(order)*((GridLayout::lat_size(order) + 1) >> 1)*2),
         m_pocketfft_shape_grid(2), m_pocketfft_stride_grid(2), m_pocketfft_stride_fft(2),
-        m_grids{SphereGLQGrid<double, GridLayout>(lmax), SphereGLQGrid<double, GridLayout>(lmax)},
-        m_lmax(lmax)
+        m_grids{SphereGLQGrid<double, GridLayout>(order), SphereGLQGrid<double, GridLayout>(order)},
+        m_order(order)
     {
         gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::COS>(
-                m_glq_nodes, m_glq_weights, GridLayout::lat_size(lmax) & 1);
-        m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(lmax));
+                m_glq_nodes, m_glq_weights, GridLayout::lat_size(order) & 1);
+        m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(order));
         
         if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
         {
@@ -350,84 +350,84 @@ public:
             {
                 const double z = m_glq_nodes[i];
                 PlmSpan<double, NORM, PHASE> plm(
-                        m_plm_grid.data() + i*TriangleLayout::size(lmax), 
-                        lmax);
+                        m_plm_grid.data() + i*TriangleLayout::size(order), 
+                        order);
                 m_recursion.plm_real(plm, z);
             }
         }
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
-            PlmVecSpan<double, NORM, PHASE> plm(m_plm_grid, m_lmax, m_glq_nodes.size());
+            PlmVecSpan<double, NORM, PHASE> plm(m_plm_grid, m_order, m_glq_nodes.size());
             m_recursion.plm_real(plm, m_glq_nodes);
         }
 
-        auto shape = GridLayout::shape(lmax);
+        auto shape = GridLayout::shape(order);
         m_pocketfft_shape_grid[0] = shape[0];
         m_pocketfft_shape_grid[1] = shape[1];
 
         m_pocketfft_stride_grid[0] = long(shape[1]*sizeof(double));
         m_pocketfft_stride_grid[1] = sizeof(double);
 
-        auto fft_stride = GridLayout::fft_stride(lmax);
+        auto fft_stride = GridLayout::fft_stride(order);
         m_pocketfft_stride_fft[0] = long(fft_stride[0]*sizeof(std::complex<double>));
         m_pocketfft_stride_fft[1] = fft_stride[1]*sizeof(std::complex<double>);
     }
 
-    [[nodiscard]] std::size_t lmax() const noexcept { return m_lmax; }
+    [[nodiscard]] std::size_t order() const noexcept { return m_order; }
     [[nodiscard]] static constexpr SHNorm norm() noexcept { return NORM; }
     [[nodiscard]] static constexpr SHPhase phase() noexcept { return PHASE; }
 
     /*
-    Resize transformer for specified expansion order `lmax`
+    Resize transformer for specified expansion `order`
     */
-    void resize(std::size_t lmax)
+    void resize(std::size_t order)
     {
-        if (lmax == m_lmax) return;
+        if (order == m_order) return;
 
-        m_recursion.expand(lmax);
+        m_recursion.expand(order);
 
-        m_glq_nodes.resize(gl::PackedLayout::size(GridLayout::lat_size(lmax)));
-        m_glq_weights.resize(gl::PackedLayout::size(GridLayout::lat_size(lmax)));
+        m_glq_nodes.resize(gl::PackedLayout::size(GridLayout::lat_size(order)));
+        m_glq_weights.resize(gl::PackedLayout::size(GridLayout::lat_size(order)));
         gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::COS>(
-                m_glq_nodes, m_glq_weights, GridLayout::lat_size(lmax) & 1);
-        m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(lmax));
+                m_glq_nodes, m_glq_weights, GridLayout::lat_size(order) & 1);
+        m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(order));
         
-        m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(lmax));
+        m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(order));
         if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
         {
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
             {
                 const double z = m_glq_nodes[i];
                 PlmSpan<double, NORM, PHASE> plm(
-                        m_plm_grid.data() + i*TriangleLayout::size(lmax), 
-                        lmax);
+                        m_plm_grid.data() + i*TriangleLayout::size(order), 
+                        order);
                 m_recursion.plm_real(plm, z);
             }
         }
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
-            PlmVecSpan<double, NORM, PHASE> plm(m_plm_grid, m_lmax, m_glq_nodes.size());
+            PlmVecSpan<double, NORM, PHASE> plm(m_plm_grid, m_order, m_glq_nodes.size());
             m_recursion.plm_real(plm, m_glq_nodes);
         }
 
-        m_ffts.resize(GridLayout::lat_size(lmax)*GridLayout::fft_size(lmax));
-        m_symm_asymm.resize(GridLayout::fft_size(lmax)*((GridLayout::lat_size(lmax) + 1) >> 1)*2);
+        m_ffts.resize(GridLayout::lat_size(order)*GridLayout::fft_size(order));
+        m_symm_asymm.resize(GridLayout::fft_size(order)*((GridLayout::lat_size(order) + 1) >> 1)*2);
 
-        auto shape = GridLayout::shape(lmax);
+        auto shape = GridLayout::shape(order);
         m_pocketfft_shape_grid[0] = shape[0];
         m_pocketfft_shape_grid[1] = shape[1];
 
         m_pocketfft_stride_grid[0] = long(shape[1]*sizeof(double));
         m_pocketfft_stride_grid[1] = sizeof(double);
 
-        auto fft_stride = GridLayout::fft_stride(lmax);
+        auto fft_stride = GridLayout::fft_stride(order);
         m_pocketfft_stride_fft[0] = long(fft_stride[0]*sizeof(std::complex<double>));
         m_pocketfft_stride_fft[1] = fft_stride[1]*sizeof(std::complex<double>);
 
-        m_grids.first.resize(lmax);
-        m_grids.second.resize(lmax);
+        m_grids.first.resize(order);
+        m_grids.second.resize(order);
 
-        m_lmax = lmax;
+        m_order = order;
     }
 
     /*
@@ -441,14 +441,14 @@ public:
         SphereGLQGridSpan<const double, GridLayout> values,
         RealSHExpansionSpan<std::array<double, 2>, SHNorm::GEO, SHPhase::NONE> expansion)
     {
-        resize(values.lmax());
+        resize(values.order());
         
         integrate_longitudinal(values);
 
         fft_to_symm_asymm();
 
-        std::size_t min_lmax = std::min(expansion.lmax(), values.lmax());
-        integrate_latitudinal(expansion, min_lmax);
+        std::size_t min_order = std::min(expansion.order(), values.order());
+        integrate_latitudinal(expansion, min_order);
     }
 
     /*
@@ -462,11 +462,11 @@ public:
         RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion,
         SphereGLQGridSpan<double, GridLayout> values)
     {
-        resize(values.lmax());
+        resize(values.order());
 
-        std::size_t min_lmax = std::min(expansion.lmax(), values.lmax());
+        std::size_t min_order = std::min(expansion.order(), values.order());
         
-        sum_l(expansion, min_lmax);
+        sum_l(expansion, min_order);
         symm_asymm_to_fft();
         sum_m(values);
     }
@@ -476,13 +476,13 @@ public:
 
     Parameters:
     `values`: values on the spherical quadrature grid.
-    `lmax: order of expansion.
+    `order`: order of expansion.
     */
     [[nodiscard]] RealSHExpansion<NORM, PHASE>
     forward_transform(
-        SphereGLQGridSpan<const double, GridLayout> values, std::size_t lmax)
+        SphereGLQGridSpan<const double, GridLayout> values, std::size_t order)
     {
-        RealSHExpansion<NORM, PHASE> expansion(lmax);
+        RealSHExpansion<NORM, PHASE> expansion(order);
         forward_transform(values, expansion);
         return expansion;
     }
@@ -495,9 +495,9 @@ public:
     `expansion`: coefficients of the expansion.
     */
     [[nodiscard]] SphereGLQGrid<double, GridLayout> backward_transform(
-        RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion, std::size_t lmax)
+        RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion, std::size_t order)
     {
-        SphereGLQGrid<double, GridLayout> grid(lmax);
+        SphereGLQGrid<double, GridLayout> grid(order);
         backward_transform(expansion, grid);
         return grid;
     }
@@ -510,7 +510,7 @@ public:
         RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> b,
         RealSHExpansionSpan<std::array<double, 2>, NORM, PHASE> out)
     {
-        resize(out.lmax());
+        resize(out.order());
         backward_transform(a, m_grids.first);
         backward_transform(b, m_grids.second);
 
@@ -534,7 +534,7 @@ private:
     void apply_gl_weights() noexcept
     {
         const std::size_t num_lat = m_glq_weights.size();
-        const std::size_t fft_order = GridLayout::fft_size(m_lmax);
+        const std::size_t fft_order = GridLayout::fft_size(m_order);
         if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
         {
             for (std::size_t i = 0; i < num_lat; ++i)
@@ -576,8 +576,8 @@ private:
     */
     void fft_to_symm_asymm() noexcept
     {
-        const std::size_t fft_order = GridLayout::fft_size(m_lmax);
-        const std::size_t num_lat = GridLayout::lat_size(m_lmax);
+        const std::size_t fft_order = GridLayout::fft_size(m_order);
+        const std::size_t num_lat = GridLayout::lat_size(m_order);
         const std::size_t central_offset = num_lat >> 1;
         const std::size_t num_unique_nodes = m_glq_weights.size();
         const std::size_t south_offset = num_unique_nodes - 1;
@@ -651,9 +651,9 @@ private:
     }
 
     void integrate_latitudinal(
-        RealSHExpansionSpan<std::array<double, 2>, NORM, PHASE> expansion, std::size_t min_lmax) noexcept
+        RealSHExpansionSpan<std::array<double, 2>, NORM, PHASE> expansion, std::size_t min_order) noexcept
     {
-        const std::size_t fft_order = GridLayout::fft_size(m_lmax);
+        const std::size_t fft_order = GridLayout::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
 
         std::span coeffs = expansion.flatten();
@@ -663,10 +663,10 @@ private:
             for (std::size_t i = 0; i < num_unique_nodes; ++i)
             {
                 PlmSpan<double, NORM, PHASE> plm(
-                        m_plm_grid.data() + i*TriangleLayout::size(m_lmax), 
-                        m_lmax);
+                        m_plm_grid.data() + i*TriangleLayout::size(m_order), 
+                        m_order);
                 std::span plm_flat = plm.flatten();
-                for (std::size_t l = 0; l <= min_lmax; ++l)
+                for (std::size_t l = 0; l < min_order; ++l)
                 {
                     std::span<const double> plm_l = plm[l];
                     std::span<std::array<double, 2>> expansion_l = expansion[l];
@@ -683,7 +683,7 @@ private:
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
             const std::size_t num_plm = num_unique_nodes;
-            for (std::size_t l = 0; l <= min_lmax; ++l)
+            for (std::size_t l = 0; l < min_order; ++l)
             {
                 std::span<const std::complex<double>> ffts;
                 ffts = std::span<const std::complex<double>>(
@@ -745,9 +745,9 @@ private:
     }
 
     void sum_l(
-        RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion, std::size_t min_lmax) noexcept
+        RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion, std::size_t min_order) noexcept
     {
-        const std::size_t fft_order = GridLayout::fft_size(m_lmax);
+        const std::size_t fft_order = GridLayout::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
         const std::size_t num_plm = num_unique_nodes;
 
@@ -760,10 +760,10 @@ private:
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
                 PlmSpan<double, NORM, PHASE> plm(
-                        m_plm_grid.data() + i*TriangleLayout::size(m_lmax), 
-                        m_lmax);
+                        m_plm_grid.data() + i*TriangleLayout::size(m_order), 
+                        m_order);
                 std::span plm_flat = plm.flatten();
-                for (std::size_t l = 0; l <= min_lmax; ++l)
+                for (std::size_t l = 0; l < min_order; ++l)
                 {
                     std::span<const double> plm_l = plm[l];
                     std::span<const std::array<double, 2>> expansion_l = expansion[l];
@@ -785,7 +785,7 @@ private:
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
             std::span coeffs = expansion.flatten();
-            for (std::size_t l = 0; l <= min_lmax; ++l)
+            for (std::size_t l = 0; l < min_order; ++l)
             {
                 const std::size_t ind = TriangleLayout::idx(l, 0);
                 const auto coeff = coeffs[ind];
@@ -823,8 +823,8 @@ private:
     // Inverse of `fft_to_symm_asymm`
     void symm_asymm_to_fft() noexcept
     {
-        const std::size_t fft_order = GridLayout::fft_size(m_lmax);
-        const std::size_t num_lat = GridLayout::lat_size(m_lmax);
+        const std::size_t fft_order = GridLayout::fft_size(m_order);
+        const std::size_t num_lat = GridLayout::lat_size(m_order);
         const std::size_t central_offset = num_lat >> 1;
         const std::size_t num_unique_nodes = m_glq_weights.size();
         const std::size_t south_offset = num_unique_nodes - 1;
@@ -898,7 +898,7 @@ private:
     std::vector<std::ptrdiff_t> m_pocketfft_stride_grid;
     std::vector<std::ptrdiff_t> m_pocketfft_stride_fft;
     std::pair<SphereGLQGrid<double, GridLayout>, SphereGLQGrid<double, GridLayout>> m_grids;
-    std::size_t m_lmax;
+    std::size_t m_order;
 };
 
 /*
