@@ -7,15 +7,21 @@ namespace zest
 namespace st
 {
 
-/* Switch for Condon-Shortely phase convention */
+/**
+    @brief Spherical harmonic phase conventions.
+*/
 enum class SHPhase { NONE = 1, CS = -1 };
 
-/*
-Spherical harmonic normalization convention
-    GEO geodesy (4 pi) normalization
-    QM quantum mechanics (unit norm) normalization
+/**
+    @brief Spherical harmonic normalization conventions
 */
-enum class SHNorm { GEO, QM/*, SCHMIDT, UNNORMALIZED, ORTHONORMAL*/ };
+enum class SHNorm
+{
+    /** geodesy (4 pi) normalization */
+    GEO,
+    /** quantum mechanics (unit norm) normalization */
+    QM
+};
 
 
 template <SHNorm NORM>
@@ -27,8 +33,13 @@ template <SHNorm NORM>
         return 1.0/(4.0*std::numbers::pi);
 }
 
-/*
-Normalization constant for converting between spherical harmonics conventions.
+/**
+    @brief Normalization constant for converting between spherical harmonics conventions.
+
+    @tparam FROM source normalization convention
+    @tparam TO destination normalization convention
+
+    @return normalization constant
 */
 template <SHNorm FROM, SHNorm TO>
     requires (FROM == TO)
@@ -37,8 +48,13 @@ template <SHNorm FROM, SHNorm TO>
     return 1.0;
 }
 
-/*
-Normalization constant for converting between spherical harmonics conventions.
+/**
+    @brief Normalization constant for converting between spherical harmonics conventions.
+
+    @tparam FROM source normalization convention
+    @tparam TO destination normalization convention
+
+    @return normalization constant
 */
 template <SHNorm FROM, SHNorm TO>
 [[nodiscard]] constexpr double conversion_const() noexcept

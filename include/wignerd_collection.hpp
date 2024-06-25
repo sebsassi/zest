@@ -9,14 +9,16 @@ namespace zest
 namespace detail
 {
 
-/*
-Non-owning view moedling a Wigner (small) d-matrix at pi/2
+/**
+    @brief Non-owning view moedling a Wigner (small) d-matrix at pi/2
+
+    @tparam ElementType type of elements in the view
 */
-template <typename T>
+template <typename ElementType>
 class WignerdSpan
 {
 public:
-    constexpr WignerdSpan(T* data, std::size_t l):
+    constexpr WignerdSpan(ElementType* data, std::size_t l):
         m_span(data, (l + 1)*(l + 1)), m_l(l) {}
     
     [[nodiscard]] constexpr double
@@ -32,12 +34,12 @@ public:
     }
 
 private:
-    std::span<T> m_span;
+    std::span<ElementType> m_span;
     std::size_t m_l;
 };
 
-/*
-Collection of Wigner (small) d-matrces at pi/2
+/**
+    @brief Collection of Wigner (small) d-matrces at pi/2
 */
 class WignerdCollection
 {
@@ -78,8 +80,15 @@ private:
     std::size_t m_max_order;
 };
 
-/*
-Apply an SO(3) rotation on an l-dimensional `vector`.
+/**
+    @brief Apply an SO(3) rotation on an l-dimensional vector.
+
+    @param vector
+    @param wigner_d Wigner d-matrix
+    @param exp_gamma complex expolentials of the gamma angle
+    @param exp_beta complex exponentials of the beta angle
+    @param exp_alpha complex exponentials of the alpha angle
+    @param temp space for temporary data
 */
 constexpr void rotate_l(
     std::span<std::complex<double>> vector,
@@ -254,8 +263,11 @@ constexpr void rotate_l(
     }
 }
 
-/*
-Apply an SO(3) polar rotation on an l-dimensional `vector`.
+/**
+    @brief Apply an SO(3) polar rotation on an l-dimensional vector.
+
+    @param vector
+    @param exp_alpha complex exponentials of the alpha angle
 */
 constexpr void polar_rotate_l(
     std::span<std::complex<double>> vector,

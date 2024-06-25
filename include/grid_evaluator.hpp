@@ -38,6 +38,13 @@ class GridEvaluator
 {
 public:
     GridEvaluator() = default;
+
+    /*
+    Construct `GridEvaluator` with memory reserved for an expansion of given order.
+
+    Parameters:
+    `max_order`: maximum order of spherical harmonic expansion.
+    */
     explicit GridEvaluator(std::size_t max_order);
 
     /*
@@ -152,6 +159,13 @@ class GridEvaluator
 {
 public:
     GridEvaluator() = default;
+
+    /*
+    Construct `GridEvaluator` with memory reserved for an expansion of given order.
+
+    Parameters:
+    `max_order`: maximum order of spherical harmonic expansion.
+    */
     explicit GridEvaluator(std::size_t max_order);
 
     /*

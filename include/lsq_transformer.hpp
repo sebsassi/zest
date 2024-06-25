@@ -9,8 +9,8 @@ namespace zest
 namespace st
 {
 
-/*
-Least-squares real spherical harmonic expansion fit on arbitrary real valued data on the sphere.
+/**
+    @brief Least-squares real spherical harmonic expansion fit on arbitrary real valued data on the sphere.
 */
 class LSQTransformer
 {

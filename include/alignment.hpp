@@ -8,6 +8,9 @@
 namespace zest
 {
 
+/**
+    @brief Descriptor corresponding to no alignment.
+*/
 struct NoAlignment
 {
     static constexpr std::size_t byte_alignment = 1;
@@ -17,25 +20,59 @@ struct NoAlignment
     vector_size() noexcept { return 1; }
 };
 
+/**
+    @brief Descriptor for SIMD vector alignment.
+
+    @tparam BYTE_ALIGNMENT number of bytes to align to
+
+    @note `BYTE_ALIGNMENT` should normally be a power of two.
+*/
 template <std::size_t BYTE_ALIGNMENT>
 struct VectorAlignment
 {
     static constexpr std::size_t byte_alignment = BYTE_ALIGNMENT;
 
+    /**
+        @brief Number of elements that fit in a SIMD vector of given type.
+
+        @tparam T type of elements
+    */
     template <typename T>
     [[nodiscard]] static constexpr std::size_t vector_size() noexcept
     {
-        return std::max(1UL, byte_alignment/sizeof(T));
+        return byte_alignment/sizeof(T);
     }
 };
 
+/**
+    @brief Descriptor for SSE (16 byte) alignment.
+*/
 using SSEAlignment = VectorAlignment<16>;
+
+/**
+    @brief Descriptor for AVX (32 byte) alignment.
+*/
 using AVXAlignment = VectorAlignment<32>;
+
+/**
+    @brief Descriptor for AVX512 (64 byte) alignment.
+*/
 using AVX512Alignment = VectorAlignment<64>;
+
+/**
+    @brief Descriptor for cache line (64 byte) alignment.
+*/
 using CacheLineAlignment = VectorAlignment<64>;
 
-/*
-Figure out the number of bytes needed to store `n` elements with given byte alignment.
+/**
+    @brief Figure out the number of bytes needed to store a number of elements with given byte alignment.
+
+    @tparam T type of allocated object
+    @tparam BYTE_ALIGNMENT number of bytes to align to
+
+    @param n number of elements
+
+    @return number of bytes
 */
 template<typename T, std::size_t BYTE_ALIGNMENT>
 [[nodiscard]] constexpr std::size_t aligned_size(std::size_t n) noexcept
@@ -58,10 +95,18 @@ template<typename T, std::size_t BYTE_ALIGNMENT>
     }
 }
 
+/**
+    @brief Allocator class for allocating aligned memory.
+
+    @tparam T type of allocated object
+    @tparam BYTE_ALIGNMENT number of bytes to align to
+*/
 template<typename T, std::size_t BYTE_ALIGNMENT>
 struct AlignedAllocator
 {
-    typedef T value_type;
+    using value_type = T;
+    using size_type = std::size_t;
+    using difference_type = std::ptrdiff_t;
 
     template <typename U>
     struct rebind { using other = AlignedAllocator<T, BYTE_ALIGNMENT>; };

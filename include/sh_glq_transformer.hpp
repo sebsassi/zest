@@ -15,8 +15,10 @@ namespace zest
 namespace st
 {
 
-/*
-Longitudinally contiguous layout for storing a Gauss-Legendre quadrature grid.
+/**
+    @brief Longitudinally contiguous layout for storing a Gauss-Legendre quadrature grid.
+
+    @tparam AlignmentType byte alignment of the grid
 */
 template <typename AlignmentType = CacheLineAlignment>
 struct LatLonLayout
@@ -68,8 +70,10 @@ struct LatLonLayout
     static constexpr std::size_t lon_axis = 1UL;
 };
 
-/*
-Latitudinally contiguous layout for storing a Gauss-Legendre quadrature grid.
+/**
+    @brief Latitudinally contiguous layout for storing a Gauss-Legendre quadrature grid.
+
+    @tparam AlignmentType byte alignment of the grid
 */
 template <typename AlignmentType = CacheLineAlignment>
 struct LonLatLayout
@@ -123,8 +127,11 @@ struct LonLatLayout
 
 using DefaultLayout = LonLatLayout<>;
 
-/*
-A non-owning view on data modeling a Gauss-Legendre quadrature grid on the sphere.
+/**
+    @brief A non-owning view on data modeling a Gauss-Legendre quadrature grid on the sphere.
+
+    @tparam ElementType type of elements in the grid
+    @tparam LayoutType grid layout
 */
 template <typename ElementType, typename LayoutType = DefaultLayout>
 class SphereGLQGridSpan: public MDSpan<ElementType, 2>
@@ -174,8 +181,11 @@ private:
     std::size_t m_order;
 };
 
-/*
-Container for Gauss-Legendre quadrature gridded data on the sphere.
+/**
+    @brief Container for Gauss-Legendre quadrature gridded data on the sphere.
+
+    @tparam ElementType type of elements in the grid
+    @tparam LayoutType grid layout
 */
 template <typename ElementType, typename LayoutType = DefaultLayout>
 class SphereGLQGrid
@@ -251,8 +261,8 @@ concept sphere_glq_grid
             typename std::remove_cvref_t<T>::element_type,
             typename std::remove_cvref_t<T>::Layout>>;
 
-/*
-Points defining a Gauss-Legendre quadrature grid on the sphere.
+/**
+    @brief Points defining a Gauss-Legendre quadrature grid on the sphere.
 */
 class SphereGLQGridPoints
 {
@@ -334,8 +344,12 @@ private:
     std::vector<double> m_glq_nodes;
 };
 
-/*
-Transformations between a Gauss-Legendre quadrature grid representation and spherical harmonic expansion representation of real data.
+/**
+    @brief Transformations between a Gauss-Legendre quadrature grid representation and spherical harmonic expansion representation of real data.
+
+    @tparam NORM normalization convention of spherical harmonics
+    @tparam PHASE phase convention of spherical harmonics
+    @tparam GridLayoutType
 */
 template <SHNorm NORM, SHPhase PHASE, typename GridLayoutType = DefaultLayout>
 class GLQTransformer
@@ -389,8 +403,10 @@ public:
     [[nodiscard]] static constexpr SHNorm norm() noexcept { return NORM; }
     [[nodiscard]] static constexpr SHPhase phase() noexcept { return PHASE; }
 
-    /*
-    Resize transformer for specified expansion `order`
+    /**
+        @brief Resize transformer for specified expansion order
+
+        @param order
     */
     void resize(std::size_t order)
     {
@@ -442,12 +458,11 @@ public:
         m_order = order;
     }
 
-    /*
-    Forward transform from Gauss-Legendre quadrature grid to spherical harmonic coefficients.
+    /**
+        @brief Forward transform from Gauss-Legendre quadrature grid to spherical harmonic coefficients.
 
-    Parameters:
-    `values`: values on the spherical quadrature grid.
-    `expansion`: coefficients of the expansion.
+        @param values values on the spherical quadrature grid
+        @param expansion coefficients of the expansion
     */
     void forward_transform(
         SphereGLQGridSpan<const double, GridLayout> values,
@@ -463,12 +478,11 @@ public:
         integrate_latitudinal(expansion, min_order);
     }
 
-    /*
-    Backward transform from spherical harmonic coefficients to Gauss-Legendre quadrature grid.
+    /**
+        @brief Backward transform from spherical harmonic coefficients to Gauss-Legendre quadrature grid.
 
-    Parameters:
-    `values`: values on the spherical quadrature grid.
-    `expansion`: coefficients of the expansion.
+        @param values values on the spherical quadrature grid
+        @param expansion coefficients of the expansion
     */
     void backward_transform(
         RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion,
@@ -499,12 +513,11 @@ public:
         return expansion;
     }
 
-    /*
-    Backward transform from spherical harmonic coefficients to Gauss-Legendre quadrature grid.
+    /**
+        @brief Backward transform from spherical harmonic coefficients to Gauss-Legendre quadrature grid.
 
-    Parameters:
-    `values`: values on the spherical quadrature grid.
-    `expansion`: coefficients of the expansion.
+        @param values values on the spherical quadrature grid
+        @param expansion coefficients of the expansion
     */
     [[nodiscard]] SphereGLQGrid<double, GridLayout> backward_transform(
         RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion, std::size_t order)
@@ -514,8 +527,8 @@ public:
         return grid;
     }
 
-    /*
-    Compute coefficients of the product of two spherical harmonic expansions.
+    /**
+        @brief Compute coefficients of the product of two spherical harmonic expansions.
     */
     void multiply(
         RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> a,
@@ -913,22 +926,28 @@ private:
     std::size_t m_order;
 };
 
-/*
-Convenient alias for `GLQTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
+/**
+    @brief Convenient alias for `GLQTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
+
+    @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerAcoustics
     = GLQTransformer<SHNorm::QM, SHPhase::NONE, GridLayout>;
 
-/*
-Convenient alias for `GLQTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
+/**
+    @brief Convenient alias for `GLQTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
+
+    @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerQM
     = GLQTransformer<SHNorm::QM, SHPhase::CS, GridLayout>;
 
-/*
-Convenient alias for `GLQTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+/**
+    @brief Convenient alias for `GLQTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+
+    @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerGeo

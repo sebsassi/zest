@@ -9,8 +9,8 @@ namespace st
 {
 
 
-/*
-Pack real spherical harmonics in pairs `(Y(l,m), Y(l,-m))` indexed by `0 <= m <= l`.
+/**
+    @brief Pack real spherical harmonics in pairs `(Y(l,m), Y(l,-m))` indexed by `0 <= m <= l`.
 */
 struct PairedRealYlmPacking
 {
@@ -18,8 +18,8 @@ struct PairedRealYlmPacking
     using element_type = std::array<double, 2>;
 };
 
-/*
-Pack real spherical harmonics sequentially indexed by `-l <= m <= l`.
+/**
+    @brief Pack real spherical harmonics sequentially indexed by `-l <= m <= l`.
 */
 struct SequentialRealYlmPacking
 {
@@ -27,25 +27,27 @@ struct SequentialRealYlmPacking
     using element_type = double;
 };
 
-/*
-Constrain to possible packings of real spherical harmonics.
-
-Requires `T` to be one of:
-`PairedRealYlmPacking`
-`SequentialRealYlmPacking`
-*/
 template <typename T>
 concept real_ylm_packing
         = std::same_as<T, PairedRealYlmPacking>
         || std::same_as<T, SequentialRealYlmPacking>;
 
-/*
-Non-owfning view of eral spherical harmonics.
-*/
-template <real_ylm_packing T, SHNorm NORM, SHPhase PHASE>
-using RealYlmSpan = SHLMSpan<
-    typename T::element_type, typename T::Layout, NORM, PHASE>;
+/**
+    @brief Non-owfning view of real spherical harmonics.
 
+    @tparam PackingType layout of the spherical harmonics 
+*/
+template <real_ylm_packing PackingType, SHNorm NORM, SHPhase PHASE>
+using RealYlmSpan = SHLMSpan<
+    typename PackingType::element_type, typename PackingType::Layout, NORM, PHASE>;
+
+/**
+    @brief A container for spherical harmonics.
+
+    @tparam NORM normalization convention of the spherical harmonics
+    @tparam PHASE phase convention of the spherical harmonics
+    @tparam PackingType layout of the spherical harmonics
+*/
 template <
     SHNorm NORM, SHPhase PHASE, real_ylm_packing PackingType>
     requires std::same_as<
@@ -106,8 +108,8 @@ private:
     std::size_t m_order;
 };
 
-/*
-Generation of real spherical harmonics based on recursion of associated Legendre polynomials.
+/**
+     @brief Generation of real spherical harmonics based on recursion of associated Legendre polynomials.
 */
 class RealYlmGenerator
 {

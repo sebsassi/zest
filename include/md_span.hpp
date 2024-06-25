@@ -7,6 +7,9 @@
 namespace zest
 {
 
+namespace detail
+{
+
 template <std::size_t M, typename T>
 auto last(T a)
 {
@@ -25,8 +28,13 @@ auto prod(T a)
     return res;
 }
 
-/*
-Poor man's mdspan for accessing multidimensional arrays.
+}
+
+/**
+    @brief Poor man's mdspan for modeling dynamic multidimensional arrays.
+
+    @tparam ElementType type of array elements
+    @tparam NDIM number of array dimensions
 */
 template <typename ElementType, std::size_t NDIM>
 class MDSpan
@@ -41,11 +49,11 @@ public:
     constexpr MDSpan() = default;
     constexpr MDSpan(
         data_handle_type data, const std::array<std::size_t, NDIM>& extents):
-        m_data(data), m_size(prod(extents)), m_extents(extents) {}
+        m_data(data), m_size(detail::prod(extents)), m_extents(extents) {}
     constexpr MDSpan(
         std::span<element_type> span,
         const std::array<std::size_t, NDIM>& extents):
-        m_data(span.data()), m_size(prod(extents)), m_extents(extents) {}
+        m_data(span.data()), m_size(detail::prod(extents)), m_extents(extents) {}
 
     [[nodiscard]] operator std::span<element_type>()
     {
@@ -86,7 +94,7 @@ public:
     operator()(Ts... inds) const noexcept
     {
         index_type ind = idx(inds...);
-        std::array<index_type, NDIM - sizeof...(Ts)> extents = last<NDIM - sizeof...(Ts)>(m_extents);
+        std::array<index_type, NDIM - sizeof...(Ts)> extents = detail::last<NDIM - sizeof...(Ts)>(m_extents);
         return MDSpan<element_type, NDIM - sizeof...(Ts)>(m_data + ind*prod(extents), extents);
     }
 

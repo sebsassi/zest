@@ -7,13 +7,24 @@
 namespace zest
 {
 
-/*
-Switch for whether rotation applies to object or coordinate system
-    `OBJECT`: object is rotated
-    `COORDINATE`: coordinate system is rotated
+/**
+    @brief Describes whether rotation applies to object or coordinate system
 */
-enum class RotationType { OBJECT, COORDINATE };
+enum class RotationType
+{
+    /** object is rotated */
+    OBJECT,
+    /** coordinate system is rotated */
+    COORDINATE
+};
 
+/**
+    @brief Translate rotation matrix into corresponding Euler angles.
+
+    @param rot rotation matrix
+
+    @return Euler angles in order alpha, beta, gamma
+*/
 [[nodiscard]] constexpr std::array<double, 3> euler_angles_from_rotation_matrix(
     const std::array<std::array<double, 3>, 3>& rot) noexcept
 {
@@ -48,8 +59,8 @@ enum class RotationType { OBJECT, COORDINATE };
     return angle*sign;
 }
 
-/*
-Rotations of spherical harmonic and Zernike coefficients.
+/**
+    @brief Rotations of spherical harmonic and Zernike coefficients.
 */
 class Rotor
 {
@@ -62,10 +73,16 @@ public:
     [[nodiscard]] std::size_t
     max_order() const noexcept { return m_wigner_d_pi2.max_order(); }
 
-    /*
-    General rotation of a real spherical harmonic expansion via Wigner's D-matrix.
+    /**
+        @brief General rotation of a real spherical harmonic expansion via Wigner's D-matrix.
 
-    The rotation uses the standard ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+        @tparam ExpansionType
+
+        @param expansion real spherical harmonic expansion
+        @param euler_angles Euler angles defining the rotation
+        @param convention rotation convention for interpreting the Euler angles
+
+        @note The rotation uses the standard ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
     */
     template <st::real_sh_expansion ExpansionType>
     void rotate(
@@ -108,10 +125,16 @@ public:
         to_real_expansion<NORM, PHASE>(complex_expansion);
     }
 
-    /*
-    General rotation of a real Zernike expansion via Wigner's D-matrix.
+    /**
+        @brief General rotation of a real Zernike expansion via Wigner's D-matrix.
 
-    The rotation uses the standard ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+        @tparam ExpansionType
+
+        @param expansion real Zernike expansion
+        @param euler_angles Euler angles defining the rotation
+        @param convention rotation convention for interpreting the Euler angles
+
+        @note The rotation uses the standard ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
     */
     template <zt::zernike_expansion ExpansionType>
     void rotate(
@@ -158,10 +181,16 @@ public:
         to_real_expansion<NORM, PHASE>(complex_expansion);
     }
 
-    /*
-    General rotation of a real spherical harmonic expansion via Wigner's D-matrix.
+    /**
+        @brief General rotation of a real spherical harmonic expansion via Wigner's D-matrix.
 
-    The rotation uses the standard ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+        @tparam ExpansionType
+
+        @param expansion real spherical harmonic expansion
+        @param euler_angles Euler angles defining the rotation
+        @param convention rotation convention for interpreting the Euler angles
+
+        @note The rotation uses the standard ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
     */
     template <st::real_sh_expansion ExpansionType>
     void rotate(
@@ -171,10 +200,16 @@ public:
         rotate(expansion, euler_angles_from_rotation_matrix(matrix));
     }
 
-    /*
-    General rotation of a real Zernike expansion via Wigner's D-matrix.
+    /**
+        @brief General rotation of a real Zernike expansion via Wigner's D-matrix.
 
-    The rotation uses the standard ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+        @tparam ExpansionType
+
+        @param expansion real Zernike expansion
+        @param euler_angles Euler angles defining the rotation
+        @param convention rotation convention for interpreting the Euler angles
+
+        @note The rotation uses the standard ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
     */
     template <zt::zernike_expansion ExpansionType>
     void rotate(
@@ -184,8 +219,14 @@ public:
         rotate(expansion, euler_angles_from_rotation_matrix(matrix));
     }
 
-    /*
-    Rotation about the Z-axis of a real spherical harmonic expansion
+    /**
+        @brief Rotation about the Z-axis of a real spherical harmonic expansion.
+
+        @tparam ExpansionType
+
+        @param expansion real spherical harmonic expansion
+        @param angle polar rotation angle
+        @param convention rotation convention for interpreting the angle
     */
     template <st::real_sh_expansion ExpansionType>
     void polar_rotate(
@@ -210,8 +251,14 @@ public:
         to_real_expansion<NORM, PHASE>(complex_expansion);
     }
 
-    /*
-    Rotation about the Z-axis of a real Zernike expansion
+    /**
+        @brief Rotation about the Z-axis of a real Zernike expansion
+
+        @tparam ExpansionType
+
+        @param expansion real spherical harmonic expansion
+        @param angle polar rotation angle
+        @param convention rotation convention for interpreting the angle
     */
     template <zt::zernike_expansion ExpansionType>
     void polar_rotate(

@@ -48,22 +48,22 @@ int main()
         return r*std::exp(-x*x);
     }
 
-    constexpr std::size_t lmax = 20;
+    constexpr std::size_t order = 20;
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid
-        = points.generate_values(function, lmax);
+        = points.generate_values(function, order);
 
-    zest::zt::GLQTransformerGeo transformer(lmax);
+    zest::zt::GLQTransformerGeo transformer{};
     zest::zt::ZernikeExpansion expansion
-        = transformer.forward_transform(grid, lmax);
+        = transformer.forward_transform(grid, order);
 
     const double alpha = std::numbers::pi/2;
     const double beta = std::numbers::pi/4;
     const double gamma = 0;
-    zest::Rotor rotor(lmax);
+    zest::Rotor rotor{};
     rotor.rotate(expansion, {alpha, beta, gamma});
 
-    for (std::size_t n = 0; n <= lmax; ++n)
+    for (std::size_t n = 0; n < order; ++n)
     {
         for (std::size_t l = n % 2; l <= n; ++l)
         {
@@ -79,4 +79,4 @@ After installation of the library, the above code can be compiled with, e.g.,
 ```
 g++ -O3 -std=c++20 -o zernike_example zernike_example.cpp -lzest
 ```
-Note the `-std=c++20` needed to enable the C++20 features required by the library.
+Note the `-std=c++20` needed to enable the C++20 features required by the library, unless your compiler defaults to C++20.

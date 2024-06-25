@@ -61,7 +61,7 @@ Compute power spectrum of a spherical harmonic expansions.
 
 Parameters:
 ´expansion`: spherical harmonic expansion.
-`out`: place to store the cross power spectrum.
+`out`: place to store the power spectrum.
 */
 template <SHNorm NORM, SHPhase PHASE>
 void power_spectrum(
@@ -80,7 +80,6 @@ void power_spectrum(
         out[l] *= norm;
     }
 }
-
 
 /*
 Compute power spectrum of a spherical harmonic expansions.
@@ -105,6 +104,13 @@ template <SHNorm NORM, SHPhase PHASE>
 namespace zt
 {
 
+/*
+Compute power spectrum of a Zernike expansions.
+
+Parameters:
+´expansion`: Zernike expansion.
+`out`: place to store the power spectrum.
+*/
 template <st::SHNorm NORM, st::SHPhase PHASE>
 void power_spectrum(
     ZernikeExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion,
@@ -126,6 +132,15 @@ void power_spectrum(
     }
 }
 
+/*
+Compute power spectrum of a Zernike expansions.
+
+Parameters:
+´expansion`: Zernike expansion.
+
+Returns:
+`std::vector` storing the power spectrum.
+*/
 template <st::SHNorm NORM, st::SHPhase PHASE>
 [[nodiscard]] std::vector<double> power_spectrum(
     ZernikeExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion)

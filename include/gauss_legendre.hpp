@@ -10,19 +10,12 @@ namespace zest
 {
 namespace gl
 {
-/*
-Layout of Gauss-Legendre coefficients:
 
-`PACKED`: only include nonnegative nodes.
-`UNPACKED`: include negative nodes.
+/**
+    @brief Packed layout of Gauss-Legendre nodes.
 
-Notes:
-Gauss-Legendre nodes on the interval [-1,1] are distributed symmetrically about 0, such that for any node `x` the point `-x` is also a node with the same weight. Therefore the nodes and weights only need to be produced for nonnegative `x`. For the negative portion of the interval the nodes are `-x`, and the weights are given by the corresponding weights.
+    @note Gauss-Legendre nodes on the interval [-1,1] are distributed symmetrically about 0, such that for any node `x` the point `-x` is also a node with the same weight. Therefore the nodes and weights only need to be produced for nonnegative `x`. For the negative portion of the interval the nodes are `-x`, and the weights are given by the corresponding weights.
 */
-enum class GLLayout {
-    UNPACKED, PACKED
-};
-
 struct PackedLayout
 {
     [[nodiscard]] static constexpr std::size_t
@@ -38,6 +31,12 @@ struct PackedLayout
     }
 };
 
+
+/**
+    @brief Unpacked layout of Gauss-Legendre nodes.
+
+    @note Gauss-Legendre nodes on the interval [-1,1] are distributed symmetrically about 0, such that for any node `x` the point `-x` is also a node with the same weight. Therefore the nodes and weights only need to be produced for nonnegative `x`. For the negative portion of the interval the nodes are `-x`, and the weights are given by the corresponding weights.
+*/
 struct UnpackedLayout
 {
     [[nodiscard]] static constexpr std::size_t
@@ -53,22 +52,32 @@ struct UnpackedLayout
     }
 };
 
+/**
+    @brief Concept for restricting layout of Gauss-Legendre nodes.
+*/
 template <typename T>
 concept gl_layout = std::same_as<T, PackedLayout> || std::same_as<T, UnpackedLayout>;
 
-/*
-Style of Gauss-Legendre nodes:
-`ANGLE`: nodes as angles in the interval [0,pi]
-`COS`: nodes as consines of the angles in the interval [-1,1]
+/**
+    @brief Style of Gauss-Legendre nodes.
 */
 enum class GLNodeStyle {
-    ANGLE, COS
+    /** nodes as angles in the interval [0,pi] */
+    ANGLE,
+    /** nodes as consines of the angles in the interval [-1,1] */
+    COS
 };
 
 namespace detail {
 
-/*
-Returns `k`th zero of the Bessel function J_0.
+/**
+    @brief Calculate `k`th zero of the Bessel function J_0.
+
+    @tparam FloatType type of the return value
+
+    @param k order of the zero
+
+    @return value of the zero
 */
 template <std::floating_point FloatType>
 [[nodiscard]] constexpr FloatType bessel_zero(std::size_t k) noexcept
@@ -108,8 +117,14 @@ template <std::floating_point FloatType>
     return ak + x*(c[0] + x2*(c[1] + x2*(c[2] + x2*(c[3] + x2*c[4]))));
 }
 
-/*
-Returns the square of the Bessel function J_1 evaluated at the `k`th zero of the Bessel function J_0.
+/**
+    @brief Calculates the square of the Bessel function J_1 evaluated at the `k`th zero of the Bessel function J_0.
+
+    @tparam FloatType type of the return value
+
+    @param k order of the zero
+
+    @return value of square of J_1 at the zero
 */
 template <std::floating_point FloatType>
 [[nodiscard]] constexpr FloatType bessel_J2_k(std::size_t k) noexcept
@@ -837,20 +852,21 @@ constexpr void gl_nodes_and_weights_table(
 
 }
 
-/*
-Returns Gauss-Legendre nodes for a given number of nodes.
+/**
+    @brief Obtain Gauss-Legendre nodes for a given number of nodes.
 
-Parameters:
-`nodes`: range for storing the nodes.
-`parity`: parity of the total number of nodes.
+    @tparam Layout layout of `nodes`
+    @tparam R type of the range for storing the nodes
 
-Notes:
-For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
-    I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026)
+    @param nodes range for storing the nodes
+    @param parity parity of the total number of nodes
 
-The nodes returned are accurate to double macine epsilon.
+    @note For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
+    I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
 
-The implementation is based on the reference implementation by Bogaert.
+    @note The nodes returned are accurate to double macine epsilon.
+
+    @note The implementation is based on the reference implementation by Bogaert.
 */
 template <gl_layout Layout, GLNodeStyle NODE_STYLE, std::ranges::random_access_range R>requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
@@ -863,20 +879,21 @@ constexpr void gl_nodes(R&& nodes, std::size_t parity) noexcept
         detail::gl_nodes_bogaert<Layout, NODE_STYLE>(std::forward<R>(nodes), parity);
 }
 
-/*
-Returns Gauss-Legendre weights for a given number of nodes.
+/**
+    @brief Obtain Gauss-Legendre weights for a given number of nodes.
 
-Parameters:
-`weights`: range for storing the weights.
-`parity`: parity of the total number of nodes.
+    @tparam Layout layout of `weights`
+    @tparam R type of the range for storing the weights
 
-Notes:
-For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
-    I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026)
+    @param weights range for storing the weights
+    @param parity parity of the total number of nodes
 
-The weights returned are accurate to double macine epsilon.
+    @note For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
+    I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
 
-The implementation is based on the reference implementation by Bogaert.
+    @note The weights returned are accurate to double macine epsilon.
+
+    @note The implementation is based on the reference implementation by Bogaert.
 */
 template <gl_layout Layout, std::ranges::random_access_range R>
     requires std::floating_point<
@@ -890,21 +907,22 @@ constexpr void gl_weights(R&& weights, std::size_t parity) noexcept
         detail::gl_weights_bogaert<Layout>(std::forward<R>(weights), parity);
 }
 
-/*
-Returns Gauss-Legendre nodes and weights for a given number of nodes.
+/**
+    @brief Obtain Gauss-Legendre nodes and weights for a given number of nodes.
 
-Parameters:
-`nodes`: range for storing the nodes.
-`weights`: range for storing the weights.
-`parity`: parity of the total number of nodes.
+    @tparam Layout layout of `nodes` and `weights`
+    @tparam R type of the range for storing the nodes and weights
 
-Notes:
-For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
-    I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026)
+    @param nodes range for storing the nodes
+    @param weights range for storing the weights
+    @param parity parity of the total number of nodes
 
-The nodes and weights returned are accurate to double macine epsilon.
+    @note For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
+    I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
 
-The implementation is based on the reference implementation by Bogaert.
+    @note The nodes and weights returned are accurate to double macine epsilon.
+
+    @note The implementation is based on the reference implementation by Bogaert.
 */
 template <gl_layout Layout, GLNodeStyle NODE_STYLE, std::ranges::random_access_range R>
     requires std::floating_point<

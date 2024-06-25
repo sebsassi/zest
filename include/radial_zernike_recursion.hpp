@@ -10,11 +10,13 @@ namespace zest
 namespace zt
 {
 
-/* Zernike polynomial normalization switch */
+/**
+    @brief Zernike polynomial normalizations.
+*/
 enum class ZernikeNorm { NORMED, UNNORMED };
 
-/*
-Class for recursive generation of radial 3D Zernike polynomials.
+/**
+    @brief Class for recursive generation of radial 3D Zernike polynomials.
 */
 class RadialZernikeRecursion
 {
@@ -24,6 +26,14 @@ public:
 
     void expand(std::size_t max_order);
 
+    /**
+        @brief Evaluate Zernike polynomials at point `r`.
+
+        @tparam NORM normalization of the polynomials
+
+        @param zernike storage for the evaluated polynomials
+        @param r point at which the polynomials are evaluated
+    */
     template <ZernikeNorm NORM>
     void zernike(RadialZernikeSpan<double> zernike, double r)
     {
@@ -97,6 +107,14 @@ public:
         }
     }
 
+    /**
+        @brief Evaluate Zernike polynomials at vector of points `r`.
+
+        @tparam NORM normalization of the polynomials
+
+        @param zernike storage for the evaluated polynomials
+        @param r points at which the polynomials are evaluated
+    */
     template <ZernikeNorm NORM>
     void zernike(
         RadialZernikeVecSpan<double> zernike, std::span<const double> r)

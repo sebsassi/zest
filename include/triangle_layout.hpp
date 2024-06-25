@@ -5,14 +5,14 @@
 namespace zest
 {
 
-/*
-Contiguous 2D layout with indexing
-```
-                     (0,0)
-              (1,-1) (1,0) (1,1)
-       (2,-2) (2,-1) (2,0) (2,1) (2,2)
-(3,-3) (3,-2) (3,-1) (3,0) (3,1) (3,2) (3,3)
-...
+/**
+    @brief Contiguous 2D layout with indexing
+    ```
+                        (0,0)
+                (1,-1) (1,0) (1,1)
+        (2,-2) (2,-1) (2,0) (2,1) (2,2)
+    (3,-3) (3,-2) (3,-1) (3,0) (3,1) (3,2) (3,3)
+    ...
 ```
 */
 struct DualTriangleLayout
@@ -38,15 +38,15 @@ struct DualTriangleLayout
 };
 
 
-/*
-Contiguous 2D layout with indexing
-```
-(0,0)
-(1,0) (1,1)
-(2,0) (2,1) (2,2)
-(3,0) (3,1) (3,2) (3,3)
-...
-```
+/**
+    @brief Contiguous 2D layout with indexing
+    ```
+    (0,0)
+    (1,0) (1,1)
+    (2,0) (2,1) (2,2)
+    (3,0) (3,1) (3,2) (3,3)
+    ...
+    ```
 */
 struct TriangleLayout
 {
@@ -70,15 +70,15 @@ struct TriangleLayout
     }
 };
 
-/*
-Contiguous 2D layout with indexing
-```
-(0,0)
-      (1,1)
-(2,0)       (2,2)
-      (3,1)       (3,3)
-(4,0)       (4,2)       (4,4)
-```
+/**
+    @brief Contiguous 2D layout with indexing
+    ```
+    (0,0)
+        (1,1)
+    (2,0)       (2,2)
+        (3,1)       (3,3)
+    (4,0)       (4,2)       (4,4)
+    ```
 */
 struct EvenDiagonalTriangleLayout
 {
@@ -103,15 +103,15 @@ struct EvenDiagonalTriangleLayout
     }
 };
 
-/*
-Contiguous 2D layout with indexing
-```
-(0,0)
+/**
+    @brief Contiguous 2D layout with indexing
+    ```
+    (0,0)
 
-(2,0) (2,1) (2,2)
+    (2,0) (2,1) (2,2)
 
-(4,0) (4,1) (4,2) (4,3) (4,4)
-```
+    (4,0) (4,1) (4,2) (4,3) (4,4)
+    ```
 */
 struct EvenPrimaryTriangleLayout
 {
@@ -133,16 +133,16 @@ struct EvenPrimaryTriangleLayout
     }
 };
 
-/*
-Contiguous 3D layout with indexing
-```
-(0,0,0)
+/**
+    @brief Contiguous 3D layout with indexing
+    ```
+    (0,0,0)
 
-(1,1,0) (1,1,1)
+    (1,1,0) (1,1,1)
 
-(2,0,0)
-(2,2,0) (2,2,1) (2,2,2)...
-```
+    (2,0,0)
+    (2,2,0) (2,2,1) (2,2,2)...
+    ```
 */
 struct EvenSemiDiagonalTetrahedralLayout
 {
@@ -161,10 +161,8 @@ struct EvenSemiDiagonalTetrahedralLayout
     }
 };
 
-/*
-A non-owning view where adjacent even and odd indices refer to the same value.
-
-Given index `i`, the corresponding offset in the underlying buffer is given by `i/2`.
+/**
+    @brief A non-owning view where adjacent even and odd indices refer to the same value. Given index `i`, the corresponding offset in the underlying buffer is given by `i/2`.
 */
 template <typename ElementType>
 class EvenOddSpan
@@ -202,8 +200,11 @@ private:
     std::size_t m_size;
 };
 
-/*
-A non-owning view modeling 2D data with triangular layout.
+/**
+    @brief A non-owning view modeling 2D data with triangular layout.
+
+    @tparam ElementType type of elements in the view
+    @tparam LayoutType layout of the elements
 */
 template <typename ElementType, typename LayoutType>
 class TriangleSpan
@@ -271,8 +272,11 @@ private:
     std::size_t m_order;
 };
 
-/*
-A non-owning view modeling 3D data with triangular layout on the first two indices.
+/**
+    @brief A non-owning view modeling 3D data with triangular layout on the first two indices.
+
+    @tparam ElementType type of elements in the view
+    @tparam LayoutType layout of the elements
 */
 template <typename ElementType, typename LayoutType>
 class TriangleVecSpan

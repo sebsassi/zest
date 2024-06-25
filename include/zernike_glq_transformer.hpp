@@ -18,6 +18,11 @@ namespace zest
 namespace zt
 {
 
+/**
+    @brief Layout for storing a Gauss-Legendre quadrature grid.
+
+    @tparam AlignmentType byte alignment of the grid
+*/
 template <typename AlignmentType = CacheLineAlignment>
 struct LonLatRadLayout
 {
@@ -77,8 +82,11 @@ struct LonLatRadLayout
 
 using DefaultLayout = LonLatRadLayout<>;
 
-/*
-A non-owning view of gridded data in spherical coordinates in the unit ball.
+/**
+    @brief A non-owning view of gridded data in spherical coordinates in the unit ball.
+
+    @tparam ElementType type of elements in the grid
+    @tparam LayoutType grid layout
 */
 template <typename ElementType, typename LayoutType = DefaultLayout>
 class BallGLQGridSpan: public MDSpan<ElementType, 3>
@@ -129,8 +137,11 @@ private:
     std::size_t m_order;
 };
 
-/*
-Container for gridded data in spherical coordinates in the unit ball.
+/**
+    @brief Container for gridded data in spherical coordinates in the unit ball.
+
+    @tparam ElementType type of elements in the grid
+    @tparam LayoutType grid layout
 */
 template <typename ElementType, typename LayoutType = DefaultLayout>
 class BallGLQGrid
@@ -210,8 +221,8 @@ concept ball_glq_grid
             typename std::remove_cvref_t<T>::element_type,
             typename std::remove_cvref_t<T>::Layout>>;
 
-/*
-Points defining a grid in spherical coordinates in the unit ball.
+/**
+    @brief Points defining a grid in spherical coordinates in the unit ball.
 */
 class BallGLQGridPoints
 {
@@ -331,8 +342,12 @@ private:
     std::vector<double> m_longitudes;
 };
 
-/*
-Class for transforming between a Gauss-Legendre quadrature grid representation and Zernike polynomial expansion representation of data in the unit baal.
+/**
+    @brief Class for transforming between a Gauss-Legendre quadrature grid representation and Zernike polynomial expansion representation of data in the unit baal.
+
+    @tparam NORM normalization convention of spherical harmonics
+    @tparam PHASE phase convention of spherical harmonics
+    @tparam GridLayoutType
 */
 template <st::SHNorm NORM, st::SHPhase PHASE, typename GridLayoutType = DefaultLayout>
 class GLQTransformer
@@ -735,29 +750,35 @@ private:
     std::size_t m_order;
 };
 
-/*
-Convenient alias for `GLQTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
+/**
+    @brief Convenient alias for `GLQTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
+
+    @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerAcoustics
     = GLQTransformer<st::SHNorm::QM, st::SHPhase::NONE, GridLayout>;
 
-/*
-Convenient alias for `GLQTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
+/**
+    @brief Convenient alias for `GLQTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
+
+    @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerQM
     = GLQTransformer<st::SHNorm::QM, st::SHPhase::CS, GridLayout>;
 
-/*
-Convenient alias for `GLQTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+/**
+    @brief Convenient alias for `GLQTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+
+    @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerGeo
     = GLQTransformer<st::SHNorm::GEO, st::SHPhase::NONE, GridLayout>;
 
-/*
-Function concept taking Cartesian coordinates as inputs.
+/**
+    @brief Function concept taking Cartesian coordinates as inputs.
 */
 template <typename Func>
 concept cartesian_function = requires (Func f, std::array<double, 3> x)
@@ -765,8 +786,8 @@ concept cartesian_function = requires (Func f, std::array<double, 3> x)
     { f(x) } -> std::same_as<double>;
 };
 
-/*
-Function concept taking spherical coordinates as inputs.
+/**
+    @brief Function concept taking spherical coordinates as inputs.
 */
 template <typename Func>
 concept spherical_function = requires (Func f, double r, double lon, double colat)
@@ -774,8 +795,12 @@ concept spherical_function = requires (Func f, double r, double lon, double cola
     { f(r, lon, colat) } -> std::same_as<double>;
 };
 
-/*
-High-level interface for taking Zernike transforms of functions on balls of arbitrary radii.
+/**
+    @brief High-level interface for taking Zernike transforms of functions on balls of arbitrary radii.
+
+    @tparam NORM normalization convention of spherical harmonics
+    @tparam PHASE phase convention of spherical harmonics
+    @tparam GridLayoutType
 */
 template <st::SHNorm NORM, st::SHPhase PHASE, typename GridLayoutType = DefaultLayout>
 class ZernikeTransformer
@@ -865,22 +890,28 @@ private:
     GLQTransformer<NORM, PHASE, GridLayout> m_transformer;
 };
 
-/*
-Convenient alias for `ZernikeTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
+/**
+    @brief Convenient alias for `ZernikeTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
+
+    @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
 using ZernikeTransformerAcoustics
     = ZernikeTransformer<st::SHNorm::QM, st::SHPhase::NONE, GridLayout>;
 
-/*
-Convenient alias for `ZernikeTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
+/**
+    @brief Convenient alias for `ZernikeTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
+
+    @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
 using ZernikeTransformerQM
     = ZernikeTransformer<st::SHNorm::QM, st::SHPhase::CS, GridLayout>;
 
-/*
-Convenient alias for `ZernikeTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+/**
+    @brief Convenient alias for `ZernikeTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+
+    @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
 using ZernikeTransformerGeo

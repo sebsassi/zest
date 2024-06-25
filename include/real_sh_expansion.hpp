@@ -12,8 +12,13 @@ namespace zest
 namespace st
 {
 
-/*
-A non-owning view for storing 2D data related to spherical harmonics
+/**
+    @brief A non-owning view for storing 2D data related to spherical harmonics.
+
+    @tparam ElementType type of elements
+    @tparam LayoutType layout of the elements
+    @tparam NORM normalization convention of the spherical harmonics
+    @tparam PHASE phase convention of the spherical harmonics
 */
 template <typename ElementType, typename LayoutType, SHNorm NORM, SHPhase PHASE>
 class SHLMSpan: public TriangleSpan<ElementType, LayoutType>
@@ -33,8 +38,13 @@ public:
     }
 };
 
-/*
-A non-owning view for storing 3D data related to spherical harmonics
+/**
+    @brief A non-owning view for storing 3D data related to spherical harmonics.
+
+    @tparam ElementType type of elements
+    @tparam LayoutType layout of the elements
+    @tparam NORM normalization convention of the spherical harmonics
+    @tparam PHASE phase convention of the spherical harmonics
 */
 template <typename ElementType, typename LayoutType, SHNorm NORM, SHPhase PHASE>
 class SHLMVecSpan: public TriangleVecSpan<ElementType, LayoutType>
@@ -56,12 +66,12 @@ public:
     }
 };
 
-/*
-A non-owning view of data modeling coefficients of a spherical harmonic expansion of a real function.
+/**
+    @brief A non-owning view of data modeling coefficients of a spherical harmonic expansion of a real function.
 
-The template parameter `Element` controls the type of expansion:
-    `Element = std::array<double, 2>`: real SH expansion
-    `Element = std::complex<double>`: complex SH expansion
+    @tparam ElementType type of elements
+    @tparam NORM normalization convention of the spherical harmonics
+    @tparam PHASE phase convention of the spherical harmonics
 */
 template <typename ElementType, SHNorm NORM, SHPhase PHASE>
     requires std::same_as<
@@ -69,34 +79,33 @@ template <typename ElementType, SHNorm NORM, SHPhase PHASE>
         || std::same_as<std::remove_const_t<ElementType>, std::complex<double>>
 using RealSHExpansionSpan = SHLMSpan<ElementType, TriangleLayout, NORM, PHASE>;
 
-/*
-Convenient alias for `RealSHExpansionSpan` with orthonormal spherical harmonics and no Condon-Shortley phase.
+/**
+    @brief Convenient alias for `RealSHExpansionSpan` with orthonormal spherical harmonics and no Condon-Shortley phase.
 */
 template <typename ElementType>
 using RealSHExpansionSpanAcoustics
     = RealSHExpansionSpan<ElementType, SHNorm::QM, SHPhase::NONE>;
-/*
-Convenient alias for `RealSHExpansionSpan` with orthonormal spherical harmonics with Condon-Shortley phase.
+/**
+    @brief Convenient alias for `RealSHExpansionSpan` with orthonormal spherical harmonics with Condon-Shortley phase.
 */
 template <typename ElementType>
 using RealSHExpansionSpanQM
     = RealSHExpansionSpan<ElementType, SHNorm::QM, SHPhase::CS>;
 
-/*
-Convenient alias for `RealSHExpansionSpan` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+/**
+    @brief Convenient alias for `RealSHExpansionSpan` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
 */
 template <typename ElementType>
 using RealSHExpansionSpanGeo
     = RealSHExpansionSpan<ElementType, SHNorm::GEO, SHPhase::NONE>;
 
-/*
-A container for spherical harmonic expansion of a real function.
+/**
+    @brief A container for spherical harmonic expansion of a real function.
 
-The template parameter `Element` controls the type of expansion:
-    `Element = std::array<double, 2>`: real SH expansion
-    `Element = std::complex<double>`: complex SH expansion
+    @tparam NORM normalization convention of the spherical harmonics
+    @tparam PHASE phase convention of the spherical harmonics
+    @tparam ElementType type of elements
 */
-
 template <
     SHNorm NORM, SHPhase PHASE, typename ElementType = std::array<double, 2>>
     requires std::same_as<ElementType, std::array<double, 2>>
@@ -192,18 +201,18 @@ private:
     size_type m_order;
 };
 
-/*
-Convenient alias for `RealSHExpansion` with orthonormal spherical harmonics and no Condon-Shortley phase.
+/**
+    @brief Convenient alias for `RealSHExpansion` with orthonormal spherical harmonics and no Condon-Shortley phase.
 */
 using RealSHExpansionAcoustics = RealSHExpansion<SHNorm::QM, SHPhase::NONE>;
 
-/*
-Convenient alias for `RealSHExpansion` with orthonormal spherical harmonics with Condon-Shortley phase.
+/**
+    @brief Convenient alias for `RealSHExpansion` with orthonormal spherical harmonics with Condon-Shortley phase.
 */
 using RealSHExpansionQM = RealSHExpansion<SHNorm::QM, SHPhase::CS>;
 
-/*
-Convenient alias for `RealSHExpansion` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+/**
+    @brief Convenient alias for `RealSHExpansion` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
 */
 using RealSHExpansionGeo = RealSHExpansion<SHNorm::GEO, SHPhase::NONE>;
 
@@ -218,10 +227,17 @@ concept real_sh_expansion
         RealSHExpansionSpan<
             typename std::remove_cvref_t<T>::element_type, std::remove_cvref_t<T>::norm, std::remove_cvref_t<T>::phase>>;
 
-/*
-Convert real spherical harmonic expansion of a real function to a complex spherical harmonic expansion.
+/**
+    @brief Convert real spherical harmonic expansion of a real function to a complex spherical harmonic expansion.
 
-NOTE: this function transforms the data in-place and merely produces a new view over the same data.
+    @tparam DEST_NORM normalization convention of the output view
+    @tparam DEST_PHASE phase convention of the output view
+
+    @param expansion spherical harmonic expansion
+
+    @return view of the expansion transformed to a complex expansion
+
+    @note This function modifies the input data and merely produces a new view over the same data.
 */
 template <SHNorm DEST_NORM, SHPhase DEST_PHASE, real_sh_expansion ExpansionType>
 RealSHExpansionSpan<std::complex<double>, DEST_NORM, DEST_PHASE>
@@ -262,10 +278,17 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
             as_complex_span(expansion.flatten()), expansion.order());
 }
 
-/*
-Convert complex spherical harmonic expansion of a real function to a real spherical harmonic expansion.
+/**
+    @brief Convert complex spherical harmonic expansion of a real function to a real spherical harmonic expansion.
 
-NOTE: this function transforms the data in-place and merely produces a new view over the same data.
+    @tparam DEST_NORM normalization convention of the output view
+    @tparam DEST_PHASE phase convention of the output view
+
+    @param expansion spherical harmonic expansion
+
+    @return view of the expansion transformed to a complex expansion
+
+    @note This function modifies the input data and merely produces a new view over the same data.
 */
 template <SHNorm DEST_NORM, SHPhase DEST_PHASE, real_sh_expansion ExpansionType>
 RealSHExpansionSpan<std::array<double, 2>, DEST_NORM, DEST_PHASE>

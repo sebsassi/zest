@@ -15,8 +15,10 @@ namespace zt
 using RadialZernikeLayout = EvenDiagonalTriangleLayout;
 using ZernikeLayout = EvenSemiDiagonalTetrahedralLayout;
 
-/*
-Non-owning view over values of radial 3D Zernike polynomials.
+/**
+    @brief Non-owning view over values of radial 3D Zernike polynomials.
+
+    @tparam ElementType type of elements in the view
 */
 template <typename ElementType>
     requires std::same_as<std::remove_const_t<ElementType>, double>
@@ -78,8 +80,10 @@ private:
     std::size_t m_order;
 };
 
-/*
-Non-owning view over vectors of values of radial 3D Zernike polynomials.
+/**
+    @brief Non-owning view over vectors of values of radial 3D Zernike polynomials.
+
+    @tparam ElementType type of elements in the view
 */
 template <typename ElementType>
     requires std::same_as<std::remove_const_t<ElementType>, double>
@@ -169,8 +173,10 @@ public:
     }
 };
 
-/*
-A non-owning view of a function expansion in the basis of real Zernike functions.
+/**
+    @brief A non-owning view of a function expansion in the basis of real Zernike functions.
+
+    @tparam ElementType type of elements in the view
 */
 template <typename ElementType, st::SHNorm NORM, st::SHPhase PHASE>
 class ZernikeExpansionSpan
@@ -239,28 +245,37 @@ private:
     std::size_t m_order;
 };
 
-/*
-Convenient alias for `ZernikeExpansionSpan` with orthonormal spherical harmonics and no Condon-Shortley phase.
+/**
+    @brief Convenient alias for `ZernikeExpansionSpan` with orthonormal spherical harmonics and no Condon-Shortley phase.
+
+    @tparam ElementType type of elements in the view
 */
 template <typename ElementType>
 using ZernikeExpansionSpanAcoustics
     = ZernikeExpansionSpan<ElementType, st::SHNorm::QM, st::SHPhase::NONE>;
 
-/*
-Convenient alias for `ZernikeExpansionSpan` with orthonormal spherical harmonics with Condon-Shortley phase.
+/**
+    @brief Convenient alias for `ZernikeExpansionSpan` with orthonormal spherical harmonics with Condon-Shortley phase.
+
+    @tparam ElementType type of elements in the view
 */
 template <typename ElementType>
 using ZernikeExpansionSpanQM = ZernikeExpansionSpan<ElementType, st::SHNorm::QM, st::SHPhase::CS>;
 
-/*
-Convenient alias for `ZernikeExpansionSpan` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+/**
+    @brief Convenient alias for `ZernikeExpansionSpan` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+
+    @tparam ElementType type of elements in the view
 */
 template <typename ElementType>
 using ZernikeExpansionSpanGeo
     = ZernikeExpansionSpan<ElementType, st::SHNorm::GEO, st::SHPhase::NONE>;
 
-/*
-A container for a Zernike expansion of a real function.
+/**
+    @brief A container for a Zernike expansion of a real function.
+
+    @tparam NORM normalization convention of spherical harmonics
+    @tparam PHASE phase convention of spherical harmonics
 */
 template<st::SHNorm NORM, st::SHPhase PHASE>
 class ZernikeExpansion
@@ -355,19 +370,19 @@ private:
     size_type m_order;
 };
 
-/*
-Convenient alias for `ZernikeExpansion` with orthonormal spherical harmonics and no Condon-Shortley phase.
+/**
+    @brief Convenient alias for `ZernikeExpansion` with orthonormal spherical harmonics and no Condon-Shortley phase.
 */
 using ZernikeExpansionAcoustics
     = ZernikeExpansion<st::SHNorm::QM, st::SHPhase::NONE>;
 
-/*
-Convenient alias for `ZernikeExpansion` with orthonormal spherical harmonics with Condon-Shortley phase.
+/**
+    @brief Convenient alias for `ZernikeExpansion` with orthonormal spherical harmonics with Condon-Shortley phase.
 */
 using ZernikeExpansionQM = ZernikeExpansion<st::SHNorm::QM, st::SHPhase::CS>;
 
-/*
-Convenient alias for `ZernikeExpansion` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+/**
+    @brief Convenient alias for `ZernikeExpansion` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
 */
 using ZernikeExpansionGeo
     = ZernikeExpansion<st::SHNorm::GEO, st::SHPhase::NONE>;
@@ -383,10 +398,17 @@ concept zernike_expansion
         ZernikeExpansionSpan<
             typename std::remove_cvref_t<T>::element_type, std::remove_cvref_t<T>::norm, std::remove_cvref_t<T>::phase>>;
 
-/*
-Convert real spherical harmonic expansion of a real function to a complex spherical harmonic expansion.
+/**
+    @brief Convert real spherical harmonic expansion of a real function to a complex spherical harmonic expansion.
 
-NOTE: this function transforms the data in-place and merely produces a new view over the same data.
+    @tparam DEST_NORM normalization convention of the output view
+    @tparam DEST_PHASE phase convention of the output view
+
+    @param expansion Zernike expansion
+
+    @return view of the expansion transformed to a complex expansion
+
+    @note This function modifies the input data and merely produces a new view over the same data.
 */
 template <
     st::SHNorm DEST_NORM, st::SHPhase DEST_PHASE, zernike_expansion ExpansionType>
@@ -431,10 +453,17 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
             as_complex_span(expansion.flatten()), expansion.order());
 }
 
-/*
-Convert complex spherical harmonic expansion of a real function to a real spherical harmonic expansion.
+/**
+    @brief Convert complex spherical harmonic expansion of a real function to a real spherical harmonic expansion.
 
-NOTE: this function transforms the data in-place and merely produces a new view over the same data.
+    @tparam DEST_NORM normalization convention of the output view
+    @tparam DEST_PHASE phase convention of the output view
+
+    @param expansion Zernike expansion
+
+    @return view of the expansion transformed to a real expansion
+
+    @note This function modifies the input data and merely produces a new view over the same data.
 */
 template <
     st::SHNorm DEST_NORM, st::SHPhase DEST_PHASE, zernike_expansion ExpansionType>
