@@ -537,7 +537,7 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
         
-        sum_l(std::forward(expansion), min_order, expansion.parity());
+        sum_l(std::forward<Expansion>(expansion), min_order, expansion.parity());
         symm_asymm_to_fft();
         sum_m(values);
     }
@@ -559,7 +559,7 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
         
-        sum_l(std::forward(expansion), min_order, parity);
+        sum_l(expansion, min_order, parity);
         symm_asymm_to_fft();
         sum_m(values);
     }

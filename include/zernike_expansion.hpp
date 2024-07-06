@@ -172,7 +172,7 @@ public:
     static constexpr st::SHNorm norm = NORM;
     static constexpr st::SHPhase phase = PHASE;
 
-    Parity parity() const noexcept { return Parity(~(order() & 1)); }
+    Parity parity() const noexcept { return Parity((order() & 1) ^ 1); }
 
     [[nodiscard]] constexpr
     operator ZernikeExpansionSHSpan<const ElementType, NORM, PHASE>()
