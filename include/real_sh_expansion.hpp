@@ -66,6 +66,12 @@ public:
     }
 };
 
+template <typename T>
+concept real_plane_vector
+    = std::same_as<T, std::complex<typename T::value_type>>
+    || (std::floating_point<typename T::value_type>
+        && (std::tuple_size<T>::value == 2));
+
 /**
     @brief A non-owning view of data modeling coefficients of a spherical harmonic expansion of a real function.
 
@@ -74,9 +80,7 @@ public:
     @tparam PHASE phase convention of the spherical harmonics
 */
 template <typename ElementType, SHNorm NORM, SHPhase PHASE>
-    requires std::same_as<
-            std::remove_const_t<ElementType>, std::array<double, 2>>
-        || std::same_as<std::remove_const_t<ElementType>, std::complex<double>>
+    requires real_plane_vector<std::remove_const_t<ElementType>>
 using RealSHExpansionSpan = SHLMSpan<ElementType, TriangleLayout, NORM, PHASE>;
 
 /**
@@ -108,8 +112,7 @@ using RealSHExpansionSpanGeo
 */
 template <
     SHNorm NORM, SHPhase PHASE, typename ElementType = std::array<double, 2>>
-    requires std::same_as<ElementType, std::array<double, 2>>
-        || std::same_as<ElementType, std::complex<double>>
+    requires real_plane_vector<std::remove_const_t<ElementType>>
 class RealSHExpansion
 {
 public:
@@ -217,15 +220,38 @@ using RealSHExpansionQM = RealSHExpansion<SHNorm::QM, SHPhase::CS>;
 using RealSHExpansionGeo = RealSHExpansion<SHNorm::GEO, SHPhase::NONE>;
 
 template <typename T>
+concept two_dimensional_range
+    = requires (T range, typename T::index_type i, typename T::index_type j)
+    {
+        requires std::convertible_to<
+                decltype(range(i,j)), typename T::element_type>;
+        requires std::convertible_to<
+                decltype(range(i)),
+                std::span<const typename T::element_type>>;
+        requires std::convertible_to<
+                decltype(range[i]),
+                std::span<const typename T::element_type>>;
+    };
+
+template <typename T>
+concept even_odd_sh_layout = std::same_as<T, TriangleLayout>
+        || std::same_as<T, EvenOddPrimaryTriangleLayout>;
+
+template <typename T>
+concept even_odd_real_sh_expansion
+    = even_odd_sh_layout<typename std::remove_cvref_t<T>::Layout>
+    && std::same_as<decltype(std::remove_cvref_t<T>::norm), const SHNorm>
+    && std::same_as<decltype(std::remove_cvref_t<T>::phase), const SHPhase>
+    && real_plane_vector<typename std::remove_cvref_t<T>::value_type>
+    && two_dimensional_range<std::remove_cvref_t<T>>;
+
+template <typename T>
 concept real_sh_expansion
-    = std::same_as<
-        std::remove_cvref_t<T>,
-        RealSHExpansion<
-            std::remove_cvref_t<T>::norm, std::remove_cvref_t<T>::phase, typename std::remove_cvref_t<T>::element_type>>
-    || std::same_as<
-        std::remove_cvref_t<T>,
-        RealSHExpansionSpan<
-            typename std::remove_cvref_t<T>::element_type, std::remove_cvref_t<T>::norm, std::remove_cvref_t<T>::phase>>;
+    = std::same_as<typename std::remove_cvref_t<T>::Layout, TriangleLayout>
+    && std::same_as<decltype(std::remove_cvref_t<T>::norm), const SHNorm>
+    && std::same_as<decltype(std::remove_cvref_t<T>::phase), const SHPhase>
+    && real_plane_vector<typename std::remove_cvref_t<T>::value_type>
+    && two_dimensional_range<std::remove_cvref_t<T>>;
 
 /**
     @brief Convert real spherical harmonic expansion of a real function to a complex spherical harmonic expansion.

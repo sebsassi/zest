@@ -154,21 +154,30 @@ private:
     std::size_t m_vec_size;
 };
 
+/**
+    @brief A non-owning view of the Zernike expansion coefficients of a given radial index value.
+
+    @tparam ElementType type of elements in the view
+    @tparam NORM spherical harmonic normalization convention
+    @tparam PHASE spherical harmonic phase convention
+*/
 template <typename ElementType, st::SHNorm NORM, st::SHPhase PHASE>
-class ZernikeExpansionLMSpan:
-    public TriangleSpan<ElementType, EvenPrimaryTriangleLayout>
+class ZernikeExpansionSHSpan:
+    public TriangleSpan<ElementType, EvenOddPrimaryTriangleLayout>
 {
 public:
-    using TriangleSpan<ElementType, EvenPrimaryTriangleLayout>::TriangleSpan;
-    using TriangleSpan<ElementType, EvenPrimaryTriangleLayout>::flatten;
-    using TriangleSpan<ElementType, EvenPrimaryTriangleLayout>::order;
+    using TriangleSpan<ElementType, EvenOddPrimaryTriangleLayout>::TriangleSpan;
+    using TriangleSpan<ElementType, EvenOddPrimaryTriangleLayout>::flatten;
+    using TriangleSpan<ElementType, EvenOddPrimaryTriangleLayout>::order;
     static constexpr st::SHNorm norm = NORM;
     static constexpr st::SHPhase phase = PHASE;
 
+    Parity parity() const noexcept { return Parity(~(order() & 1)); }
+
     [[nodiscard]] constexpr
-    operator ZernikeExpansionLMSpan<const ElementType, NORM, PHASE>()
+    operator ZernikeExpansionSHSpan<const ElementType, NORM, PHASE>()
     {
-        return ZernikeExpansionLMSpan<const ElementType, NORM, PHASE>(
+        return ZernikeExpansionSHSpan<const ElementType, NORM, PHASE>(
                 flatten(), order());
     }
 };
@@ -177,6 +186,8 @@ public:
     @brief A non-owning view of a function expansion in the basis of real Zernike functions.
 
     @tparam ElementType type of elements in the view
+    @tparam NORM spherical harmonic normalization convention
+    @tparam PHASE spherical harmonic phase convention
 */
 template <typename ElementType, st::SHNorm NORM, st::SHPhase PHASE>
 class ZernikeExpansionSpan
@@ -226,18 +237,18 @@ public:
         return m_span[Layout::idx(n,l,m)];
     }
 
-    [[nodiscard]] constexpr ZernikeExpansionLMSpan<element_type, NORM, PHASE>
+    [[nodiscard]] constexpr ZernikeExpansionSHSpan<element_type, NORM, PHASE>
     operator()(std::size_t n) const noexcept
     {
-        return ZernikeExpansionLMSpan<element_type, NORM, PHASE>(
-                m_span.data() + Layout::idx(n, 0, 0), n);
+        return ZernikeExpansionSHSpan<element_type, NORM, PHASE>(
+                m_span.data() + Layout::idx(n, 0, 0), n + 1);
     }
 
-    [[nodiscard]] constexpr ZernikeExpansionLMSpan<element_type, NORM, PHASE> 
+    [[nodiscard]] constexpr ZernikeExpansionSHSpan<element_type, NORM, PHASE> 
     operator[](std::size_t n) const noexcept
     {
-        return ZernikeExpansionLMSpan<element_type, NORM, PHASE>(
-                m_span.data() + Layout::idx(n, 0, 0), n);
+        return ZernikeExpansionSHSpan<element_type, NORM, PHASE>(
+                m_span.data() + Layout::idx(n, 0, 0), n + 1);
     }
 
 private:
@@ -337,32 +348,32 @@ public:
         m_order = order;
     }
 
-    [[nodiscard]] ZernikeExpansionLMSpan<const element_type, NORM, PHASE> 
+    [[nodiscard]] ZernikeExpansionSHSpan<const element_type, NORM, PHASE> 
     operator()(index_type n) const noexcept
     {
-        return ZernikeExpansionLMSpan<const element_type, NORM, PHASE>(
-                m_data.data() + Layout::idx(n, 0, 0), n);
+        return ZernikeExpansionSHSpan<const element_type, NORM, PHASE>(
+                m_data.data() + Layout::idx(n, 0, 0), n + 1);
     }
 
-    [[nodiscard]] ZernikeExpansionLMSpan<element_type, NORM, PHASE>
+    [[nodiscard]] ZernikeExpansionSHSpan<element_type, NORM, PHASE>
     operator()(index_type n) noexcept
     {
-        return ZernikeExpansionLMSpan<element_type, NORM, PHASE>(
-                m_data.data() + Layout::idx(n, 0, 0), n);
+        return ZernikeExpansionSHSpan<element_type, NORM, PHASE>(
+                m_data.data() + Layout::idx(n, 0, 0), n + 1);
     }
 
-    [[nodiscard]] ZernikeExpansionLMSpan<const element_type, NORM, PHASE> 
+    [[nodiscard]] ZernikeExpansionSHSpan<const element_type, NORM, PHASE> 
     operator[](index_type n) const noexcept
     {
-        return ZernikeExpansionLMSpan<const element_type, NORM, PHASE>(
-                m_data.data() + Layout::idx(n, 0, 0), n);
+        return ZernikeExpansionSHSpan<const element_type, NORM, PHASE>(
+                m_data.data() + Layout::idx(n, 0, 0), n + 1);
     }
 
-    [[nodiscard]] ZernikeExpansionLMSpan<element_type, NORM, PHASE>
+    [[nodiscard]] ZernikeExpansionSHSpan<element_type, NORM, PHASE>
     operator[](index_type n) noexcept
     {
-        return ZernikeExpansionLMSpan<element_type, NORM, PHASE>(
-                m_data.data() + Layout::idx(n, 0, 0), n);
+        return ZernikeExpansionSHSpan<element_type, NORM, PHASE>(
+                m_data.data() + Layout::idx(n, 0, 0), n + 1);
     }
 
 private:

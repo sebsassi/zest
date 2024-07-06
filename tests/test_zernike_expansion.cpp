@@ -6,9 +6,9 @@ bool test_zernike_lm_span_indexing_is_contiguous()
 {
     constexpr std::size_t order = 6;
     std::vector<std::size_t> indices(
-        zest::zt::ZernikeExpansionLMSpan<std::size_t, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>::size(order));
+        zest::zt::ZernikeExpansionSHSpan<std::size_t, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>::size(order));
     
-    zest::zt::ZernikeExpansionLMSpan<std::size_t, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE> index_span(indices, order);
+    zest::zt::ZernikeExpansionSHSpan<std::size_t, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE> index_span(indices, order);
 
     for (std::size_t i = 0; i < indices.size(); ++i)
         indices[i] = i;
@@ -42,9 +42,9 @@ bool test_zernike_lm_span_subspan_indexing_is_contiguous()
 {
     constexpr std::size_t order = 6;
     std::vector<std::size_t> indices(
-        zest::zt::ZernikeExpansionLMSpan<std::size_t, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>::size(order));
+        zest::zt::ZernikeExpansionSHSpan<std::size_t, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>::size(order));
     
-    zest::zt::ZernikeExpansionLMSpan<std::size_t, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE> index_span(indices, order);
+    zest::zt::ZernikeExpansionSHSpan<std::size_t, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE> index_span(indices, order);
 
     for (std::size_t i = 0; i < indices.size(); ++i)
         indices[i] = i;

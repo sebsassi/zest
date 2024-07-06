@@ -126,9 +126,9 @@ private:
         if (order == 1) return;
 
         if constexpr (NORM == SHNorm::GEO)
-            plm(1, 0) = m_sqrl[2]*z;
+            plm(1, 0) = m_sqrl[3]*z;
         else if constexpr (NORM == SHNorm::QM)
-            plm(1, 0) = m_sqrl[2]*z*(1.0/std::sqrt(4.0*std::numbers::pi));
+            plm(1, 0) = m_sqrl[3]*z*(1.0/std::sqrt(4.0*std::numbers::pi));
 
         std::span<double> plm_flat = plm.flatten();
 
@@ -158,11 +158,11 @@ private:
 
             // `P(m,m) = u*sqrt((2m + 1)/(2m))*P(m - 1,m - 1)`
             // NOTE: multiplication by `u` happens later
-            pmm *= double(PHASE)*m_sqrl[2*m]/m_sqrl[2*m - 1];
+            pmm *= double(PHASE)*m_sqrl[2*m + 1]/m_sqrl[2*m];
             plm(m, m) = pmm;
 
             // `P(m+1,m) = z*sqrt(2m + 3)*P(m,m)`
-            plm(m + 1, m) = z*m_sqrl[2*m + 2]*pmm;
+            plm(m + 1, m) = z*m_sqrl[2*m + 3]*pmm;
 
             for (std::size_t l = m + 2; l < order; ++l)
             {
@@ -185,8 +185,8 @@ private:
 
         // P(lmax,lmax)
         plm(order - 1, order - 1)
-                = double(PHASE)*pmm*u_scaled*m_sqrl[2*(order - 1)]
-                /m_sqrl[2*order - 3];
+                = double(PHASE)*pmm*u_scaled*m_sqrl[2*order - 1]
+                /m_sqrl[2*order - 2];
     }
     
 
@@ -227,9 +227,9 @@ private:
         for (std::size_t i = 0; i < z.size(); ++i)
         {
             if constexpr (NORM == SHNorm::GEO)
-                plm[1][i] = z[i]*m_sqrl[2];
+                plm[1][i] = z[i]*m_sqrl[3];
             else if constexpr (NORM == SHNorm::QM)
-                plm[1][i] = z[i]*(m_sqrl[2]*(1.0/std::sqrt(4.0*std::numbers::pi)));
+                plm[1][i] = z[i]*(m_sqrl[3]*(1.0/std::sqrt(4.0*std::numbers::pi)));
         }
         // Calculate P(l,0)
         for (std::size_t l = 2; l < order; ++l)
@@ -262,13 +262,13 @@ private:
 
             // `P(m,m) = u*sqrt((2m + 1)/(2m))*P(m - 1,m - 1)`
             // NOTE: multiplication by `u` happens later
-            pmm *= double(PHASE)*m_sqrl[2*m]/m_sqrl[2*m - 1];
+            pmm *= double(PHASE)*m_sqrl[2*m + 1]/m_sqrl[2*m];
             for (std::size_t i = 0; i < z.size(); ++i)
                 plm[TriangleLayout::idx(m, m)][i] = pmm;
 
             // `P(m+1,m) = z*sqrt(2m + 3)*P(m,m)`
             for (std::size_t i = 0; i < z.size(); ++i)
-                plm[TriangleLayout::idx(m + 1, m)][i] = z[i]*(m_sqrl[2*m + 2]*pmm);
+                plm[TriangleLayout::idx(m + 1, m)][i] = z[i]*(m_sqrl[2*m + 3]*pmm);
 
             for (std::size_t l = m + 2; l < order; ++l)
             {
@@ -297,8 +297,8 @@ private:
         // P(lmax,lmax)
         for (std::size_t i = 0; i < z.size(); ++i)
             plm[TriangleLayout::idx(order - 1, order - 1)][i]
-                = m_u_scaled[i]*(double(PHASE)*pmm*m_sqrl[2*(order - 1)]
-                /m_sqrl[2*order - 3]);
+                = m_u_scaled[i]*(double(PHASE)*pmm*m_sqrl[2*order - 1]
+                /m_sqrl[2*order - 2]);
     }
 
     std::vector<double> m_sqrl;

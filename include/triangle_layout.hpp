@@ -112,8 +112,17 @@ struct EvenDiagonalTriangleLayout
 
     (4,0) (4,1) (4,2) (4,3) (4,4)
     ```
+    or
+    ```
+    (1,0) (1,1)
+
+    (3,0) (3,1) (3,2) (3,3)
+
+    (5,0) (5,1) (5,2) (5,3) (5,4) (5,5)
+    ```
+    @note In this layout the index obtained from a pair `(l,m)` is unique only for `l` of the same parity. Otherwise the index is not unique, e.g., `(0,0)` and `(1,0)` fall on the same index.
 */
-struct EvenPrimaryTriangleLayout
+struct EvenOddPrimaryTriangleLayout
 {
     using index_type = std::size_t;
     static constexpr std::size_t size(std::size_t order) noexcept
@@ -160,6 +169,13 @@ struct EvenSemiDiagonalTetrahedralLayout
         return (n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2) + m;
     }
 };
+
+template <typename T>
+concept triangular_layout
+    = std::same_as<T, DualTriangleLayout>
+    ||  std::same_as<T, TriangleLayout>
+    ||  std::same_as<T, EvenDiagonalTriangleLayout>
+    || std::same_as<T, EvenOddPrimaryTriangleLayout>;
 
 /**
     @brief A non-owning view where adjacent even and odd indices refer to the same value. Given index `i`, the corresponding offset in the underlying buffer is given by `i/2`.
@@ -342,5 +358,10 @@ private:
     std::size_t m_order;
     std::size_t m_vec_size;
 };
+
+enum class Parity { EVEN = 0, ODD = 1 };
+
+template <typename T>
+concept has_parity = requires (T x) { { x.parity() } -> std::same_as<Parity>; };
 
 }

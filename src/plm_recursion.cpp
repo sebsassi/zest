@@ -8,27 +8,27 @@ namespace st
 {
 
 PlmRecursion::PlmRecursion(std::size_t max_order):
-    m_sqrl(2*max_order - std::min(1UL, max_order)), m_alm(max_order*max_order),
+    m_sqrl(2*max_order), m_alm(max_order*max_order),
     m_blm(max_order*max_order), m_u_scaled(), m_u(), m_max_order(max_order)
 {
-    for (std::size_t l = 1; l <= m_sqrl.size(); ++l)
-        m_sqrl[l - 1] = std::sqrt(double(l));
+    for (std::size_t l = 1; l < m_sqrl.size(); ++l)
+        m_sqrl[l] = std::sqrt(double(l));
 
     for (std::size_t l = 2; l < m_max_order; ++l)
     {
         const std::size_t ind = TriangleLayout::idx(l,0);
-        m_alm[ind] = m_sqrl[2*l - 2]*m_sqrl[2*l]/double(l);
-        m_blm[ind] = (double(l) - 1.0)*m_sqrl[2*l]/(m_sqrl[2*l - 4]*double(l));
+        m_alm[ind] = m_sqrl[2*l - 1]*m_sqrl[2*l + 1]/double(l);
+        m_blm[ind] = (double(l) - 1.0)*m_sqrl[2*l + 1]/(m_sqrl[2*l - 3]*double(l));
 
         for (std::size_t m = 1; m < l - 1; ++m)
         {
             const std::size_t ind = TriangleLayout::idx(l,m);
             // a(l,m) = sqrt((2l - 1)(2l + 1)/((l - m)(l + m)))
-            m_alm[ind] = m_sqrl[2*l - 2]*m_sqrl[2*l]
-                    /(m_sqrl[l - m - 1]*m_sqrl[l + m - 1]);
+            m_alm[ind] = m_sqrl[2*l - 1]*m_sqrl[2*l + 1]
+                    /(m_sqrl[l - m]*m_sqrl[l + m]);
             // b(l,m) = sqrt((2l + 1)(l + m - 1)(l - m - 1)/((l - m)(l + m)(2l - 3)))
-            m_blm[ind] = m_sqrl[2*l]*m_sqrl[l + m - 2]*m_sqrl[l - m - 2]
-                    /(m_sqrl[l - m - 1]*m_sqrl[l + m - 1]*m_sqrl[2*l - 4]);
+            m_blm[ind] = m_sqrl[2*l + 1]*m_sqrl[l + m - 1]*m_sqrl[l - m - 1]
+                    /(m_sqrl[l - m]*m_sqrl[l + m]*m_sqrl[2*l - 3]);
         }
     }
 }
@@ -37,28 +37,29 @@ void PlmRecursion::expand(std::size_t max_order)
 {
     if (max_order <= m_max_order) return;
 
-    m_sqrl.resize(2*max_order - 1);
+    const std::size_t prev_sqrl_size = m_sqrl.size();
+    m_sqrl.resize(2*max_order);
     m_alm.resize(max_order*max_order);
     m_blm.resize(max_order*max_order);
     
-    for (std::size_t l = 2*m_max_order - 1; l <= m_sqrl.size(); ++l)
-        m_sqrl[l - 1] = std::sqrt(double(l));
+    for (std::size_t l = prev_sqrl_size; l < m_sqrl.size(); ++l)
+        m_sqrl[l] = std::sqrt(double(l));
     
     for (std::size_t l = std::max(2UL, m_max_order - 1); l < max_order; ++l)
     {
         const std::size_t ind = TriangleLayout::idx(l,0);
-        m_alm[ind] = m_sqrl[2*l - 2]*m_sqrl[2*l]/double(l);
-        m_blm[ind] = (double(l) - 1.0)*m_sqrl[2*l]/(m_sqrl[2*l - 4]*double(l));
+        m_alm[ind] = m_sqrl[2*l - 1]*m_sqrl[2*l + 1]/double(l);
+        m_blm[ind] = (double(l) - 1.0)*m_sqrl[2*l + 1]/(m_sqrl[2*l - 3]*double(l));
 
         for (std::size_t m = 1; m < l - 1; ++m)
         {
             const std::size_t ind = TriangleLayout::idx(l,m);
             // a(l,m) = sqrt((2l - 1)(2l + 1)/((l - m)(l + m)))
-            m_alm[ind] = m_sqrl[2*l - 2]*m_sqrl[2*l]
-                    /(m_sqrl[l - m - 1]*m_sqrl[l + m - 1]);
+            m_alm[ind] = m_sqrl[2*l - 1]*m_sqrl[2*l + 1]
+                    /(m_sqrl[l - m]*m_sqrl[l + m]);
             // b(l,m) = sqrt((2l + 1)(l + m - 1)(l - m - 1)/((l - m)(l + m)(2l - 3)))
-            m_blm[ind] = m_sqrl[2*l]*m_sqrl[l + m - 2]*m_sqrl[l - m - 2]
-                    /(m_sqrl[l - m - 1]*m_sqrl[l + m - 1]*m_sqrl[2*l - 4]);
+            m_blm[ind] = m_sqrl[2*l + 1]*m_sqrl[l + m - 1]*m_sqrl[l - m - 1]
+                    /(m_sqrl[l - m]*m_sqrl[l + m]*m_sqrl[2*l - 3]);
         }
     }
 

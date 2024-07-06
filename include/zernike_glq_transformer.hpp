@@ -5,8 +5,9 @@
 #include <span>
 #include <complex>
 
+#include "pocketfft_spec.hpp"
+
 #include "gauss_legendre.hpp"
-#include "pocketfft.hpp"
 #include "plm_recursion.hpp"
 #include "zernike_expansion.hpp"
 #include "radial_zernike_recursion.hpp"
@@ -66,7 +67,7 @@ struct LonLatRadLayout
         if constexpr (std::is_same_v<Alignment, NoAlignment>)
             return min_size;
         else
-            return (min_size & (~(vector_size - 1UL))) + vector_size;
+            return detail::next_divisible<vector_size>(min_size);
     }
 
     [[nodiscard]] static constexpr std::size_t
@@ -203,7 +204,10 @@ public:
         return m_data[m_shape[2]*(m_shape[1]*i + j) + k];
     }
 private:
-    std::vector<element_type> m_data;
+    using Allocator
+        = AlignedAllocator<element_type, typename LayoutType::Alignment>;
+
+    std::vector<element_type, Allocator> m_data;
     std::array<std::size_t, 3> m_shape;
     std::size_t m_order;
 };
@@ -224,10 +228,22 @@ concept ball_glq_grid
 /**
     @brief Points defining a grid in spherical coordinates in the unit ball.
 */
+template <typename LayoutType = DefaultLayout>
 class BallGLQGridPoints
 {
 public:
+    using GridLayout = LayoutType;
     BallGLQGridPoints() = default;
+    BallGLQGridPoints(std::size_t order) { resize(order); }
+
+    void resize(std::size_t order)
+    {
+        constexpr std::size_t lon_axis = GridLayout::lon_axis;
+        constexpr std::size_t lat_axis = GridLayout::lat_axis;
+        constexpr std::size_t rad_axis = GridLayout::rad_axis;
+        const auto shape = GridLayout::shape(order);
+        resize(shape[lon_axis], shape[lat_axis], shape[rad_axis]);
+    }
 
     [[nodiscard]] std::span<const double> longitudes() const noexcept
     {
@@ -244,27 +260,14 @@ public:
         return m_lat_glq_nodes;
     }
 
-    template <typename LayoutType>
-    void resize(std::size_t order)
-    {
-        constexpr std::size_t lon_axis = LayoutType::lon_axis;
-        constexpr std::size_t lat_axis = LayoutType::lat_axis;
-        constexpr std::size_t rad_axis = LayoutType::rad_axis;
-        const auto shape = LayoutType::shape(order);
-        resize(shape[lon_axis], shape[lat_axis], shape[rad_axis]);
-    }
-
     template <ball_glq_grid GridType, typename FuncType>
         requires std::same_as<
-            std::remove_reference_t<
-                typename std::remove_cvref_t<GridType>::element_type>,
-            typename std::remove_cvref_t<GridType>::value_type>
+            typename std::remove_cvref_t<GridType>::Layout, GridLayout>
     void generate_values(GridType&& grid, FuncType&& f)
     {
-        using LayoutType = typename std::remove_cvref_t<GridType>::Layout;
-        resize<LayoutType>(grid.order());
+        resize(grid.order());
         
-        if constexpr (std::same_as<LayoutType, LonLatRadLayout<typename LayoutType::Alignment>>)
+        if constexpr (std::same_as<GridLayout, LonLatRadLayout<typename GridLayout::Alignment>>)
         {
             for (std::size_t i = 0; i < m_longitudes.size(); ++i)
             {
@@ -282,30 +285,31 @@ public:
         }
     }
 
-    template <typename LayoutType = DefaultLayout, typename FuncType>
+    template <typename FuncType>
     [[nodiscard]] auto generate_values(FuncType&& f, std::size_t order)
     {
         using CodomainType = std::invoke_result_t<FuncType, double, double, double>;
-        BallGLQGrid<CodomainType, LayoutType> grid(order);
+        BallGLQGrid<CodomainType, GridLayout> grid(order);
         generate_values(grid, f);
         return grid;
     }
 
 #ifdef ZEST_USE_OMP
     template <ball_glq_grid GridType, typename FuncType>
+        requires std::same_as<
+            typename std::remove_cvref_t<GridType>::Layout, GridLayout>
     void generate_values(
         BallGLQGridSpan<double> grid, FuncType&& f, std::size_t num_threads)
     {
-        using LayoutType = typename std::remove_cvref_t<GridType>::Layout;
-        constexpr std::size_t lon_axis = LayoutType::lon_axis;
-        constexpr std::size_t lat_axis = LayoutType::lat_axis;
-        constexpr std::size_t rad_axis = LayoutType::rad_axis;
+        constexpr std::size_t lon_axis = GridLayout::lon_axis;
+        constexpr std::size_t lat_axis = GridLayout::lat_axis;
+        constexpr std::size_t rad_axis = GridLayout::rad_axis;
         const auto shape = grid.shape();
         resize(shape[lon_axis], shape[lat_axis], shape[rad_axis]);
 
         std::size_t nthreads = (num_threads) ?
                 num_threads : std::size_t(omp_get_max_threads());
-        if constexpr (std::same_as<LayoutType, LonLatRadLayout<typename LayoutType::Alignment>>)
+        if constexpr (std::same_as<GridLayout, LonLatRadLayout<typename GridLayout::Alignment>>)
         {
             #pragma omp parallel for num_threads(nthreads) collapse(2)
             for (std::size_t i = 0; i < m_longitudes.size(); ++i)
@@ -324,18 +328,40 @@ public:
         }
     }
 
-    template <typename LayoutType = DefaultLayout, typename FuncType>
+    template <typename FuncType>
     [[nodiscard]] auto generate_values(
         FuncType&& f, std::size_t order, std::size_t num_threads)
     {
-        BallGLQGrid<LayoutType> grid(order);
-        generate_values<LayoutType, FuncType>(grid, f, num_threads);
+        using CodomainType = std::invoke_result_t<FuncType, double, double, double>;
+        BallGLQGrid<CodomainType, GridLayout> grid(order);
+        generate_values(grid, f, num_threads);
         return grid;
     }
 #endif
 
 private:
-    void resize(std::size_t num_lon, std::size_t num_lat, std::size_t num_rad);
+    void resize(std::size_t num_lon, std::size_t num_lat, std::size_t num_rad)
+    {
+        if (num_lon != m_longitudes.size())
+        {
+            m_longitudes.resize(num_lon);
+            const double dlon = (2.0*std::numbers::pi)/double(m_longitudes.size());
+            for (std::size_t i = 0; i < m_longitudes.size(); ++i)
+                m_longitudes[i] = dlon*double(i);
+        }
+        if (num_lat != m_lat_glq_nodes.size())
+        {
+            m_lat_glq_nodes.resize(num_lat);
+            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::ANGLE>(m_lat_glq_nodes, m_lat_glq_nodes.size() & 1);
+        }
+        if (num_rad != m_rad_glq_nodes.size())
+        {
+            m_rad_glq_nodes.resize(num_rad);
+            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::COS>(m_rad_glq_nodes, m_rad_glq_nodes.size() & 1);
+            for (auto& node : m_rad_glq_nodes)
+                node = 0.5*(1.0 + node);
+        }
+    }
 
     std::vector<double> m_rad_glq_nodes;
     std::vector<double> m_lat_glq_nodes;
@@ -354,7 +380,9 @@ class GLQTransformer
 {
 public:
     using GridLayout = GridLayoutType;
-    GLQTransformer() = default;
+    GLQTransformer():
+        m_pocketfft_shape_grid(3), m_pocketfft_stride_grid(3), 
+        m_pocketfft_stride_fft(3) {};
     explicit GLQTransformer(std::size_t order):
         m_zernike_recursion(order), m_plm_recursion(order),
         m_rad_glq_nodes(GridLayout::rad_size(order)),
@@ -378,12 +406,12 @@ public:
             node = 0.5*(1.0 + node);
         
         RadialZernikeVecSpan<double> zernike(
-                m_zernike_grid, m_order, m_rad_glq_nodes.size());
+                m_zernike_grid, order, m_rad_glq_nodes.size());
         m_zernike_recursion.zernike<ZernikeNorm::NORMED>(
                 zernike, m_rad_glq_nodes);
 
         st::PlmVecSpan<double, NORM, PHASE> plm(
-                m_plm_grid, m_order, m_lat_glq_nodes.size());
+                m_plm_grid, order, m_lat_glq_nodes.size());
         m_plm_recursion.plm_real(plm, m_lat_glq_nodes);
 
         auto shape = GridLayout::shape(order);
@@ -432,7 +460,7 @@ public:
         m_zernike_grid.resize(GridLayout::rad_size(order)*RadialZernikeLayout::size(order));
         
         RadialZernikeVecSpan<double> zernike(
-                m_zernike_grid, m_order, m_rad_glq_nodes.size());
+                m_zernike_grid, order, m_rad_glq_nodes.size());
         m_zernike_recursion.zernike<ZernikeNorm::NORMED>(
                 zernike, m_rad_glq_nodes);
         
@@ -440,7 +468,7 @@ public:
         m_flm_grid.resize(GridLayout::rad_size(order)*TriangleLayout::size(order));
 
         st::PlmVecSpan<double, NORM, PHASE> plm(
-                m_plm_grid, m_order, m_lat_glq_nodes.size());
+                m_plm_grid, order, m_lat_glq_nodes.size());
         m_plm_recursion.plm_real(plm, m_lat_glq_nodes);
 
         m_ffts.resize(GridLayout::rad_size(order)*GridLayout::lat_size(order)*GridLayout::fft_size(order));
@@ -627,7 +655,7 @@ private:
         {
             for (std::size_t n = 0; n < min_order; ++n)
             {
-                ZernikeExpansionLMSpan<std::array<double, 2>, NORM, PHASE> 
+                ZernikeExpansionSHSpan<std::array<double, 2>, NORM, PHASE> 
                 expansion_n = expansion[n];
                 
                 for (std::size_t l = n & 1; l <= n; l += 2)
@@ -813,11 +841,7 @@ public:
 
     void resize(std::size_t order)
     {
-        constexpr std::size_t lon_axis = GridLayout::lon_axis;
-        constexpr std::size_t lat_axis = GridLayout::lat_axis;
-        constexpr std::size_t rad_axis = GridLayout::rad_axis;
-        const auto shape = m_grid.shape();
-        m_points.resize(shape[lon_axis], shape[lat_axis], shape[rad_axis]);
+        m_points.resize(order);
         m_grid.resize(order);
         m_transformer.resize(order);
     }
@@ -886,7 +910,7 @@ public:
 
 private:
     BallGLQGrid<double, GridLayout> m_grid;
-    BallGLQGridPoints m_points;
+    BallGLQGridPoints<GridLayout> m_points;
     GLQTransformer<NORM, PHASE, GridLayout> m_transformer;
 };
 

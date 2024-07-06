@@ -8,6 +8,38 @@
 namespace zest
 {
 
+namespace detail
+{
+
+constexpr bool is_power_of_two(std::size_t n)
+{
+    return !(n & (n - 1UL));
+}
+
+[[nodiscard]] constexpr std::size_t
+ctz(std::size_t n)
+{
+    if (!n) return 8*sizeof(std::size_t);
+
+    n = (n ^ (n - 1)) >> 1;
+    std::size_t count = 0;
+    for (; n; ++count)
+        n >>= 1;
+    return count;
+}
+
+template <std::size_t POWER_OF_TWO>
+[[nodiscard]] constexpr std::size_t
+next_divisible(std::size_t n)
+{
+    constexpr std::size_t shift = detail::ctz(POWER_OF_TWO);
+    return ((n + (POWER_OF_TWO - 1)) >> shift) << shift;
+}
+
+}
+
+
+
 /**
     @brief Descriptor corresponding to no alignment.
 */
@@ -25,7 +57,7 @@ struct NoAlignment
 
     @tparam BYTE_ALIGNMENT number of bytes to align to
 
-    @note `BYTE_ALIGNMENT` should normally be a power of two.
+    @note `BYTE_ALIGNMENT` must be a power of two.
 */
 template <std::size_t BYTE_ALIGNMENT>
 struct VectorAlignment
@@ -64,6 +96,11 @@ using AVX512Alignment = VectorAlignment<64>;
 */
 using CacheLineAlignment = VectorAlignment<64>;
 
+template <typename T>
+concept valid_simd_alignment = std::same_as<T, NoAlignment>
+    || std::same_as<T, SSEAlignment> || std::same_as<T, AVXAlignment>
+    || std::same_as<T, AVX512Alignment>;
+
 /**
     @brief Figure out the number of bytes needed to store a number of elements with given byte alignment.
 
@@ -74,25 +111,13 @@ using CacheLineAlignment = VectorAlignment<64>;
 
     @return number of bytes
 */
-template<typename T, std::size_t BYTE_ALIGNMENT>
+template<typename T, valid_simd_alignment Alignment>
 [[nodiscard]] constexpr std::size_t aligned_size(std::size_t n) noexcept
 {
-    if constexpr (BYTE_ALIGNMENT == 1)
+    if constexpr (std::same_as<Alignment, NoAlignment>)
         return n*sizeof(T);
-    else if constexpr (!(BYTE_ALIGNMENT & (BYTE_ALIGNMENT - 1UL)))
-    {
-        if (n*sizeof(T) & (BYTE_ALIGNMENT - 1UL))
-            return ((n*sizeof(T)) & (~(BYTE_ALIGNMENT - 1UL))) + BYTE_ALIGNMENT;
-        else
-            return n*sizeof(T);
-    }
     else
-    {
-        if (n*sizeof(T) % BYTE_ALIGNMENT)
-            return (1UL + (n*sizeof(T))/BYTE_ALIGNMENT)*BYTE_ALIGNMENT;
-        else
-            return n*sizeof(T);
-    }
+        return detail::next_divisible<Alignment::byte_alignment>(n*sizeof(T));
 }
 
 /**
@@ -101,7 +126,7 @@ template<typename T, std::size_t BYTE_ALIGNMENT>
     @tparam T type of allocated object
     @tparam BYTE_ALIGNMENT number of bytes to align to
 */
-template<typename T, std::size_t BYTE_ALIGNMENT>
+template<typename T, valid_simd_alignment Alignment>
 struct AlignedAllocator
 {
     using value_type = T;
@@ -109,15 +134,15 @@ struct AlignedAllocator
     using difference_type = std::ptrdiff_t;
 
     template <typename U>
-    struct rebind { using other = AlignedAllocator<T, BYTE_ALIGNMENT>; };
+    struct rebind { using other = AlignedAllocator<T, Alignment>; };
  
     [[nodiscard]] T* allocate(std::size_t n)
     {
         constexpr std::size_t max_count
-            = (std::numeric_limits<std::size_t>::max() - BYTE_ALIGNMENT)/sizeof(T);
+            = (std::numeric_limits<std::size_t>::max() - Alignment::byte_alignment)/sizeof(T);
         if (n > max_count) throw std::bad_array_new_length();
  
-        auto p = static_cast<T*>(std::aligned_alloc(BYTE_ALIGNMENT, aligned_size<T, BYTE_ALIGNMENT>(n)));
+        auto p = static_cast<T*>(std::aligned_alloc(Alignment::byte_alignment, aligned_size<T, Alignment>(n)));
         if (!p) throw std::bad_alloc();
 
         return p;

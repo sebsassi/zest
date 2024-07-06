@@ -95,7 +95,7 @@ public:
     {
         index_type ind = idx(inds...);
         std::array<index_type, NDIM - sizeof...(Ts)> extents = detail::last<NDIM - sizeof...(Ts)>(m_extents);
-        return MDSpan<element_type, NDIM - sizeof...(Ts)>(m_data + ind*prod(extents), extents);
+        return MDSpan<element_type, NDIM - sizeof...(Ts)>(m_data + ind*detail::prod(extents), extents);
     }
 
     template <typename T>

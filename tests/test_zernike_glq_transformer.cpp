@@ -166,7 +166,7 @@ bool test_glq_geo_expansion_expands_Z110()
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t n = 0; n <= order; ++n)
+    for (std::size_t n = 0; n < order; ++n)
     {
         for (std::size_t l = n & 1; l < n; l += 2)
         {

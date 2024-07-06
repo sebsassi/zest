@@ -2,13 +2,14 @@
 
 #include <span>
 #include <complex>
+#include <cassert>
+
+#include "pocketfft_spec.hpp"
 
 #include "alignment.hpp"
 #include "plm_recursion.hpp"
 #include "gauss_legendre.hpp"
 #include "md_span.hpp"
-
-#include "pocketfft.hpp"
 
 namespace zest
 {
@@ -63,7 +64,7 @@ struct LatLonLayout
         if constexpr (std::is_same_v<Alignment, NoAlignment>)
             return min_size;
         else
-            return (min_size & (~(vector_size - 1UL))) + vector_size;
+            return detail::next_divisible<vector_size>(min_size);
     }
 
     static constexpr std::size_t lat_axis = 0UL;
@@ -112,7 +113,7 @@ struct LonLatLayout
         if constexpr (std::is_same_v<Alignment, NoAlignment>)
             return min_size;
         else
-            return (min_size & (~(vector_size - 1UL))) + vector_size;
+            return detail::next_divisible<vector_size>(min_size);
     }
 
     [[nodiscard]] static constexpr std::size_t
@@ -241,7 +242,8 @@ public:
     }
 
 private:
-    using Allocator = AlignedAllocator<element_type, LayoutType::Alignment::byte_alignment>;
+    using Allocator
+        = AlignedAllocator<element_type, typename LayoutType::Alignment>;
 
     std::vector<element_type, Allocator> m_values;
     std::array<std::size_t, 2> m_shape;
@@ -264,10 +266,20 @@ concept sphere_glq_grid
 /**
     @brief Points defining a Gauss-Legendre quadrature grid on the sphere.
 */
+template <typename LayoutType = DefaultLayout>
 class SphereGLQGridPoints
 {
 public:
+    using GridLayout = LayoutType;
     SphereGLQGridPoints() = default;
+
+    void resize(std::size_t order)
+    {
+        constexpr std::size_t lon_axis = GridLayout::lon_axis;
+        constexpr std::size_t lat_axis = GridLayout::lat_axis;
+        const auto shape = GridLayout::shape(order);
+        resize(shape[lon_axis], shape[lat_axis]);
+    }
 
     [[nodiscard]] std::array<std::size_t, 2> shape() noexcept
     {
@@ -283,26 +295,14 @@ public:
         return m_glq_nodes;
     }
 
-    template <typename LayoutType>
-    void resize(std::size_t order)
-    {
-        constexpr std::size_t lon_axis = LayoutType::lon_axis;
-        constexpr std::size_t lat_axis = LayoutType::lat_axis;
-        const auto shape = LayoutType::shape(order);
-        resize(shape[lon_axis], shape[lat_axis]);
-    }
-
     template <sphere_glq_grid GridType, typename FuncType>
         requires std::same_as<
-            std::remove_reference_t<
-                typename std::remove_cvref_t<GridType>::element_type>,
-            typename std::remove_cvref_t<GridType>::value_type>
+            typename std::remove_cvref_t<GridType>::Layout, GridLayout>
     void generate_values(GridType&& grid, FuncType&& f)
     {
-        using LayoutType = typename std::remove_cvref_t<GridType>::Layout;
-        resize<LayoutType>(grid.order());
+        resize(grid.order());
 
-        if constexpr (std::same_as<LayoutType, LatLonLayout<typename LayoutType::Alignment>>)
+        if constexpr (std::same_as<GridLayout, LatLonLayout<typename LayoutType::Alignment>>)
         {
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
             {
@@ -314,7 +314,7 @@ public:
                 }
             }
         }
-        else if constexpr (std::same_as<LayoutType, LonLatLayout<typename LayoutType::Alignment>>)
+        else if constexpr (std::same_as<GridLayout, LonLatLayout<typename LayoutType::Alignment>>)
         {
             for (std::size_t i = 0; i < m_longitudes.size(); ++i)
             {
@@ -328,17 +328,31 @@ public:
         }
     }
 
-    template <typename LayoutType = DefaultLayout, typename FuncType>
+    template <typename FuncType>
     auto generate_values(FuncType&& f, std::size_t order)
     {
         using CodomainType = std::invoke_result_t<FuncType, double, double>;
-        SphereGLQGrid<CodomainType, LayoutType> grid(order);
+        SphereGLQGrid<CodomainType, GridLayout> grid(order);
         generate_values(grid, f);
         return grid;
     }
 
 private:
-    void resize(std::size_t num_lon, std::size_t num_lat);
+    void resize(std::size_t num_lon, std::size_t num_lat)
+    {
+        if (num_lon != m_longitudes.size())
+        {
+            m_longitudes.resize(num_lon);
+            const double dlon = (2.0*std::numbers::pi)/double(m_longitudes.size());
+            for (std::size_t i = 0; i < m_longitudes.size(); ++i)
+                m_longitudes[i] = dlon*double(i);
+        }
+        if (num_lat != m_glq_nodes.size())
+        {
+            m_glq_nodes.resize(num_lat);
+            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::ANGLE>(m_glq_nodes, m_glq_nodes.size() & 1);
+        }
+    }
 
     std::vector<double> m_longitudes;
     std::vector<double> m_glq_nodes;
@@ -356,7 +370,9 @@ class GLQTransformer
 {
 public:
     using GridLayout = GridLayoutType;
-    GLQTransformer() = default;
+    GLQTransformer(): 
+        m_pocketfft_shape_grid(2), m_pocketfft_stride_grid(2), 
+        m_pocketfft_stride_fft(2) {}
     explicit GLQTransformer(std::size_t order):
         m_recursion(order), m_glq_nodes(gl::PackedLayout::size(GridLayout::lat_size(order))),
         m_glq_weights(gl::PackedLayout::size(GridLayout::lat_size(order))),
@@ -383,7 +399,7 @@ public:
         }
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
-            PlmVecSpan<double, NORM, PHASE> plm(m_plm_grid, m_order, m_glq_nodes.size());
+            PlmVecSpan<double, NORM, PHASE> plm(m_plm_grid, order, m_glq_nodes.size());
             m_recursion.plm_real(plm, m_glq_nodes);
         }
 
@@ -434,7 +450,7 @@ public:
         }
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
-            PlmVecSpan<double, NORM, PHASE> plm(m_plm_grid, m_order, m_glq_nodes.size());
+            PlmVecSpan<double, NORM, PHASE> plm(m_plm_grid, order, m_glq_nodes.size());
             m_recursion.plm_real(plm, m_glq_nodes);
         }
 
@@ -466,7 +482,7 @@ public:
     */
     void forward_transform(
         SphereGLQGridSpan<const double, GridLayout> values,
-        RealSHExpansionSpan<std::array<double, 2>, SHNorm::GEO, SHPhase::NONE> expansion)
+        RealSHExpansionSpan<std::array<double, 2>, NORM, PHASE> expansion)
     {
         resize(values.order());
         
@@ -479,10 +495,10 @@ public:
     }
 
     /**
-        @brief Backward transform from spherical harmonic coefficients to Gauss-Legendre quadrature grid.
+        @brief Backward transform from spherical harmonic expansion to Gauss-Legendre quadrature grid.
 
-        @param values values on the spherical quadrature grid
         @param expansion coefficients of the expansion
+        @param values values on the spherical quadrature grid
     */
     void backward_transform(
         RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion,
@@ -493,6 +509,57 @@ public:
         std::size_t min_order = std::min(expansion.order(), values.order());
         
         sum_l(expansion, min_order);
+        symm_asymm_to_fft();
+        sum_m(values);
+    }
+
+    /**
+        @brief Backward transform from spherical harmonic expansion of even or odd parity to Gauss-Legendre quadrature grid.
+
+        @tparam Expansion type of expansion
+
+        @param expansion coefficients of the expansion
+        @param values values on the spherical quadrature grid
+
+        @note A spherical harmonic expansion has even/odd parity if the first index of all nonzero coefficients has even/odd parity.
+    */
+    template <even_odd_real_sh_expansion Expansion>
+        requires (std::remove_cvref_t<Expansion>::norm == NORM)
+        && (std::remove_cvref_t<Expansion>::phase == PHASE)
+        && std::same_as<
+            typename std::remove_cvref_t<Expansion>::value_type, 
+            std::array<double, 2>>
+        && has_parity<Expansion>
+    void backward_transform(
+        Expansion&& expansion, SphereGLQGridSpan<double, GridLayout> values)
+    {
+        resize(values.order());
+
+        std::size_t min_order = std::min(expansion.order(), values.order());
+        
+        sum_l(std::forward(expansion), min_order, expansion.parity());
+        symm_asymm_to_fft();
+        sum_m(values);
+    }
+
+    /**
+        @brief Backward transform from even/odd coefficients of a spherical harmonic expansion to Gauss-Legendre quadrature grid.
+
+        @param values values on the spherical quadrature grid
+        @param expansion coefficients of the expansion
+        @param parity parity of the coefficients
+
+        @note The parity of a spherical harmonic coefficient is determined by the parity of the first index of the coefficient.
+    */
+    void backward_transform(
+        RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion,
+        SphereGLQGridSpan<double, GridLayout> values, Parity parity)
+    {
+        resize(values.order());
+
+        std::size_t min_order = std::min(expansion.order(), values.order());
+        
+        sum_l(std::forward(expansion), min_order, parity);
         symm_asymm_to_fft();
         sum_m(values);
     }
@@ -524,6 +591,48 @@ public:
     {
         SphereGLQGrid<double, GridLayout> grid(order);
         backward_transform(expansion, grid);
+        return grid;
+    }
+
+    /**
+        @brief Backward transform from spherical harmonic expansion of even or odd parity to Gauss-Legendre quadrature grid.
+
+        @tparam Expansion type of expansion
+
+        @param expansion coefficients of the expansion
+        @param values values on the spherical quadrature grid
+
+        @note A spherical harmonic expansion has even/odd parity if the first index of all nonzero coefficients has even/odd parity.
+    */
+    template <even_odd_real_sh_expansion Expansion>
+        requires (std::remove_cvref_t<Expansion>::norm == NORM)
+        && (std::remove_cvref_t<Expansion>::phase == PHASE)
+        && std::same_as<
+            typename std::remove_cvref_t<Expansion>::value_type, 
+            std::array<double, 2>>
+        && has_parity<Expansion>
+    [[nodiscard]] SphereGLQGrid<double, GridLayout> backward_transform(
+        Expansion&& expansion, std::size_t order)
+    {
+        SphereGLQGrid<double, GridLayout> grid(order);
+        backward_transform(expansion, grid);
+        return grid;
+    }
+
+    /**
+        @brief Backward transform from even/odd coefficients of a spherical harmonic expansion to Gauss-Legendre quadrature grid.
+
+        @param values values on the spherical quadrature grid
+        @param expansion coefficients of the expansion
+        @param parity parity of the coefficients
+
+        @note The parity of a spherical harmonic coefficient is determined by the parity of the first index of the coefficient.
+    */
+    [[nodiscard]] SphereGLQGrid<double, GridLayout> backward_transform(
+        RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion, std::size_t order, Parity parity)
+    {
+        SphereGLQGrid<double, GridLayout> grid(order);
+        backward_transform(expansion, grid, parity);
         return grid;
     }
 
@@ -809,13 +918,14 @@ private:
         }
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
+            PlmVecSpan<const double, NORM, PHASE> ass_leg(
+                    m_plm_grid, m_order, num_plm);
+
             std::span coeffs = expansion.flatten();
             for (std::size_t l = 0; l < min_order; ++l)
             {
-                const std::size_t ind = TriangleLayout::idx(l, 0);
-                const auto coeff = coeffs[ind];
-                std::span<const double> plm(
-                    m_plm_grid.begin() + ind*num_plm, num_plm);
+                const std::array<double, 2> coeff = expansion(l, 0);
+                std::span<const double> plm = ass_leg(l, 0);
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + (l & 1)*num_plm*fft_order, num_plm);
                 for (std::size_t i = 0; i < num_plm; ++i)
@@ -827,10 +937,89 @@ private:
 
                 for (std::size_t m = 1; m <= l; ++m)
                 {
-                    const std::size_t ind = TriangleLayout::idx(l, m);
-                    const auto coeff = coeffs[ind];
-                    std::span<const double> plm(
-                        m_plm_grid.begin() + ind*num_plm, num_plm);
+                    const std::array<double, 2> coeff = expansion(l, m);
+                    std::span<const double> plm = ass_leg(l, m);
+                    std::span<std::complex<double>> symm_asymm(
+                        m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_plm, num_plm);
+                    for (std::size_t i = 0; i < num_plm; ++i)
+                    {
+                        const double weight = 0.5*plm[i];
+                        symm_asymm[i] += std::complex<double>{
+                            weight*coeff[0], -weight*coeff[1]
+                        };
+                    }
+                }
+            }
+        }
+    }
+
+    template <even_odd_real_sh_expansion Expansion>
+        requires (std::remove_cvref_t<Expansion>::norm == NORM)
+        && (std::remove_cvref_t<Expansion>::phase == PHASE)
+        && std::same_as<
+            typename std::remove_cvref_t<Expansion>::value_type, 
+            std::array<double, 2>>
+    void sum_l(
+        Expansion&& expansion, std::size_t min_order, Parity parity) noexcept
+    {
+        const std::size_t fft_order = GridLayout::fft_size(m_order);
+        const std::size_t num_unique_nodes = m_glq_weights.size();
+        const std::size_t num_plm = num_unique_nodes;
+
+        std::ranges::fill(m_symm_asymm, std::complex<double>{});
+
+        if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
+        {
+            for (std::size_t i = 0; i < num_plm; ++i)
+            {
+                std::span<std::complex<double>> symm_asymm(
+                    m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
+                PlmSpan<double, NORM, PHASE> plm(
+                        m_plm_grid.data() + i*TriangleLayout::size(m_order), 
+                        m_order);
+                std::span plm_flat = plm.flatten();
+                for (std::size_t l = std::size_t(parity); l < min_order; l += 2)
+                {
+                    std::span<const double> plm_l = plm[l];
+                    std::span<const std::array<double, 2>> expansion_l = expansion[l];
+                    symm_asymm[(l & 1)*fft_order] += std::complex<double>{
+                        plm_l[0]*expansion_l[0][0], -plm_l[0]*expansion_l[0][1]
+                    };
+                    for (std::size_t m = 1; m <= l; ++m)
+                    {
+                        const double weight = 0.5*plm_l[m];
+                        symm_asymm[(l & 1)*fft_order + m]
+                            += std::complex<double>{
+                                weight*expansion_l[m][0],
+                                -weight*expansion_l[m][1]
+                            };
+                    }
+                }
+            }
+        }
+        else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
+        {
+            PlmVecSpan<const double, NORM, PHASE> ass_leg(
+                    m_plm_grid, m_order, num_plm);
+
+            std::span coeffs = expansion.flatten();
+            for (std::size_t l = std::size_t(parity); l < min_order; l += 2)
+            {
+                const std::array<double, 2> coeff = expansion(l, 0);
+                std::span<const double> plm = ass_leg(l, 0);
+                std::span<std::complex<double>> symm_asymm(
+                    m_symm_asymm.begin() + (l & 1)*num_plm*fft_order, num_plm);
+                for (std::size_t i = 0; i < num_plm; ++i)
+                {
+                    symm_asymm[i] += std::complex<double>{
+                        plm[i]*coeff[0], -plm[i]*coeff[1]
+                    };
+                }
+
+                for (std::size_t m = 1; m <= l; ++m)
+                {
+                    const std::array<double, 2> coeff = expansion(l, m);
+                    std::span<const double> plm = ass_leg(l, m);
                     std::span<std::complex<double>> symm_asymm(
                         m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_plm, num_plm);
                     for (std::size_t i = 0; i < num_plm; ++i)

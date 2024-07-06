@@ -41,11 +41,11 @@ int main()
     std::vector<std::size_t> order_vec = {2,3,4,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,50,60,70,80,90,100,120,140,160,180,200,250,300,350,400,500,600,700,800,1000};
 
     bench.title("SHRotor");
-    for (const auto& lmax : order_vec)
+    for (const auto& order : order_vec)
     {
         char name[32] = {};
-        std::sprintf(name, "%lu", lmax);
-        benchmark_rotor(bench, name, lmax);
+        std::sprintf(name, "%lu", order);
+        benchmark_rotor(bench, name, order);
     }
 
     const char* fname = "rotor_bench.json";
