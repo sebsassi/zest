@@ -45,7 +45,7 @@ void PlmRecursion::expand(std::size_t max_order)
     for (std::size_t l = prev_sqrl_size; l < m_sqrl.size(); ++l)
         m_sqrl[l] = std::sqrt(double(l));
     
-    for (std::size_t l = std::max(2UL, m_max_order - 1); l < max_order; ++l)
+    for (std::size_t l = std::max(2UL, m_max_order); l < max_order; ++l)
     {
         const std::size_t ind = TriangleLayout::idx(l,0);
         m_alm[ind] = m_sqrl[2*l - 1]*m_sqrl[2*l + 1]/double(l);
