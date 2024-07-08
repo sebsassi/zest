@@ -204,8 +204,11 @@ public:
 
                 if constexpr (NORM == ZernikeNorm::NORMED)
                 {
+                    // We do not norm R22 yet because we use R22 as the r^2 value in the recursion.
+                    const double norm = (n == 6 && l == 2) ?
+                        1.0 : m_norms[n - 4];
                     for (std::size_t i = 0; i < zernike.vec_size(); ++i)
-                        z_nm4l[i] *= m_norms[n - 4];
+                        z_nm4l[i] *= norm;
                 }
             }
 
@@ -225,6 +228,12 @@ public:
 
         if constexpr (NORM == ZernikeNorm::NORMED)
         {
+            if (order > 6)
+            {
+                for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+                    z_22[i] *= std::sqrt(7.0);
+            }
+            
             for (std::size_t n = order - 4; n < order; ++n)
             {
                 for (std::size_t l = n & 1; l <= n; l += 2)
