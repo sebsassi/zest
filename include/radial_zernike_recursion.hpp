@@ -1,19 +1,15 @@
 #pragma once
 
-#include "zernike_expansion.hpp"
-
 #include <cmath>
 #include <stdexcept>
+#include <vector>
+
+#include "zernike_expansion.hpp"
 
 namespace zest
 {
 namespace zt
 {
-
-/**
-    @brief Zernike polynomial normalizations.
-*/
-enum class ZernikeNorm { NORMED, UNNORMED };
 
 /**
     @brief Class for recursive generation of radial 3D Zernike polynomials.
@@ -35,7 +31,7 @@ public:
         @param r point at which the polynomials are evaluated
     */
     template <ZernikeNorm NORM>
-    void zernike(RadialZernikeSpan<double> zernike, double r)
+    void zernike(double r, RadialZernikeSpan<NORM, double> zernike)
     {
         const std::size_t order = zernike.order();
         if (order == 0) return;
@@ -117,7 +113,7 @@ public:
     */
     template <ZernikeNorm NORM>
     void zernike(
-        RadialZernikeVecSpan<double> zernike, std::span<const double> r)
+        std::span<const double> r, RadialZernikeVecSpan<NORM, double> zernike)
     {
         const std::size_t order = zernike.order();
         if (order == 0) return;
@@ -255,5 +251,5 @@ private:
     std::size_t m_max_order;
 };
 
-}
-}
+} // namespace zt
+} // namespace zest

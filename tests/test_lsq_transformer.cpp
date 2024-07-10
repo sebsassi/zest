@@ -55,7 +55,8 @@ bool test_ylm_generator_generates_correct_up_to_order_5(double lon, double lat)
     std::vector<double> ylm(zest::DualTriangleLayout::size(order));
 
     generator.generate<zest::st::SequentialRealYlmPacking, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(
-            zest::st::RealYlmSpan<zest::st::SequentialRealYlmPacking, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(ylm, order), lon, lat);
+            lon, lat, 
+            zest::st::RealYlmSpan<zest::st::SequentialRealYlmPacking, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(ylm, order));
 
     bool success = is_close(ylm[0], Y00, 1.0e-10)
             && is_close(ylm[1], Y1m1, 1.0e-10)

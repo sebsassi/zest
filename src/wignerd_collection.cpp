@@ -162,5 +162,5 @@ void WignerdCollection::expand(std::size_t max_order)
     m_max_order = max_order;
 }
 
-}    
-}
+} // namespace detail
+} // namespace zest

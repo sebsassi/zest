@@ -36,7 +36,7 @@ next_divisible(std::size_t n)
     return ((n + (POWER_OF_TWO - 1)) >> shift) << shift;
 }
 
-}
+} // namespace detail
 
 
 
@@ -154,4 +154,4 @@ struct AlignedAllocator
     }
 };
 
-}
+} // namespace zest

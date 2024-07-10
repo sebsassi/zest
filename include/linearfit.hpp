@@ -4,6 +4,11 @@
 
 #include "matrix.hpp"
 
+namespace zest
+{
+namespace detail
+{
+
 class LinearMultifit
 {
 public:
@@ -20,3 +25,6 @@ private:
     std::vector<double> m_data;
     std::vector<double> work;
 };
+
+} // namespace detail
+} // namespace zest

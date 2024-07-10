@@ -1,6 +1,7 @@
 #pragma once
 
 #include <span>
+#include <vector>
 #include <complex>
 #include <cassert>
 
@@ -365,11 +366,15 @@ private:
     @tparam PHASE phase convention of spherical harmonics
     @tparam GridLayoutType
 */
-template <SHNorm NORM, SHPhase PHASE, typename GridLayoutType = DefaultLayout>
+template <SHNorm SH_NORM, SHPhase PHASE, typename GridLayoutType = DefaultLayout>
 class GLQTransformer
 {
 public:
     using GridLayout = GridLayoutType;
+
+    static constexpr SHNorm sh_norm = SH_NORM;
+    static constexpr SHPhase phase = PHASE;
+
     GLQTransformer(): 
         m_pocketfft_shape_grid(2), m_pocketfft_stride_grid(2), 
         m_pocketfft_stride_fft(2) {}
@@ -384,23 +389,22 @@ public:
     {
         gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::COS>(
                 m_glq_nodes, m_glq_weights, GridLayout::lat_size(order) & 1);
-        m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(order));
         
         if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
         {
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
             {
                 const double z = m_glq_nodes[i];
-                PlmSpan<double, NORM, PHASE> plm(
+                PlmSpan<double, SH_NORM, PHASE> plm(
                         m_plm_grid.data() + i*TriangleLayout::size(order), 
                         order);
-                m_recursion.plm_real(plm, z);
+                m_recursion.plm_real(z, plm);
             }
         }
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
-            PlmVecSpan<double, NORM, PHASE> plm(m_plm_grid, order, m_glq_nodes.size());
-            m_recursion.plm_real(plm, m_glq_nodes);
+            PlmVecSpan<double, SH_NORM, PHASE> plm(m_plm_grid, order, m_glq_nodes.size());
+            m_recursion.plm_real(m_glq_nodes, plm);
         }
 
         auto shape = GridLayout::shape(order);
@@ -416,8 +420,6 @@ public:
     }
 
     [[nodiscard]] std::size_t order() const noexcept { return m_order; }
-    [[nodiscard]] static constexpr SHNorm norm() noexcept { return NORM; }
-    [[nodiscard]] static constexpr SHPhase phase() noexcept { return PHASE; }
 
     /**
         @brief Resize transformer for specified expansion order
@@ -436,22 +438,21 @@ public:
                 m_glq_nodes, m_glq_weights, GridLayout::lat_size(order) & 1);
         m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(order));
         
-        m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(order));
         if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
         {
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
             {
                 const double z = m_glq_nodes[i];
-                PlmSpan<double, NORM, PHASE> plm(
+                PlmSpan<double, SH_NORM, PHASE> plm(
                         m_plm_grid.data() + i*TriangleLayout::size(order), 
                         order);
-                m_recursion.plm_real(plm, z);
+                m_recursion.plm_real(z, plm);
             }
         }
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
-            PlmVecSpan<double, NORM, PHASE> plm(m_plm_grid, order, m_glq_nodes.size());
-            m_recursion.plm_real(plm, m_glq_nodes);
+            PlmVecSpan<double, SH_NORM, PHASE> plm(m_plm_grid, order, m_glq_nodes.size());
+            m_recursion.plm_real(m_glq_nodes, plm);
         }
 
         m_ffts.resize(GridLayout::lat_size(order)*GridLayout::fft_size(order));
@@ -482,7 +483,7 @@ public:
     */
     void forward_transform(
         SphereGLQGridSpan<const double, GridLayout> values,
-        RealSHExpansionSpan<std::array<double, 2>, NORM, PHASE> expansion)
+        RealSHExpansionSpan<std::array<double, 2>, SH_NORM, PHASE> expansion)
     {
         resize(values.order());
         
@@ -501,7 +502,7 @@ public:
         @param values values on the spherical quadrature grid
     */
     void backward_transform(
-        RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion,
+        RealSHExpansionSpan<const std::array<double, 2>, SH_NORM, PHASE> expansion,
         SphereGLQGridSpan<double, GridLayout> values)
     {
         resize(values.order());
@@ -524,7 +525,7 @@ public:
         @note A spherical harmonic expansion has even/odd parity if the first index of all nonzero coefficients has even/odd parity.
     */
     template <even_odd_real_sh_expansion Expansion>
-        requires (std::remove_cvref_t<Expansion>::norm == NORM)
+        requires (std::remove_cvref_t<Expansion>::sh_norm == SH_NORM)
         && (std::remove_cvref_t<Expansion>::phase == PHASE)
         && std::same_as<
             typename std::remove_cvref_t<Expansion>::value_type, 
@@ -552,7 +553,7 @@ public:
         @note The parity of a spherical harmonic coefficient is determined by the parity of the first index of the coefficient.
     */
     void backward_transform(
-        RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion,
+        RealSHExpansionSpan<const std::array<double, 2>, SH_NORM, PHASE> expansion,
         SphereGLQGridSpan<double, GridLayout> values, Parity parity)
     {
         resize(values.order());
@@ -571,11 +572,11 @@ public:
     `values`: values on the spherical quadrature grid.
     `order`: order of expansion.
     */
-    [[nodiscard]] RealSHExpansion<NORM, PHASE>
+    [[nodiscard]] RealSHExpansion<SH_NORM, PHASE>
     forward_transform(
         SphereGLQGridSpan<const double, GridLayout> values, std::size_t order)
     {
-        RealSHExpansion<NORM, PHASE> expansion(order);
+        RealSHExpansion<SH_NORM, PHASE> expansion(order);
         forward_transform(values, expansion);
         return expansion;
     }
@@ -587,7 +588,7 @@ public:
         @param expansion coefficients of the expansion
     */
     [[nodiscard]] SphereGLQGrid<double, GridLayout> backward_transform(
-        RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion, std::size_t order)
+        RealSHExpansionSpan<const std::array<double, 2>, SH_NORM, PHASE> expansion, std::size_t order)
     {
         SphereGLQGrid<double, GridLayout> grid(order);
         backward_transform(expansion, grid);
@@ -605,7 +606,7 @@ public:
         @note A spherical harmonic expansion has even/odd parity if the first index of all nonzero coefficients has even/odd parity.
     */
     template <even_odd_real_sh_expansion Expansion>
-        requires (std::remove_cvref_t<Expansion>::norm == NORM)
+        requires (std::remove_cvref_t<Expansion>::sh_norm == SH_NORM)
         && (std::remove_cvref_t<Expansion>::phase == PHASE)
         && std::same_as<
             typename std::remove_cvref_t<Expansion>::value_type, 
@@ -629,7 +630,7 @@ public:
         @note The parity of a spherical harmonic coefficient is determined by the parity of the first index of the coefficient.
     */
     [[nodiscard]] SphereGLQGrid<double, GridLayout> backward_transform(
-        RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion, std::size_t order, Parity parity)
+        RealSHExpansionSpan<const std::array<double, 2>, SH_NORM, PHASE> expansion, std::size_t order, Parity parity)
     {
         SphereGLQGrid<double, GridLayout> grid(order);
         backward_transform(expansion, grid, parity);
@@ -640,9 +641,9 @@ public:
         @brief Compute coefficients of the product of two spherical harmonic expansions.
     */
     void multiply(
-        RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> a,
-        RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> b,
-        RealSHExpansionSpan<std::array<double, 2>, NORM, PHASE> out)
+        RealSHExpansionSpan<const std::array<double, 2>, SH_NORM, PHASE> a,
+        RealSHExpansionSpan<const std::array<double, 2>, SH_NORM, PHASE> b,
+        RealSHExpansionSpan<std::array<double, 2>, SH_NORM, PHASE> out)
     {
         resize(out.order());
         backward_transform(a, m_grids.first);
@@ -659,7 +660,7 @@ private:
         SphereGLQGridSpan<const double, GridLayout> values)
     {
         constexpr std::size_t lon_axis = GridLayout::lon_axis;
-        constexpr double sh_normalization = normalization<NORM>();
+        constexpr double sh_normalization = normalization<SH_NORM>();
         const double prefactor = sh_normalization*(2.0*std::numbers::pi)/double(values.shape()[lon_axis]);
         pocketfft::r2c(
             m_pocketfft_shape_grid, m_pocketfft_stride_grid, m_pocketfft_stride_fft, lon_axis, pocketfft::FORWARD, values.flatten().data(), m_ffts.data(), prefactor);
@@ -785,7 +786,7 @@ private:
     }
 
     void integrate_latitudinal(
-        RealSHExpansionSpan<std::array<double, 2>, NORM, PHASE> expansion, std::size_t min_order) noexcept
+        RealSHExpansionSpan<std::array<double, 2>, SH_NORM, PHASE> expansion, std::size_t min_order) noexcept
     {
         const std::size_t fft_order = GridLayout::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
@@ -796,7 +797,7 @@ private:
         {
             for (std::size_t i = 0; i < num_unique_nodes; ++i)
             {
-                PlmSpan<double, NORM, PHASE> plm(
+                PlmSpan<double, SH_NORM, PHASE> plm(
                         m_plm_grid.data() + i*TriangleLayout::size(m_order), 
                         m_order);
                 std::span plm_flat = plm.flatten();
@@ -879,7 +880,7 @@ private:
     }
 
     void sum_l(
-        RealSHExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion, std::size_t min_order) noexcept
+        RealSHExpansionSpan<const std::array<double, 2>, SH_NORM, PHASE> expansion, std::size_t min_order) noexcept
     {
         const std::size_t fft_order = GridLayout::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
@@ -893,7 +894,7 @@ private:
             {
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
-                PlmSpan<double, NORM, PHASE> plm(
+                PlmSpan<double, SH_NORM, PHASE> plm(
                         m_plm_grid.data() + i*TriangleLayout::size(m_order), 
                         m_order);
                 std::span plm_flat = plm.flatten();
@@ -918,7 +919,7 @@ private:
         }
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
-            PlmVecSpan<const double, NORM, PHASE> ass_leg(
+            PlmVecSpan<const double, SH_NORM, PHASE> ass_leg(
                     m_plm_grid, m_order, num_plm);
 
             std::span coeffs = expansion.flatten();
@@ -954,7 +955,7 @@ private:
     }
 
     template <even_odd_real_sh_expansion Expansion>
-        requires (std::remove_cvref_t<Expansion>::norm == NORM)
+        requires (std::remove_cvref_t<Expansion>::sh_norm == SH_NORM)
         && (std::remove_cvref_t<Expansion>::phase == PHASE)
         && std::same_as<
             typename std::remove_cvref_t<Expansion>::value_type, 
@@ -974,7 +975,7 @@ private:
             {
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
-                PlmSpan<double, NORM, PHASE> plm(
+                PlmSpan<double, SH_NORM, PHASE> plm(
                         m_plm_grid.data() + i*TriangleLayout::size(m_order), 
                         m_order);
                 std::span plm_flat = plm.flatten();
@@ -999,7 +1000,7 @@ private:
         }
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
-            PlmVecSpan<const double, NORM, PHASE> ass_leg(
+            PlmVecSpan<const double, SH_NORM, PHASE> ass_leg(
                     m_plm_grid, m_order, num_plm);
 
             std::span coeffs = expansion.flatten();
@@ -1142,5 +1143,5 @@ template <typename GridLayout = DefaultLayout>
 using GLQTransformerGeo
     = GLQTransformer<SHNorm::GEO, SHPhase::NONE, GridLayout>;
 
-}
-}
+} // namespace st
+} // namespace zest

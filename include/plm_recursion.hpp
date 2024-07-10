@@ -57,9 +57,9 @@ public:
     `z`: point at which the polynomials are evaluated
     */
     template <SHNorm NORM, SHPhase PHASE>
-    void plm_real(PlmSpan<double, NORM, PHASE> plm, double z)
+    void plm_real(double z, PlmSpan<double, NORM, PHASE> plm)
     {
-        return plm_impl(plm, z, std::sqrt(2.0));
+        return plm_impl(z, std::sqrt(2.0), plm);
     }
 
     /*
@@ -71,9 +71,9 @@ public:
     */
     template <SHNorm NORM, SHPhase PHASE>
     void plm_real(
-        PlmVecSpan<double, NORM, PHASE> plm, std::span<const double> z)
+        std::span<const double> z, PlmVecSpan<double, NORM, PHASE> plm)
     {
-        return plm_impl(plm, z, std::sqrt(2.0));
+        return plm_impl(z, std::sqrt(2.0), plm);
     }
 
     /*
@@ -84,9 +84,9 @@ public:
     `z`: point at which the polynomials are evaluated
     */
     template <SHNorm NORM, SHPhase PHASE>
-    void plm_complex(PlmSpan<double, NORM, PHASE> plm, double z)
+    void plm_complex(double z, PlmSpan<double, NORM, PHASE> plm)
     {
-        return plm_impl(plm, z, 1.0);
+        return plm_impl(z, 1.0, plm);
     }
 
     /*
@@ -98,15 +98,15 @@ public:
     */
     template <SHNorm NORM, SHPhase PHASE>
     void plm_complex(
-        PlmVecSpan<double, NORM, PHASE> plm, std::span<const double> z)
+        std::span<const double> z, PlmVecSpan<double, NORM, PHASE> plm)
     {
-        return plm_impl(plm, z, 1.0);
+        return plm_impl(z, 1.0, plm);
     }
 
 private:
     template <SHNorm NORM, SHPhase PHASE>
     void plm_impl(
-        PlmSpan<double, NORM, PHASE> plm, double z, double norm)
+        double z, double norm, PlmSpan<double, NORM, PHASE> plm)
     {
         const std::size_t order = plm.order();
         if (order == 0) return;
@@ -192,8 +192,8 @@ private:
 
     template <SHNorm NORM, SHPhase PHASE>
     void plm_impl(
-        PlmVecSpan<double, NORM, PHASE> plm, std::span<const double> z,
-        double norm)
+        std::span<const double> z, double norm,
+        PlmVecSpan<double, NORM, PHASE> plm)
     {
         const std::size_t order = plm.order();
         if (order == 0) return;
@@ -309,5 +309,5 @@ private:
     std::size_t m_max_order;
 };
 
-}
-}
+} // namespace st
+} // namespace zest

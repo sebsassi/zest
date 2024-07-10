@@ -53,7 +53,7 @@ void recursive_trig(
     }
 }
 
-}
+} // namespace detail
 
 namespace st
 {
@@ -117,7 +117,7 @@ void GridEvaluator::sum_m(MDSpan<double, 2> values, std::size_t order) noexcept
     }
 }
 
-}
+} // namespace st
 
 namespace zt
 {
@@ -235,6 +235,6 @@ void GridEvaluator::sum_m(MDSpan<double, 3> values, std::size_t order) noexcept
     }
 }
 
-}
+} // namespace zt
 
-}
+} // namespace zest

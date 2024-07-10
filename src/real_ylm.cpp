@@ -18,5 +18,5 @@ void RealYlmGenerator::expand(std::size_t max_order)
     m_cossin.resize(max_order);
 }
 
-}
-}
+} // namespace st
+} // namespace zest

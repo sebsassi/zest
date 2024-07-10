@@ -3,6 +3,9 @@
 #include <vector>
 #include <span>
 
+namespace zest
+{
+
 template <typename T>
 class MatrixSpan
 {
@@ -164,3 +167,5 @@ private:
     std::size_t m_ncols;
     std::vector<T> m_data;
 };
+
+} // namespace zest

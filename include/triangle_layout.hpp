@@ -364,4 +364,4 @@ enum class Parity { EVEN = 0, ODD = 1 };
 template <typename T>
 concept has_parity = requires (T x) { { x.parity() } -> std::same_as<Parity>; };
 
-}
+} // namespace zest

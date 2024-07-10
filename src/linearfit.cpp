@@ -1,6 +1,9 @@
+#include "linearfit.hpp"
+
 #include <cassert>
 
-#include "linearfit.hpp"
+namespace zest
+{
 
 extern "C" 
 {
@@ -9,6 +12,9 @@ int dgels_(
     long int* lda, double* b, long int* ldb, double* work, long int* lwork, 
     long int* info);
 }
+
+namespace detail
+{
 
 [[nodiscard]] std::vector<double> LinearMultifit::fit_parameters(
     MatrixSpan<const double> model, std::span<const double> data)
@@ -59,3 +65,7 @@ void LinearMultifit::fit_parameters(
 
     // Everything above hurts me physically but at least we're out
 }
+
+} // namespace detail
+
+} // namespace zest

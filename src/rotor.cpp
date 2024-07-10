@@ -17,4 +17,4 @@ void Rotor::expand(std::size_t max_order)
     m_exp_gamma.resize(max_order);
 }
 
-}
+} // namespace zest

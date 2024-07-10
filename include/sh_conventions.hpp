@@ -74,5 +74,5 @@ template <SHNorm FROM, SHNorm TO>
     return from*to;
 }
 
-}
-}
+} // namespace st
+} // namespace zest

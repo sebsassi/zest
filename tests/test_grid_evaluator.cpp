@@ -253,7 +253,7 @@ bool test_zernike_grid_evaluator_does_constant_function()
         }
     }
     
-    zest::zt::ZernikeExpansion<zest::st::SHNorm::GEO, zest::st::SHPhase::NONE> 
+    zest::zt::ZernikeExpansion<zest::zt::ZernikeNorm::NORMED, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE> 
     expansion(order);
     
     expansion(0,0,0)[0] = 1.0;
@@ -323,7 +323,7 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
         }
     }
     
-    zest::zt::ZernikeExpansion<zest::st::SHNorm::GEO, zest::st::SHPhase::NONE> 
+    zest::zt::ZernikeExpansion<zest::zt::ZernikeNorm::NORMED, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE> 
     expansion(order);
 
     expansion(3,3,2) = {0.0, 1.0};

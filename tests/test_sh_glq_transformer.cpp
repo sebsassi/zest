@@ -16,32 +16,37 @@ constexpr bool is_close(
     return std::fabs(a[0] - b[0]) < tol && std::fabs(a[1] - b[1]) < tol;
 }
 
-template <typename GridLayout>
-bool test_glq_geo_forward_transform_expands_Y00()
+template <typename GridLayout, zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+bool test_glq_forward_transform_expands_Y00()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
-        return 1.0;
+        if constexpr (NORM == zest::st::SHNorm::GEO)
+            return 1.0;
+        else
+            return 1.0/std::sqrt(4.0*std::numbers::pi);
     };
     
-    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
+    zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
     zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values(function, order);
     auto expansion = transformer.forward_transform(grid, order);
 
+    const double reference_coeff = 1.0;
+
     const auto& coeffs = expansion.flatten();
 
-    constexpr double tol = 1.0e-10;
+    constexpr double tol = 1.0e-13;
 
     bool success = true;
     for (std::size_t i = 0; i < coeffs.size(); ++i)
     {
         if (i == 0)
         {
-            if (is_close(coeffs[i][0], 1.0, tol)
+            if (is_close(coeffs[i][0], reference_coeff, tol)
                     && is_close(coeffs[i][1], 0.0, tol))
                 success = success && true;
             else
@@ -68,33 +73,39 @@ bool test_glq_geo_forward_transform_expands_Y00()
     return success;
 }
 
-template <typename GridLayout>
-bool test_glq_geo_forward_transform_expands_Y10()
+template <typename GridLayout, zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+bool test_glq_forward_transform_expands_Y10()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, double colat)
     {
         const double z = std::cos(colat);
-        return std::sqrt(3.0)*z;
+
+        if constexpr (NORM == zest::st::SHNorm::GEO)
+            return std::sqrt(3.0)*z;
+        else
+            return std::sqrt(3.0/(4.0*std::numbers::pi))*z;
     };
     
-    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
+    zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
     zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values(function, order);
     auto expansion = transformer.forward_transform(grid, order);
 
+    const double reference_coeff = 1.0;
+
     const auto& coeffs = expansion.flatten();
 
-    constexpr double tol = 1.0e-10;
+    constexpr double tol = 1.0e-13;
 
     bool success = true;
     for (std::size_t i = 0; i < coeffs.size(); ++i)
     {
         if (i == 1)
         {
-            if (is_close(coeffs[i][0], 1.0, tol)
+            if (is_close(coeffs[i][0], reference_coeff, tol)
                     && is_close(coeffs[i][1], 0.0, tol))
                 success = success && true;
             else
@@ -121,33 +132,39 @@ bool test_glq_geo_forward_transform_expands_Y10()
     return success;
 }
 
-template <typename GridLayout>
-bool test_glq_geo_forward_transform_expands_Y21()
+template <typename GridLayout, zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+bool test_glq_forward_transform_expands_Y21()
 {
     constexpr std::size_t order = 6; 
 
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        return std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        if constexpr (NORM == zest::st::SHNorm::GEO)
+            return phase*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
+        else
+            return phase*std::sqrt(15.0/(4.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
     
-    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
+    zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
     zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values(function, order);
     auto expansion = transformer.forward_transform(grid, order);
 
+    const double reference_coeff = 1.0;
+
     const auto& coeffs = expansion.flatten();
 
-    constexpr double tol = 1.0e-10;
+    constexpr double tol = 1.0e-13;
 
     bool success = true;
     for (std::size_t i = 0; i < coeffs.size(); ++i)
     {
         if (i == 4)
         {
-            if (is_close(coeffs[i][0], 1.0, tol)
+            if (is_close(coeffs[i][0], reference_coeff, tol)
                     && is_close(coeffs[i][1], 0.0, tol))
                 success = success && true;
             else
@@ -174,33 +191,39 @@ bool test_glq_geo_forward_transform_expands_Y21()
     return success;
 }
 
-template <typename GridLayout>
-bool test_glq_geo_forward_transform_expands_Y31()
+template <typename GridLayout, zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+bool test_glq_forward_transform_expands_Y31()
 {
     constexpr std::size_t order = 6; 
 
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        return std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        if constexpr (NORM == zest::st::SHNorm::GEO)
+            return phase*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
+        else
+            return phase*std::sqrt(21.0/(32.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
     
-    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
+    zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
     zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values(function, order);
     auto expansion = transformer.forward_transform(grid, order);
 
+    const double reference_coeff = 1.0;
+
     const auto& coeffs = expansion.flatten();
 
-    constexpr double tol = 1.0e-10;
+    constexpr double tol = 1.0e-13;
 
     bool success = true;
     for (std::size_t i = 0; i < coeffs.size(); ++i)
     {
         if (i == 7)
         {
-            if (is_close(coeffs[i][0], 1.0, tol)
+            if (is_close(coeffs[i][0], reference_coeff, tol)
                     && is_close(coeffs[i][1], 0.0, tol))
                 success = success && true;
             else
@@ -227,26 +250,32 @@ bool test_glq_geo_forward_transform_expands_Y31()
     return success;
 }
 
-template <typename GridLayout>
-bool test_glq_geo_forward_transform_expands_Y4m3()
+template <typename GridLayout, zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+bool test_glq_forward_transform_expands_Y4m3()
 {
     constexpr std::size_t order = 6; 
 
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        return std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        if constexpr (NORM == zest::st::SHNorm::GEO)
+            return phase*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
+        else
+            return phase*std::sqrt(315.0/(32.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
     };
     
-    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
+    zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
     zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values(function, order);
     auto expansion = transformer.forward_transform(grid, order);
 
+    const double reference_coeff = 1.0;
+
     const auto& coeffs = expansion.flatten();
 
-    constexpr double tol = 1.0e-10;
+    constexpr double tol = 1.0e-13;
 
     bool success = true;
     for (std::size_t i = 0; i < coeffs.size(); ++i)
@@ -254,7 +283,7 @@ bool test_glq_geo_forward_transform_expands_Y4m3()
         if (i == 13)
         {
             if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 1.0, tol))
+                    && is_close(coeffs[i][1], reference_coeff, tol))
                 success = success && true;
             else
                 success = success && false;
@@ -280,33 +309,39 @@ bool test_glq_geo_forward_transform_expands_Y4m3()
     return success;
 }
 
-template <typename GridLayout>
-bool test_glq_geo_forward_transform_expands_Y31_plus_Y4m3()
+template <typename GridLayout, zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+bool test_glq_forward_transform_expands_Y31_plus_Y4m3()
 {
     constexpr std::size_t order = 6; 
 
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        return std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        if constexpr (NORM == zest::st::SHNorm::GEO)
+            return phase*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
+        else
+            return phase*(std::sqrt(21.0/(32.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/(32.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
     };
     
-    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
+    zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
     zest::st::SphereGLQGrid<double, GridLayout> grid = points.generate_values(function, order);
     auto expansion = transformer.forward_transform(grid, order);
 
+    const double reference_coeff = 1.0;
+
     const auto& coeffs = expansion.flatten();
 
-    constexpr double tol = 1.0e-10;
+    constexpr double tol = 1.0e-13;
 
     bool success = true;
     for (std::size_t i = 0; i < coeffs.size(); ++i)
     {
         if (i == 7)
         {
-            if (is_close(coeffs[i][0], 1.0, tol)
+            if (is_close(coeffs[i][0], reference_coeff, tol)
                     && is_close(coeffs[i][1], 0.0, tol))
                 success = success && true;
             else
@@ -315,7 +350,7 @@ bool test_glq_geo_forward_transform_expands_Y31_plus_Y4m3()
         else if (i == 13)
         {
             if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 1.0, tol))
+                    && is_close(coeffs[i][1], reference_coeff, tol))
                 success = success && true;
             else
                 success = success && false;
@@ -341,21 +376,24 @@ bool test_glq_geo_forward_transform_expands_Y31_plus_Y4m3()
     return success;
 }
 
-template <typename GridLayout>
-bool test_glq_geo_backward_transform_evaluates_Y00()
+template <typename GridLayout, zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+bool test_glq_backward_transform_evaluates_Y00()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
-        return 1.0;
+        if constexpr (NORM == zest::st::SHNorm::GEO)
+            return 1.0;
+        else
+            return 1.0/std::sqrt(4.0*std::numbers::pi);
     };
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
 
     zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values(function, order);
 
-    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
+    zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
     auto grid = transformer.backward_transform(expansion, order);
@@ -390,22 +428,26 @@ bool test_glq_geo_backward_transform_evaluates_Y00()
     return success;
 }
 
-template <typename GridLayout>
-bool test_glq_geo_backward_transform_evaluates_Y10()
+template <typename GridLayout, zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+bool test_glq_backward_transform_evaluates_Y10()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, double colat)
     {
         const double z = std::cos(colat);
-        return std::sqrt(3.0)*z;
+
+        if constexpr (NORM == zest::st::SHNorm::GEO)
+            return std::sqrt(3.0)*z;
+        else
+            return std::sqrt(3.0/(4.0*std::numbers::pi))*z;
     };
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
 
     zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values(function, order);
 
-    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
+    zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
     auto grid = transformer.backward_transform(expansion, order);
@@ -440,22 +482,26 @@ bool test_glq_geo_backward_transform_evaluates_Y10()
     return success;
 }
 
-template <typename GridLayout>
-bool test_glq_geo_backward_transform_evaluates_Y21()
+template <typename GridLayout, zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+bool test_glq_backward_transform_evaluates_Y21()
 {
     constexpr std::size_t order = 6; 
 
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        return std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        if constexpr (NORM == zest::st::SHNorm::GEO)
+            return phase*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
+        else
+            return phase*std::sqrt(15.0/(4.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
 
     zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values(function, order);
 
-    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
+    zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
     auto grid = transformer.backward_transform(expansion, order);
@@ -490,22 +536,26 @@ bool test_glq_geo_backward_transform_evaluates_Y21()
     return success;
 }
 
-template <typename GridLayout>
-bool test_glq_geo_backward_transform_evaluates_Y31()
+template <typename GridLayout, zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+bool test_glq_backward_transform_evaluates_Y31()
 {
     constexpr std::size_t order = 6; 
 
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        return std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        if constexpr (NORM == zest::st::SHNorm::GEO)
+            return phase*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
+        else
+            return phase*std::sqrt(21.0/(32.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
 
     zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values(function, order);
 
-    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
+    zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
     auto grid = transformer.backward_transform(expansion, order);
@@ -540,22 +590,26 @@ bool test_glq_geo_backward_transform_evaluates_Y31()
     return success;
 }
 
-template <typename GridLayout>
-bool test_glq_geo_backward_transform_evaluates_Y4m3()
+template <typename GridLayout, zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+bool test_glq_backward_transform_evaluates_Y4m3()
 {
     constexpr std::size_t order = 6; 
 
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        return std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        if constexpr (NORM == zest::st::SHNorm::GEO)
+            return phase*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
+        else
+            return phase*std::sqrt(315.0/(32.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
     };
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
 
     zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values(function, order);
 
-    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
+    zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
     auto grid = transformer.backward_transform(expansion, order);
@@ -590,22 +644,26 @@ bool test_glq_geo_backward_transform_evaluates_Y4m3()
     return success;
 }
 
-template <typename GridLayout>
-bool test_glq_geo_backward_transform_evaluates_Y31_plus_Y4m3()
+template <typename GridLayout, zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+bool test_glq_backward_transform_evaluates_Y31_plus_Y4m3()
 {
     constexpr std::size_t order = 6;
 
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        return std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        if constexpr (NORM == zest::st::SHNorm::GEO)
+            return phase*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
+        else
+            return phase*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
     };
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
 
     zest::st::SphereGLQGrid<double, GridLayout> test_grid = points.generate_values(function, order);
 
-    zest::st::GLQTransformerGeo<GridLayout> transformer(order);
+    zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
     auto grid = transformer.backward_transform(expansion, order);
@@ -640,26 +698,30 @@ bool test_glq_geo_backward_transform_evaluates_Y31_plus_Y4m3()
     return success;
 }
 
-template <typename GridLayout>
+template <typename GridLayout, zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
 void test_glq()
 {
-    assert(test_glq_geo_forward_transform_expands_Y00<GridLayout>());
-    assert(test_glq_geo_forward_transform_expands_Y10<GridLayout>());
-    assert(test_glq_geo_forward_transform_expands_Y21<GridLayout>());
-    assert(test_glq_geo_forward_transform_expands_Y31<GridLayout>());
-    assert(test_glq_geo_forward_transform_expands_Y4m3<GridLayout>());
-    assert(test_glq_geo_forward_transform_expands_Y31_plus_Y4m3<GridLayout>());
+    assert((test_glq_forward_transform_expands_Y00<GridLayout, NORM, PHASE>()));
+    assert((test_glq_forward_transform_expands_Y10<GridLayout, NORM, PHASE>()));
+    assert((test_glq_forward_transform_expands_Y21<GridLayout, NORM, PHASE>()));
+    assert((test_glq_forward_transform_expands_Y31<GridLayout, NORM, PHASE>()));
+    assert((test_glq_forward_transform_expands_Y4m3<GridLayout, NORM, PHASE>()));
+    assert((test_glq_forward_transform_expands_Y31_plus_Y4m3<GridLayout, NORM, PHASE>()));
 
-    assert(test_glq_geo_backward_transform_evaluates_Y00<GridLayout>());
-    assert(test_glq_geo_backward_transform_evaluates_Y10<GridLayout>());
-    assert(test_glq_geo_backward_transform_evaluates_Y21<GridLayout>());
-    assert(test_glq_geo_backward_transform_evaluates_Y31<GridLayout>());
-    assert(test_glq_geo_backward_transform_evaluates_Y4m3<GridLayout>());
-    assert(test_glq_geo_backward_transform_evaluates_Y31_plus_Y4m3<GridLayout>());
+    assert((test_glq_backward_transform_evaluates_Y00<GridLayout, NORM, PHASE>()));
+    assert((test_glq_backward_transform_evaluates_Y10<GridLayout, NORM, PHASE>()));
+    assert((test_glq_backward_transform_evaluates_Y21<GridLayout, NORM, PHASE>()));
+    assert((test_glq_backward_transform_evaluates_Y31<GridLayout, NORM, PHASE>()));
+    assert((test_glq_backward_transform_evaluates_Y4m3<GridLayout, NORM, PHASE>()));
+    assert((test_glq_backward_transform_evaluates_Y31_plus_Y4m3<GridLayout, NORM, PHASE>()));
 }
 
 int main()
 {
-    test_glq<zest::st::LatLonLayout<>>();
-    test_glq<zest::st::LonLatLayout<>>();
+    test_glq<zest::st::LatLonLayout<>, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>();
+    test_glq<zest::st::LonLatLayout<>, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>();
+
+    test_glq<zest::st::LonLatLayout<>, zest::st::SHNorm::QM, zest::st::SHPhase::NONE>();
+    test_glq<zest::st::LonLatLayout<>, zest::st::SHNorm::GEO, zest::st::SHPhase::CS>();
+    test_glq<zest::st::LonLatLayout<>, zest::st::SHNorm::QM, zest::st::SHPhase::CS>();
 }

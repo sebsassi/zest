@@ -75,5 +75,5 @@ void PlmRecursion::expand_vec(std::size_t vec_size)
     }
 }
 
-}
-}
+} // namespace st
+} // namespace zest

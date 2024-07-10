@@ -1,5 +1,8 @@
 #pragma once
 
+#include <array>
+#include <vector>
+
 #include "real_sh_expansion.hpp"
 #include "zernike_expansion.hpp"
 #include "wignerd_collection.hpp"
@@ -89,7 +92,7 @@ public:
         ExpansionType&& expansion, const std::array<double, 3>& euler_angles,
         RotationType convention = RotationType::OBJECT)
     {
-        constexpr st::SHNorm NORM = std::remove_cvref_t<ExpansionType>::norm;
+        constexpr st::SHNorm SH_NORM = std::remove_cvref_t<ExpansionType>::sh_norm;
         constexpr st::SHPhase PHASE = std::remove_cvref_t<ExpansionType>::phase;
         
         const std::size_t order = expansion.order();
@@ -102,8 +105,8 @@ public:
         */
 
         // The rotations are expressed in the complex SH-basis, and therefore the coefficients are transformed to this basis and then back.
-        st::RealSHExpansionSpan<std::complex<double>, NORM, PHASE>
-        complex_expansion = to_complex_expansion<NORM, PHASE>(expansion);
+        st::RealSHExpansionSpan<std::complex<double>, SH_NORM, PHASE>
+        complex_expansion = to_complex_expansion<SH_NORM, PHASE>(expansion);
 
         const auto& [alpha_rot, beta_rot, gamma_rot]
                 = convert(euler_angles, convention);
@@ -122,7 +125,7 @@ public:
                 complex_expansion[l], m_wigner_d_pi2(l),
                 m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
 
-        to_real_expansion<NORM, PHASE>(complex_expansion);
+        to_real_expansion<SH_NORM, PHASE>(complex_expansion);
     }
 
     /**
@@ -141,7 +144,10 @@ public:
         ExpansionType&& expansion, const std::array<double, 3>& euler_angles,
         RotationType convention = RotationType::OBJECT)
     {
-        constexpr st::SHNorm NORM = std::remove_cvref_t<ExpansionType>::norm;
+        constexpr zt::ZernikeNorm ZERNIKE_NORM
+            = std::remove_cvref_t<ExpansionType>::zernike_norm;
+        constexpr st::SHNorm SH_NORM
+            = std::remove_cvref_t<ExpansionType>::sh_norm;
         constexpr st::SHPhase PHASE = std::remove_cvref_t<ExpansionType>::phase;
         
         const std::size_t order = expansion.order();
@@ -154,8 +160,8 @@ public:
         */
 
         // The rotations are expressed in the complex SH-basis, and therefore the coefficients are transformed to this basis and then back.
-        zt::ZernikeExpansionSpan<std::complex<double>, NORM, PHASE> 
-        complex_expansion = to_complex_expansion<NORM, PHASE>(expansion);
+        zt::ZernikeExpansionSpan<std::complex<double>, ZERNIKE_NORM, SH_NORM, PHASE> 
+        complex_expansion = to_complex_expansion<ZERNIKE_NORM, SH_NORM, PHASE>(expansion);
 
         const auto& [alpha_rot, beta_rot, gamma_rot]
                 = convert(euler_angles, convention);
@@ -178,7 +184,7 @@ public:
                         m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
         }
 
-        to_real_expansion<NORM, PHASE>(complex_expansion);
+        to_real_expansion<ZERNIKE_NORM, SH_NORM, PHASE>(complex_expansion);
     }
 
     /**
@@ -233,13 +239,13 @@ public:
         ExpansionType&& expansion, double angle,
         RotationType convention = RotationType::OBJECT)
     {
-        constexpr st::SHNorm NORM = std::remove_cvref_t<ExpansionType>::norm;
+        constexpr st::SHNorm SH_NORM = std::remove_cvref_t<ExpansionType>::sh_norm;
         constexpr st::SHPhase PHASE = std::remove_cvref_t<ExpansionType>::phase;
         
         const std::size_t order = expansion.order();
         expand(order);
 
-        st::RealSHExpansionSpan<std::complex<double>, NORM, PHASE> complex_expansion = to_complex_expansion<NORM, PHASE>(expansion);
+        st::RealSHExpansionSpan<std::complex<double>, SH_NORM, PHASE> complex_expansion = to_complex_expansion<SH_NORM, PHASE>(expansion);
         
         const double angle_rot = convert(angle, convention);
         for (std::size_t l = 0; l < order; ++l)
@@ -248,7 +254,7 @@ public:
         for (std::size_t l = 1; l < order; ++l)
             zest::detail::polar_rotate_l(complex_expansion[l], m_exp_alpha);
 
-        to_real_expansion<NORM, PHASE>(complex_expansion);
+        to_real_expansion<SH_NORM, PHASE>(complex_expansion);
     }
 
     /**
@@ -265,14 +271,17 @@ public:
         ExpansionType&& expansion, double angle,
         RotationType convention = RotationType::OBJECT)
     {
-        constexpr st::SHNorm NORM = std::remove_cvref_t<ExpansionType>::norm;
+        constexpr zt::ZernikeNorm ZERNIKE_NORM
+            = std::remove_cvref_t<ExpansionType>::zernike_norm;
+        constexpr st::SHNorm SH_NORM
+            = std::remove_cvref_t<ExpansionType>::sh_norm;
         constexpr st::SHPhase PHASE = std::remove_cvref_t<ExpansionType>::phase;
         
         const std::size_t order = expansion.order();
         expand(order);
 
-        zt::ZernikeExpansionSpan<std::complex<double>, NORM, PHASE> 
-        complex_expansion = to_complex_expansion<NORM, PHASE>(expansion);
+        zt::ZernikeExpansionSpan<std::complex<double>, ZERNIKE_NORM, SH_NORM, PHASE> 
+        complex_expansion = to_complex_expansion<ZERNIKE_NORM, SH_NORM, PHASE>(expansion);
         
         const double angle_rot = convert(angle, convention);
         for (std::size_t l = 0; l < order; ++l)
@@ -285,7 +294,7 @@ public:
                 zest::detail::polar_rotate_l(expansion_n[l], m_exp_alpha);
         }
 
-        to_real_expansion<NORM, PHASE>(complex_expansion);
+        to_real_expansion<ZERNIKE_NORM, SH_NORM, PHASE>(complex_expansion);
     }
 
 private:
@@ -297,4 +306,4 @@ private:
     std::vector<std::complex<double>> m_exp_gamma;
 };
 
-}
+} // namespace zest

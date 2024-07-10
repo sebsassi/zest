@@ -28,7 +28,7 @@ auto prod(T a)
     return res;
 }
 
-}
+} // namespace detail
 
 /**
     @brief Poor man's mdspan for modeling dynamic multidimensional arrays.
@@ -141,4 +141,4 @@ private:
     std::array<size_type, NDIM> m_extents;
 };
 
-}
+} // namespace zest

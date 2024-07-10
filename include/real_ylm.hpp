@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+#include <span>
+
 #include "plm_recursion.hpp"
 #include "triangle_layout.hpp"
 
@@ -129,14 +132,14 @@ public:
     */
     template <real_ylm_packing T, SHNorm NORM, SHPhase PHASE>
     void generate(
-        RealYlmSpan<T, NORM, PHASE> ylm, double lon, double lat)
+        double lon, double lat, RealYlmSpan<T, NORM, PHASE> ylm)
     {
         using index_type = RealYlmSpan<T, NORM, PHASE>::index_type;
         expand(ylm.order());
 
         const double z = std::sin(lat);
         m_recursion.plm_real(
-                PlmSpan<double, NORM, PHASE>(m_ass_leg_poly, ylm.order()), z);
+                z, PlmSpan<double, NORM, PHASE>(m_ass_leg_poly, ylm.order()));
 
         for (std::size_t m = 0; m < ylm.order(); ++m)
         {
@@ -183,5 +186,5 @@ private:
     std::vector<std::array<double, 2>> m_cossin;
 };
 
-}
-}
+} // namespace st
+} // namespace zest

@@ -66,5 +66,5 @@ void RadialZernikeRecursion::expand(std::size_t max_order)
     m_max_order = max_order;
 }
 
-}
-}
+} // namespace zt
+} // namespace zest

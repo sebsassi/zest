@@ -61,14 +61,16 @@ concept gl_layout = std::same_as<T, PackedLayout> || std::same_as<T, UnpackedLay
 /**
     @brief Style of Gauss-Legendre nodes.
 */
-enum class GLNodeStyle {
+enum class GLNodeStyle
+{
     /** nodes as angles in the interval [0,pi] */
     ANGLE,
     /** nodes as consines of the angles in the interval [-1,1] */
     COS
 };
 
-namespace detail {
+namespace detail
+{
 
 /**
     @brief Calculate `k`th zero of the Bessel function J_0.
@@ -850,7 +852,7 @@ constexpr void gl_nodes_and_weights_table(
     gl_weights_table<Layout>(std::forward<R>(weights), parity);
 }
 
-}
+} // namespace detail
 
 /**
     @brief Obtain Gauss-Legendre nodes for a given number of nodes.
@@ -939,5 +941,5 @@ constexpr void gl_nodes_and_weights(
                 std::forward<R>(nodes), std::forward<R>(weights), parity);
 }
 
-}
-}
+} // namespace gl
+} // namespace zest

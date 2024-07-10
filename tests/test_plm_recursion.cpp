@@ -43,7 +43,7 @@ bool test_plm_real_generates_real_correct_up_to_order_5(double z)
 
     std::vector<double> plm(zest::TriangleLayout::size(order));
 
-    recursion.plm_real(zest::st::PlmSpan<double, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(plm, recursion.max_order()), z);
+    recursion.plm_real(z, zest::st::PlmSpan<double, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(plm, recursion.max_order()));
     bool success = is_close(plm[0], P00, 1.0e-10)
             && is_close(plm[1], P10, 1.0e-10)
             && is_close(plm[2], P11, 1.0e-10)
@@ -111,7 +111,7 @@ bool test_plm_real_generates_real_vec_correct_up_to_order_5(double z)
 
     std::vector<double> plm(zest::TriangleLayout::size(order));
 
-    recursion.plm_real(zest::st::PlmVecSpan<double, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(plm, recursion.max_order(), 1), std::array<double, 1>{z});
+    recursion.plm_real(std::array<double, 1>{z}, zest::st::PlmVecSpan<double, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(plm, recursion.max_order(), 1));
     bool success = is_close(plm[0], P00, 1.0e-10)
             && is_close(plm[1], P10, 1.0e-10)
             && is_close(plm[2], P11, 1.0e-10)

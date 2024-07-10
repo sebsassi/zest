@@ -44,4 +44,4 @@ as_array_span(std::span<std::complex<T>> x) noexcept
             reinterpret_cast<std::array<T, 2>*>(x.data()), x.size());
 }
 
-}
+} // namespace zest

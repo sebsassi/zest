@@ -1,5 +1,8 @@
 #pragma once
 
+#include <span>
+#include <vector>
+
 #include "real_sh_expansion.hpp"
 #include "zernike_expansion.hpp"
 #include "sh_conventions.hpp"
@@ -99,7 +102,7 @@ template <SHNorm NORM, SHPhase PHASE>
     return out;
 }
 
-}
+} // namespace st
 
 namespace zt
 {
@@ -111,12 +114,12 @@ Parameters:
 ´expansion`: Zernike expansion.
 `out`: place to store the power spectrum.
 */
-template <st::SHNorm NORM, st::SHPhase PHASE>
+template <ZernikeNorm ZERNIKE_NORM, st::SHNorm SH_NORM, st::SHPhase PHASE>
 void power_spectrum(
-    ZernikeExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion,
-    RadialZernikeSpan<double> out) noexcept
+    ZernikeExpansionSpan<const std::array<double, 2>, ZERNIKE_NORM, SH_NORM, PHASE> expansion,
+    RadialZernikeSpan<ZERNIKE_NORM, double> out) noexcept
 {
-    constexpr double norm = st::normalization<NORM>();
+    constexpr double norm = st::normalization<SH_NORM>();
     std::size_t min_order = std::min(out.order(), expansion.order());
 
     for (std::size_t n = 0; n < min_order; ++n)
@@ -141,15 +144,15 @@ Parameters:
 Returns:
 `std::vector` storing the power spectrum.
 */
-template <st::SHNorm NORM, st::SHPhase PHASE>
+template <ZernikeNorm ZERNIKE_NORM, st::SHNorm SH_NORM, st::SHPhase PHASE>
 [[nodiscard]] std::vector<double> power_spectrum(
-    ZernikeExpansionSpan<const std::array<double, 2>, NORM, PHASE> expansion)
+    ZernikeExpansionSpan<const std::array<double, 2>, ZERNIKE_NORM, SH_NORM, PHASE> expansion)
 {
     std::vector<double> res(RadialZernikeLayout::size(expansion.order()));
-    power_spectrum(expansion, RadialZernikeSpan<double>(res, expansion.order()));
+    power_spectrum<ZERNIKE_NORM, SH_NORM, PHASE>(expansion, RadialZernikeSpan<ZERNIKE_NORM, double>(res, expansion.order()));
     return res;
 }
 
-}
+} // namespace zt
 
-}
+} // namespace zest

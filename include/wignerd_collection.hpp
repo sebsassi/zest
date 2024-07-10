@@ -286,5 +286,5 @@ constexpr void polar_rotate_l(
     }
 }
 
-}
-}
+} // namespace detail
+} // namespace zest

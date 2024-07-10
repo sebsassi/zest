@@ -23,7 +23,8 @@ std::vector<T> linspace(T start, T stop, std::size_t count)
     return res;
 }
 
-bool test_glq_geo_expansion_expands_Z000()
+template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
+bool test_glq_forward_transform_expands_Z000()
 {
     std::size_t order = 6;
 
@@ -31,13 +32,20 @@ bool test_glq_geo_expansion_expands_Z000()
         [[maybe_unused]] double r, [[maybe_unused]] double lon, 
         [[maybe_unused]] double colat)
     {
-        return std::sqrt(3.0);
+        constexpr double znorm
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
+                std::sqrt(3.0) : 1.0;
+        constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
+            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+        return znorm*shnorm;
     };
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
-    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, PHASE> transformer(order);
     zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
+
+    constexpr double reference_coeff = 1.0;
 
     constexpr double tol = 1.0e-10;
 
@@ -50,7 +58,7 @@ bool test_glq_geo_expansion_expands_Z000()
             {
                 if (n == 0 && l == 0 && m == 0)
                 {
-                    if (is_close(expansion(n,l,m)[0], 1.0, tol)
+                    if (is_close(expansion(n,l,m)[0], reference_coeff, tol)
                             && is_close(expansion(n,l,m)[1], 0.0, tol))
                         success = success && true;
                     else
@@ -86,20 +94,28 @@ bool test_glq_geo_expansion_expands_Z000()
     return success;
 }
 
-bool test_glq_geo_expansion_expands_Z200()
+template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
+bool test_glq_forward_transform_expands_Z200()
 {
     std::size_t order = 6;
 
     auto function = [](
         double r, [[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
-        return std::sqrt(7.0)*(2.5*r*r - 1.5);
+        constexpr double znorm
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
+                std::sqrt(7.0) : 1.0;
+        constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
+            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+        return znorm*shnorm*(2.5*r*r - 1.5);
     };
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
-    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, PHASE> transformer(order);
     zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
+
+    constexpr double reference_coeff = 1.0;
 
     constexpr double tol = 1.0e-10;
 
@@ -112,7 +128,7 @@ bool test_glq_geo_expansion_expands_Z200()
             {
                 if (n == 2 && l == 0 && m == 0)
                 {
-                    if (is_close(expansion(n,l,m)[0], 1.0, tol)
+                    if (is_close(expansion(n,l,m)[0], reference_coeff, tol)
                             && is_close(expansion(n,l,m)[1], 0.0, tol))
                         success = success && true;
                     else
@@ -148,20 +164,28 @@ bool test_glq_geo_expansion_expands_Z200()
     return success;
 }
 
-bool test_glq_geo_expansion_expands_Z110()
+template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
+bool test_glq_forward_transform_expands_Z110()
 {
     std::size_t order = 6;
 
     auto function = [](double r, [[maybe_unused]] double lon, double colat)
     {
+        constexpr double znorm
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
+                std::sqrt(5.0) : 1.0;
+        constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
+            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
         const double z = std::cos(colat);
-        return std::sqrt(5.0)*r*std::sqrt(3.0)*z;
+        return znorm*shnorm*r*std::sqrt(3.0)*z;
     };
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
-    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, PHASE> transformer(order);
     zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
+
+    constexpr double reference_coeff = 1.0;
 
     constexpr double tol = 1.0e-10;
 
@@ -174,7 +198,7 @@ bool test_glq_geo_expansion_expands_Z110()
             {
                 if (n == 1 && l == 1 && m == 0)
                 {
-                    if (is_close(expansion(n,l,m)[0], 1.0, tol)
+                    if (is_close(expansion(n,l,m)[0], reference_coeff, tol)
                             && is_close(expansion(n,l,m)[1], 0.0, tol))
                         success = success && true;
                     else
@@ -210,21 +234,30 @@ bool test_glq_geo_expansion_expands_Z110()
     return success;
 }
 
-bool test_glq_geo_expansion_expands_Z221()
+template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
+bool test_glq_forward_transform_expands_Z221()
 {
     std::size_t order = 6;
 
     auto function = [](
         double r, double lon, double colat)
     {
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        constexpr double znorm
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
+                std::sqrt(7.0) : 1.0;
+        constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
+            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
         const double z = std::cos(colat);
-        return std::sqrt(7.0)*r*r*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
+        return phase*znorm*shnorm*r*r*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
-    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, PHASE> transformer(order);
     zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
+
+    constexpr double reference_coeff = 1.0;
 
     constexpr double tol = 1.0e-10;
 
@@ -237,7 +270,7 @@ bool test_glq_geo_expansion_expands_Z221()
             {
                 if (n == 2 && l == 2 && m == 1)
                 {
-                    if (is_close(expansion(n,l,m)[0], 1.0, tol)
+                    if (is_close(expansion(n,l,m)[0], reference_coeff, tol)
                             && is_close(expansion(n,l,m)[1], 0.0, tol))
                         success = success && true;
                     else
@@ -273,21 +306,29 @@ bool test_glq_geo_expansion_expands_Z221()
     return success;
 }
 
-bool test_glq_geo_expansion_expands_Z33m2()
+template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
+bool test_glq_forward_transform_expands_Z33m2()
 {
     std::size_t order = 6;
 
     auto function = [](
         double r, double lon, double colat)
     {
+        constexpr double znorm
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
+                std::sqrt(9.0) : 1.0;
+        constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
+            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
         const double z = std::cos(colat);
-        return std::sqrt(9.0)*r*r*r*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon);
+        return znorm*shnorm*r*r*r*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon);
     };
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
-    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, PHASE> transformer(order);
     zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
+
+    constexpr double reference_coeff = 1.0;
 
     constexpr double tol = 1.0e-10;
 
@@ -301,7 +342,7 @@ bool test_glq_geo_expansion_expands_Z33m2()
                 if (n == 3 && l == 3 && m == 2)
                 {
                     if (is_close(expansion(n,l,m)[0], 0.0, tol)
-                            && is_close(expansion(n,l,m)[1], 1.0, tol))
+                            && is_close(expansion(n,l,m)[1], reference_coeff, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -336,21 +377,30 @@ bool test_glq_geo_expansion_expands_Z33m2()
     return success;
 }
 
-bool test_glq_geo_expansion_expands_Z531()
+template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
+bool test_glq_forward_transform_expands_Z531()
 {
     std::size_t order = 6;
 
     auto function = [](
         double r, double lon, double colat)
     {
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        constexpr double znorm
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
+                std::sqrt(13.0) : 1.0;
+        constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
+            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
         const double z = std::cos(colat);
-        return std::sqrt(13.0)*(5.5*r*r - 4.5)*r*r*r*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
+        return phase*znorm*shnorm*(5.5*r*r - 4.5)*r*r*r*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
-    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, PHASE> transformer(order);
     zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
+
+    constexpr double reference_coeff = 1.0;
 
     constexpr double tol = 1.0e-10;
 
@@ -363,7 +413,7 @@ bool test_glq_geo_expansion_expands_Z531()
             {
                 if (n == 5 && l == 3 && m == 1)
                 {
-                    if (is_close(expansion(n,l,m)[0], 1.0, tol)
+                    if (is_close(expansion(n,l,m)[0], reference_coeff, tol)
                             && is_close(expansion(n,l,m)[1], 0.0, tol))
                         success = success && true;
                     else
@@ -399,18 +449,27 @@ bool test_glq_geo_expansion_expands_Z531()
     return success;
 }
 
-bool test_glq_geo_evaluates_Z000()
+template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
+bool test_glq_backward_transform_evaluates_Z000()
 {
     constexpr std::size_t order = 6; 
 
-    auto function = []([[maybe_unused]] double r, [[maybe_unused]] double lon, [[maybe_unused]] double colat)
+    auto function = [](
+        [[maybe_unused]] double r, [[maybe_unused]] double lon, 
+        [[maybe_unused]] double colat)
     {
-        return 1.0;
+        constexpr double znorm
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
+                std::sqrt(3.0) : 1.0;
+        constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
+            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+        return znorm*shnorm;
     };
+
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, PHASE> transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
     auto grid = transformer.backward_transform(expansion, order);
@@ -456,19 +515,26 @@ bool test_glq_geo_evaluates_Z000()
     return success;
 }
 
-bool test_glq_geo_evaluates_Z110()
+template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
+bool test_glq_backward_transform_evaluates_Z110()
 {
     constexpr std::size_t order = 6; 
 
     auto function = [](double r, [[maybe_unused]] double lon, double colat)
     {
+        constexpr double znorm
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
+                std::sqrt(5.0) : 1.0;
+        constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
+            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
         const double z = std::cos(colat);
-        return std::sqrt(5.0)*r*std::sqrt(3.0)*z;
+        return znorm*shnorm*r*std::sqrt(3.0)*z;
     };
+
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, PHASE> transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
     auto grid = transformer.backward_transform(expansion, order);
@@ -514,20 +580,26 @@ bool test_glq_geo_evaluates_Z110()
     return success;
 }
 
-bool test_glq_geo_evaluates_Z200()
+template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
+bool test_glq_backward_transform_evaluates_Z200()
 {
     constexpr std::size_t order = 6; 
 
     auto function = [](
         double r, [[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
-        return std::sqrt(7.0)*(2.5*r*r - 1.5);
+        constexpr double znorm
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
+                std::sqrt(7.0) : 1.0;
+        constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
+            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+        return znorm*shnorm*(2.5*r*r - 1.5);
     };
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, PHASE> transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
     auto grid = transformer.backward_transform(expansion, order);
@@ -573,21 +645,28 @@ bool test_glq_geo_evaluates_Z200()
     return success;
 }
 
-bool test_glq_geo_evaluates_Z221()
+template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
+bool test_glq_backward_transform_evaluates_Z221()
 {
     constexpr std::size_t order = 6; 
 
     auto function = [](
         double r, double lon, double colat)
     {
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        constexpr double znorm
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
+                std::sqrt(7.0) : 1.0;
+        constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
+            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
         const double z = std::cos(colat);
-        return std::sqrt(7.0)*r*r*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
+        return phase*znorm*shnorm*r*r*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, PHASE> transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
     auto grid = transformer.backward_transform(expansion, order);
@@ -633,21 +712,27 @@ bool test_glq_geo_evaluates_Z221()
     return success;
 }
 
-bool test_glq_geo_evaluates_Z33m2()
+template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
+bool test_glq_backward_transform_evaluates_Z33m2()
 {
     constexpr std::size_t order = 6; 
 
     auto function = [](
         double r, double lon, double colat)
     {
+        constexpr double znorm
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
+                std::sqrt(9.0) : 1.0;
+        constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
+            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
         const double z = std::cos(colat);
-        return std::sqrt(9.0)*r*r*r*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon);
+        return znorm*shnorm*r*r*r*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon);
     };
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, PHASE> transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
     auto grid = transformer.backward_transform(expansion, order);
@@ -693,21 +778,28 @@ bool test_glq_geo_evaluates_Z33m2()
     return success;
 }
 
-bool test_glq_geo_evaluates_Z531()
+template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
+bool test_glq_backward_transform_evaluates_Z531()
 {
     constexpr std::size_t order = 6; 
 
     auto function = [](
         double r, double lon, double colat)
     {
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        constexpr double znorm
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
+                std::sqrt(13.0) : 1.0;
+        constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
+            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
         const double z = std::cos(colat);
-        return std::sqrt(13.0)*(5.5*r*r - 4.5)*r*r*r*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
+        return phase*znorm*shnorm*(5.5*r*r - 4.5)*r*r*r*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, PHASE> transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
     auto grid = transformer.backward_transform(expansion, order);
@@ -751,21 +843,28 @@ bool test_glq_geo_evaluates_Z531()
         }
     }
     return success;
+}
+
+template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
+void test_glq()
+{
+    assert((test_glq_forward_transform_expands_Z000<ZERNIKE_NORM, SH_NORM, PHASE>()));
+    assert((test_glq_forward_transform_expands_Z200<ZERNIKE_NORM, SH_NORM, PHASE>()));
+    assert((test_glq_forward_transform_expands_Z110<ZERNIKE_NORM, SH_NORM, PHASE>()));
+    assert((test_glq_forward_transform_expands_Z221<ZERNIKE_NORM, SH_NORM, PHASE>()));
+    assert((test_glq_forward_transform_expands_Z33m2<ZERNIKE_NORM, SH_NORM, PHASE>()));
+    assert((test_glq_forward_transform_expands_Z531<ZERNIKE_NORM, SH_NORM, PHASE>()));
+
+    assert((test_glq_backward_transform_evaluates_Z000<ZERNIKE_NORM, SH_NORM, PHASE>()));
+    assert((test_glq_backward_transform_evaluates_Z110<ZERNIKE_NORM, SH_NORM, PHASE>()));
+    assert((test_glq_backward_transform_evaluates_Z200<ZERNIKE_NORM, SH_NORM, PHASE>()));
+    assert((test_glq_backward_transform_evaluates_Z221<ZERNIKE_NORM, SH_NORM, PHASE>()));
+    assert((test_glq_backward_transform_evaluates_Z33m2<ZERNIKE_NORM, SH_NORM, PHASE>()));
+    assert((test_glq_backward_transform_evaluates_Z531<ZERNIKE_NORM, SH_NORM, PHASE>()));
 }
 
 int main()
 {
-    assert(test_glq_geo_expansion_expands_Z000());
-    assert(test_glq_geo_expansion_expands_Z200());
-    assert(test_glq_geo_expansion_expands_Z110());
-    assert(test_glq_geo_expansion_expands_Z221());
-    assert(test_glq_geo_expansion_expands_Z33m2());
-    assert(test_glq_geo_expansion_expands_Z531());
-
-    assert(test_glq_geo_evaluates_Z000());
-    assert(test_glq_geo_evaluates_Z110());
-    assert(test_glq_geo_evaluates_Z200());
-    assert(test_glq_geo_evaluates_Z221());
-    assert(test_glq_geo_evaluates_Z33m2());
-    assert(test_glq_geo_evaluates_Z531());
+    test_glq<zest::zt::ZernikeNorm::NORMED, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>();
+    test_glq<zest::zt::ZernikeNorm::UNNORMED, zest::st::SHNorm::QM, zest::st::SHPhase::CS>();
 }
