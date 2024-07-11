@@ -85,7 +85,7 @@ public:
         @param euler_angles Euler angles defining the rotation
         @param convention rotation convention for interpreting the Euler angles
 
-        @note The rotation uses the standard ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+        @note The rotation uses the ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
     */
     template <st::real_sh_expansion ExpansionType>
     void rotate(
@@ -98,29 +98,47 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        /*
-        The rotation here is implemented using the ZXZXZ method, where the Y-rotation is decomposed into a 90 degree rotation about the X-axis, then a rotation by `beta` about the Z-axis, and then a -90 degree rotation about the X-axis.
-
-        The rotations are expressed in the complex SH-basis, and therefore the coefficients are transformed to this basis and then back.
-        */
-
-        // The rotations are expressed in the complex SH-basis, and therefore the coefficients are transformed to this basis and then back.
         st::RealSHExpansionSpan<std::complex<double>, SH_NORM, PHASE>
         complex_expansion = to_complex_expansion<SH_NORM, PHASE>(expansion);
 
-        const auto& [alpha_rot, beta_rot, gamma_rot]
-                = convert(euler_angles, convention);
-
-        for (std::size_t l = 0; l < order; ++l)
-            m_exp_alpha[l] = std::polar(1.0, -double(l)*alpha_rot);
-
-        for (std::size_t l = 0; l < order; ++l)
-            m_exp_beta[l] = std::polar(1.0, -double(l)*beta_rot);
-
-        for (std::size_t l = 0; l < order; ++l)
-            m_exp_gamma[l] = std::polar(1.0, -double(l)*gamma_rot);
+        set_up_euler_rotations(euler_angles, convention, order);
 
         for (std::size_t l = 1; l < order; ++l)
+            zest::detail::rotate_l(
+                complex_expansion[l], m_wigner_d_pi2(l),
+                m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
+
+        to_real_expansion<SH_NORM, PHASE>(complex_expansion);
+    }
+
+    /**
+        @brief General rotation of an even/odd real spherical harmonic expansion via Wigner's D-matrix.
+
+        @tparam ExpansionType
+
+        @param expansion real spherical harmonic expansion
+        @param euler_angles Euler angles defining the rotation
+        @param convention rotation convention for interpreting the Euler angles
+
+        @note The rotation uses the ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+    */
+    template <st::even_odd_real_sh_expansion ExpansionType>
+    void rotate(
+        ExpansionType&& expansion, const std::array<double, 3>& euler_angles,
+        RotationType convention = RotationType::OBJECT)
+    {
+        constexpr st::SHNorm SH_NORM = std::remove_cvref_t<ExpansionType>::sh_norm;
+        constexpr st::SHPhase PHASE = std::remove_cvref_t<ExpansionType>::phase;
+        
+        const std::size_t order = expansion.order();
+        expand(order);
+
+        st::RealSHExpansionSpan<std::complex<double>, SH_NORM, PHASE>
+        complex_expansion = to_complex_expansion<SH_NORM, PHASE>(expansion);
+
+        set_up_euler_rotations(euler_angles, convention, order);
+
+        for (std::size_t l = expansion.parity(); l < order; l += 2)
             zest::detail::rotate_l(
                 complex_expansion[l], m_wigner_d_pi2(l),
                 m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
@@ -137,7 +155,7 @@ public:
         @param euler_angles Euler angles defining the rotation
         @param convention rotation convention for interpreting the Euler angles
 
-        @note The rotation uses the standard ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+        @note The rotation uses the ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
     */
     template <zt::zernike_expansion ExpansionType>
     void rotate(
@@ -153,27 +171,10 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        /*
-        The rotation here is implemented using the ZXZXZ method, where the Y-rotation is decomposed into a 90 degree rotation about the X-axis, then a rotation by `beta` about the Z-axis, and then a -90 degree rotation about the X-axis.
-
-        The rotations are expressed in the complex SH-basis, and therefore the coefficients are transformed to this basis and then back.
-        */
-
-        // The rotations are expressed in the complex SH-basis, and therefore the coefficients are transformed to this basis and then back.
         zt::ZernikeExpansionSpan<std::complex<double>, ZERNIKE_NORM, SH_NORM, PHASE> 
         complex_expansion = to_complex_expansion<ZERNIKE_NORM, SH_NORM, PHASE>(expansion);
 
-        const auto& [alpha_rot, beta_rot, gamma_rot]
-                = convert(euler_angles, convention);
-
-        for (std::size_t l = 0; l < order; ++l)
-            m_exp_alpha[l] = std::polar(1.0, -double(l)*alpha_rot);
-
-        for (std::size_t l = 0; l < order; ++l)
-            m_exp_beta[l] = std::polar(1.0, -double(l)*beta_rot);
-
-        for (std::size_t l = 0; l < order; ++l)
-            m_exp_gamma[l] = std::polar(1.0, -double(l)*gamma_rot);
+        set_up_euler_rotations(euler_angles, convention, order);
 
         for (std::size_t n = 1; n < order; ++n)
         {
@@ -196,7 +197,7 @@ public:
         @param euler_angles Euler angles defining the rotation
         @param convention rotation convention for interpreting the Euler angles
 
-        @note The rotation uses the standard ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+        @note The rotation uses the ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
     */
     template <st::real_sh_expansion ExpansionType>
     void rotate(
@@ -215,7 +216,7 @@ public:
         @param euler_angles Euler angles defining the rotation
         @param convention rotation convention for interpreting the Euler angles
 
-        @note The rotation uses the standard ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+        @note The rotation uses the ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
     */
     template <zt::zernike_expansion ExpansionType>
     void rotate(
@@ -298,6 +299,22 @@ public:
     }
 
 private:
+    void set_up_euler_rotations(
+        const std::array<double, 3>& euler_angles, RotationType convention, std::size_t order)
+    {
+        const auto& [alpha_rot, beta_rot, gamma_rot]
+                = convert(euler_angles, convention);
+
+        for (std::size_t m = 0; m < order; ++m)
+            m_exp_alpha[m] = std::polar(1.0, -double(m)*alpha_rot);
+
+        for (std::size_t m = 0; m < order; ++m)
+            m_exp_beta[m] = std::polar(1.0, -double(m)*beta_rot);
+
+        for (std::size_t m = 0; m < order; ++m)
+            m_exp_gamma[m] = std::polar(1.0, -double(m)*gamma_rot);
+    }
+
     // Wigner small d-matrices `d[l, m1, m2](pi/2)`
     zest::detail::WignerdCollection m_wigner_d_pi2;
     std::vector<std::complex<double>> m_temp;

@@ -98,6 +98,9 @@ constexpr void rotate_l(
     std::span<const std::complex<double>> exp_alpha, 
     std::span<std::complex<double>> temp) noexcept
 {
+    /*
+    The rotation here is implemented using the ZXZXZ method, where the Y-rotation is decomposed into a 90 degree rotation about the X-axis, then a rotation by `beta` about the Z-axis, and then a -90 degree rotation about the X-axis.
+    */
     const std::size_t l = vector.size() - 1;
     const std::size_t l_is_odd = l & 1;
 
