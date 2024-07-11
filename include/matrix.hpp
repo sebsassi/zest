@@ -3,75 +3,26 @@
 #include <vector>
 #include <span>
 
+#include "md_span.hpp"
+
 namespace zest
 {
 
 template <typename T>
-class MatrixSpan
+class MatrixSpan: public MDSpan<T, 2>
 {
 public:
-    MatrixSpan(std::span<T> span, std::size_t nrows, std::size_t ncols):
-        m_nrows(nrows), m_ncols(ncols), m_data(span.begin(), nrows*ncols) {}
+    using MDSpan<T, 2>::MDSpan;
+    using MDSpan<T, 2>::extents;
 
-    [[nodiscard]] std::size_t nrows() const noexcept { return m_nrows; }
-    [[nodiscard]] std::size_t ncols() const noexcept { return m_ncols; }
-    [[nodiscard]] std::size_t size() const noexcept { return m_data.size(); }
-    std::span<T> data() { return m_data; }
+    constexpr MatrixSpan(T* data, std::size_t nrows, std::size_t ncols):
+        MDSpan<T, 2>::MDSpan(data, {nrows, ncols}) {}
 
-    [[nodiscard]] const T& operator()(std::size_t i, std::size_t j) const
-    {
-        return m_data[m_ncols*i + j];
-    }
+    constexpr [[nodiscard]] std::size_t
+    nrows() const noexcept { return extents()[0]; }
 
-    T& operator()(std::size_t i, std::size_t j)
-    {
-        return m_data[m_ncols*i + j];
-    }
-
-#if (__GNUC__ > 11)
-    [[nodiscard]] const T& operator[](std::size_t i, std::size_t j) const
-    {
-        return m_data[m_ncols*i + j];
-    }
-
-    T& operator[](std::size_t i, std::size_t j)
-    {
-        return m_data[m_ncols*i + j];
-    }
-#endif
-
-    [[nodiscard]] std::span<const T> operator[](std::size_t i) const
-    {
-        return std::span<T>(m_data.begin() + i*m_ncols, m_ncols);
-    }
-
-    std::span<T> operator[](std::size_t i)
-    {
-        return std::span<T>(m_data.begin() + i*m_ncols, m_ncols);
-    }
-
-    [[nodiscard]] std::span<const T> row(std::size_t i) const
-    {
-        return std::span<T>(m_data.begin() + i*m_ncols, m_ncols);
-    }
-
-    std::span<T> row(std::size_t i)
-    {
-        return std::span<T>(m_data.begin() + i*m_ncols, m_ncols);
-    }
-
-#if (__GNUC__ > 11)
-    std::views::stride column(std::size_t j)
-    {
-        return std::span<T>(m_data.begin() + j, m_data.end())
-            | std::views::stride(m_ncols);
-    }
-#endif
-
-private:
-    std::size_t m_nrows;
-    std::size_t m_ncols;
-    std::span<T> m_data;
+    constexpr [[nodiscard]] std::size_t
+    ncols() const noexcept { return extents()[1]; }
 };
 
 template <typename T>

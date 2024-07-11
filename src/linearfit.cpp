@@ -1,6 +1,7 @@
 #include "linearfit.hpp"
 
 #include <cassert>
+#include <algorithm>
 
 namespace zest
 {
@@ -34,8 +35,8 @@ void LinearMultifit::fit_parameters(
     std::span<const double> data_view(data.begin(), model.nrows());
 
     // Copy because dgels_ will modify data
-    std::span<const double> mat_data = model.data(); 
-    std::copy(mat_data.begin(), mat_data.end(), m_model_data.begin());
+    std::span<const double> mat_data = std::span(model.data(), model.size()); 
+    std::ranges::copy(mat_data, m_model_data.begin());
     std::copy_n(data_view.begin(), data_view.size(), m_data.begin());
     
     // Have to interpret as transpose of Fortran order

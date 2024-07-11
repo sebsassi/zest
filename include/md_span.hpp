@@ -50,10 +50,6 @@ public:
     constexpr MDSpan(
         data_handle_type data, const std::array<std::size_t, NDIM>& extents):
         m_data(data), m_size(detail::prod(extents)), m_extents(extents) {}
-    constexpr MDSpan(
-        std::span<element_type> span,
-        const std::array<std::size_t, NDIM>& extents):
-        m_data(span.data()), m_size(detail::prod(extents)), m_extents(extents) {}
 
     [[nodiscard]] operator std::span<element_type>()
     {
