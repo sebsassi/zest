@@ -109,7 +109,7 @@ bool test_radial_zernike_recursion_correct_for_order_1()
 
     const double R00 = 1.0*((NORM == zest::zt::ZernikeNorm::NORMED) ? std::sqrt(3.0) : 1.0);
 
-    recursion.zernike<NORM>(zest::zt::RadialZernikeSpan<NORM, double>(std::span(zernike), order), 1.0);
+    recursion.zernike<NORM>(1.0, zest::zt::RadialZernikeSpan<NORM, double>(std::span(zernike), order));
     bool success = is_close(zernike[0], R00, 1.0e-10);
 
     if (!success)

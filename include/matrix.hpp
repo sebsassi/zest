@@ -18,10 +18,10 @@ public:
     constexpr MatrixSpan(T* data, std::size_t nrows, std::size_t ncols):
         MDSpan<T, 2>::MDSpan(data, {nrows, ncols}) {}
 
-    constexpr [[nodiscard]] std::size_t
+    [[nodiscard]] constexpr std::size_t
     nrows() const noexcept { return extents()[0]; }
 
-    constexpr [[nodiscard]] std::size_t
+    [[nodiscard]] constexpr std::size_t
     ncols() const noexcept { return extents()[1]; }
 };
 
@@ -38,12 +38,12 @@ public:
     
     operator View()
     {
-        return View(m_data, m_nrows, m_ncols);
+        return View(m_data.data(), m_nrows, m_ncols);
     }
     
     operator ConstView() const
     {
-        return ConstView(m_data, m_nrows, m_ncols);
+        return ConstView(m_data.data(), m_nrows, m_ncols);
     }
 
     [[nodiscard]] std::array<std::size_t, 2> shape() const noexcept

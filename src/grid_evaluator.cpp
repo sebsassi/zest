@@ -182,7 +182,7 @@ void GridEvaluator::sum_l(std::size_t order) noexcept
 
     std::ranges::fill(m_fm_grid, std::array<double, 2>{});
     MDSpan<std::array<double, 2>, 3> fm(
-            m_fm_grid, {order, m_lat_size, m_rad_size});
+            m_fm_grid.data(), {order, m_lat_size, m_rad_size});
     
     for (std::size_t l = 0; l < order; ++l)
     {
@@ -212,7 +212,7 @@ void GridEvaluator::sum_m(MDSpan<double, 3> values, std::size_t order) noexcept
         m_cossin_lon_grid.data(), {order, m_lon_size});
 
     MDSpan<const std::array<double, 2>, 3> fm(
-            m_fm_grid, {order, m_lat_size, m_rad_size});
+            m_fm_grid.data(), {order, m_lat_size, m_rad_size});
     
     for (std::size_t m = 0; m < order; ++m)
     {
