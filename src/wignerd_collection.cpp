@@ -93,16 +93,13 @@ void WignerdCollection::expand(std::size_t max_order)
     for (std::size_t i = old_size; i < m_inv_sqrtl_cache.size(); ++i)
         m_inv_sqrtl_cache[i] = 1.0/m_sqrtl_cache[i];
 
-    if (m_max_order == 0)
-        m_matrices[idx(0,0,0)] = 1.0;
+    m_matrices[idx(0,0,0)] = 1.0;
+    if (max_order == 1) return;
 
-    if (m_max_order < 2)
-    {
-        m_matrices[idx(1,0,0)] = 0.0;
-        m_matrices[idx(1,1,0)] = -1.0/std::numbers::sqrt2;
-        m_matrices[idx(1,0,1)] = 1.0/std::numbers::sqrt2;
-        m_matrices[idx(1,1,1)] = 0.5;
-    }
+    m_matrices[idx(1,0,0)] = 0.0;
+    m_matrices[idx(1,1,0)] = -1.0/std::numbers::sqrt2;
+    m_matrices[idx(1,0,1)] = 1.0/std::numbers::sqrt2;
+    m_matrices[idx(1,1,1)] = 0.5;
 
     double d_l0 = -1.0/std::numbers::sqrt2;
     for (std::size_t l = 2; l < m_max_order; ++l)    

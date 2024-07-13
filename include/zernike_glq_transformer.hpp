@@ -646,7 +646,7 @@ private:
         ZernikeExpansionSpan<std::array<double, 2>, ZERNIKE_NORM, SH_NORM, PHASE> expansion, std::size_t min_order) noexcept
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
-        std::ranges::fill(expansion.span(), std::array<double, 2>{});
+        std::ranges::fill(expansion.flatten(), std::array<double, 2>{});
 
         TriangleVecSpan<const std::array<double, 2>, TriangleLayout>
         flm(m_flm_grid, m_order, rad_glq_size);

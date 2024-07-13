@@ -133,12 +133,12 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        st::RealSHExpansionSpan<std::complex<double>, SH_NORM, PHASE>
-        complex_expansion = to_complex_expansion<SH_NORM, PHASE>(expansion);
+        auto complex_expansion
+            = to_complex_expansion<SH_NORM, PHASE>(expansion);
 
         set_up_euler_rotations(euler_angles, convention, order);
 
-        for (std::size_t l = expansion.parity(); l < order; l += 2)
+        for (std::size_t l = std::size_t(expansion.parity()); l < order; l += 2)
             zest::detail::rotate_l(
                 complex_expansion[l], m_wigner_d_pi2(l),
                 m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);

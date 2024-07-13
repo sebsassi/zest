@@ -226,7 +226,7 @@ public:
     order() const noexcept { return m_order; }
 
     [[nodiscard]] constexpr std::span<element_type>
-    span() const noexcept { return m_span; }
+    flatten() const noexcept { return m_span; }
 
     [[nodiscard]] constexpr element_type*
     data() const noexcept { return m_span.data(); }
@@ -463,7 +463,7 @@ concept zernike_expansion
             typename std::remove_cvref_t<T>::element_type, std::remove_cvref_t<T>::zernike_norm, std::remove_cvref_t<T>::sh_norm, std::remove_cvref_t<T>::phase>>;
 
 /**
-    @brief Convert real spherical harmonic expansion of a real function to a complex spherical harmonic expansion.
+    @brief Convert real Zernike expansion of a real function to a complex Zernike expansion.
 
     @tparam DEST_ZERNIKE_NORM Zernike normalization convention of the output view
     @tparam DEST_SH_NORM spherical harmonic normalization convention of the output view
@@ -480,7 +480,7 @@ template <
 ZernikeExpansionSpan<std::complex<double>, DEST_ZERNIKE_NORM, DEST_SH_NORM, DEST_PHASE>
 to_complex_expansion(ExpansionType&& expansion) noexcept
 {
-    constexpr double shnorm = st::conversion_const<std::remove_cvref_t<ExpansionType>::norm, DEST_SH_NORM>();
+    constexpr double shnorm = st::conversion_const<std::remove_cvref_t<ExpansionType>::sh_norm, DEST_SH_NORM>();
     constexpr double cnorm = 1.0/std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
@@ -554,7 +554,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
 }
 
 /**
-    @brief Convert complex spherical harmonic expansion of a real function to a real spherical harmonic expansion.
+    @brief Convert complex Zernike expansion of a real function to a real Zernike expansion.
 
     @tparam DEST_ZERNIKE_NORM Zernike normalization convention of the output view
     @tparam DEST_SH_NORM spherical harmonic normalization convention of the output view
@@ -571,11 +571,11 @@ template <
 ZernikeExpansionSpan<std::array<double, 2>, DEST_ZERNIKE_NORM, DEST_SH_NORM, DEST_PHASE>
 to_real_expansion(ExpansionType&& expansion) noexcept
 {
-    constexpr double shnorm = st::conversion_const<std::remove_cvref_t<ExpansionType>::norm, DEST_SH_NORM>();
+    constexpr double shnorm = st::conversion_const<std::remove_cvref_t<ExpansionType>::sh_norm, DEST_SH_NORM>();
     constexpr double cnorm = std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
-    ZernikeExpansionSpan<std::complex<double>, DEST_ZERNIKE_NORM, DEST_SH_NORM, DEST_PHASE> res(
+    ZernikeExpansionSpan<std::array<double, 2>, DEST_ZERNIKE_NORM, DEST_SH_NORM, DEST_PHASE> res(
             as_array_span(expansion.flatten()), expansion.order());
 
     for (std::size_t n = 0; n < expansion.order(); ++n)
@@ -639,6 +639,120 @@ to_real_expansion(ExpansionType&& expansion) noexcept
                         res_nl[m][1] *= -prefactor;
                     }
                 }
+            }
+        }
+    }
+
+    return res;
+}
+
+/**
+    @brief Convert real spherical harmonic expansion of a real function to a complex spherical harmonic expansion.
+
+    @tparam DEST_NORM normalization convention of the output view
+    @tparam DEST_PHASE phase convention of the output view
+
+    @param expansion spherical harmonic expansion
+
+    @return view of the expansion transformed to a complex expansion
+
+    @note This function modifies the input data and merely produces a new view over the same data.
+*/
+template <st::SHNorm DEST_SH_NORM, st::SHPhase DEST_PHASE, typename ExpansionType>
+    requires std::same_as<std::remove_cvref_t<ExpansionType>, 
+        ZernikeExpansionSHSpan<std::array<double, 2>, 
+            std::remove_cvref_t<ExpansionType>::zernike_norm, 
+            std::remove_cvref_t<ExpansionType>::sh_norm, 
+            std::remove_cvref_t<ExpansionType>::phase>>
+ZernikeExpansionSHSpan<std::complex<double>, std::remove_cvref_t<ExpansionType>::zernike_norm, DEST_SH_NORM, DEST_PHASE>
+to_complex_expansion(ExpansionType&& expansion) noexcept
+{
+    constexpr double shnorm
+        = st::conversion_const<std::remove_cvref_t<ExpansionType>::sh_norm, DEST_SH_NORM>();
+    constexpr double cnorm = 1.0/std::numbers::sqrt2;
+    constexpr double norm = shnorm*cnorm;
+
+    for (std::size_t l = std::size_t(expansion.parity()); l < expansion.order(); l += 2)
+    {
+        std::span<std::array<double, 2>> expansion_l = expansion[l];
+        expansion_l[0][0] *= shnorm;
+        expansion_l[0][1] *= shnorm;
+
+        if constexpr (DEST_PHASE == std::remove_cvref_t<ExpansionType>::phase)
+        {
+            for (std::size_t m = 1; m <= l; ++m)
+            {
+                expansion_l[m][0] *= norm;
+                expansion_l[m][1] *= -norm;
+            }
+        }
+        else
+        {
+            double prefactor = norm;
+            for (std::size_t m = 1; m <= l; ++m)
+            {
+                prefactor *= -1.0;
+                expansion_l[m][0] *= prefactor;
+                expansion_l[m][1] *= -prefactor;
+            }
+        }
+    }
+
+    return ZernikeExpansionSHSpan<std::complex<double>, std::remove_cvref_t<ExpansionType>::zernike_norm, DEST_SH_NORM, DEST_PHASE>(
+            as_complex_span(expansion.flatten()), expansion.order());
+}
+
+/**
+    @brief Convert complex spherical harmonic expansion of a real function to a real spherical harmonic expansion.
+
+    @tparam DEST_NORM normalization convention of the output view
+    @tparam DEST_PHASE phase convention of the output view
+
+    @param expansion spherical harmonic expansion
+
+    @return view of the expansion transformed to a complex expansion
+
+    @note This function modifies the input data and merely produces a new view over the same data.
+*/
+template <st::SHNorm DEST_SH_NORM, st::SHPhase DEST_PHASE, typename ExpansionType>
+    requires std::same_as<std::remove_cvref_t<ExpansionType>, 
+        ZernikeExpansionSHSpan<std::complex<double>, 
+            std::remove_cvref_t<ExpansionType>::zernike_norm, 
+            std::remove_cvref_t<ExpansionType>::sh_norm, 
+            std::remove_cvref_t<ExpansionType>::phase>>
+ZernikeExpansionSHSpan<std::array<double, 2>, std::remove_cvref_t<ExpansionType>::zernike_norm, DEST_SH_NORM, DEST_PHASE>
+to_real_expansion(ExpansionType&& expansion) noexcept
+{
+    constexpr double shnorm
+        = st::conversion_const<std::remove_cvref_t<ExpansionType>::sh_norm, DEST_SH_NORM>();
+    constexpr double cnorm = std::numbers::sqrt2;
+    constexpr double norm = shnorm*cnorm;
+
+    ZernikeExpansionSHSpan<std::array<double, 2>, std::remove_cvref_t<ExpansionType>::zernike_norm, DEST_SH_NORM, DEST_PHASE> res(
+            as_array_span(expansion.flatten()), expansion.order());
+
+    for (std::size_t l = std::size_t(expansion.parity()); l < expansion.order(); l += 2)
+    {
+        std::span<std::array<double, 2>> res_l = res[l];
+        res_l[0][0] *= shnorm;
+        res_l[0][1] *= shnorm;
+
+        if constexpr (DEST_PHASE == std::remove_cvref_t<ExpansionType>::phase)
+        {
+            for (std::size_t m = 1; m <= l; ++m)
+            {
+                res_l[m][0] *= norm;
+                res_l[m][1] *= -norm;
+            }
+        }
+        else
+        {
+            double prefactor = norm;
+            for (std::size_t m = 1; m <= l; ++m)
+            {
+                prefactor *= -1.0;
+                res_l[m][0] *= prefactor;
+                res_l[m][1] *= -prefactor;
             }
         }
     }
