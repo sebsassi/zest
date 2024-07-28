@@ -55,6 +55,11 @@ public:
     {
         return std::span<element_type>(m_data, m_size);
     }
+
+    [[nodiscard]] operator std::span<const element_type>()
+    {
+        return std::span<const element_type>(m_data, m_size);
+    }
     
     [[nodiscard]] constexpr data_handle_type data() const noexcept
     {
