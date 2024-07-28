@@ -231,6 +231,7 @@ public:
     using element_type = ElementType;
     using value_type = std::remove_cv_t<ElementType>;
     using size_type = std::size_t;
+    using SubSpan = std::span<element_type>;
 
     static constexpr std::size_t size(std::size_t order) noexcept
     {
@@ -263,17 +264,17 @@ public:
         return TriangleSpan<const element_type, LayoutType>(m_span, m_order);
     }
 
-    [[nodiscard]] constexpr std::span<element_type>
+    [[nodiscard]] constexpr SubSpan
     operator()(index_type l) const noexcept
     {
-        return std::span<element_type>(
+        return SubSpan(
                 m_span.begin() + Layout::idx(l,0), Layout::line_length(l));
     }
 
-    [[nodiscard]] constexpr std::span<element_type>
+    [[nodiscard]] constexpr SubSpan
     operator[](index_type l) const noexcept
     {
-        return std::span<element_type>(
+        return SubSpan(
                 m_span.begin() + Layout::idx(l,0), Layout::line_length(l));
     }
 

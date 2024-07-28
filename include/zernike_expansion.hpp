@@ -205,6 +205,7 @@ public:
     using value_type = std::remove_cv_t<ElementType>;
     using size_type = std::size_t;
     using Layout = EvenSemiDiagonalTetrahedralLayout;
+    using SubSpan = ZernikeExpansionSHSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE>;
     
     static constexpr ZernikeNorm zernike_norm = ZERNIKE_NORM;
     static constexpr st::SHNorm sh_norm = SH_NORM;
@@ -246,18 +247,16 @@ public:
         return m_span[Layout::idx(n,l,m)];
     }
 
-    [[nodiscard]] constexpr ZernikeExpansionSHSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE>
+    [[nodiscard]] constexpr SubSpan
     operator()(std::size_t n) const noexcept
     {
-        return ZernikeExpansionSHSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE>(
-                m_span.data() + Layout::idx(n, 0, 0), n + 1);
+        return SubSpan(m_span.data() + Layout::idx(n, 0, 0), n + 1);
     }
 
-    [[nodiscard]] constexpr ZernikeExpansionSHSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE> 
+    [[nodiscard]] constexpr SubSpan
     operator[](std::size_t n) const noexcept
     {
-        return ZernikeExpansionSHSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE>(
-                m_span.data() + Layout::idx(n, 0, 0), n + 1);
+        return SubSpan(m_span.data() + Layout::idx(n, 0, 0), n + 1);
     }
 
 private:
@@ -334,6 +333,8 @@ public:
     using size_type = std::size_t;
     using View = ZernikeExpansionSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE>;
     using ConstView = ZernikeExpansionSpan<const element_type, ZERNIKE_NORM, SH_NORM, PHASE>;
+    using SubSpan = ZernikeExpansionSHSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE>;
+    using ConstSubSpan = ZernikeExpansionSHSpan<const element_type, ZERNIKE_NORM, SH_NORM, PHASE>;
     
     static constexpr ZernikeNorm zernike_norm = ZERNIKE_NORM;
     static constexpr st::SHNorm sh_norm = SH_NORM;
@@ -384,32 +385,28 @@ public:
         m_order = order;
     }
 
-    [[nodiscard]] ZernikeExpansionSHSpan<const element_type, ZERNIKE_NORM, SH_NORM, PHASE> 
+    [[nodiscard]] ConstSubSpan
     operator()(index_type n) const noexcept
     {
-        return ZernikeExpansionSHSpan<const element_type, ZERNIKE_NORM, SH_NORM, PHASE>(
-                m_data.data() + Layout::idx(n, 0, 0), n + 1);
+        return ConstSubSpan(m_data.data() + Layout::idx(n, 0, 0), n + 1);
     }
 
-    [[nodiscard]] ZernikeExpansionSHSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE>
+    [[nodiscard]] SubSpan
     operator()(index_type n) noexcept
     {
-        return ZernikeExpansionSHSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE>(
-                m_data.data() + Layout::idx(n, 0, 0), n + 1);
+        return SubSpan(m_data.data() + Layout::idx(n, 0, 0), n + 1);
     }
 
-    [[nodiscard]] ZernikeExpansionSHSpan<const element_type, ZERNIKE_NORM, SH_NORM, PHASE> 
+    [[nodiscard]] ConstSubSpan
     operator[](index_type n) const noexcept
     {
-        return ZernikeExpansionSHSpan<const element_type, ZERNIKE_NORM, SH_NORM, PHASE>(
-                m_data.data() + Layout::idx(n, 0, 0), n + 1);
+        return ConstSubSpan(m_data.data() + Layout::idx(n, 0, 0), n + 1);
     }
 
-    [[nodiscard]] ZernikeExpansionSHSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE>
+    [[nodiscard]] SubSpan
     operator[](index_type n) noexcept
     {
-        return ZernikeExpansionSHSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE>(
-                m_data.data() + Layout::idx(n, 0, 0), n + 1);
+        return SubSpan(m_data.data() + Layout::idx(n, 0, 0), n + 1);
     }
 
 private:

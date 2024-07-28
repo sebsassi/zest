@@ -124,6 +124,8 @@ public:
     using size_type = std::size_t;
     using View = RealSHExpansionSpan<element_type, SH_NORM, PHASE>;
     using ConstView = RealSHExpansionSpan<const element_type, SH_NORM, PHASE>;
+    using SubSpan = std::span<element_type>;
+    using ConstSubSpan = std::span<element_type>;
 
     static constexpr SHNorm sh_norm = SH_NORM;
     static constexpr SHPhase phase = PHASE;
@@ -166,31 +168,31 @@ public:
         return m_data[Layout::idx(l,m)];
     }
 
-    [[nodiscard]] std::span<element_type>
+    [[nodiscard]] SubSpan
     operator()(index_type l) noexcept
     {
-        return std::span<element_type>(
+        return SubSpan(
                 m_data.data() + Layout::idx(l,0), Layout::line_length(l));
     }
 
-    [[nodiscard]] std::span<const element_type>
+    [[nodiscard]] ConstSubSpan
     operator()(index_type l) const noexcept
     {
-        return std::span<const element_type>(
+        return ConstSubSpan(
                 m_data.data() + Layout::idx(l,0), Layout::line_length(l));
     }
 
-    [[nodiscard]] std::span<element_type>
+    [[nodiscard]] SubSpan
     operator[](index_type l) noexcept
     {
-        return std::span<element_type>(
+        return SubSpan(
                 m_data.data() + Layout::idx(l,0), Layout::line_length(l));
     }
 
-    [[nodiscard]] std::span<const element_type>
+    [[nodiscard]] ConstSubSpan
     operator[](index_type l) const noexcept
     {
-        return std::span<const element_type>(
+        return ConstSubSpan(
                 m_data.data() + Layout::idx(l,0), Layout::line_length(l));
     }
 
