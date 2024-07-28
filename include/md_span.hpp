@@ -45,11 +45,17 @@ public:
     using size_type = std::size_t;
     using index_type = std::size_t;
     using data_handle_type = element_type*;
+    using ConstView = MDSpan<const element_type, NDIM>;
 
     constexpr MDSpan() = default;
     constexpr MDSpan(
         data_handle_type data, const std::array<std::size_t, NDIM>& extents):
         m_data(data), m_size(detail::prod(extents)), m_extents(extents) {}
+
+    [[nodiscard]] operator ConstView()
+    {
+        ConstView(static_cast<const element_type*>(m_data), m_size, m_extents);
+    }
 
     [[nodiscard]] operator std::span<element_type>()
     {
@@ -108,6 +114,11 @@ public:
     }
 
 private:
+
+    constexpr MDSpan(
+        data_handle_type data, size_type size, const std::array<std::size_t, NDIM>& extents):
+        m_data(data), m_size(size), m_extents(extents) {}
+
     template <typename... Ts>
     [[nodiscard]] constexpr index_type
     idx(index_type ind, Ts... inds) const noexcept
