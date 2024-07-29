@@ -376,15 +376,18 @@ public:
     static constexpr SHPhase phase = PHASE;
 
     GLQTransformer(): 
-        m_pocketfft_shape_grid(2), m_pocketfft_stride_grid(2), 
+        m_pocketfft_shape_grid(2),
+        m_pocketfft_stride_grid(2), 
         m_pocketfft_stride_fft(2) {}
     explicit GLQTransformer(std::size_t order):
-        m_recursion(order), m_glq_nodes(gl::PackedLayout::size(GridLayout::lat_size(order))),
+        m_recursion(order),
+        m_glq_nodes(gl::PackedLayout::size(GridLayout::lat_size(order))),
         m_glq_weights(gl::PackedLayout::size(GridLayout::lat_size(order))),
         m_plm_grid(GridLayout::lat_size(order)*TriangleLayout::size(order)),
         m_ffts(GridLayout::lat_size(order)*GridLayout::fft_size(order)), m_symm_asymm(GridLayout::fft_size(order)*((GridLayout::lat_size(order) + 1) >> 1)*2),
-        m_pocketfft_shape_grid(2), m_pocketfft_stride_grid(2), m_pocketfft_stride_fft(2),
-        m_grids{SphereGLQGrid<double, GridLayout>(order), SphereGLQGrid<double, GridLayout>(order)},
+        m_pocketfft_shape_grid(2),
+        m_pocketfft_stride_grid(2),
+        m_pocketfft_stride_fft(2),
         m_order(order)
     {
         gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::COS>(
@@ -468,9 +471,6 @@ public:
         auto fft_stride = GridLayout::fft_stride(order);
         m_pocketfft_stride_fft[0] = long(fft_stride[0]*sizeof(std::complex<double>));
         m_pocketfft_stride_fft[1] = fft_stride[1]*sizeof(std::complex<double>);
-
-        m_grids.first.resize(order);
-        m_grids.second.resize(order);
 
         m_order = order;
     }
@@ -635,24 +635,6 @@ public:
         SphereGLQGrid<double, GridLayout> grid(order);
         backward_transform(expansion, grid, parity);
         return grid;
-    }
-
-    /**
-        @brief Compute coefficients of the product of two spherical harmonic expansions.
-    */
-    void multiply(
-        RealSHExpansionSpan<const std::array<double, 2>, SH_NORM, PHASE> a,
-        RealSHExpansionSpan<const std::array<double, 2>, SH_NORM, PHASE> b,
-        RealSHExpansionSpan<std::array<double, 2>, SH_NORM, PHASE> out)
-    {
-        resize(out.order());
-        backward_transform(a, m_grids.first);
-        backward_transform(b, m_grids.second);
-
-        for (std::size_t i = 0; i < m_grids.first.flatten().size(); ++i)
-            m_grids.first.flatten()[i] *= m_grids.second.flatten()[i];
-        
-        forward_transform(m_grids.first, out);
     }
 
 private:
@@ -1112,7 +1094,6 @@ private:
     std::vector<std::size_t> m_pocketfft_shape_grid;
     std::vector<std::ptrdiff_t> m_pocketfft_stride_grid;
     std::vector<std::ptrdiff_t> m_pocketfft_stride_fft;
-    std::pair<SphereGLQGrid<double, GridLayout>, SphereGLQGrid<double, GridLayout>> m_grids;
     std::size_t m_order;
 };
 

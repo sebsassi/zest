@@ -19,6 +19,7 @@ void benchmark_rotor(
             expansion(l,m) = {dist(gen), dist(gen)};
     }
     
+    zest::WignerdPiHalfCollection winger_d_pi2(order);
     zest::Rotor rotor(order);
 
     std::array<double, 3> euler_angles = {
@@ -28,7 +29,7 @@ void benchmark_rotor(
     };
 
     bench.run(name, [&](){
-        rotor.rotate(expansion, euler_angles);
+        rotor.rotate(expansion, winger_d_pi2, euler_angles);
     });
 }
 

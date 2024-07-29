@@ -132,7 +132,7 @@ bool test_wigner_d_pi2_is_correct_to_order_5()
     constexpr double d_pi2_4_4_4 = 1.0/16.0;
 
 
-    zest::detail::WignerdCollection d_pi2(order);
+    zest::WignerdPiHalfCollection d_pi2(order);
     
     bool success = is_close(d_pi2(0,0,0), d_pi2_0_0_0, 1.0e-13)
             && is_close(d_pi2(1,0,0), d_pi2_1_0_0, 1.0e-13)
@@ -240,9 +240,10 @@ bool test_rotation_completes()
 
     std::vector<std::array<double, 2>> buffer(ExpansionSpanType::Layout::size(order));
     
+    zest::WignerdPiHalfCollection wigner_d_pi2(order);
     zest::Rotor rotor(order);
     ExpansionSpanType expansion(buffer, order);
-    rotor.rotate(expansion, std::array<double, 3>{});
+    rotor.rotate(expansion, wigner_d_pi2, std::array<double, 3>{});
 
     return true;
 }
@@ -272,8 +273,9 @@ bool test_trivial_rotation_is_trivial_order_6()
     std::ranges::copy(buffer, test_buffer.begin());
     ExpansionSpan test_expansion(test_buffer, order);
 
+    zest::WignerdPiHalfCollection wigner_d_pi2(order);
     zest::Rotor rotor(order);
-    rotor.rotate(expansion, std::array<double, 3>{});
+    rotor.rotate(expansion, wigner_d_pi2, std::array<double, 3>{});
 
     bool success = true;
     for (std::size_t l = 0; l < order; ++l)

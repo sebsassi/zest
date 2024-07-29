@@ -4,10 +4,8 @@
 
 namespace zest
 {
-namespace detail
-{
 
-WignerdCollection::WignerdCollection(std::size_t max_order):
+WignerdPiHalfCollection::WignerdPiHalfCollection(std::size_t max_order):
     m_matrices((max_order*(max_order + 1)*(2*max_order + 1))/6), m_sqrtl_cache(2*max_order), m_inv_sqrtl_cache(2*max_order), m_max_order(max_order)
 {
     if (max_order == 0) return;
@@ -78,7 +76,7 @@ WignerdCollection::WignerdCollection(std::size_t max_order):
     }
 }
 
-void WignerdCollection::expand(std::size_t max_order)
+void WignerdPiHalfCollection::expand(std::size_t max_order)
 {
     if (max_order <= m_max_order) return;
 
@@ -159,5 +157,4 @@ void WignerdCollection::expand(std::size_t max_order)
     m_max_order = max_order;
 }
 
-} // namespace detail
 } // namespace zest

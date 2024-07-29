@@ -6,8 +6,6 @@
 
 namespace zest
 {
-namespace detail
-{
 
 /**
     @brief Non-owning view moedling a Wigner (small) d-matrix at pi/2
@@ -41,11 +39,11 @@ private:
 /**
     @brief Collection of Wigner (small) d-matrces at pi/2
 */
-class WignerdCollection
+class WignerdPiHalfCollection
 {
 public:
-    WignerdCollection() = default;
-    explicit WignerdCollection(std::size_t max_order);
+    WignerdPiHalfCollection() = default;
+    explicit WignerdPiHalfCollection(std::size_t max_order);
 
     void expand(std::size_t max_order);
 
@@ -92,7 +90,7 @@ private:
 */
 constexpr void rotate_l(
     std::span<std::complex<double>> vector,
-    zest::detail::WignerdSpan<const double> wigner_d,
+    zest::WignerdSpan<const double> wigner_d,
     std::span<const std::complex<double>> exp_gamma,
     std::span<const std::complex<double>> exp_beta,
     std::span<const std::complex<double>> exp_alpha, 
@@ -289,5 +287,4 @@ constexpr void polar_rotate_l(
     }
 }
 
-} // namespace detail
 } // namespace zest

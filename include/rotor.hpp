@@ -74,7 +74,7 @@ public:
     void expand(std::size_t max_order);
 
     [[nodiscard]] std::size_t
-    max_order() const noexcept { return m_wigner_d_pi2.max_order(); }
+    max_order() const noexcept { return m_temp.size(); }
 
     /**
         @brief General rotation of a real spherical harmonic expansion via Wigner's D-matrix.
@@ -89,7 +89,7 @@ public:
     */
     template <st::real_sh_expansion ExpansionType>
     void rotate(
-        ExpansionType&& expansion, const std::array<double, 3>& euler_angles,
+        ExpansionType&& expansion, zest::WignerdPiHalfCollection wigner_d_pi2, const std::array<double, 3>& euler_angles,
         RotationType convention = RotationType::OBJECT)
     {
         constexpr st::SHNorm SH_NORM = std::remove_cvref_t<ExpansionType>::sh_norm;
@@ -104,8 +104,8 @@ public:
         set_up_euler_rotations(euler_angles, convention, order);
 
         for (std::size_t l = 1; l < order; ++l)
-            zest::detail::rotate_l(
-                complex_expansion[l], m_wigner_d_pi2(l),
+            zest::rotate_l(
+                complex_expansion[l], wigner_d_pi2(l),
                 m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
 
         to_real_expansion<SH_NORM, PHASE>(complex_expansion);
@@ -124,7 +124,7 @@ public:
     */
     template <st::even_odd_real_sh_expansion ExpansionType>
     void rotate(
-        ExpansionType&& expansion, const std::array<double, 3>& euler_angles,
+        ExpansionType&& expansion, zest::WignerdPiHalfCollection wigner_d_pi2, const std::array<double, 3>& euler_angles,
         RotationType convention = RotationType::OBJECT)
     {
         constexpr st::SHNorm SH_NORM = std::remove_cvref_t<ExpansionType>::sh_norm;
@@ -139,8 +139,8 @@ public:
         set_up_euler_rotations(euler_angles, convention, order);
 
         for (std::size_t l = std::size_t(expansion.parity()); l < order; l += 2)
-            zest::detail::rotate_l(
-                complex_expansion[l], m_wigner_d_pi2(l),
+            zest::rotate_l(
+                complex_expansion[l], wigner_d_pi2(l),
                 m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
 
         to_real_expansion<SH_NORM, PHASE>(complex_expansion);
@@ -159,7 +159,7 @@ public:
     */
     template <zt::zernike_expansion ExpansionType>
     void rotate(
-        ExpansionType&& expansion, const std::array<double, 3>& euler_angles,
+        ExpansionType&& expansion, zest::WignerdPiHalfCollection wigner_d_pi2, const std::array<double, 3>& euler_angles,
         RotationType convention = RotationType::OBJECT)
     {
         constexpr zt::ZernikeNorm ZERNIKE_NORM
@@ -180,8 +180,8 @@ public:
         {
             auto expansion_n = complex_expansion[n];
             for (std::size_t l = n & 1; l <= n; ++l)
-                zest::detail::rotate_l(
-                        expansion_n[l], m_wigner_d_pi2(l),
+                zest::rotate_l(
+                        expansion_n[l], wigner_d_pi2(l),
                         m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
         }
 
@@ -201,10 +201,10 @@ public:
     */
     template <st::real_sh_expansion ExpansionType>
     void rotate(
-        ExpansionType&& expansion,
+        ExpansionType&& expansion, zest::WignerdPiHalfCollection wigner_d_pi2,
         const std::array<std::array<double, 3>, 3>& matrix)
     {
-        rotate(expansion, euler_angles_from_rotation_matrix(matrix));
+        rotate(expansion, wigner_d_pi2, euler_angles_from_rotation_matrix(matrix));
     }
 
     /**
@@ -220,10 +220,10 @@ public:
     */
     template <zt::zernike_expansion ExpansionType>
     void rotate(
-        ExpansionType&& expansion,
+        ExpansionType&& expansion, zest::WignerdPiHalfCollection wigner_d_pi2,
         const std::array<std::array<double, 3>, 3>& matrix)
     {
-        rotate(expansion, euler_angles_from_rotation_matrix(matrix));
+        rotate(expansion, wigner_d_pi2, euler_angles_from_rotation_matrix(matrix));
     }
 
     /**
@@ -253,7 +253,7 @@ public:
             m_exp_alpha[l] = std::polar(1.0, -double(l)*angle_rot);
         
         for (std::size_t l = 1; l < order; ++l)
-            zest::detail::polar_rotate_l(complex_expansion[l], m_exp_alpha);
+            zest::polar_rotate_l(complex_expansion[l], m_exp_alpha);
 
         to_real_expansion<SH_NORM, PHASE>(complex_expansion);
     }
@@ -292,7 +292,7 @@ public:
         {
             auto expansion_n = complex_expansion[n];
             for (std::size_t l = n & 1; l <= n; ++l)
-                zest::detail::polar_rotate_l(expansion_n[l], m_exp_alpha);
+                zest::polar_rotate_l(expansion_n[l], m_exp_alpha);
         }
 
         to_real_expansion<ZERNIKE_NORM, SH_NORM, PHASE>(complex_expansion);
@@ -315,8 +315,6 @@ private:
             m_exp_gamma[m] = std::polar(1.0, -double(m)*gamma_rot);
     }
 
-    // Wigner small d-matrices `d[l, m1, m2](pi/2)`
-    zest::detail::WignerdCollection m_wigner_d_pi2;
     std::vector<std::complex<double>> m_temp;
     std::vector<std::complex<double>> m_exp_alpha;
     std::vector<std::complex<double>> m_exp_beta;
