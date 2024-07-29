@@ -12,12 +12,12 @@ namespace zest
 namespace st
 {
 
-/*
-Compute cross power spectrum of two spherical harmonic expansions.
+/**
+    @brief Compute cross power spectrum of two spherical harmonic expansions.
 
-Parameters:
-´a´, `b`: spherical harmonic expansions.
-`out`: place to store the cross power spectrum.
+    @param a spherical harmonic expansion
+    @param b spherical harmonic expansion
+    @param out output buffer for the cross power spectrum
 */
 template <SHNorm NORM, SHPhase PHASE>
 void cross_power_spectrum(
@@ -38,15 +38,13 @@ void cross_power_spectrum(
     }
 }
 
-/*
-Compute cross power spectrum of two spherical harmonic expansions.
+/**
+    @brief Compute cross power spectrum of two spherical harmonic expansions.
 
-Parameters:
-´a´, `b`: spherical harmonic expansions.
-`out`: place to store the cross power spectrum.
+    @param a spherical harmonic expansions
+    @param b spherical harmonic expansions
 
-Returns:
-`std::vector` storing the the cross power spectrum.
+    @return `std::vector` storing the the cross power spectrum
 */
 template <SHNorm NORM, SHPhase PHASE>
 [[nodiscard]] std::vector<double> cross_power_spectrum(
@@ -59,12 +57,11 @@ template <SHNorm NORM, SHPhase PHASE>
     return out;
 }
 
-/*
-Compute power spectrum of a spherical harmonic expansions.
+/**
+    @brief Compute power spectrum of a spherical harmonic expansions.
 
-Parameters:
-´expansion`: spherical harmonic expansion.
-`out`: place to store the power spectrum.
+    @param expansion spherical harmonic expansion
+    @param out output buffer for the power spectrum
 */
 template <SHNorm NORM, SHPhase PHASE>
 void power_spectrum(
@@ -84,14 +81,12 @@ void power_spectrum(
     }
 }
 
-/*
-Compute power spectrum of a spherical harmonic expansions.
+/**
+    @brief Compute power spectrum of a spherical harmonic expansions.
 
-Parameters:
-´expansion`: spherical harmonic expansion.
+    @param expansion spherical harmonic expansion
 
-Returns:
-`std::vector` storing the power spectrum.
+    @return `std::vector` storing the power spectrum
 */
 template <SHNorm NORM, SHPhase PHASE>
 [[nodiscard]] std::vector<double> power_spectrum(
@@ -107,12 +102,11 @@ template <SHNorm NORM, SHPhase PHASE>
 namespace zt
 {
 
-/*
-Compute power spectrum of a Zernike expansions.
+/**
+    @brief Compute power spectrum of a Zernike expansion.
 
-Parameters:
-´expansion`: Zernike expansion.
-`out`: place to store the power spectrum.
+    @param expansion Zernike expansion.
+    @param out place to store the power spectrum.
 */
 template <ZernikeNorm ZERNIKE_NORM, st::SHNorm SH_NORM, st::SHPhase PHASE>
 void power_spectrum(
@@ -135,14 +129,12 @@ void power_spectrum(
     }
 }
 
-/*
-Compute power spectrum of a Zernike expansions.
+/**
+    @brief Compute power spectrum of a Zernike expansions.
 
-Parameters:
-´expansion`: Zernike expansion.
+    @param expansion Zernike expansion
 
-Returns:
-`std::vector` storing the power spectrum.
+    @return `std::vector` storing the power spectrum.
 */
 template <ZernikeNorm ZERNIKE_NORM, st::SHNorm SH_NORM, st::SHPhase PHASE>
 [[nodiscard]] std::vector<double> power_spectrum(

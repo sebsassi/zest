@@ -31,54 +31,49 @@ void recursive_trig(
 namespace st
 {
 
-/*
-Class for evaluating spherical harmonic expansions on arbitrary grids.
+/**
+    @brief Class for evaluating spherical harmonic expansions on arbitrary grids.
 */
 class GridEvaluator
 {
 public:
     GridEvaluator() = default;
 
-    /*
-    Construct `GridEvaluator` with memory reserved for an expansion of given order.
+    /**
+        @brief reserve memory for an expansion of given order.
 
-    Parameters:
-    `max_order`: maximum order of spherical harmonic expansion.
+        @param max_order maximum order of spherical harmonic expansion.
     */
     explicit GridEvaluator(std::size_t max_order);
 
-    /*
-    Construct `GridEvaluator` with memory reserved for a combination of expansion and grid size.
+    /**
+        @brief reserve memory for a combination of expansion and grid size.
 
-    Parameters:
-    `max_order`: maximum order of spherical harmonic expansion.
-    `lon_size`: size of grid in the longitudinal direction.
-    `lat_size`: size of grid in the latittudinal direction.
+        @param max_order maximum order of spherical harmonic expansion.
+        @param lon_size size of grid in the longitudinal direction.
+        @param lat_size size of grid in the latittudinal direction.
     */
     GridEvaluator(
         std::size_t max_order, std::size_t lon_size, std::size_t lat_size);
 
-    /*
-    Resize for a combination of expansion and grid size.
+    /**
+        @brief Resize for a combination of expansion and grid size.
 
-    Parameters:
-    `max_order`: maximum order of spherical harmonic expansion.
-    `lon_size`: size of grid in the longitudinal direction.
-    `lat_size`: size of grid in the latittudinal direction.
+        @param max_order maximum order of spherical harmonic expansion.
+        @param lon_size size of grid in the longitudinal direction.
+        @param lat_size size of grid in the latittudinal direction.
     */
     void resize(
         std::size_t max_order, std::size_t lon_size, std::size_t lat_size);
 
-    /*
-    Evaluate spherical harmonic expansion on a grid.
+    /**
+        @brief Evaluate spherical harmonic expansion on a grid.
 
-    Parameters:
-    `expansion`: spherical harmonics expansion.
-    `longitudes`: longitude values defining the grid points.
-    `colatitudes`: colatitude values defining the grid points.
+        @param expansion spherical harmonics expansion.
+        @param longitudes longitude values defining the grid points.
+        @param colatitudes colatitude values defining the grid points.
 
-    Returns:
-    `std::vector` containing values of the expansion on the grid. The values are ordered as a 2D array with shape `{longitudes.size(), colatitudes.size()}` in row-major order.
+        @return `std::vector` containing values of the expansion on the grid. The values are ordered as a 2D array with shape `{longitudes.size(), colatitudes.size()}` in row-major order.
     */
     template <real_sh_expansion ExpansionType>
     [[nodiscard]] std::vector<double> evaluate(
@@ -160,51 +155,46 @@ class GridEvaluator
 public:
     GridEvaluator() = default;
 
-    /*
-    Construct `GridEvaluator` with memory reserved for an expansion of given order.
+    /**
+        @brief reserve memory for an expansion of given order.
 
-    Parameters:
-    `max_order`: maximum order of spherical harmonic expansion.
+        @param max_order maximum order of spherical harmonic expansion.
     */
     explicit GridEvaluator(std::size_t max_order);
 
-    /*
-    Construct `GridEvaluator` with memory reserved for a combination of expansion and grid size.
+    /**
+        @brief reserve memory for a combination of expansion and grid size.
 
-    Parameters:
-    `max_order`: maximum order of Zernike expansion.
-    `lon_size`: size of grid in the longitudinal direction.
-    `lat_size`: size of grid in the latittudinal direction.
-    `rad_size`: size of grid in the radial direction.
+        @param max_order maximum order of spherical harmonic expansion.
+        @param lon_size size of grid in the longitudinal direction.
+        @param lat_size size of grid in the latittudinal direction.
+        @param rad_size size of grid in the radial direction.
     */
     GridEvaluator(
         std::size_t max_order, std::size_t lon_size, std::size_t lat_size, 
         std::size_t rad_size);
 
-    /*
-    Resize for a combination of expansion and grid size.
+    /**
+        @brief Resize for a combination of expansion and grid size.
 
-    Parameters:
-    `max_order`: maximum order of Zernike expansion.
-    `lon_size`: size of grid in the longitudinal direction.
-    `lat_size`: size of grid in the latittudinal direction.
-    `rad_size`: size of grid in the radial direction.
+        @param max_order maximum order of spherical harmonic expansion.
+        @param lon_size size of grid in the longitudinal direction.
+        @param lat_size size of grid in the latittudinal direction.
+        @param rad_size size of grid in the radial direction.
     */
     void resize(
         std::size_t max_order, std::size_t lon_size, std::size_t lat_size, 
         std::size_t rad_size);
 
-    /*
-    Evaluate spherical harmonic expansion on a grid.
+    /**
+        @brief Evaluate spherical harmonic expansion on a grid.
 
-    Parameters:
-    `expansion`: spherical harmonics expansion.
-    `longitudes`: longitude values defining the grid points.
-    `colatitudes`: colatitude values defining the grid points.
-    `radii`: radius values defining the grid points.
+        @param expansion spherical harmonics expansion.
+        @param longitudes longitude values defining the grid points.
+        @param colatitudes colatitude values defining the grid points.
+        @param radii radius values defining the grid points.
 
-    Returns:
-    `std::vector` containing values of the expansion on the grid. The values are ordered as a 3D array with shape `{longitudes.size(), colatitudes.size(), radii.size()}` in row-major order.
+        @return `std::vector` containing values of the expansion on the grid. The values are ordered as a 3D array with shape `{longitudes.size(), colatitudes.size(), radii.size()}` in row-major order.
     */
     template <zernike_expansion ExpansionType>
     [[nodiscard]] std::vector<double> evaluate(

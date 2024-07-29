@@ -14,47 +14,53 @@ namespace zest
 namespace st
 {
 
-/*
-Non-owfning view of associated Legendre polynomials.
+/**
+    @brief Non-owfning view of associated Legendre polynomials.
 */
 template <typename T, SHNorm NORM, SHPhase PHASE>
     requires std::same_as<std::remove_const_t<T>, double>
 using PlmSpan = SHLMSpan<T, TriangleLayout, NORM, PHASE>;
 
-/*
-Non-owfning view of vectors of associated Legendre polynomials.
+/**
+    @brief Non-owfning view of vectors of associated Legendre polynomials.
 */
 template <typename T, SHNorm NORM, SHPhase PHASE>
     requires std::same_as<std::remove_const_t<T>, double>
 using PlmVecSpan = SHLMVecSpan<T, TriangleLayout, NORM, PHASE>;
 
-/*
-Recursion of associated Legendre polynomials
+/**
+    @brief Recursion of associated Legendre polynomials.
 
-Notes:
-The recursion described in (Holmes and Featherstone 2002, J. Geodesy, 76, 279-299).
+    @note The recursion described in (Holmes and Featherstone 2002, J. Geodesy, 76, 279-299).
 */
 class PlmRecursion
 {
 public:
     PlmRecursion() = default;
+
+    /*
+        @brief Precompute cached recursion coefficients up to given order.
+
+        @param max_order maximum order of coefficients
+    */
     explicit PlmRecursion(std::size_t max_order);
 
     [[nodiscard]] std::size_t max_order() const noexcept { return m_max_order; }
 
-    /*
-    Expand the number of cached recursion coefficients up to `order`.
+    /**
+        @brief Expand the number of cached recursion coefficients.
+
+        @param max_order maximum order of coefficients
     */
     void expand(std::size_t max_order);
 
     void expand_vec(std::size_t vec_size);
 
-    /*
-    Evaluate recursion of associated Legendre polynomials at a point.
+    /**
+        @brief Evaluate recursion of associated Legendre polynomials at a point.
 
-    Parameters:
-    `plm`: place to store the evaluated polynomials.
-    `z`: point at which the polynomials are evaluated
+        @param z point at which the polynomials are evaluated
+        @param plm output buffer for the evaluated polynomials
     */
     template <SHNorm NORM, SHPhase PHASE>
     void plm_real(double z, PlmSpan<double, NORM, PHASE> plm)
@@ -62,12 +68,11 @@ public:
         return plm_impl(z, std::sqrt(2.0), plm);
     }
 
-    /*
-    Evaluate recursion of associated Legendre polynomials at multiple points.
+    /**
+        @brief Evaluate recursion of associated Legendre polynomials at multiple points.
 
-    Parameters:
-    `plm`: place to store the evaluated polynomials.
-    `z`: points at which the polynomials are evaluated
+        @param z points at which the polynomials are evaluated
+        @param plm output buffer for the evaluated polynomials
     */
     template <SHNorm NORM, SHPhase PHASE>
     void plm_real(
@@ -76,12 +81,11 @@ public:
         return plm_impl(z, std::sqrt(2.0), plm);
     }
 
-    /*
-    Evaluate recursion of associated Legendre polynomials at a point.
+    /**
+        @brief Evaluate recursion of associated Legendre polynomials at a point.
 
-    Parameters:
-    `plm`: place to store the evaluated polynomials.
-    `z`: point at which the polynomials are evaluated
+        @param z point at which the polynomials are evaluated
+        @param plm utput buffer for the evaluated polynomials
     */
     template <SHNorm NORM, SHPhase PHASE>
     void plm_complex(double z, PlmSpan<double, NORM, PHASE> plm)
@@ -89,12 +93,11 @@ public:
         return plm_impl(z, 1.0, plm);
     }
 
-    /*
-    Evaluate recursion of associated Legendre polynomials at multiple points.
+    /**
+        @brief Evaluate recursion of associated Legendre polynomials at multiple points.
 
-    Parameters:
-    `plm`: place to store the evaluated polynomials.
-    `z`: points at which the polynomials are evaluated
+        @param plm utput buffer for the evaluated polynomials
+        @param z points at which the polynomials are evaluated
     */
     template <SHNorm NORM, SHPhase PHASE>
     void plm_complex(

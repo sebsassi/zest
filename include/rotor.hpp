@@ -82,6 +82,7 @@ public:
         @tparam ExpansionType
 
         @param expansion real spherical harmonic expansion
+        @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
         @param convention rotation convention for interpreting the Euler angles
 
@@ -117,6 +118,7 @@ public:
         @tparam ExpansionType
 
         @param expansion real spherical harmonic expansion
+        @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
         @param convention rotation convention for interpreting the Euler angles
 
@@ -152,6 +154,7 @@ public:
         @tparam ExpansionType
 
         @param expansion real Zernike expansion
+        @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
         @param convention rotation convention for interpreting the Euler angles
 
@@ -194,6 +197,7 @@ public:
         @tparam ExpansionType
 
         @param expansion real spherical harmonic expansion
+        @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
         @param convention rotation convention for interpreting the Euler angles
 
@@ -213,6 +217,7 @@ public:
         @tparam ExpansionType
 
         @param expansion real Zernike expansion
+        @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
         @param convention rotation convention for interpreting the Euler angles
 
