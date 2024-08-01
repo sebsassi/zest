@@ -32,14 +32,15 @@ public:
     using element_type = ElementType;
     using value_type = std::remove_cv_t<element_type>;
     using size_type = std::size_t;
+    using ConstView = RadialZernikeSpan<NORM, const element_type>;
 
     static constexpr ZernikeNorm norm = NORM;
 
-    constexpr RadialZernikeSpan() = default;
+    constexpr RadialZernikeSpan() noexcept = default;
     constexpr RadialZernikeSpan(
-        std::span<element_type> buffer, std::size_t order):
+        std::span<element_type> buffer, std::size_t order) noexcept:
         m_span(buffer.begin(), Layout::size(order)), m_order(order) {}
-    constexpr RadialZernikeSpan(element_type* data, std::size_t order):
+    constexpr RadialZernikeSpan(element_type* data, std::size_t order) noexcept:
         m_span(data, Layout::size(order)), m_order(order) {}
 
     [[nodiscard]] constexpr std::size_t
@@ -54,9 +55,9 @@ public:
     [[nodiscard]] constexpr
     operator std::span<element_type>() const noexcept { return m_span; }
 
-    [[nodiscard]] operator RadialZernikeSpan<NORM, const element_type>()
+    [[nodiscard]] operator ConstView() noexcept
     {
-        return RadialZernikeSpan<NORM, const element_type>(m_span, m_order);
+        return *reinterpret_cast<ConstView*>(this);
     }
 
     [[nodiscard]] element_type&
@@ -99,17 +100,18 @@ public:
     using element_type = ElementType;
     using value_type = std::remove_cv_t<element_type>;
     using size_type = std::size_t;
+    using ConstView = RadialZernikeVecSpan<NORM, const element_type>;
 
     static constexpr ZernikeNorm norm = NORM;
 
-    constexpr RadialZernikeVecSpan() = default;
+    constexpr RadialZernikeVecSpan() noexcept = default;
     constexpr RadialZernikeVecSpan(
         std::span<element_type> buffer, std::size_t order,
-        std::size_t vec_size):
+        std::size_t vec_size) noexcept:
         m_span(buffer.begin(), Layout::size(order)*vec_size), m_order(order), 
         m_vec_size(vec_size) {}
     constexpr RadialZernikeVecSpan(
-        element_type* data, std::size_t order, std::size_t vec_size):
+        element_type* data, std::size_t order, std::size_t vec_size) noexcept:
         m_span(data, Layout::size(order)*vec_size), m_order(order),
         m_vec_size(vec_size) {}
 
@@ -128,10 +130,9 @@ public:
     [[nodiscard]] constexpr
     operator std::span<element_type>() noexcept { return m_span; }
 
-    [[nodiscard]] constexpr operator RadialZernikeVecSpan<NORM, const element_type>()
+    [[nodiscard]] constexpr operator ConstView() noexcept
     {
-        return RadialZernikeVecSpan<NORM, const element_type>(
-                m_span, m_order, m_vec_size);
+        return *reinterpret_cast<ConstView*>(this);
     }
 
     [[nodiscard]] constexpr std::span<element_type> operator()(
@@ -175,6 +176,7 @@ public:
     using TriangleSpan<ElementType, EvenOddPrimaryTriangleLayout>::TriangleSpan;
     using TriangleSpan<ElementType, EvenOddPrimaryTriangleLayout>::flatten;
     using TriangleSpan<ElementType, EvenOddPrimaryTriangleLayout>::order;
+    using ConstView = ZernikeExpansionSHSpan<const ElementType, ZERNIKE_NORM, SH_NORM, PHASE>;
     
     static constexpr ZernikeNorm zernike_norm = ZERNIKE_NORM;
     static constexpr st::SHNorm sh_norm = SH_NORM;
@@ -182,11 +184,9 @@ public:
 
     Parity parity() const noexcept { return Parity((order() & 1) ^ 1); }
 
-    [[nodiscard]] constexpr
-    operator ZernikeExpansionSHSpan<const ElementType, ZERNIKE_NORM, SH_NORM, PHASE>()
+    [[nodiscard]] constexpr operator ConstView() noexcept
     {
-        return ZernikeExpansionSHSpan<const ElementType, ZERNIKE_NORM, SH_NORM, PHASE>(
-                flatten(), order());
+        return *reinterpret_cast<ConstView*>(this);
     }
 };
 
@@ -206,6 +206,7 @@ public:
     using size_type = std::size_t;
     using Layout = EvenSemiDiagonalTetrahedralLayout;
     using SubSpan = ZernikeExpansionSHSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE>;
+    using ConstView = ZernikeExpansionSpan<const element_type, ZERNIKE_NORM, SH_NORM, PHASE>;
     
     static constexpr ZernikeNorm zernike_norm = ZERNIKE_NORM;
     static constexpr st::SHNorm sh_norm = SH_NORM;
@@ -216,11 +217,12 @@ public:
         return Layout::size(order);
     }
 
-    constexpr ZernikeExpansionSpan() = default;
+    constexpr ZernikeExpansionSpan() noexcept = default;
     constexpr ZernikeExpansionSpan(
-        std::span<element_type> buffer, std::size_t order):
+        std::span<element_type> buffer, std::size_t order) noexcept:
         m_span(buffer.begin(), Layout::size(order)), m_order(order) {}
-    constexpr ZernikeExpansionSpan(element_type* data, std::size_t order):
+    constexpr ZernikeExpansionSpan(
+        element_type* data, std::size_t order) noexcept:
         m_span(data, Layout::size(order)), m_order(order) {}
 
     [[nodiscard]] constexpr std::size_t
@@ -236,9 +238,9 @@ public:
     operator std::span<element_type>() const noexcept { return m_span; }
 
     [[nodiscard]] constexpr
-    operator ZernikeExpansionSpan<const element_type, ZERNIKE_NORM, SH_NORM, PHASE>() const noexcept
+    operator ConstView() const noexcept
     {
-        return ZernikeExpansionSpan<const element_type, ZERNIKE_NORM, SH_NORM, PHASE>(m_span, m_order);
+        return *reinterpret_cast<ConstView*>(this);
     }
     
     [[nodiscard]] constexpr element_type& operator()(
@@ -349,12 +351,12 @@ public:
     explicit ZernikeExpansion(size_type order):
         m_data(Layout::size(order)), m_order(order) {}
 
-    [[nodiscard]] operator View()
+    [[nodiscard]] operator View() noexcept
     {
         return View(m_data, m_order);
     };
 
-    [[nodiscard]] operator ConstView() const
+    [[nodiscard]] operator ConstView() const noexcept
     {
         return ConstView(m_data, m_order);
     };

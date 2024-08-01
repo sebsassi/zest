@@ -29,13 +29,15 @@ public:
     using TriangleSpan<ElementType, LayoutType>::flatten;
     using TriangleSpan<ElementType, LayoutType>::order;
 
+    using ConstView = SHLMSpan<const ElementType, LayoutType, SH_NORM, PHASE>;
+
     static constexpr SHNorm sh_norm = SH_NORM;
     static constexpr SHPhase phase = PHASE;
 
     [[nodiscard]] constexpr
-    operator SHLMSpan<const ElementType, LayoutType, SH_NORM, PHASE>()
+    operator ConstView() noexcept
     {
-        return SHLMSpan<const ElementType, LayoutType, SH_NORM, PHASE>(flatten(), order());
+        return *reinterpret_cast<ConstView*>(this);
     }
 };
 

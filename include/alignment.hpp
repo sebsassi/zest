@@ -11,13 +11,13 @@ namespace zest
 namespace detail
 {
 
-constexpr bool is_power_of_two(std::size_t n)
+constexpr bool is_power_of_two(std::size_t n) noexcept
 {
     return !(n & (n - 1UL));
 }
 
 [[nodiscard]] constexpr std::size_t
-ctz(std::size_t n)
+ctz(std::size_t n) noexcept
 {
     if (!n) return 8*sizeof(std::size_t);
 
@@ -30,15 +30,13 @@ ctz(std::size_t n)
 
 template <std::size_t POWER_OF_TWO>
 [[nodiscard]] constexpr std::size_t
-next_divisible(std::size_t n)
+next_divisible(std::size_t n) noexcept
 {
     constexpr std::size_t shift = detail::ctz(POWER_OF_TWO);
     return ((n + (POWER_OF_TWO - 1)) >> shift) << shift;
 }
 
 } // namespace detail
-
-
 
 /**
     @brief Descriptor corresponding to no alignment.

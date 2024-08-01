@@ -23,7 +23,13 @@ enum class SHNorm
     QM
 };
 
+/**
+    @brief Normalization constant of spherical harmonics coefficients.
 
+    @tparam NORM normalization convention
+
+    @return normalization constant
+*/
 template <SHNorm NORM>
 [[nodiscard]] constexpr double normalization() noexcept
 {
@@ -34,12 +40,12 @@ template <SHNorm NORM>
 }
 
 /**
-    @brief Normalization constant for converting between spherical harmonics conventions.
+    @brief Constant for converting between spherical harmonics conventions.
 
     @tparam FROM source normalization convention
     @tparam TO destination normalization convention
 
-    @return normalization constant
+    @return conversion constant
 */
 template <SHNorm FROM, SHNorm TO>
     requires (FROM == TO)
@@ -49,12 +55,12 @@ template <SHNorm FROM, SHNorm TO>
 }
 
 /**
-    @brief Normalization constant for converting between spherical harmonics conventions.
+    @brief Constant for converting between spherical harmonics conventions.
 
     @tparam FROM source normalization convention
     @tparam TO destination normalization convention
 
-    @return normalization constant
+    @return conversion constant
 */
 template <SHNorm FROM, SHNorm TO>
 [[nodiscard]] constexpr double conversion_const() noexcept

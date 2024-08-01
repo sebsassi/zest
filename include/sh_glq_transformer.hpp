@@ -141,6 +141,7 @@ class SphereGLQGridSpan: public MDSpan<ElementType, 2>
 public:
     using typename MDSpan<ElementType, 2>::element_type;
     using Layout = LayoutType;
+    using ConstView = SphereGLQGridSpan<const element_type, Layout>;
 
     using MDSpan<ElementType, 2>::extents;
     using MDSpan<ElementType, 2>::data;
@@ -157,14 +158,16 @@ public:
         return Layout::shape(order);
     }
 
+    constexpr SphereGLQGridSpan() noexcept = default;
     constexpr SphereGLQGridSpan(
-        std::span<element_type> buffer, std::size_t order):
+        std::span<element_type> buffer, std::size_t order) noexcept:
         MDSpan<ElementType, 2>(buffer.data(), Layout::shape(order)),
         m_order(order) {}
-    constexpr SphereGLQGridSpan(element_type* data, std::size_t order):
+    constexpr SphereGLQGridSpan(element_type* data, std::size_t order) noexcept:
         MDSpan<ElementType, 2>(data, Layout::shape(order)), m_order(order) {}
 
-    [[nodiscard]] constexpr std::size_t order() const noexcept { return m_order; }
+    [[nodiscard]] constexpr std::size_t
+    order() const noexcept { return m_order; }
     
     [[nodiscard]] constexpr const std::array<std::size_t, 2>&
     shape() const noexcept { return extents(); }
@@ -173,10 +176,9 @@ public:
     flatten() const noexcept { return std::span<element_type>(data(), size()); }
 
     [[nodiscard]] constexpr
-    operator SphereGLQGridSpan<const element_type, Layout>()
+    operator ConstView() noexcept
     {
-        return SphereGLQGridSpan<const element_type, Layout>(
-                data(), m_order);
+        return *reinterpret_cast<ConstView*>(this);
     }
 
 private:
@@ -214,12 +216,12 @@ public:
 
     std::span<element_type> flatten() noexcept { return m_values; }
 
-    [[nodiscard]] operator View()
+    [[nodiscard]] operator View() noexcept
     {
         return View(m_values, m_order);
     };
 
-    [[nodiscard]] operator ConstView() const
+    [[nodiscard]] operator ConstView() const noexcept
     {
         return ConstView(m_values, m_order);
     };

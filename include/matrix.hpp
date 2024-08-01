@@ -15,7 +15,8 @@ public:
     using MDSpan<T, 2>::MDSpan;
     using MDSpan<T, 2>::extents;
 
-    constexpr MatrixSpan(T* data, std::size_t nrows, std::size_t ncols):
+    constexpr MatrixSpan(
+        T* data, std::size_t nrows, std::size_t ncols) noexcept:
         MDSpan<T, 2>::MDSpan(data, {nrows, ncols}) {}
 
     [[nodiscard]] constexpr std::size_t
@@ -56,50 +57,50 @@ public:
     [[nodiscard]] const std::vector<T>& data() const noexcept { return m_data; }
     std::vector<T>& data() noexcept { return m_data; }
 
-    [[nodiscard]] const T& operator()(std::size_t i, std::size_t j) const
+    [[nodiscard]] const T& operator()(std::size_t i, std::size_t j) const noexcept
     {
         return m_data[m_ncols*i + j];
     }
 
-    T& operator()(std::size_t i, std::size_t j)
+    T& operator()(std::size_t i, std::size_t j) noexcept
     {
         return m_data[m_ncols*i + j];
     }
 
 #if (__GNUC__ > 11)
-    [[nodiscard]] const T& operator[](std::size_t i, std::size_t j) const
+    [[nodiscard]] const T& operator[](std::size_t i, std::size_t j) const noexcept
     {
         return m_data[m_ncols*i + j];
     }
 
-    T& operator[](std::size_t i, std::size_t j)
+    T& operator[](std::size_t i, std::size_t j) noexcept
     {
         return m_data[m_ncols*i + j];
     }
 #endif
 
-    [[nodiscard]] std::span<const T> operator[](std::size_t i) const
+    [[nodiscard]] std::span<const T> operator[](std::size_t i) const noexcept
     {
         return std::span<T>(m_data.begin() + i*m_ncols, m_ncols);
     }
 
-    std::span<T> operator[](std::size_t i)
+    std::span<T> operator[](std::size_t i) noexcept
     {
         return std::span<T>(m_data.begin() + i*m_ncols, m_ncols);
     }
 
-    [[nodiscard]] std::span<const T> row(std::size_t i) const
+    [[nodiscard]] std::span<const T> row(std::size_t i) const noexcept
     {
         return std::span<T>(m_data.begin() + i*m_ncols, m_ncols);
     }
 
-    std::span<T> row(std::size_t i)
+    std::span<T> row(std::size_t i) noexcept
     {
         return std::span<T>(m_data.begin() + i*m_ncols, m_ncols);
     }
 
 #if (__GNUC__ > 11)
-    std::views::stride column(std::size_t j)
+    std::views::stride column(std::size_t j) noexcept
     {
         return std::span<T>(m_data.begin() + j, m_data.end())
             | std::views::stride(m_ncols);

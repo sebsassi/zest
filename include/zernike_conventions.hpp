@@ -13,6 +13,13 @@ namespace zt
 */
 enum class ZernikeNorm { NORMED, UNNORMED };
 
+/**
+    @brief Normalization of Zernike polynomials.
+
+    @tparam NORM normalization convention
+
+    @return normalization constant
+*/
 template <ZernikeNorm NORM>
 [[nodiscard]] constexpr double normalization(std::size_t n) noexcept
 {
@@ -22,6 +29,14 @@ template <ZernikeNorm NORM>
         return double(2*n + 3);
 }
 
+/**
+    @brief Constant for converting between Zernike polynomial conventions.
+
+    @tparam FROM source normalization convention
+    @tparam TO destination normalization convention
+
+    @return conversion constant
+*/
 template <ZernikeNorm FROM, ZernikeNorm TO>
     requires (FROM == TO)
 [[nodiscard]] constexpr double conversion_factor(std::size_t n) noexcept
@@ -29,7 +44,14 @@ template <ZernikeNorm FROM, ZernikeNorm TO>
     return 1.0;
 }
 
+/**
+    @brief Constant for converting between Zernike polynomial conventions.
 
+    @tparam FROM source normalization convention
+    @tparam TO destination normalization convention
+
+    @return conversion constant
+*/
 template <ZernikeNorm FROM, ZernikeNorm TO>
     requires (FROM != TO)
 [[nodiscard]] constexpr double conversion_factor(std::size_t n) noexcept

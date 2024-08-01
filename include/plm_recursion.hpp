@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cassert>
 #include <concepts>
 #include <span>
 #include <vector>
@@ -114,8 +115,7 @@ private:
         const std::size_t order = plm.order();
         if (order == 0) return;
 
-        if (std::fabs(z) > 1.0)
-            throw std::invalid_argument("z must be between -1 and 1");
+        assert(std::fabs(z) <= 1.0);
 
         expand(order);
         
@@ -201,15 +201,10 @@ private:
         const std::size_t order = plm.order();
         if (order == 0) return;
 
-        if (z.size() != plm.vec_size())
-            throw std::invalid_argument(
-                    "size of z is incompatible with size of plm");
+        assert(z.size() == plm.vec_size());
 
         for (auto zi : z)
-        {
-            if (std::fabs(zi) > 1.0)
-                throw std::invalid_argument("z must be between -1 and 1");
-        }
+            assert(std::fabs(zi) <= 1.0);
 
         expand(order);
         expand_vec(z.size());

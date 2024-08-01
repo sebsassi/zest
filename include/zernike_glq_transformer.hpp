@@ -95,6 +95,7 @@ class BallGLQGridSpan: public MDSpan<ElementType, 3>
 public:
     using typename MDSpan<ElementType, 3>::element_type;
     using Layout = LayoutType;
+    using ConstView = BallGLQGridSpan<const element_type, Layout>;
 
     using MDSpan<ElementType, 3>::extents;
     using MDSpan<ElementType, 3>::data;
@@ -111,12 +112,12 @@ public:
         return Layout::shape(order);
     }
 
-    BallGLQGridSpan() = default;
+    BallGLQGridSpan() noexcept = default;
     constexpr BallGLQGridSpan(
-        std::span<element_type> buffer, std::size_t order):
+        std::span<element_type> buffer, std::size_t order) noexcept:
         MDSpan<ElementType, 3>(buffer.data(), Layout::shape(order)),
         m_order(order) {}
-    constexpr BallGLQGridSpan(element_type* data, std::size_t order):
+    constexpr BallGLQGridSpan(element_type* data, std::size_t order) noexcept:
         MDSpan<ElementType, 3>(data, Layout::shape(order)), m_order(order) {}
 
     [[nodiscard]] constexpr std::size_t
@@ -129,9 +130,9 @@ public:
     flatten() const noexcept { return std::span<element_type>(data(), size()); }
 
     [[nodiscard]] constexpr
-    operator BallGLQGridSpan<const element_type, Layout>()
+    operator ConstView() noexcept
     {
-        return BallGLQGridSpan<const element_type, Layout>(data(), m_order);
+        return *reinterpret_cast<ConstView*>(this);
     }
 
 private:
@@ -175,12 +176,12 @@ public:
     [[nodiscard]] std::span<const element_type> flatten() const noexcept { return m_data; }
     std::span<element_type> flatten() noexcept { return m_data; }
 
-    [[nodiscard]] operator View()
+    [[nodiscard]] operator View() noexcept
     {
         return View(m_data, m_order);
     };
 
-    [[nodiscard]] operator ConstView() const
+    [[nodiscard]] operator ConstView() const noexcept
     {
         return ConstView(m_data, m_order);
     };

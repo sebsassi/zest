@@ -11,7 +11,7 @@ namespace detail
 {
 
 template <std::size_t M, typename T>
-auto last(T a)
+auto last(T a) noexcept
 {
     std::array<typename std::remove_cvref<T>::type::value_type, M> res{};
     for (std::size_t i = 0; i < M; ++i)
@@ -20,7 +20,7 @@ auto last(T a)
 }
 
 template <typename T>
-auto prod(T a)
+auto prod(T a) noexcept
 {
     auto res = a[0];
     for (std::size_t i = 1; i < a.size(); ++i)
@@ -47,17 +47,17 @@ public:
     using data_handle_type = element_type*;
     using ConstView = MDSpan<const element_type, NDIM>;
 
-    constexpr MDSpan() = default;
+    constexpr MDSpan() noexcept = default;
     constexpr MDSpan(
-        data_handle_type data, const std::array<std::size_t, NDIM>& extents):
+        data_handle_type data, const std::array<std::size_t, NDIM>& extents) noexcept:
         m_data(data), m_size(detail::prod(extents)), m_extents(extents) {}
 
-    [[nodiscard]] operator ConstView()
+    [[nodiscard]] operator ConstView() const noexcept
     {
         return *reinterpret_cast<ConstView*>(this);
     }
 
-    [[nodiscard]] operator std::span<element_type>()
+    [[nodiscard]] operator std::span<element_type>() const noexcept
     {
         return std::span<element_type>(m_data, m_size);
     }
@@ -102,13 +102,14 @@ public:
 
     template <typename T>
         requires (NDIM == 1UL)
-    [[nodiscard]] constexpr element_type& operator[](T i)
+    [[nodiscard]] constexpr element_type& operator[](T i) const noexcept
     {
         return (*this)(i);
     }
 
     template <typename T>
-    [[nodiscard]] constexpr MDSpan<element_type, NDIM - 1UL> operator[](T i)
+    [[nodiscard]] constexpr MDSpan<element_type, NDIM - 1UL>
+    operator[](T i) const noexcept
     {
         return (*this)(i);
     }
@@ -116,7 +117,7 @@ public:
 private:
 
     constexpr MDSpan(
-        data_handle_type data, size_type size, const std::array<std::size_t, NDIM>& extents):
+        data_handle_type data, size_type size, const std::array<std::size_t, NDIM>& extents) noexcept:
         m_data(data), m_size(size), m_extents(extents) {}
 
     template <typename... Ts>

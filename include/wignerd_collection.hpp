@@ -8,7 +8,7 @@ namespace zest
 {
 
 /**
-    @brief Non-owning view moedling a Wigner (small) d-matrix at pi/2
+    @brief Non-owning view of a Wigner (small) d-matrix at pi/2
 
     @tparam ElementType type of elements in the view
 */
@@ -16,8 +16,9 @@ template <typename ElementType>
 class WignerdSpan
 {
 public:
-    constexpr WignerdSpan(ElementType* data, std::size_t l):
-        m_span(data, (l + 1)*(l + 1)), m_l(l) {}
+    constexpr WignerdSpan() noexcept = default;
+    constexpr WignerdSpan(ElementType* data, std::size_t order) noexcept:
+        m_span(data, order*order), m_order(order) {}
     
     [[nodiscard]] constexpr double
     operator()(std::size_t m1, std::size_t m2) const noexcept
@@ -28,12 +29,12 @@ public:
     [[nodiscard]] constexpr std::size_t
     idx(std::size_t m1, std::size_t m2) const noexcept
     {
-        return (m_l + 1)*m1 + m2;
+        return m_order*m1 + m2;
     }
 
 private:
     std::span<ElementType> m_span;
-    std::size_t m_l;
+    std::size_t m_order;
 };
 
 /**
@@ -62,7 +63,7 @@ public:
     operator()(std::size_t l) const noexcept
     {
         return WignerdSpan<const double>(
-                m_matrices.data() + (l*(l + 1)*(2*l + 1))/6, l);
+                m_matrices.data() + (l*(l + 1)*(2*l + 1))/6, l + 1);
     }
 
 private:

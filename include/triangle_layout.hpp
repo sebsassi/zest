@@ -188,11 +188,13 @@ public:
     using value_type = std::remove_cv_t<element_type>;
     using size_type = std::size_t;
 
+    constexpr EvenOddSpan() noexcept = default;
     constexpr EvenOddSpan(
-        std::span<element_type> buffer, std::size_t idx, std::size_t size):
-        m_span(buffer.begin() + idx*size, size), m_size(size) {}
-    constexpr EvenOddSpan(std::span<element_type> buffer, std::size_t size):
+        std::span<element_type> buffer, std::size_t size) noexcept:
         m_span(buffer.begin(), size), m_size(size) {}
+    constexpr EvenOddSpan(
+        std::span<element_type*> data, std::size_t size) noexcept:
+        m_span(data, size), m_size(size) {}
     
     [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
 
@@ -232,16 +234,18 @@ public:
     using value_type = std::remove_cv_t<ElementType>;
     using size_type = std::size_t;
     using SubSpan = std::span<element_type>;
+    using ConstView = TriangleSpan<const element_type, LayoutType>;
 
     static constexpr std::size_t size(std::size_t order) noexcept
     {
         return Layout::size(order);
     }
 
-    constexpr TriangleSpan() = default;
-    constexpr TriangleSpan(std::span<element_type> buffer, std::size_t order):
+    constexpr TriangleSpan() noexcept = default;
+    constexpr TriangleSpan(
+        std::span<element_type> buffer, std::size_t order) noexcept:
         m_span(buffer.begin(), Layout::size(order)), m_order(order) {}
-    constexpr TriangleSpan(element_type* data, std::size_t order):
+    constexpr TriangleSpan(element_type* data, std::size_t order) noexcept:
         m_span(data, Layout::size(order)), m_order(order) {}
 
     [[nodiscard]] constexpr std::size_t
@@ -259,9 +263,9 @@ public:
     }
 
     [[nodiscard]] constexpr
-    operator TriangleSpan<const element_type, LayoutType>() const noexcept
+    operator ConstView() const noexcept
     {
-        return TriangleSpan<const element_type, LayoutType>(m_span, m_order);
+        return *reinterpret_cast<ConstView*>(this);
     }
 
     [[nodiscard]] constexpr SubSpan
@@ -304,15 +308,16 @@ public:
     using element_type = ElementType;
     using value_type = std::remove_cv_t<element_type>;
     using size_type = std::size_t;
+    using ConstView = TriangleVecSpan<const element_type, LayoutType>;
 
-    constexpr TriangleVecSpan() = default;
+    constexpr TriangleVecSpan() noexcept = default;
     constexpr TriangleVecSpan(
-        element_type* data, std::size_t order, std::size_t vec_size):
+        element_type* data, std::size_t order, std::size_t vec_size) noexcept:
         m_span(data, Layout::size(order)*vec_size), m_order(order),
         m_vec_size(vec_size) {}
     constexpr TriangleVecSpan(
         std::span<element_type> buffer, std::size_t order,
-        std::size_t vec_size):
+        std::size_t vec_size) noexcept:
         m_span(buffer.begin(), Layout::size(order)*vec_size), m_order(order), 
         m_vec_size(vec_size) {}
 
@@ -335,10 +340,9 @@ public:
     }
 
     [[nodiscard]] constexpr
-    operator TriangleVecSpan<const element_type, LayoutType>() const noexcept
+    operator ConstView() const noexcept
     {
-        return TriangleVecSpan<const element_type, LayoutType>(
-                m_span, m_order, m_vec_size);
+        return *reinterpret_cast<ConstView*>(this);
     }
 
     [[nodiscard]] constexpr std::span<element_type>

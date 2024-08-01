@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <cassert>
 #include <stdexcept>
 #include <vector>
 
@@ -118,9 +119,7 @@ public:
         const std::size_t order = zernike.order();
         if (order == 0) return;
 
-        if (r.size() != zernike.vec_size())
-            throw std::invalid_argument(
-                    "size of r is incompatible with size of zernike");
+        assert(r.size() == zernike.vec_size());
         
         expand(order);
         

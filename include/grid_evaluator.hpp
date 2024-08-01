@@ -24,7 +24,7 @@ namespace detail
 {
 
 void recursive_trig(
-    MDSpan<std::array<double, 2>, 2> trigs, std::span<const double> angles);
+    MDSpan<std::array<double, 2>, 2> trigs, std::span<const double> angles) noexcept;
 
 } // namespace detail
 
