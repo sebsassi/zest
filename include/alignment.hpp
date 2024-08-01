@@ -46,7 +46,12 @@ next_divisible(std::size_t n)
 struct NoAlignment
 {
     static constexpr std::size_t byte_alignment = 1;
-    
+
+    /**
+        @brief Number of elements that fit in a SIMD vector of given type.
+
+        @tparam T type of elements
+    */
     template <typename T>
     [[nodiscard]] static constexpr std::size_t
     vector_size() noexcept { return 1; }

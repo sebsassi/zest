@@ -54,7 +54,7 @@ public:
 
     [[nodiscard]] operator ConstView()
     {
-        ConstView(static_cast<const element_type*>(m_data), m_size, m_extents);
+        return *reinterpret_cast<ConstView*>(this);
     }
 
     [[nodiscard]] operator std::span<element_type>()

@@ -170,6 +170,7 @@ template <std::floating_point FloatType, GLNodeStyle NODE_STYLE>
 [[nodiscard]] constexpr FloatType gl_node_bogaert(
     FloatType vn_sq, FloatType an_k, FloatType inv_sinc_an_k, FloatType vis_sq, FloatType x) noexcept
 {
+    // Polynomial coefficients copied from FastGL
     constexpr std::array<FloatType, 7> c_f1 = {
         -0.416666666666662959639712457549e-1,
         +0.416666666665193394525296923981e-2,
@@ -213,6 +214,7 @@ template <std::floating_point FloatType>
 [[nodiscard]] constexpr FloatType gl_weight_bogaert(
     FloatType vn_sq, FloatType inv_sinc_an_k, FloatType vis_sq, FloatType x, std::size_t k) noexcept
 {
+    // Polynomial coefficients copied from FastGL
     constexpr std::array<FloatType, 10> c_w1 = {
         +0.833333333333333302184063103900e-1,
         -0.305555555555553028279487898503e-1,
@@ -263,7 +265,7 @@ template <std::floating_point FloatType>
 Gauss-Legendre nodes and weights: 
     I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026)
 
-The implementation here is based on the reference implementation by Bogaert.
+The implementation here is based on the FastGL reference implementation by Bogaert.
 
 Accurate to double machine epsilon for `num_points > 70`
 */
@@ -506,7 +508,7 @@ template <gl_layout Layout, GLNodeStyle NODE_STYLE, std::ranges::random_access_r
 constexpr void gl_nodes_table(R&& nodes, std::size_t parity) noexcept
 {
     using FloatType = std::remove_reference_t<R>::value_type;
-    // The theta values from the reference implementation for `num_nodes <= 70`.
+    // The theta values from FastGL for orders <= 70.
     constexpr const FloatType nodes_2[1] = {
         0.9553166181245092781638573e0};
 	constexpr const FloatType nodes_4[2] = {
@@ -726,8 +728,7 @@ template <gl_layout Layout, std::ranges::random_access_range R>
 constexpr void gl_weights_table(R&& weights, std::size_t parity) noexcept
 {
     using FloatType = std::remove_reference_t<R>::value_type;
-    // The weights listed here have been copied over from the reference 
-    // implementation. 
+    // Weight values from FastGL for orders <= 70
     constexpr const FloatType weights_2[] = {1.0};
     constexpr const FloatType weights_4[] = {0.6521451548625461426269364, 0.3478548451374538573730642};
     constexpr const FloatType weights_6[] = {0.4679139345726910473898704, 0.3607615730481386075698336, 0.1713244923791703450402969};
