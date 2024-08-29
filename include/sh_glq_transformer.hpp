@@ -175,8 +175,7 @@ public:
     [[nodiscard]] constexpr std::span<element_type>
     flatten() const noexcept { return std::span<element_type>(data(), size()); }
 
-    [[nodiscard]] constexpr
-    operator ConstView() noexcept
+    [[nodiscard]] constexpr operator ConstView() const noexcept
     {
         return ConstView(data(), size(), extents(), m_order);
     }

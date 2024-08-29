@@ -212,7 +212,8 @@ public:
         return EvenOddSpan<const element_type>(m_data, m_size);
     }
 
-    [[nodiscard]] constexpr element_type operator[](std::size_t i) const noexcept
+    [[nodiscard]] constexpr element_type
+    operator[](std::size_t i) const noexcept
     {
         return m_data[i >> 1];
     }

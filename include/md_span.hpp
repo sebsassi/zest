@@ -52,12 +52,12 @@ public:
         data_handle_type data, const std::array<std::size_t, NDIM>& extents) noexcept:
         m_data(data), m_size(detail::prod(extents)), m_extents(extents) {}
 
-    [[nodiscard]] operator ConstView() const noexcept
+    [[nodiscard]] constexpr operator ConstView() const noexcept
     {
         return ConstView(m_data, m_size, m_extents);
     }
 
-    [[nodiscard]] operator std::span<element_type>() const noexcept
+    [[nodiscard]] constexpr operator std::span<element_type>() const noexcept
     {
         return std::span<element_type>(m_data, m_size);
     }

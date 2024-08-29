@@ -56,24 +56,24 @@ public:
     operator std::span<element_type>() const noexcept
     { return std::span(m_data, m_size); }
 
-    [[nodiscard]] operator ConstView() noexcept
+    [[nodiscard]] constexpr operator ConstView() const noexcept
     {
         return ConstView(m_data, m_size, m_order);
     }
 
-    [[nodiscard]] element_type&
+    [[nodiscard]] constexpr element_type&
     operator()(std::size_t n, std::size_t l) const noexcept
     {
         return m_data[Layout::idx(n,l)];
     }
 
-    [[nodiscard]] EvenOddSpan<element_type>
+    [[nodiscard]] constexpr EvenOddSpan<element_type>
     operator()(std::size_t n) const noexcept
     {
         return EvenOddSpan(m_data + Layout::idx(n,0), Layout::line_length(n));
     }
 
-    [[nodiscard]] EvenOddSpan<element_type>
+    [[nodiscard]] constexpr EvenOddSpan<element_type>
     operator[](std::size_t n) const noexcept
     {
         return EvenOddSpan(m_data + Layout::idx(n,0), Layout::line_length(n));
@@ -134,22 +134,16 @@ public:
     data() const noexcept { return m_data; }
 
     [[nodiscard]] constexpr
-    operator std::span<element_type>() noexcept
+    operator std::span<element_type>() const noexcept
     { return std::span(m_data, m_size); }
 
-    [[nodiscard]] constexpr operator ConstView() noexcept
+    [[nodiscard]] constexpr operator ConstView() const noexcept
     {
         return ConstView(m_data, m_size, m_order, m_vec_size);
     }
 
     [[nodiscard]] constexpr std::span<element_type> operator()(
         std::size_t n, std::size_t l) const noexcept
-    {
-        return std::span(m_data + Layout::idx(n,l)*m_vec_size, m_vec_size);
-    }
-
-    [[nodiscard]] constexpr std::span<element_type>
-    operator()(std::size_t n, std::size_t l) noexcept
     {
         return std::span(m_data + Layout::idx(n,l)*m_vec_size, m_vec_size);
     }
@@ -199,7 +193,7 @@ public:
 
     Parity parity() const noexcept { return Parity((order() & 1) ^ 1); }
 
-    [[nodiscard]] constexpr operator ConstView() noexcept
+    [[nodiscard]] constexpr operator ConstView() const noexcept
     {
         return ConstView(data(), size(), order());
     }

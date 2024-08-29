@@ -35,8 +35,7 @@ public:
     static constexpr SHNorm sh_norm = SH_NORM;
     static constexpr SHPhase phase = PHASE;
 
-    [[nodiscard]] constexpr
-    operator ConstView() noexcept
+    [[nodiscard]] constexpr operator ConstView() const noexcept
     {
         return ConstView(data(), size(), order());
     }
@@ -68,8 +67,7 @@ public:
     static constexpr SHNorm sh_norm = SH_NORM;
     static constexpr SHPhase phase = PHASE;
 
-    [[nodiscard]] constexpr
-    operator ConstView()
+    [[nodiscard]] constexpr operator ConstView() const noexcept
     {
         return ConstView(data(), size(), order(), vec_size());
     }
