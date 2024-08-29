@@ -90,7 +90,9 @@ public:
     */
     template <st::real_sh_expansion ExpansionType>
     void rotate(
-        ExpansionType&& expansion, zest::WignerdPiHalfCollection wigner_d_pi2, const std::array<double, 3>& euler_angles,
+        ExpansionType&& expansion,
+        const zest::WignerdPiHalfCollection& wigner_d_pi2,
+        const std::array<double, 3>& euler_angles,
         RotationType convention = RotationType::OBJECT)
     {
         constexpr st::SHNorm SH_NORM = std::remove_cvref_t<ExpansionType>::sh_norm;
@@ -126,7 +128,9 @@ public:
     */
     template <st::even_odd_real_sh_expansion ExpansionType>
     void rotate(
-        ExpansionType&& expansion, zest::WignerdPiHalfCollection wigner_d_pi2, const std::array<double, 3>& euler_angles,
+        ExpansionType&& expansion,
+        const zest::WignerdPiHalfCollection& wigner_d_pi2,
+        const std::array<double, 3>& euler_angles,
         RotationType convention = RotationType::OBJECT)
     {
         constexpr st::SHNorm SH_NORM = std::remove_cvref_t<ExpansionType>::sh_norm;
@@ -162,7 +166,9 @@ public:
     */
     template <zt::zernike_expansion ExpansionType>
     void rotate(
-        ExpansionType&& expansion, zest::WignerdPiHalfCollection wigner_d_pi2, const std::array<double, 3>& euler_angles,
+        ExpansionType&& expansion,
+        const zest::WignerdPiHalfCollection& wigner_d_pi2,
+        const std::array<double, 3>& euler_angles,
         RotationType convention = RotationType::OBJECT)
     {
         constexpr zt::ZernikeNorm ZERNIKE_NORM
@@ -205,7 +211,8 @@ public:
     */
     template <st::real_sh_expansion ExpansionType>
     void rotate(
-        ExpansionType&& expansion, zest::WignerdPiHalfCollection wigner_d_pi2,
+        ExpansionType&& expansion,
+        const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<std::array<double, 3>, 3>& matrix)
     {
         rotate(expansion, wigner_d_pi2, euler_angles_from_rotation_matrix(matrix));
