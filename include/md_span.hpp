@@ -54,7 +54,7 @@ public:
 
     [[nodiscard]] operator ConstView() const noexcept
     {
-        return *reinterpret_cast<ConstView*>(this);
+        return ConstView(m_data, m_size, m_extents);
     }
 
     [[nodiscard]] operator std::span<element_type>() const noexcept
@@ -114,12 +114,14 @@ public:
         return (*this)(i);
     }
 
-private:
+protected:
+    friend ConstView;
 
     constexpr MDSpan(
         data_handle_type data, size_type size, const std::array<std::size_t, NDIM>& extents) noexcept:
         m_data(data), m_size(size), m_extents(extents) {}
 
+private:
     template <typename... Ts>
     [[nodiscard]] constexpr index_type
     idx(index_type ind, Ts... inds) const noexcept

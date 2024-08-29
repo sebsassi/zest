@@ -18,12 +18,12 @@ class WignerdSpan
 public:
     constexpr WignerdSpan() noexcept = default;
     constexpr WignerdSpan(ElementType* data, std::size_t order) noexcept:
-        m_span(data, order*order), m_order(order) {}
+        m_data(data), m_size(order*order), m_order(order) {}
     
     [[nodiscard]] constexpr double
     operator()(std::size_t m1, std::size_t m2) const noexcept
     {
-        return m_span[idx(m1, m2)];
+        return m_data[idx(m1, m2)];
     }
 
     [[nodiscard]] constexpr std::size_t
@@ -33,7 +33,8 @@ public:
     }
 
 private:
-    std::span<ElementType> m_span;
+    ElementType* m_data;
+    std::size_t m_size;
     std::size_t m_order;
 };
 

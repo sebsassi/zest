@@ -113,12 +113,12 @@ public:
     }
 
     BallGLQGridSpan() noexcept = default;
+    constexpr BallGLQGridSpan(element_type* data, std::size_t order) noexcept:
+        MDSpan<ElementType, 3>(data, Layout::shape(order)), m_order(order) {}
     constexpr BallGLQGridSpan(
         std::span<element_type> buffer, std::size_t order) noexcept:
         MDSpan<ElementType, 3>(buffer.data(), Layout::shape(order)),
         m_order(order) {}
-    constexpr BallGLQGridSpan(element_type* data, std::size_t order) noexcept:
-        MDSpan<ElementType, 3>(data, Layout::shape(order)), m_order(order) {}
 
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
@@ -136,6 +136,12 @@ public:
     }
 
 private:
+    friend ConstView;
+
+    constexpr BallGLQGridSpan(
+        element_type* data, std::size_t size, const std::array<std::size_t, 3>& extents, std::size_t order) noexcept:
+        MDSpan<ElementType, 3>(data, size, extents), m_order(order) {}
+    
     std::size_t m_order;
 };
 

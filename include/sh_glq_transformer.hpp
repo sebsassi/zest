@@ -159,12 +159,12 @@ public:
     }
 
     constexpr SphereGLQGridSpan() noexcept = default;
+    constexpr SphereGLQGridSpan(element_type* data, std::size_t order) noexcept:
+        MDSpan<ElementType, 2>(data, Layout::shape(order)), m_order(order) {}
     constexpr SphereGLQGridSpan(
         std::span<element_type> buffer, std::size_t order) noexcept:
         MDSpan<ElementType, 2>(buffer.data(), Layout::shape(order)),
         m_order(order) {}
-    constexpr SphereGLQGridSpan(element_type* data, std::size_t order) noexcept:
-        MDSpan<ElementType, 2>(data, Layout::shape(order)), m_order(order) {}
 
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
@@ -178,10 +178,16 @@ public:
     [[nodiscard]] constexpr
     operator ConstView() noexcept
     {
-        return *reinterpret_cast<ConstView*>(this);
+        return ConstView(data(), size(), extents(), m_order);
     }
 
 private:
+    friend ConstView;
+
+    constexpr SphereGLQGridSpan(
+        element_type* data, std::size_t size, const std::array<std::size_t, 2>& extents, std::size_t order) noexcept:
+        MDSpan<ElementType, 2>(data, size, extents), m_order(order) {}
+
     std::size_t m_order;
 };
 

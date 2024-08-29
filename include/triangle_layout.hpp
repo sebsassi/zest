@@ -190,31 +190,34 @@ public:
 
     constexpr EvenOddSpan() noexcept = default;
     constexpr EvenOddSpan(
-        std::span<element_type> buffer, std::size_t size) noexcept:
-        m_span(buffer.begin(), size), m_size(size) {}
+        element_type* data, std::size_t size) noexcept:
+        m_data(data), m_size(size), m_size(size) {}
     constexpr EvenOddSpan(
-        std::span<element_type*> data, std::size_t size) noexcept:
-        m_span(data, size), m_size(size) {}
+        std::span<element_type> buffer, std::size_t size) noexcept:
+        m_data(buffer.begin()), m_size(size), m_size(size) {}
+
+    [[nodiscard]] constexpr element_type*
+    data() const noexcept { return m_data; }
     
     [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
 
     [[nodiscard]] constexpr operator std::span<element_type>() const noexcept
     {
-        return m_span;
+        return std::span(m_data, m_size);
     }
 
     [[nodiscard]] constexpr
     operator EvenOddSpan<const element_type>() const noexcept
     {
-        return EvenOddSpan<const element_type>(m_span, m_size);
+        return EvenOddSpan<const element_type>(m_data, m_size);
     }
 
     [[nodiscard]] constexpr element_type operator[](std::size_t i) const noexcept
     {
-        return m_span[i >> 1];
+        return m_data[i >> 1];
     }
 private:
-    std::span<element_type> m_span;
+    element_type* m_data;
     std::size_t m_size;
 };
 
@@ -242,54 +245,62 @@ public:
     }
 
     constexpr TriangleSpan() noexcept = default;
+    constexpr TriangleSpan(element_type* data, std::size_t order) noexcept:
+        m_data(data), m_size(Layout::size(order)), m_order(order) {}
     constexpr TriangleSpan(
         std::span<element_type> buffer, std::size_t order) noexcept:
-        m_span(buffer.begin(), Layout::size(order)), m_order(order) {}
-    constexpr TriangleSpan(element_type* data, std::size_t order) noexcept:
-        m_span(data, Layout::size(order)), m_order(order) {}
+        m_data(buffer.data()), m_size(Layout::size(order)), m_order(order) {}
 
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
 
     [[nodiscard]] constexpr std::span<element_type>
-    flatten() const noexcept { return m_span; }
+    flatten() const noexcept { return std::span(m_data, m_size); }
 
     [[nodiscard]] constexpr element_type*
-    data() const noexcept { return m_span.data(); }
+    data() const noexcept { return m_data; }
+    
+    [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
 
     [[nodiscard]] constexpr operator std::span<element_type>() const noexcept
     {
-        return m_span;
+        return std::span(m_data, m_size);
     }
 
     [[nodiscard]] constexpr
     operator ConstView() const noexcept
     {
-        return *reinterpret_cast<ConstView*>(this);
+        return ConstView(m_data, m_size, m_order);
     }
 
     [[nodiscard]] constexpr SubSpan
     operator()(index_type l) const noexcept
     {
-        return SubSpan(
-                m_span.begin() + Layout::idx(l,0), Layout::line_length(l));
+        return SubSpan(m_data + Layout::idx(l,0), Layout::line_length(l));
     }
 
     [[nodiscard]] constexpr SubSpan
     operator[](index_type l) const noexcept
     {
-        return SubSpan(
-                m_span.begin() + Layout::idx(l,0), Layout::line_length(l));
+        return SubSpan(m_data + Layout::idx(l,0), Layout::line_length(l));
     }
 
     [[nodiscard]] constexpr element_type&
     operator()(index_type l, index_type m) const noexcept
     {
-        return m_span[Layout::idx(l,m)];
+        return m_data[Layout::idx(l,m)];
     }
 
+protected:
+    friend ConstView;
+
+    constexpr TriangleSpan(
+        element_type* data, std::size_t size, std::size_t order) noexcept: 
+        m_data(data), m_size(size), m_order(order) {}
+
 private:
-    std::span<element_type> m_span;
+    element_type* m_data;
+    std::size_t m_size;
     std::size_t m_order;
 };
 
@@ -313,13 +324,13 @@ public:
     constexpr TriangleVecSpan() noexcept = default;
     constexpr TriangleVecSpan(
         element_type* data, std::size_t order, std::size_t vec_size) noexcept:
-        m_span(data, Layout::size(order)*vec_size), m_order(order),
+        m_data(data), m_size(Layout::size(order)*vec_size), m_order(order),
         m_vec_size(vec_size) {}
     constexpr TriangleVecSpan(
         std::span<element_type> buffer, std::size_t order,
         std::size_t vec_size) noexcept:
-        m_span(buffer.begin(), Layout::size(order)*vec_size), m_order(order), 
-        m_vec_size(vec_size) {}
+        m_data(buffer.data()), m_size(Layout::size(order)*vec_size),
+        m_order(order), m_vec_size(vec_size) {}
 
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
@@ -328,38 +339,48 @@ public:
     vec_size() const noexcept { return m_vec_size; }
 
     [[nodiscard]] constexpr std::span<element_type>
-    flatten() const noexcept { return m_span; }
+    flatten() const noexcept { return std::span(m_data, m_size); }
 
     [[nodiscard]] const element_type*
-    data() const noexcept { return m_span.data(); }
+    data() const noexcept { return m_data; }
+    
+    [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
 
     [[nodiscard]] constexpr
     operator std::span<element_type>() const noexcept
     {
-        return m_span;
+        return std::span(m_data, m_size);
     }
 
     [[nodiscard]] constexpr
     operator ConstView() const noexcept
     {
-        return *reinterpret_cast<ConstView*>(this);
+        return ConstView(m_data, m_size, m_order, m_vec_size);
     }
 
     [[nodiscard]] constexpr std::span<element_type>
     operator()(index_type l, index_type m) const noexcept
     {
-        return std::span(
-                m_span.begin() + Layout::idx(l,m)*m_vec_size, m_vec_size);
+        return std::span(m_data + Layout::idx(l,m)*m_vec_size, m_vec_size);
     }
 
     [[nodiscard]] constexpr std::span<element_type>
     operator[](std::size_t idx) const noexcept
     {
-        return std::span(m_span.begin() + idx*m_vec_size, m_vec_size);
+        return std::span(m_data + idx*m_vec_size, m_vec_size);
     }
 
+protected:
+    friend ConstView;
+
+    constexpr TriangleVecSpan(
+        element_type* data, std::size_t size, std::size_t order,
+        std::size_t vec_size) noexcept:
+        m_data(data), m_size(size), m_order(order), m_vec_size(vec_size) {}
+
 private:
-    std::span<element_type> m_span;
+    element_type* m_data;
+    std::size_t m_size;
     std::size_t m_order;
     std::size_t m_vec_size;
 };

@@ -26,7 +26,8 @@ class SHLMSpan: public TriangleSpan<ElementType, LayoutType>
 {
 public:
     using TriangleSpan<ElementType, LayoutType>::TriangleSpan;
-    using TriangleSpan<ElementType, LayoutType>::flatten;
+    using TriangleSpan<ElementType, LayoutType>::data;
+    using TriangleSpan<ElementType, LayoutType>::size;
     using TriangleSpan<ElementType, LayoutType>::order;
 
     using ConstView = SHLMSpan<const ElementType, LayoutType, SH_NORM, PHASE>;
@@ -37,8 +38,11 @@ public:
     [[nodiscard]] constexpr
     operator ConstView() noexcept
     {
-        return *reinterpret_cast<ConstView*>(this);
+        return ConstView(data(), size(), order());
     }
+
+private:
+    friend ConstView;
 };
 
 /**
@@ -54,18 +58,20 @@ class SHLMVecSpan: public TriangleVecSpan<ElementType, LayoutType>
 {
 public:
     using TriangleVecSpan<ElementType, LayoutType>::TriangleVecSpan;
-    using TriangleVecSpan<ElementType, LayoutType>::flatten;
+    using TriangleVecSpan<ElementType, LayoutType>::data;
+    using TriangleVecSpan<ElementType, LayoutType>::size;
     using TriangleVecSpan<ElementType, LayoutType>::order;
     using TriangleVecSpan<ElementType, LayoutType>::vec_size;
+
+    using ConstView = SHLMVecSpan<const ElementType, LayoutType, SH_NORM, PHASE>;
 
     static constexpr SHNorm sh_norm = SH_NORM;
     static constexpr SHPhase phase = PHASE;
 
     [[nodiscard]] constexpr
-    operator SHLMVecSpan<const ElementType, LayoutType, SH_NORM, PHASE>()
+    operator ConstView()
     {
-        return SHLMVecSpan<const ElementType, LayoutType, SH_NORM, PHASE>(
-                flatten(), order(), vec_size());
+        return ConstView(data(), size(), order(), vec_size());
     }
 };
 
