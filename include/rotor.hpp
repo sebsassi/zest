@@ -232,7 +232,8 @@ public:
     */
     template <zt::zernike_expansion ExpansionType>
     void rotate(
-        ExpansionType&& expansion, zest::WignerdPiHalfCollection wigner_d_pi2,
+        ExpansionType&& expansion,
+        const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<std::array<double, 3>, 3>& matrix)
     {
         rotate(expansion, wigner_d_pi2, euler_angles_from_rotation_matrix(matrix));
