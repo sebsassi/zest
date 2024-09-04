@@ -21,7 +21,7 @@ enum class ZernikeNorm { NORMED, UNNORMED };
     @return normalization constant
 */
 template <ZernikeNorm NORM>
-[[nodiscard]] constexpr double normalization(std::size_t n) noexcept
+[[nodiscard]] inline double normalization(std::size_t n) noexcept
 {
     if constexpr (NORM == ZernikeNorm::NORMED)
         return 1.0;
@@ -39,7 +39,7 @@ template <ZernikeNorm NORM>
 */
 template <ZernikeNorm FROM, ZernikeNorm TO>
     requires (FROM == TO)
-[[nodiscard]] constexpr double conversion_factor(std::size_t n) noexcept
+[[nodiscard]] inline double conversion_factor(std::size_t n) noexcept
 {
     return 1.0;
 }
@@ -54,7 +54,7 @@ template <ZernikeNorm FROM, ZernikeNorm TO>
 */
 template <ZernikeNorm FROM, ZernikeNorm TO>
     requires (FROM != TO)
-[[nodiscard]] constexpr double conversion_factor(std::size_t n) noexcept
+[[nodiscard]] inline double conversion_factor(std::size_t n) noexcept
 {
     if constexpr (TO == ZernikeNorm::NORMED)
         return 1.0/std::sqrt(double(2*n + 3));

@@ -65,17 +65,19 @@ template <SHNorm FROM, SHNorm TO>
 template <SHNorm FROM, SHNorm TO>
 [[nodiscard]] constexpr double conversion_const() noexcept
 {
+    constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
+    constexpr double sqrt_4pi = 1.0/inv_sqrt_4pi;
     double from;
     if constexpr (FROM == SHNorm::QM)
         from = 1.0;
     else if constexpr (FROM == SHNorm::GEO)
-        from = std::sqrt(4.0*std::numbers::pi);
+        from = sqrt_4pi;
 
     double to;
     if constexpr (TO == SHNorm::QM)
         to = 1.0;
     else if constexpr (TO == SHNorm::GEO)
-        to = 1.0/std::sqrt(4.0*std::numbers::pi);
+        to = inv_sqrt_4pi;
 
     return from*to;
 }

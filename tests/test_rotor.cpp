@@ -69,66 +69,69 @@ bool to_real_is_inverse_of_to_complex()
 
 bool test_wigner_d_pi2_is_correct_to_order_5()
 {
+    constexpr double sqrt5 = 2.2360679774997896964091737;
+    constexpr double sqrt7 = 2.6457513110645905905016158;
+
     constexpr std::size_t order = 5;
 
     constexpr double d_pi2_0_0_0 = 1.0;
 
     constexpr double d_pi2_1_0_0 = 0.0;
-    constexpr double d_pi2_1_0_1 = 1.0/std::sqrt(2.0);
-    constexpr double d_pi2_1_1_0 = -1.0/std::sqrt(2.0);
+    constexpr double d_pi2_1_0_1 = 1.0/std::numbers::sqrt2;
+    constexpr double d_pi2_1_1_0 = -1.0/std::numbers::sqrt2;
     constexpr double d_pi2_1_1_1 = 1.0/2.0;
 
     constexpr double d_pi2_2_0_0 = -1.0/2.0;
     constexpr double d_pi2_2_0_1 = 0.0;
-    constexpr double d_pi2_2_0_2 = std::sqrt(3.0)/(2.0*std::sqrt(2.0));
+    constexpr double d_pi2_2_0_2 = std::numbers::sqrt3/(2.0*std::numbers::sqrt2);
     constexpr double d_pi2_2_1_0 = 0.0;
     constexpr double d_pi2_2_1_1 = -1.0/2.0;
     constexpr double d_pi2_2_1_2 = 1.0/2.0;
-    constexpr double d_pi2_2_2_0 = std::sqrt(3.0)/(2.0*std::sqrt(2.0));
+    constexpr double d_pi2_2_2_0 = std::numbers::sqrt3/(2.0*std::numbers::sqrt2);
     constexpr double d_pi2_2_2_1 = -1.0/2.0;
     constexpr double d_pi2_2_2_2 = 1.0/4.0;
 
     constexpr double d_pi2_3_0_0 = 0.0;
-    constexpr double d_pi2_3_0_1 = -std::sqrt(3.0)/4.0;
+    constexpr double d_pi2_3_0_1 = -std::numbers::sqrt3/4.0;
     constexpr double d_pi2_3_0_2 = 0.0;
-    constexpr double d_pi2_3_0_3 = std::sqrt(5.0)/4.0;
-    constexpr double d_pi2_3_1_0 = std::sqrt(3.0)/4.0;
+    constexpr double d_pi2_3_0_3 = sqrt5/4.0;
+    constexpr double d_pi2_3_1_0 = std::numbers::sqrt3/4.0;
     constexpr double d_pi2_3_1_1 = -1.0/8.0;
-    constexpr double d_pi2_3_1_2 = -std::sqrt(5.0)/(4.0*std::sqrt(2.0));
-    constexpr double d_pi2_3_1_3 = std::sqrt(3.0*5.0)/8.0;
+    constexpr double d_pi2_3_1_2 = -sqrt5/(4.0*std::numbers::sqrt2);
+    constexpr double d_pi2_3_1_3 = std::numbers::sqrt3*sqrt5/8.0;
     constexpr double d_pi2_3_2_0 = 0.0;
-    constexpr double d_pi2_3_2_1 = std::sqrt(5.0)/(4.0*std::sqrt(2.0));
+    constexpr double d_pi2_3_2_1 = sqrt5/(4.0*std::numbers::sqrt2);
     constexpr double d_pi2_3_2_2 = -1.0/2.0;
-    constexpr double d_pi2_3_2_3 = std::sqrt(3.0)/(4.0*std::sqrt(2.0));
-    constexpr double d_pi2_3_3_0 = -std::sqrt(5.0)/4.0;
-    constexpr double d_pi2_3_3_1 = std::sqrt(3.0*5.0)/8.0;
-    constexpr double d_pi2_3_3_2 = -std::sqrt(3.0)/(4.0*std::sqrt(2.0));
+    constexpr double d_pi2_3_2_3 = std::numbers::sqrt3/(4.0*std::numbers::sqrt2);
+    constexpr double d_pi2_3_3_0 = -sqrt5/4.0;
+    constexpr double d_pi2_3_3_1 = std::numbers::sqrt3*sqrt5/8.0;
+    constexpr double d_pi2_3_3_2 = -std::numbers::sqrt3/(4.0*std::numbers::sqrt2);
     constexpr double d_pi2_3_3_3 = 1.0/8.0;
 
     constexpr double d_pi2_4_0_0 = 3.0/8.0;
     constexpr double d_pi2_4_0_1 = 0.0;
-    constexpr double d_pi2_4_0_2 = -std::sqrt(5.0)/(4.0*std::sqrt(2.0));
+    constexpr double d_pi2_4_0_2 = -sqrt5/(4.0*std::numbers::sqrt2);
     constexpr double d_pi2_4_0_3 = 0.0;
-    constexpr double d_pi2_4_0_4 = std::sqrt(5.0*7.0)/(8.0*std::sqrt(2.0));
+    constexpr double d_pi2_4_0_4 = sqrt5*sqrt7/(8.0*std::numbers::sqrt2);
     constexpr double d_pi2_4_1_0 = 0.0;
     constexpr double d_pi2_4_1_1 = 3.0/8.0;
-    constexpr double d_pi2_4_1_2 = -1.0/(4.0*std::sqrt(2.0));
-    constexpr double d_pi2_4_1_3 = -std::sqrt(7.0)/8.0;
-    constexpr double d_pi2_4_1_4 = std::sqrt(7.0)/(4.0*std::sqrt(2.0));
-    constexpr double d_pi2_4_2_0 = -std::sqrt(5.0)/(4.0*std::sqrt(2.0));
-    constexpr double d_pi2_4_2_1 = 1.0/(4.0*std::sqrt(2.0));
+    constexpr double d_pi2_4_1_2 = -1.0/(4.0*std::numbers::sqrt2);
+    constexpr double d_pi2_4_1_3 = -sqrt7/8.0;
+    constexpr double d_pi2_4_1_4 = sqrt7/(4.0*std::numbers::sqrt2);
+    constexpr double d_pi2_4_2_0 = -sqrt5/(4.0*std::numbers::sqrt2);
+    constexpr double d_pi2_4_2_1 = 1.0/(4.0*std::numbers::sqrt2);
     constexpr double d_pi2_4_2_2 = 1.0/4.0;
-    constexpr double d_pi2_4_2_3 = -std::sqrt(7.0)/(4.0*std::sqrt(2.0));
-    constexpr double d_pi2_4_2_4 = std::sqrt(7.0)/8.0;
+    constexpr double d_pi2_4_2_3 = -sqrt7/(4.0*std::numbers::sqrt2);
+    constexpr double d_pi2_4_2_4 = sqrt7/8.0;
     constexpr double d_pi2_4_3_0 = 0.0;
-    constexpr double d_pi2_4_3_1 = -std::sqrt(7.0)/8.0;
-    constexpr double d_pi2_4_3_2 = std::sqrt(7.0)/(4.0*std::sqrt(2.0));
+    constexpr double d_pi2_4_3_1 = -sqrt7/8.0;
+    constexpr double d_pi2_4_3_2 = sqrt7/(4.0*std::numbers::sqrt2);
     constexpr double d_pi2_4_3_3 = -3.0/8.0;
-    constexpr double d_pi2_4_3_4 = 1.0/(4.0*std::sqrt(2.0));
-    constexpr double d_pi2_4_4_0 = std::sqrt(5.0*7.0)/(8.0*std::sqrt(2.0));
-    constexpr double d_pi2_4_4_1 = -std::sqrt(7.0)/(4.0*std::sqrt(2.0));
-    constexpr double d_pi2_4_4_2 = std::sqrt(7.0)/8.0;
-    constexpr double d_pi2_4_4_3 = -1.0/(4.0*std::sqrt(2.0));
+    constexpr double d_pi2_4_3_4 = 1.0/(4.0*std::numbers::sqrt2);
+    constexpr double d_pi2_4_4_0 = sqrt5*sqrt7/(8.0*std::numbers::sqrt2);
+    constexpr double d_pi2_4_4_1 = -sqrt7/(4.0*std::numbers::sqrt2);
+    constexpr double d_pi2_4_4_2 = sqrt7/8.0;
+    constexpr double d_pi2_4_4_3 = -1.0/(4.0*std::numbers::sqrt2);
     constexpr double d_pi2_4_4_4 = 1.0/16.0;
 
 
@@ -258,8 +261,8 @@ bool test_trivial_rotation_is_trivial_order_6()
     
     ExpansionSpan expansion(buffer, order);
 
-    constexpr double norm = 1.0/std::sqrt(2.0*std::numbers::pi);
-    constexpr double norm2 = 1.0/std::sqrt(4.0*std::numbers::pi);
+    constexpr double norm = 1.0*std::numbers::inv_sqrtpi/std::numbers::sqrt2;
+    constexpr double norm2 = 0.5*std::numbers::inv_sqrtpi;
     for (std::size_t l = 0; l < order; ++l)
     {
         expansion(l,0) = {norm2*double(l)/3.0, 0.0};

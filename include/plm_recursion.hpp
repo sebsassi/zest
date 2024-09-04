@@ -66,7 +66,7 @@ public:
     template <SHNorm NORM, SHPhase PHASE>
     void plm_real(double z, PlmSpan<double, NORM, PHASE> plm)
     {
-        return plm_impl(z, std::sqrt(2.0), plm);
+        return plm_impl(z, std::numbers::sqrt2, plm);
     }
 
     /**
@@ -79,7 +79,7 @@ public:
     void plm_real(
         std::span<const double> z, PlmVecSpan<double, NORM, PHASE> plm)
     {
-        return plm_impl(z, std::sqrt(2.0), plm);
+        return plm_impl(z, std::numbers::sqrt2, plm);
     }
 
     /**
@@ -112,6 +112,8 @@ private:
     void plm_impl(
         double z, double norm, PlmSpan<double, NORM, PHASE> plm)
     {
+        constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
+
         const std::size_t order = plm.order();
         if (order == 0) return;
 
@@ -124,14 +126,14 @@ private:
         if constexpr (NORM == SHNorm::GEO)
             plm(0, 0) = 1.0;
         else if constexpr (NORM == SHNorm::QM)
-            plm(0, 0) = 1.0/std::sqrt(4.0*std::numbers::pi);
+            plm(0, 0) = inv_sqrt_4pi;
 
         if (order == 1) return;
 
         if constexpr (NORM == SHNorm::GEO)
             plm(1, 0) = m_sqrl[3]*z;
         else if constexpr (NORM == SHNorm::QM)
-            plm(1, 0) = m_sqrl[3]*z*(1.0/std::sqrt(4.0*std::numbers::pi));
+            plm(1, 0) = m_sqrl[3]*z*inv_sqrt_4pi;
 
         std::span<double> plm_flat = plm.flatten();
 
@@ -148,7 +150,7 @@ private:
         if constexpr (NORM == SHNorm::GEO)
             pmm = underflow_compensation*norm;
         else if constexpr (NORM == SHNorm::QM)
-            pmm = underflow_compensation*norm*(1.0/std::sqrt(4.0*std::numbers::pi));
+            pmm = underflow_compensation*norm*inv_sqrt_4pi;
 
         // This number is repeatedly multiplied by u < 1. To avoid underflow
         // at small values of u, we make it large. The rescaling is countered
@@ -198,6 +200,8 @@ private:
         std::span<const double> z, double norm,
         PlmVecSpan<double, NORM, PHASE> plm)
     {
+        constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
+
         const std::size_t order = plm.order();
         if (order == 0) return;
 
@@ -217,7 +221,7 @@ private:
             if constexpr (NORM == SHNorm::GEO)
                 plm[0][i] = 1.0;
             else if constexpr (NORM == SHNorm::QM)
-                plm[0][i] = 1.0/std::sqrt(4.0*std::numbers::pi);
+                plm[0][i] = inv_sqrt_4pi;
         }
 
         if (order == 1) return;
@@ -227,7 +231,7 @@ private:
             if constexpr (NORM == SHNorm::GEO)
                 plm[1][i] = z[i]*m_sqrl[3];
             else if constexpr (NORM == SHNorm::QM)
-                plm[1][i] = z[i]*(m_sqrl[3]*(1.0/std::sqrt(4.0*std::numbers::pi)));
+                plm[1][i] = z[i]*(m_sqrl[3]*inv_sqrt_4pi);
         }
         // Calculate P(l,0)
         for (std::size_t l = 2; l < order; ++l)
@@ -245,7 +249,7 @@ private:
         if constexpr (NORM == SHNorm::GEO)
             pmm = underflow_compensation*norm;
         else if constexpr (NORM == SHNorm::QM)
-            pmm = underflow_compensation*norm*(1.0/std::sqrt(4.0*std::numbers::pi));
+            pmm = underflow_compensation*norm*inv_sqrt_4pi;
 
         // This number is repeatedly multiplied by u < 1. To avoid underflow
         // at small values of u, we make it large. The rescaling is countered

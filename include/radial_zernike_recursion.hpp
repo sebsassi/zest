@@ -34,6 +34,9 @@ public:
     template <ZernikeNorm NORM>
     void zernike(double r, RadialZernikeSpan<NORM, double> zernike)
     {
+        constexpr double sqrt5 = 2.2360679774997896964091737;
+        constexpr double sqrt7 = 2.6457513110645905905016158;
+
         const std::size_t order = zernike.order();
         if (order == 0) return;
 
@@ -45,7 +48,7 @@ public:
         if (order == 1)
         {
             if constexpr (NORM == ZernikeNorm::NORMED)
-                zernike(0, 0) *= std::sqrt(3.0);
+                zernike(0, 0) *= std::numbers::sqrt3;
             return;
         }
 
@@ -54,8 +57,8 @@ public:
         {
             if constexpr (NORM == ZernikeNorm::NORMED)
             {
-                zernike(0, 0) *= std::sqrt(3.0);
-                zernike(1, 1) *= std::sqrt(5.0);
+                zernike(0, 0) *= std::numbers::sqrt3;
+                zernike(1, 1) *= sqrt5;
             }
             return;
         }
@@ -66,10 +69,10 @@ public:
         {
             if constexpr (NORM == ZernikeNorm::NORMED)
             {
-                zernike(0, 0) *= std::sqrt(3.0);
-                zernike(1, 1) *= std::sqrt(5.0);
-                zernike(2, 0) *= std::sqrt(7.0);
-                zernike(2, 2) *= std::sqrt(7.0);
+                zernike(0, 0) *= std::numbers::sqrt3;
+                zernike(1, 1) *= sqrt5;
+                zernike(2, 0) *= sqrt7;
+                zernike(2, 2) *= sqrt7;
             }
             return;
         }
@@ -116,6 +119,9 @@ public:
     void zernike(
         std::span<const double> r, RadialZernikeVecSpan<NORM, double> zernike)
     {
+        constexpr double sqrt5 = 2.2360679774997896964091737;
+        constexpr double sqrt7 = 2.6457513110645905905016158;
+
         const std::size_t order = zernike.order();
         if (order == 0) return;
 
@@ -131,7 +137,7 @@ public:
             if constexpr (NORM == ZernikeNorm::NORMED)
             {
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
-                    z_00[i] *= std::sqrt(3.0);
+                    z_00[i] *= std::numbers::sqrt3;
             }
             return;
         }
@@ -144,10 +150,10 @@ public:
             if constexpr (NORM == ZernikeNorm::NORMED)
             {
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
-                    z_00[i] *= std::sqrt(3.0);
+                    z_00[i] *= std::numbers::sqrt3;
                 
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
-                    z_11[i] *= std::sqrt(5.0);
+                    z_11[i] *= sqrt5;
             }
             return;
         }
@@ -164,16 +170,16 @@ public:
             if constexpr (NORM == ZernikeNorm::NORMED)
             {
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
-                    z_00[i] *= std::sqrt(3.0);
+                    z_00[i] *= std::numbers::sqrt3;
 
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
-                    z_11[i] *= std::sqrt(5.0);
+                    z_11[i] *= sqrt5;
                 
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
-                    z_20[i] *= std::sqrt(7.0);
+                    z_20[i] *= sqrt7;
                 
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
-                    z_22[i] *= std::sqrt(7.0);
+                    z_22[i] *= sqrt7;
             }
             return;
         }
@@ -226,7 +232,7 @@ public:
             if (order > 6)
             {
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
-                    z_22[i] *= std::sqrt(7.0);
+                    z_22[i] *= sqrt7;
             }
             
             for (std::size_t n = order - 4; n < order; ++n)

@@ -34,9 +34,9 @@ bool test_glq_forward_transform_expands_Z000()
     {
         constexpr double znorm
             = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
-                std::sqrt(3.0) : 1.0;
+                std::numbers::sqrt3 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
-            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+            0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm;
     };
 
@@ -97,16 +97,17 @@ bool test_glq_forward_transform_expands_Z000()
 template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
 bool test_glq_forward_transform_expands_Z200()
 {
+    constexpr double sqrt7 = 2.6457513110645905905016158;
+
     std::size_t order = 6;
 
     auto function = [](
         double r, [[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
         constexpr double znorm
-            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
-                std::sqrt(7.0) : 1.0;
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt7 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
-            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+            0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm*(2.5*r*r - 1.5);
     };
 
@@ -167,15 +168,15 @@ bool test_glq_forward_transform_expands_Z200()
 template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
 bool test_glq_forward_transform_expands_Z110()
 {
+    constexpr double sqrt5 = 2.2360679774997896964091737;
     std::size_t order = 6;
 
     auto function = [](double r, [[maybe_unused]] double lon, double colat)
     {
         constexpr double znorm
-            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
-                std::sqrt(5.0) : 1.0;
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt5 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
-            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+            0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return znorm*shnorm*r*std::sqrt(3.0)*z;
     };
@@ -237,6 +238,8 @@ bool test_glq_forward_transform_expands_Z110()
 template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
 bool test_glq_forward_transform_expands_Z221()
 {
+    constexpr double sqrt7 = 2.6457513110645905905016158;
+
     std::size_t order = 6;
 
     auto function = [](
@@ -244,10 +247,9 @@ bool test_glq_forward_transform_expands_Z221()
     {
         constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
         constexpr double znorm
-            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
-                std::sqrt(7.0) : 1.0;
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt7 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
-            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+            0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return phase*znorm*shnorm*r*r*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
@@ -315,10 +317,9 @@ bool test_glq_forward_transform_expands_Z33m2()
         double r, double lon, double colat)
     {
         constexpr double znorm
-            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
-                std::sqrt(9.0) : 1.0;
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? 3.0 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
-            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+            0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return znorm*shnorm*r*r*r*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon);
     };
@@ -380,6 +381,8 @@ bool test_glq_forward_transform_expands_Z33m2()
 template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
 bool test_glq_forward_transform_expands_Z531()
 {
+    constexpr double sqrt13 = 3.6055512754639892931192213;
+
     std::size_t order = 6;
 
     auto function = [](
@@ -387,10 +390,9 @@ bool test_glq_forward_transform_expands_Z531()
     {
         constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
         constexpr double znorm
-            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
-                std::sqrt(13.0) : 1.0;
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt13 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
-            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+            0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return phase*znorm*shnorm*(5.5*r*r - 4.5)*r*r*r*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
@@ -460,9 +462,9 @@ bool test_glq_backward_transform_evaluates_Z000()
     {
         constexpr double znorm
             = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
-                std::sqrt(3.0) : 1.0;
+                std::numbers::sqrt3 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
-            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+            0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm;
     };
 
@@ -518,15 +520,16 @@ bool test_glq_backward_transform_evaluates_Z000()
 template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
 bool test_glq_backward_transform_evaluates_Z110()
 {
+    constexpr double sqrt5 = 2.2360679774997896964091737;
+
     constexpr std::size_t order = 6; 
 
     auto function = [](double r, [[maybe_unused]] double lon, double colat)
     {
         constexpr double znorm
-            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
-                std::sqrt(5.0) : 1.0;
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt5 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
-            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+            0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return znorm*shnorm*r*std::sqrt(3.0)*z;
     };
@@ -583,16 +586,17 @@ bool test_glq_backward_transform_evaluates_Z110()
 template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
 bool test_glq_backward_transform_evaluates_Z200()
 {
+    constexpr double sqrt7 = 2.6457513110645905905016158;
+
     constexpr std::size_t order = 6; 
 
     auto function = [](
         double r, [[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
         constexpr double znorm
-            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
-                std::sqrt(7.0) : 1.0;
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt7 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
-            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+            0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm*(2.5*r*r - 1.5);
     };
 
@@ -648,6 +652,8 @@ bool test_glq_backward_transform_evaluates_Z200()
 template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
 bool test_glq_backward_transform_evaluates_Z221()
 {
+    constexpr double sqrt7 = 2.6457513110645905905016158;
+
     constexpr std::size_t order = 6; 
 
     auto function = [](
@@ -655,10 +661,9 @@ bool test_glq_backward_transform_evaluates_Z221()
     {
         constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
         constexpr double znorm
-            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
-                std::sqrt(7.0) : 1.0;
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt7 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
-            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+            0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return phase*znorm*shnorm*r*r*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
@@ -721,10 +726,9 @@ bool test_glq_backward_transform_evaluates_Z33m2()
         double r, double lon, double colat)
     {
         constexpr double znorm
-            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
-                std::sqrt(9.0) : 1.0;
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? 3.0 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
-            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+            0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return znorm*shnorm*r*r*r*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon);
     };
@@ -781,6 +785,8 @@ bool test_glq_backward_transform_evaluates_Z33m2()
 template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
 bool test_glq_backward_transform_evaluates_Z531()
 {
+    constexpr double sqrt13 = 3.6055512754639892931192213;
+
     constexpr std::size_t order = 6; 
 
     auto function = [](
@@ -788,10 +794,9 @@ bool test_glq_backward_transform_evaluates_Z531()
     {
         constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
         constexpr double znorm
-            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
-                std::sqrt(13.0) : 1.0;
+            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt13 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
-            1.0/std::sqrt(4.0*std::numbers::pi) : 1.0;
+            0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return phase*znorm*shnorm*(5.5*r*r - 4.5)*r*r*r*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
