@@ -23,10 +23,9 @@ bool test_glq_forward_transform_expands_Y00()
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
-        if constexpr (NORM == zest::st::SHNorm::GEO)
-            return 1.0;
-        else
-            return 1.0/std::sqrt(4.0*std::numbers::pi);
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return shnorm;
     };
     
     zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
@@ -82,10 +81,9 @@ bool test_glq_forward_transform_expands_Y10()
     {
         const double z = std::cos(colat);
 
-        if constexpr (NORM == zest::st::SHNorm::GEO)
-            return std::sqrt(3.0)*z;
-        else
-            return std::sqrt(3.0/(4.0*std::numbers::pi))*z;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return shnorm*std::sqrt(3.0)*z;
     };
     
     zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
@@ -140,11 +138,10 @@ bool test_glq_forward_transform_expands_Y21()
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
-        if constexpr (NORM == zest::st::SHNorm::GEO)
-            return phase*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
-        else
-            return phase*std::sqrt(15.0/(4.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*z*std::cos(lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return phase*shnorm*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
     
     zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
@@ -199,11 +196,10 @@ bool test_glq_forward_transform_expands_Y31()
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
-        if constexpr (NORM == zest::st::SHNorm::GEO)
-            return phase*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
-        else
-            return phase*std::sqrt(21.0/(32.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return phase*shnorm*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
     
     zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
@@ -258,11 +254,10 @@ bool test_glq_forward_transform_expands_Y4m3()
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
-        if constexpr (NORM == zest::st::SHNorm::GEO)
-            return phase*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
-        else
-            return phase*std::sqrt(315.0/(32.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return phase*shnorm*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
     };
     
     zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
@@ -317,11 +312,10 @@ bool test_glq_forward_transform_expands_Y31_plus_Y4m3()
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
-        if constexpr (NORM == zest::st::SHNorm::GEO)
-            return phase*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
-        else
-            return phase*(std::sqrt(21.0/(32.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/(32.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return phase*shnorm*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
     };
     
     zest::st::GLQTransformer<NORM, PHASE, GridLayout> transformer(order);
@@ -383,10 +377,9 @@ bool test_glq_backward_transform_evaluates_Y00()
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
-        if constexpr (NORM == zest::st::SHNorm::GEO)
-            return 1.0;
-        else
-            return 1.0/std::sqrt(4.0*std::numbers::pi);
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return shnorm;
     };
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
@@ -437,10 +430,9 @@ bool test_glq_backward_transform_evaluates_Y10()
     {
         const double z = std::cos(colat);
 
-        if constexpr (NORM == zest::st::SHNorm::GEO)
-            return std::sqrt(3.0)*z;
-        else
-            return std::sqrt(3.0/(4.0*std::numbers::pi))*z;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return shnorm*std::sqrt(3.0)*z;
     };
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
@@ -490,11 +482,10 @@ bool test_glq_backward_transform_evaluates_Y21()
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
-        if constexpr (NORM == zest::st::SHNorm::GEO)
-            return phase*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
-        else
-            return phase*std::sqrt(15.0/(4.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*z*std::cos(lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return phase*shnorm*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
@@ -544,11 +535,10 @@ bool test_glq_backward_transform_evaluates_Y31()
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
-        if constexpr (NORM == zest::st::SHNorm::GEO)
-            return phase*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
-        else
-            return phase*std::sqrt(21.0/(32.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return phase*shnorm*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
@@ -598,11 +588,10 @@ bool test_glq_backward_transform_evaluates_Y4m3()
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
-        if constexpr (NORM == zest::st::SHNorm::GEO)
-            return phase*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
-        else
-            return phase*std::sqrt(315.0/(32.0*std::numbers::pi))*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return phase*shnorm*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
     };
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
@@ -652,11 +641,10 @@ bool test_glq_backward_transform_evaluates_Y31_plus_Y4m3()
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
-        if constexpr (NORM == zest::st::SHNorm::GEO)
-            return phase*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
-        else
-            return phase*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return phase*shnorm*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
     };
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};

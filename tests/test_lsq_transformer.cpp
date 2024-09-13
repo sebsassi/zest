@@ -15,48 +15,52 @@ constexpr bool is_close(
     return std::fabs(a[0] - b[0]) < tol && std::fabs(a[1] - b[1]) < tol;
 }
 
+template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
 bool test_ylm_generator_generates_correct_up_to_order_5(double lon, double lat)
 {
     constexpr std::size_t order = 5;
+    constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
+    constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+        0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double z = std::sin(lat);
-    const double Y00 = 1.0;
+    const double Y00 = shnorm;
 
-    const double Y1m1 = std::sqrt(3.0)*std::sqrt(1.0 - z*z)*std::sin(lon);
-    const double Y10 = std::sqrt(3.0)*z;
-    const double Y11 = std::sqrt(3.0)*std::sqrt(1.0 - z*z)*std::cos(lon);
+    const double Y1m1 = phase*shnorm*std::sqrt(3.0)*std::sqrt(1.0 - z*z)*std::sin(lon);
+    const double Y10 = shnorm*std::sqrt(3.0)*z;
+    const double Y11 = phase*shnorm*std::sqrt(3.0)*std::sqrt(1.0 - z*z)*std::cos(lon);
     
-    const double Y2m2 = std::sqrt(15.0/4.0)*(1.0 - z*z)*std::sin(2.0*lon);
-    const double Y2m1 = std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::sin(lon);
-    const double Y20 = std::sqrt(5.0/4.0)*(3.0*z*z - 1.0);
-    const double Y21 = std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
-    const double Y22 = std::sqrt(15.0/4.0)*(1.0 - z*z)*std::cos(2.0*lon);
+    const double Y2m2 = shnorm*std::sqrt(15.0/4.0)*(1.0 - z*z)*std::sin(2.0*lon);
+    const double Y2m1 = phase*shnorm*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::sin(lon);
+    const double Y20 = shnorm*std::sqrt(5.0/4.0)*(3.0*z*z - 1.0);
+    const double Y21 = phase*shnorm*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
+    const double Y22 = shnorm*std::sqrt(15.0/4.0)*(1.0 - z*z)*std::cos(2.0*lon);
 
-    const double Y3m3 = std::sqrt(35.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*std::sin(3.0*lon);
-    const double Y3m2 = std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon);
-    const double Y3m1 = std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::sin(lon);
-    const double Y30 = std::sqrt(7.0/4.0)*(5.0*z*z - 3.0)*z;
-    const double Y31 = std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
-    const double Y32 = std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::cos(2.0*lon);
-    const double Y33 = std::sqrt(35.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*std::cos(3.0*lon);
+    const double Y3m3 = phase*shnorm*std::sqrt(35.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*std::sin(3.0*lon);
+    const double Y3m2 = shnorm*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon);
+    const double Y3m1 = phase*shnorm*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::sin(lon);
+    const double Y30 = shnorm*std::sqrt(7.0/4.0)*(5.0*z*z - 3.0)*z;
+    const double Y31 = phase*shnorm*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
+    const double Y32 = shnorm*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::cos(2.0*lon);
+    const double Y33 = phase*shnorm*std::sqrt(35.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*std::cos(3.0*lon);
 
-    const double Y4m4 = std::sqrt(315.0/64.0)*(1.0 - z*z)*(1.0 - z*z)*std::sin(4.0*lon);
-    const double Y4m3 = std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
-    const double Y4m2 = std::sqrt(45.0/16.0)*(1.0 - z*z)*(7.0*z*z - 1.0)*std::sin(2.0*lon);
-    const double Y4m1 = std::sqrt(45.0/8.0)*std::sqrt(1.0 - z*z)*(7.0*z*z - 3.0)*z*std::sin(lon);
-    const double Y40 = std::sqrt(9.0/64.0)*((35.0*z*z - 30.0)*z*z + 3.0);
-    const double Y41 = std::sqrt(45.0/8.0)*std::sqrt(1.0 - z*z)*(7.0*z*z - 3.0)*z*std::cos(lon);
-    const double Y42 = std::sqrt(45.0/16.0)*(1.0 - z*z)*(7.0*z*z - 1.0)*std::cos(2.0*lon);
-    const double Y43 = std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::cos(3.0*lon);
-    const double Y44 = std::sqrt(315.0/64.0)*(1.0 - z*z)*(1.0 - z*z)*std::cos(4.0*lon);
+    const double Y4m4 = shnorm*std::sqrt(315.0/64.0)*(1.0 - z*z)*(1.0 - z*z)*std::sin(4.0*lon);
+    const double Y4m3 = phase*shnorm*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
+    const double Y4m2 = shnorm*std::sqrt(45.0/16.0)*(1.0 - z*z)*(7.0*z*z - 1.0)*std::sin(2.0*lon);
+    const double Y4m1 = phase*shnorm*std::sqrt(45.0/8.0)*std::sqrt(1.0 - z*z)*(7.0*z*z - 3.0)*z*std::sin(lon);
+    const double Y40 = shnorm*std::sqrt(9.0/64.0)*((35.0*z*z - 30.0)*z*z + 3.0);
+    const double Y41 = phase*shnorm*std::sqrt(45.0/8.0)*std::sqrt(1.0 - z*z)*(7.0*z*z - 3.0)*z*std::cos(lon);
+    const double Y42 = shnorm*std::sqrt(45.0/16.0)*(1.0 - z*z)*(7.0*z*z - 1.0)*std::cos(2.0*lon);
+    const double Y43 = phase*shnorm*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::cos(3.0*lon);
+    const double Y44 = shnorm*std::sqrt(315.0/64.0)*(1.0 - z*z)*(1.0 - z*z)*std::cos(4.0*lon);
 
     zest::st::RealYlmGenerator generator(order);
 
     std::vector<double> ylm(zest::DualTriangleLayout::size(order));
 
-    generator.generate<zest::st::SequentialRealYlmPacking, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(
+    generator.generate<zest::st::SequentialRealYlmPacking, NORM, PHASE>(
             lon, lat, 
-            zest::st::RealYlmSpan<zest::st::SequentialRealYlmPacking, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(ylm, order));
+            zest::st::RealYlmSpan<zest::st::SequentialRealYlmPacking, NORM, PHASE>(ylm, order));
 
     bool success = is_close(ylm[0], Y00, 1.0e-10)
             && is_close(ylm[1], Y1m1, 1.0e-10)
@@ -117,13 +121,16 @@ bool test_ylm_generator_generates_correct_up_to_order_5(double lon, double lat)
     }
 }
 
+template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
 bool test_lsq_geo_expansion_expands_Y00()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        return 1.0;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return shnorm;
     };
 
     constexpr std::size_t num_points = 100;
@@ -146,7 +153,7 @@ bool test_lsq_geo_expansion_expands_Y00()
     
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform(values, lat, lon, order);
+    auto expansion = transformer.transform<NORM, PHASE>(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -181,13 +188,17 @@ bool test_lsq_geo_expansion_expands_Y00()
     return success;
 }
 
+template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
 bool test_lsq_geo_expansion_expands_Y21()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        return std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return phase*shnorm*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
 
     constexpr std::size_t num_points = 100;
@@ -210,7 +221,7 @@ bool test_lsq_geo_expansion_expands_Y21()
     
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform(values, lat, lon, order);
+    auto expansion = transformer.transform<NORM, PHASE>(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -245,13 +256,17 @@ bool test_lsq_geo_expansion_expands_Y21()
     return success;
 }
 
+template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
 bool test_lsq_geo_expansion_expands_Y31()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        return std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return phase*shnorm*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
 
     constexpr std::size_t num_points = 100;
@@ -274,7 +289,7 @@ bool test_lsq_geo_expansion_expands_Y31()
     
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform(values, lat, lon, order);
+    auto expansion = transformer.transform<NORM, PHASE>(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -309,13 +324,17 @@ bool test_lsq_geo_expansion_expands_Y31()
     return success;
 }
 
+template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
 bool test_lsq_geo_expansion_expands_Y4m3()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        return std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return phase*shnorm*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
     };
 
     constexpr std::size_t num_points = 100;
@@ -338,7 +357,7 @@ bool test_lsq_geo_expansion_expands_Y4m3()
     
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform(values, lat, lon, order);
+    auto expansion = transformer.transform<NORM, PHASE>(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -373,13 +392,17 @@ bool test_lsq_geo_expansion_expands_Y4m3()
     return success;
 }
 
+template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
 bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        return std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
+        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return phase*shnorm*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
     };
 
     constexpr std::size_t num_points = 100;
@@ -402,7 +425,7 @@ bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
     
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform(values, lat, lon, order);
+    auto expansion = transformer.transform<NORM, PHASE>(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -445,13 +468,22 @@ bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
     return success;
 }
 
+template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+void test_lsq()
+{
+    assert((test_ylm_generator_generates_correct_up_to_order_5<NORM, PHASE>(0.0, 0.0)));
+
+    assert((test_lsq_geo_expansion_expands_Y00<NORM, PHASE>()));
+    assert((test_lsq_geo_expansion_expands_Y21<NORM, PHASE>()));
+    assert((test_lsq_geo_expansion_expands_Y31<NORM, PHASE>()));
+    assert((test_lsq_geo_expansion_expands_Y4m3<NORM, PHASE>()));
+    assert((test_lsq_geo_expansion_expands_Y31_plus_Y4m3<NORM, PHASE>()));
+}
+
 int main()
 {
-    assert(test_ylm_generator_generates_correct_up_to_order_5(0.0, 0.0));
-
-    assert(test_lsq_geo_expansion_expands_Y00());
-    assert(test_lsq_geo_expansion_expands_Y21());
-    assert(test_lsq_geo_expansion_expands_Y31());
-    assert(test_lsq_geo_expansion_expands_Y4m3());
-    assert(test_lsq_geo_expansion_expands_Y31_plus_Y4m3());
+    test_lsq<zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>();
+    test_lsq<zest::st::SHNorm::GEO, zest::st::SHPhase::CS>();
+    test_lsq<zest::st::SHNorm::QM, zest::st::SHPhase::NONE>();
+    test_lsq<zest::st::SHNorm::QM, zest::st::SHPhase::CS>();
 }

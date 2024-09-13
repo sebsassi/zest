@@ -245,7 +245,7 @@ bool test_glq_forward_transform_expands_Z221()
     auto function = [](
         double r, double lon, double colat)
     {
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
         constexpr double znorm
             = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt7 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
@@ -388,7 +388,7 @@ bool test_glq_forward_transform_expands_Z531()
     auto function = [](
         double r, double lon, double colat)
     {
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
         constexpr double znorm
             = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt13 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
@@ -659,7 +659,7 @@ bool test_glq_backward_transform_evaluates_Z221()
     auto function = [](
         double r, double lon, double colat)
     {
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
         constexpr double znorm
             = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt7 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?
@@ -792,7 +792,7 @@ bool test_glq_backward_transform_evaluates_Z531()
     auto function = [](
         double r, double lon, double colat)
     {
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? 1.0 : -1.0;
+        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
         constexpr double znorm
             = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt13 : 1.0;
         constexpr double shnorm = (SH_NORM == zest::st::SHNorm::QM) ?

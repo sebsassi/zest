@@ -10,7 +10,7 @@ namespace st
 /**
     @brief Spherical harmonic phase conventions.
 */
-enum class SHPhase { NONE = 1, CS = -1 };
+enum class SHPhase { NONE = -1, CS = 1 };
 
 /**
     @brief Spherical harmonic normalization conventions
