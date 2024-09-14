@@ -293,7 +293,7 @@ public:
     }
 
 protected:
-    friend ConstView;
+    friend TriangleSpan<std::remove_const_t<element_type>, LayoutType>;
 
     constexpr TriangleSpan(
         element_type* data, std::size_t size, std::size_t order) noexcept: 
@@ -342,7 +342,7 @@ public:
     [[nodiscard]] constexpr std::span<element_type>
     flatten() const noexcept { return std::span(m_data, m_size); }
 
-    [[nodiscard]] const element_type*
+    [[nodiscard]] constexpr element_type*
     data() const noexcept { return m_data; }
     
     [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
@@ -372,7 +372,7 @@ public:
     }
 
 protected:
-    friend ConstView;
+    friend TriangleVecSpan<std::remove_const_t<element_type>, LayoutType>;
 
     constexpr TriangleVecSpan(
         element_type* data, std::size_t size, std::size_t order,

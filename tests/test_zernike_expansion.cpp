@@ -2,6 +2,39 @@
 
 #include <cassert>
 
+constexpr bool test_radialzernikespan_const_view_can_be_taken()
+{
+    zest::zt::RadialZernikeSpan<zest::zt::ZernikeNorm::NORMED, double> span{};
+    [[maybe_unused]] auto const_view = zest::zt::RadialZernikeSpan<zest::zt::ZernikeNorm::NORMED, const double>(span);
+    return true;
+}
+
+constexpr bool test_radialzernikevecspan_const_view_can_be_taken()
+{
+    zest::zt::RadialZernikeVecSpan<zest::zt::ZernikeNorm::NORMED, double> span{};
+    [[maybe_unused]] auto const_view = zest::zt::RadialZernikeVecSpan<zest::zt::ZernikeNorm::NORMED, const double>(span);
+    return true;
+}
+
+constexpr bool test_zernikexpansionshspan_const_view_can_be_taken()
+{
+    zest::zt::ZernikeExpansionSHSpan<double, zest::zt::ZernikeNorm::NORMED, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE> span{};
+    [[maybe_unused]] auto const_view = zest::zt::ZernikeExpansionSHSpan<const double, zest::zt::ZernikeNorm::NORMED, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(span);
+    return true;
+}
+
+constexpr bool test_zernikexpansionspan_const_view_can_be_taken()
+{
+    zest::zt::ZernikeExpansionSpan<double, zest::zt::ZernikeNorm::NORMED, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE> span{};
+    [[maybe_unused]] auto const_view = zest::zt::ZernikeExpansionSpan<const double, zest::zt::ZernikeNorm::NORMED, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(span);
+    return true;
+}
+
+static_assert(test_radialzernikespan_const_view_can_be_taken());
+static_assert(test_radialzernikevecspan_const_view_can_be_taken());
+static_assert(test_zernikexpansionshspan_const_view_can_be_taken());
+static_assert(test_zernikexpansionspan_const_view_can_be_taken());
+
 bool test_zernike_lm_span_indexing_is_contiguous()
 {
     constexpr std::size_t order = 6;

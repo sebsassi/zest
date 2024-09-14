@@ -42,7 +42,7 @@ int main()
 
     constexpr double lon0 = 0.0;
     constexpr double lat0 = 0.0;
-    constexpr std::array<double, 3> vec = {
+    const std::array<double, 3> vec = {
         std::cos(lat0)*std::cos(lon0), std::cos(lat0)*std::sin(lon0), std::sin(lat0)
     };
 

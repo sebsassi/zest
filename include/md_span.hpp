@@ -115,7 +115,7 @@ public:
     }
 
 protected:
-    friend ConstView;
+    friend MDSpan<std::remove_const_t<element_type>, NDIM>;
 
     constexpr MDSpan(
         data_handle_type data, size_type size, const std::array<std::size_t, NDIM>& extents) noexcept:

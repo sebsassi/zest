@@ -180,13 +180,14 @@ public:
         return ConstView(data(), size(), extents(), m_order);
     }
 
-private:
-    friend ConstView;
+protected:
+    friend SphereGLQGridSpan<std::remove_const_t<element_type>, Layout>;
 
     constexpr SphereGLQGridSpan(
         element_type* data, std::size_t size, const std::array<std::size_t, 2>& extents, std::size_t order) noexcept:
         MDSpan<ElementType, 2>(data, size, extents), m_order(order) {}
 
+private:
     std::size_t m_order;
 };
 

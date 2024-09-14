@@ -41,7 +41,7 @@ public:
     }
 
 private:
-    friend ConstView;
+    friend SHLMSpan<std::remove_const_t<ElementType>, LayoutType, SH_NORM, PHASE>;
 };
 
 /**
@@ -71,6 +71,9 @@ public:
     {
         return ConstView(data(), size(), order(), vec_size());
     }
+
+private:
+    friend SHLMVecSpan<std::remove_const_t<ElementType>, LayoutType, SH_NORM, PHASE>;
 };
 
 template <typename T>

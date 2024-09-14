@@ -23,6 +23,15 @@ std::vector<T> linspace(T start, T stop, std::size_t count)
     return res;
 }
 
+constexpr bool test_ballglqgridspan_const_view_can_be_taken()
+{
+    zest::zt::BallGLQGridSpan<double> span{};
+    [[maybe_unused]] auto const_view = zest::zt::BallGLQGridSpan<const double>(span);
+    return true;
+}
+
+static_assert(test_ballglqgridspan_const_view_can_be_taken());
+
 template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase PHASE>
 bool test_glq_forward_transform_expands_Z000()
 {

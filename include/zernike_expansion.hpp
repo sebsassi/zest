@@ -79,13 +79,14 @@ public:
         return EvenOddSpan(m_data + Layout::idx(n,0), Layout::line_length(n));
     }
 
-private:
-    friend ConstView;
+protected:
+    friend RadialZernikeSpan<NORM, std::remove_const_t<element_type>>;
 
     constexpr RadialZernikeSpan(
-        element_type* data, std::size_t size, std::size_t m_order) noexcept: 
+        element_type* data, std::size_t size, std::size_t order) noexcept: 
         m_data(data), m_size(size), m_order(order) {}
 
+private:
     element_type* m_data;
     std::size_t m_size;
     std::size_t m_order;
@@ -154,14 +155,15 @@ public:
         return std::span(m_data + idx*m_vec_size, m_vec_size);
     }
 
-private:
-    friend ConstView;
+protected:
+    friend RadialZernikeVecSpan<NORM, std::remove_const_t<element_type>>;
 
     constexpr RadialZernikeVecSpan(
         element_type* data, std::size_t size, std::size_t order, 
         std::size_t vec_size) noexcept:
-        m_data(data), m_size(size), m_order(order), m_vec_size(size) {}
+        m_data(data), m_size(size), m_order(order), m_vec_size(vec_size) {}
 
+private:
     element_type* m_data;
     std::size_t m_size;
     std::size_t m_order;
@@ -199,7 +201,7 @@ public:
     }
     
 private:
-    friend ConstView;
+    friend ZernikeExpansionSHSpan<std::remove_const_t<ElementType>, ZERNIKE_NORM, SH_NORM, PHASE>;
 };
 
 /**
@@ -274,13 +276,14 @@ public:
         return SubSpan(m_data + Layout::idx(n, 0, 0), n + 1);
     }
 
-private:
-    friend ConstView;
+protected:
+    friend ZernikeExpansionSpan<std::remove_const_t<element_type>, ZERNIKE_NORM, SH_NORM, PHASE>;
 
     constexpr ZernikeExpansionSpan(
         element_type* data, std::size_t size, std::size_t order) noexcept: 
         m_data(data), m_size(size), m_order(order) {}
 
+private:
     element_type* m_data;
     std::size_t m_size;
     std::size_t m_order;

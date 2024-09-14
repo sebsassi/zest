@@ -16,6 +16,15 @@ constexpr bool is_close(
     return std::fabs(a[0] - b[0]) < tol && std::fabs(a[1] - b[1]) < tol;
 }
 
+constexpr bool test_sphereglqgridspan_const_view_can_be_taken()
+{
+    zest::st::SphereGLQGridSpan<double> span{};
+    [[maybe_unused]] auto const_view = zest::st::SphereGLQGridSpan<const double>(span);
+    return true;
+}
+
+static_assert(test_sphereglqgridspan_const_view_can_be_taken());
+
 template <typename GridLayout, zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
 bool test_glq_forward_transform_expands_Y00()
 {

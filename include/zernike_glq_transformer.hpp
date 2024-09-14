@@ -135,7 +135,7 @@ public:
     }
 
 private:
-    friend ConstView;
+    friend BallGLQGridSpan<std::remove_const_t<element_type>, Layout>;
 
     constexpr BallGLQGridSpan(
         element_type* data, std::size_t size, const std::array<std::size_t, 3>& extents, std::size_t order) noexcept:
