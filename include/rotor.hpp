@@ -188,7 +188,7 @@ public:
         for (std::size_t n = 1; n < order; ++n)
         {
             auto expansion_n = complex_expansion[n];
-            for (std::size_t l = n & 1; l <= n; ++l)
+            for (std::size_t l = n & 1; l <= n; l += 2)
                 zest::rotate_l(
                         expansion_n[l], wigner_d_pi2(l),
                         m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
@@ -304,7 +304,7 @@ public:
         for (std::size_t n = 1; n < order; ++n)
         {
             auto expansion_n = complex_expansion[n];
-            for (std::size_t l = n & 1; l <= n; ++l)
+            for (std::size_t l = n & 1; l <= n; l += 2)
                 zest::polar_rotate_l(expansion_n[l], m_exp_alpha);
         }
 

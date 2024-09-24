@@ -251,7 +251,7 @@ bool test_rotation_completes()
     return true;
 }
 
-bool test_trivial_rotation_is_trivial_order_6()
+bool test_sh_trivial_rotation_is_trivial_order_6()
 {
     constexpr std::size_t order = 6;
     
@@ -292,15 +292,186 @@ bool test_trivial_rotation_is_trivial_order_6()
     {
         for (std::size_t l = 0; l < order; ++l)
         {
-            std::printf(
-                    "%lu %lu {%f, %f} {%f, %f}\n", l, 0UL,
-                    expansion(l,0)[0]/norm2, expansion(l,0)[1]/norm2,
-                    test_expansion(l,0)[0]/norm2, test_expansion(l,0)[1]/norm2);
-            for (std::size_t m = 1; m <= l; ++m)
+            for (std::size_t m = 0; m <= l; ++m)
                 std::printf(
                         "%lu %lu {%f, %f} {%f, %f}\n", l, m,
                         expansion(l,m)[0]/norm, expansion(l,m)[1]/norm,
                         test_expansion(l,m)[0]/norm, test_expansion(l,m)[1]/norm);
+        }
+    }
+    return success;
+}
+
+bool test_zernike_trivial_rotation_is_trivial_order_6()
+{
+    constexpr std::size_t order = 6;
+    
+    using ExpansionSpan = zest::zt::ZernikeExpansionSpan<std::array<double, 2>, zest::zt::ZernikeNorm::NORMED, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>;
+
+    std::vector<std::array<double, 2>> buffer(ExpansionSpan::Layout::size(order));
+    
+    ExpansionSpan expansion(buffer, order);
+
+    constexpr double norm = 1.0*std::numbers::inv_sqrtpi/std::numbers::sqrt2;
+    constexpr double norm2 = 0.5*std::numbers::inv_sqrtpi;
+    for (std::size_t n = 0; n < order; ++n)
+    {
+        for (std::size_t l = n & 1; l <= n; l += 2)
+        {
+            expansion(n,l,0) = {norm2*double(l)/3.0, 0.0};
+            for (std::size_t m = 1; m <= l; ++m)
+                expansion(n,l,m) = {
+                    norm*(double(n)/7.0 + double(l)/3.0 + double(m)/2.0), norm*(double(n)/9.0 + double(l)/10.0 - double(m)/5.0)
+                };
+        }
+    }
+
+    std::vector<std::array<double, 2>> test_buffer(ExpansionSpan::Layout::size(order));
+    std::ranges::copy(buffer, test_buffer.begin());
+    ExpansionSpan test_expansion(test_buffer, order);
+
+    zest::WignerdPiHalfCollection wigner_d_pi2(order);
+    zest::Rotor rotor(order);
+    rotor.rotate(expansion, wigner_d_pi2, std::array<double, 3>{});
+
+    bool success = true;
+
+    for (std::size_t n = 0; n < order; ++n)
+    {
+        for (std::size_t l = n & 1; l <= n; l += 2)
+        {
+            for (std::size_t m = 0; m <= l; ++m)
+                if (!is_close(expansion(n,l,m), test_expansion(n,l,m), 1.0e-13))
+                    success = false;
+        }
+    }
+
+    if (!success)
+    {
+
+        for (std::size_t n = 0; n < order; ++n)
+        {
+            for (std::size_t l = n & 1; l <= n; l += 2)
+            {
+                for (std::size_t m = 0; m <= l; ++m)
+                    std::printf(
+                            "%lu %lu %lu {%f, %f} {%f, %f}\n", n, l, m,
+                            expansion(n,l,m)[0]/norm, expansion(n,l,m)[1]/norm,
+                            test_expansion(n,l,m)[0]/norm, test_expansion(n,l,m)[1]/norm);
+            }
+        }
+    }
+    return success;
+}
+
+bool test_sh_trivial_polar_rotation_is_trivial_order_6()
+{
+    constexpr std::size_t order = 6;
+    
+    using ExpansionSpan = zest::st::RealSHExpansionSpan<std::array<double, 2>, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>;
+
+    std::vector<std::array<double, 2>> buffer(ExpansionSpan::Layout::size(order));
+    
+    ExpansionSpan expansion(buffer, order);
+
+    constexpr double norm = 1.0*std::numbers::inv_sqrtpi/std::numbers::sqrt2;
+    constexpr double norm2 = 0.5*std::numbers::inv_sqrtpi;
+    for (std::size_t l = 0; l < order; ++l)
+    {
+        expansion(l,0) = {norm2*double(l)/3.0, 0.0};
+        for (std::size_t m = 1; m <= l; ++m)
+            expansion(l,m) = {
+                norm*(double(l)/3.0 + double(m)/2.0), norm*(double(l)/10.0 - double(m)/5.0)
+            };
+    }
+
+    std::vector<std::array<double, 2>> test_buffer(ExpansionSpan::Layout::size(order));
+    std::ranges::copy(buffer, test_buffer.begin());
+    ExpansionSpan test_expansion(test_buffer, order);
+
+    zest::WignerdPiHalfCollection wigner_d_pi2(order);
+    zest::Rotor rotor(order);
+    rotor.polar_rotate(expansion, 0.0);
+
+    bool success = true;
+    for (std::size_t l = 0; l < order; ++l)
+    {
+        for (std::size_t m = 0; m <= l; ++m)
+            if (!is_close(expansion(l,m), test_expansion(l,m), 1.0e-13))
+                success = false;
+    }
+
+    if (!success)
+    {
+        for (std::size_t l = 0; l < order; ++l)
+        {
+            for (std::size_t m = 0; m <= l; ++m)
+                std::printf(
+                        "%lu %lu {%f, %f} {%f, %f}\n", l, m,
+                        expansion(l,m)[0]/norm, expansion(l,m)[1]/norm,
+                        test_expansion(l,m)[0]/norm, test_expansion(l,m)[1]/norm);
+        }
+    }
+    return success;
+}
+
+bool test_zernike_trivial_polar_rotation_is_trivial_order_6()
+{
+    constexpr std::size_t order = 6;
+    
+    using ExpansionSpan = zest::zt::ZernikeExpansionSpan<std::array<double, 2>, zest::zt::ZernikeNorm::NORMED, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>;
+
+    std::vector<std::array<double, 2>> buffer(ExpansionSpan::Layout::size(order));
+    
+    ExpansionSpan expansion(buffer, order);
+
+    constexpr double norm = 1.0*std::numbers::inv_sqrtpi/std::numbers::sqrt2;
+    constexpr double norm2 = 0.5*std::numbers::inv_sqrtpi;
+    for (std::size_t n = 0; n < order; ++n)
+    {
+        for (std::size_t l = n & 1; l <= n; l += 2)
+        {
+            expansion(n,l,0) = {norm2*double(l)/3.0, 0.0};
+            for (std::size_t m = 1; m <= l; ++m)
+                expansion(n,l,m) = {
+                    norm*(double(n)/7.0 + double(l)/3.0 + double(m)/2.0), norm*(double(n)/9.0 + double(l)/10.0 - double(m)/5.0)
+                };
+        }
+    }
+
+    std::vector<std::array<double, 2>> test_buffer(ExpansionSpan::Layout::size(order));
+    std::ranges::copy(buffer, test_buffer.begin());
+    ExpansionSpan test_expansion(test_buffer, order);
+
+    zest::WignerdPiHalfCollection wigner_d_pi2(order);
+    zest::Rotor rotor(order);
+    rotor.polar_rotate(expansion, 0.0);
+
+    bool success = true;
+
+    for (std::size_t n = 0; n < order; ++n)
+    {
+        for (std::size_t l = n & 1; l <= n; l += 2)
+        {
+            for (std::size_t m = 0; m <= l; ++m)
+                if (!is_close(expansion(n,l,m), test_expansion(n,l,m), 1.0e-13))
+                    success = false;
+        }
+    }
+
+    if (!success)
+    {
+
+        for (std::size_t n = 0; n < order; ++n)
+        {
+            for (std::size_t l = n & 1; l <= n; l += 2)
+            {
+                for (std::size_t m = 0; m <= l; ++m)
+                    std::printf(
+                            "%lu %lu %lu {%f, %f} {%f, %f}\n", n, l, m,
+                            expansion(n,l,m)[0]/norm, expansion(n,l,m)[1]/norm,
+                            test_expansion(n,l,m)[0]/norm, test_expansion(n,l,m)[1]/norm);
+            }
         }
     }
     return success;
@@ -321,5 +492,9 @@ int main()
     using ZernikeExpansionSHSpan = zest::zt::ZernikeExpansionSHSpan<std::array<double, 2>, zest::zt::ZernikeNorm::NORMED, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>;
     assert(test_rotation_completes<ZernikeExpansionSHSpan>());
 
-    assert(test_trivial_rotation_is_trivial_order_6());
+    assert(test_sh_trivial_rotation_is_trivial_order_6());
+    assert(test_zernike_trivial_rotation_is_trivial_order_6());
+
+    assert(test_sh_trivial_polar_rotation_is_trivial_order_6());
+    assert(test_zernike_trivial_polar_rotation_is_trivial_order_6());
 }
