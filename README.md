@@ -46,7 +46,7 @@ int main()
     {
         const double x = std::sin(colat)*std::cos(lon);
         return r*std::exp(-x*x);
-    }
+    };
 
     constexpr std::size_t order = 20;
     zest::zt::BallGLQGridPoints points{};
@@ -60,8 +60,11 @@ int main()
     const double alpha = std::numbers::pi/2;
     const double beta = std::numbers::pi/4;
     const double gamma = 0;
+
+    std::array<double, 3> angles = {alpha, beta, gamma};
+    zest::WignerdPiHalfCollection wigner(order);
     zest::Rotor rotor{};
-    rotor.rotate(expansion, {alpha, beta, gamma});
+    rotor.rotate(expansion, wigner, angles);
 
     for (std::size_t n = 0; n < order; ++n)
     {
