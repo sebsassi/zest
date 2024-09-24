@@ -84,16 +84,16 @@ public:
         @param expansion real spherical harmonic expansion
         @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
-        @param convention rotation convention for interpreting the Euler angles
+        @param type transformation type
 
-        @note The rotation uses the ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+        @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
     */
     template <st::real_sh_expansion ExpansionType>
     void rotate(
         ExpansionType&& expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles,
-        RotationType convention = RotationType::OBJECT)
+        RotationType type = RotationType::OBJECT)
     {
         constexpr st::SHNorm SH_NORM = std::remove_cvref_t<ExpansionType>::sh_norm;
         constexpr st::SHPhase PHASE = std::remove_cvref_t<ExpansionType>::phase;
@@ -104,7 +104,7 @@ public:
         st::RealSHExpansionSpan<std::complex<double>, SH_NORM, PHASE>
         complex_expansion = to_complex_expansion<SH_NORM, PHASE>(expansion);
 
-        set_up_euler_rotations(euler_angles, convention, order);
+        set_up_euler_rotations(euler_angles, type, order);
 
         for (std::size_t l = 1; l < order; ++l)
             zest::rotate_l(
@@ -122,16 +122,16 @@ public:
         @param expansion real spherical harmonic expansion
         @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
-        @param convention rotation convention for interpreting the Euler angles
+        @param type transformation type
 
-        @note The rotation uses the ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+        @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
     */
     template <st::even_odd_real_sh_expansion ExpansionType>
     void rotate(
         ExpansionType&& expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles,
-        RotationType convention = RotationType::OBJECT)
+        RotationType type = RotationType::OBJECT)
     {
         constexpr st::SHNorm SH_NORM = std::remove_cvref_t<ExpansionType>::sh_norm;
         constexpr st::SHPhase PHASE = std::remove_cvref_t<ExpansionType>::phase;
@@ -142,7 +142,7 @@ public:
         auto complex_expansion
             = to_complex_expansion<SH_NORM, PHASE>(expansion);
 
-        set_up_euler_rotations(euler_angles, convention, order);
+        set_up_euler_rotations(euler_angles, type, order);
 
         for (std::size_t l = std::size_t(expansion.parity()); l < order; l += 2)
             zest::rotate_l(
@@ -160,16 +160,16 @@ public:
         @param expansion real Zernike expansion
         @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
-        @param convention rotation convention for interpreting the Euler angles
+        @param type transformation type
 
-        @note The rotation uses the ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+        @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
     */
     template <zt::zernike_expansion ExpansionType>
     void rotate(
         ExpansionType&& expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles,
-        RotationType convention = RotationType::OBJECT)
+        RotationType type = RotationType::OBJECT)
     {
         constexpr zt::ZernikeNorm ZERNIKE_NORM
             = std::remove_cvref_t<ExpansionType>::zernike_norm;
@@ -183,7 +183,7 @@ public:
         zt::ZernikeExpansionSpan<std::complex<double>, ZERNIKE_NORM, SH_NORM, PHASE> 
         complex_expansion = to_complex_expansion<ZERNIKE_NORM, SH_NORM, PHASE>(expansion);
 
-        set_up_euler_rotations(euler_angles, convention, order);
+        set_up_euler_rotations(euler_angles, type, order);
 
         for (std::size_t n = 1; n < order; ++n)
         {
@@ -205,9 +205,9 @@ public:
         @param expansion real spherical harmonic expansion
         @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
-        @param convention rotation convention for interpreting the Euler angles
+        @param type transformation type
 
-        @note The rotation uses the ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+        @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
     */
     template <st::real_sh_expansion ExpansionType>
     void rotate(
@@ -226,9 +226,9 @@ public:
         @param expansion real Zernike expansion
         @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
-        @param convention rotation convention for interpreting the Euler angles
+        @param type transformation type
 
-        @note The rotation uses the ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the Y-axis, and the third angle rotates about the Z-axis again.
+        @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
     */
     template <zt::zernike_expansion ExpansionType>
     void rotate(
@@ -246,12 +246,12 @@ public:
 
         @param expansion real spherical harmonic expansion
         @param angle polar rotation angle
-        @param convention rotation convention for interpreting the angle
+        @param type transformation type
     */
     template <st::real_sh_expansion ExpansionType>
     void polar_rotate(
         ExpansionType&& expansion, double angle,
-        RotationType convention = RotationType::OBJECT)
+        RotationType type = RotationType::OBJECT)
     {
         constexpr st::SHNorm SH_NORM = std::remove_cvref_t<ExpansionType>::sh_norm;
         constexpr st::SHPhase PHASE = std::remove_cvref_t<ExpansionType>::phase;
@@ -261,7 +261,7 @@ public:
 
         st::RealSHExpansionSpan<std::complex<double>, SH_NORM, PHASE> complex_expansion = to_complex_expansion<SH_NORM, PHASE>(expansion);
         
-        const double angle_rot = convert(angle, convention);
+        const double angle_rot = convert(angle, type);
         for (std::size_t l = 0; l < order; ++l)
             m_exp_alpha[l] = std::polar(1.0, -double(l)*angle_rot);
         
@@ -278,12 +278,12 @@ public:
 
         @param expansion real spherical harmonic expansion
         @param angle polar rotation angle
-        @param convention rotation convention for interpreting the angle
+        @param type transformation type
     */
     template <zt::zernike_expansion ExpansionType>
     void polar_rotate(
         ExpansionType&& expansion, double angle,
-        RotationType convention = RotationType::OBJECT)
+        RotationType type = RotationType::OBJECT)
     {
         constexpr zt::ZernikeNorm ZERNIKE_NORM
             = std::remove_cvref_t<ExpansionType>::zernike_norm;
@@ -297,7 +297,7 @@ public:
         zt::ZernikeExpansionSpan<std::complex<double>, ZERNIKE_NORM, SH_NORM, PHASE> 
         complex_expansion = to_complex_expansion<ZERNIKE_NORM, SH_NORM, PHASE>(expansion);
         
-        const double angle_rot = convert(angle, convention);
+        const double angle_rot = convert(angle, type);
         for (std::size_t l = 0; l < order; ++l)
             m_exp_alpha[l] = std::polar(1.0, -double(l)*angle_rot);
         
