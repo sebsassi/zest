@@ -167,9 +167,9 @@ private:
         return ind;
     }
     
-    data_handle_type m_data;
-    size_type m_size;
-    std::array<size_type, NDIM> m_extents;
+    data_handle_type m_data{};
+    size_type m_size{};
+    std::array<size_type, NDIM> m_extents{};
 };
 
 } // namespace zest

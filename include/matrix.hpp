@@ -136,9 +136,9 @@ public:
     }
 
 private:
-    std::size_t m_nrows;
-    std::size_t m_ncols;
-    std::vector<T> m_data;
+    std::size_t m_nrows{};
+    std::size_t m_ncols{};
+    std::vector<T> m_data{};
 };
 
 } // namespace zest

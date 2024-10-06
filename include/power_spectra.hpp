@@ -44,7 +44,7 @@ template <st::real_sh_expansion ExpansionType>
 void cross_power_spectrum(
     ExpansionType&& a, ExpansionType&& b, std::span<double> out) noexcept
 {
-    constexpr double norm = normalization<NORM>();
+    constexpr double norm = normalization<ExpansionType::sh_norm>();
     std::size_t min_order
             = std::min(std::min(a.order(), b.order()), out.size() - 1);
     
@@ -85,7 +85,7 @@ template <st::real_sh_expansion ExpansionType>
 void power_spectrum(
     ExpansionType&& expansion, std::span<double> out) noexcept
 {
-    constexpr double norm = normalization<NORM>();
+    constexpr double norm = normalization<ExpansionType::sh_norm>();
     std::size_t min_order = std::min(out.size(), expansion.order());
     
     for (std::size_t l = 0; l < expansion.order(); ++l)

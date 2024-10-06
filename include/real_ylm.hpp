@@ -129,7 +129,7 @@ public:
 
 private:
     std::vector<element_type> m_coeffs;
-    std::size_t m_order;
+    std::size_t m_order{};
 };
 
 /**
@@ -202,9 +202,9 @@ public:
     }
 
 private:
-    PlmRecursion m_recursion;
-    std::vector<double> m_ass_leg_poly;
-    std::vector<std::array<double, 2>> m_cossin;
+    PlmRecursion m_recursion{};
+    std::vector<double> m_ass_leg_poly{};
+    std::vector<std::array<double, 2>> m_cossin{};
 };
 
 } // namespace st

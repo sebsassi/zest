@@ -270,11 +270,11 @@ public:
 
 
 private:
-    std::vector<double> m_norms;
-    std::vector<double> m_k1;
-    std::vector<double> m_k2;
-    std::vector<double> m_k3;
-    std::size_t m_max_order;
+    std::vector<double> m_norms{};
+    std::vector<double> m_k1{};
+    std::vector<double> m_k2{};
+    std::vector<double> m_k3{};
+    std::size_t m_max_order{};
 };
 
 } // namespace zt

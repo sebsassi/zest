@@ -162,7 +162,7 @@ private:
         element_type* data, std::size_t size, const std::array<std::size_t, 3>& extents, std::size_t order) noexcept:
         MDSpan<ElementType, 3>(data, size, extents), m_order(order) {}
     
-    std::size_t m_order;
+    std::size_t m_order{};
 };
 
 /**
@@ -234,9 +234,9 @@ private:
     using Allocator
         = AlignedAllocator<element_type, typename LayoutType::Alignment>;
 
-    std::vector<element_type, Allocator> m_data;
-    std::array<std::size_t, 3> m_shape;
-    std::size_t m_order;
+    std::vector<element_type, Allocator> m_data{};
+    std::array<std::size_t, 3> m_shape{};
+    std::size_t m_order{};
 };
 
 template <typename T>
@@ -390,9 +390,9 @@ private:
         }
     }
 
-    std::vector<double> m_rad_glq_nodes;
-    std::vector<double> m_lat_glq_nodes;
-    std::vector<double> m_longitudes;
+    std::vector<double> m_rad_glq_nodes{};
+    std::vector<double> m_lat_glq_nodes{};
+    std::vector<double> m_longitudes{};
 };
 
 /**
@@ -798,20 +798,20 @@ private:
             m_pocketfft_shape_grid, m_pocketfft_stride_fft, m_pocketfft_stride_grid, lon_axis, pocketfft::BACKWARD, m_ffts.data(), values.flatten().data(), prefactor);
     }
 
-    RadialZernikeRecursion m_zernike_recursion;
-    st::PlmRecursion m_plm_recursion;
-    std::vector<double> m_rad_glq_nodes;
-    std::vector<double> m_rad_glq_weights;
-    std::vector<double> m_lat_glq_nodes;
-    std::vector<double> m_lat_glq_weights;
-    std::vector<double> m_zernike_grid;
-    std::vector<double> m_plm_grid;
-    std::vector<std::array<double, 2>> m_flm_grid;
-    std::vector<std::complex<double>> m_ffts;
-    std::vector<std::size_t> m_pocketfft_shape_grid;
-    std::vector<std::ptrdiff_t> m_pocketfft_stride_grid;
-    std::vector<std::ptrdiff_t> m_pocketfft_stride_fft;
-    std::size_t m_order;
+    RadialZernikeRecursion m_zernike_recursion{};
+    st::PlmRecursion m_plm_recursion{};
+    std::vector<double> m_rad_glq_nodes{};
+    std::vector<double> m_rad_glq_weights{};
+    std::vector<double> m_lat_glq_nodes{};
+    std::vector<double> m_lat_glq_weights{};
+    std::vector<double> m_zernike_grid{};
+    std::vector<double> m_plm_grid{};
+    std::vector<std::array<double, 2>> m_flm_grid{};
+    std::vector<std::complex<double>> m_ffts{};
+    std::vector<std::size_t> m_pocketfft_shape_grid{};
+    std::vector<std::ptrdiff_t> m_pocketfft_stride_grid{};
+    std::vector<std::ptrdiff_t> m_pocketfft_stride_fft{};
+    std::size_t m_order{};
 };
 
 /**

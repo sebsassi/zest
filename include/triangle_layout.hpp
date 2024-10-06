@@ -239,8 +239,8 @@ public:
         return m_data[i >> 1];
     }
 private:
-    element_type* m_data;
-    std::size_t m_size;
+    element_type* m_data{};
+    std::size_t m_size{};
 };
 
 /**
@@ -321,9 +321,9 @@ protected:
         m_data(data), m_size(size), m_order(order) {}
 
 private:
-    element_type* m_data;
-    std::size_t m_size;
-    std::size_t m_order;
+    element_type* m_data{};
+    std::size_t m_size{};
+    std::size_t m_order{};
 };
 
 /**
@@ -401,10 +401,10 @@ protected:
         m_data(data), m_size(size), m_order(order), m_vec_size(vec_size) {}
 
 private:
-    element_type* m_data;
-    std::size_t m_size;
-    std::size_t m_order;
-    std::size_t m_vec_size;
+    element_type* m_data{};
+    std::size_t m_size{};
+    std::size_t m_order{};
+    std::size_t m_vec_size{};
 };
 
 enum class Parity { EVEN = 0, ODD = 1 };

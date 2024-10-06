@@ -209,7 +209,7 @@ protected:
         MDSpan<ElementType, 2>(data, size, extents), m_order(order) {}
 
 private:
-    std::size_t m_order;
+    std::size_t m_order{};
 };
 
 /**
@@ -275,9 +275,9 @@ private:
     using Allocator
         = AlignedAllocator<element_type, typename LayoutType::Alignment>;
 
-    std::vector<element_type, Allocator> m_values;
-    std::array<std::size_t, 2> m_shape;
-    std::size_t m_order;
+    std::vector<element_type, Allocator> m_values{};
+    std::array<std::size_t, 2> m_shape{};
+    std::size_t m_order{};
 };
 
 template <typename T>
@@ -384,8 +384,8 @@ private:
         }
     }
 
-    std::vector<double> m_longitudes;
-    std::vector<double> m_glq_nodes;
+    std::vector<double> m_longitudes{};
+    std::vector<double> m_glq_nodes{};
 };
 
 /**
@@ -1114,16 +1114,16 @@ private:
             m_pocketfft_shape_grid, m_pocketfft_stride_fft, m_pocketfft_stride_grid, lon_axis, pocketfft::BACKWARD, m_ffts.data(), values.flatten().data(), prefactor);
     }
 
-    PlmRecursion m_recursion;
-    std::vector<double> m_glq_nodes;
-    std::vector<double> m_glq_weights;
-    std::vector<double> m_plm_grid;
-    std::vector<std::complex<double>> m_ffts;
-    std::vector<std::complex<double>> m_symm_asymm;
-    std::vector<std::size_t> m_pocketfft_shape_grid;
-    std::vector<std::ptrdiff_t> m_pocketfft_stride_grid;
-    std::vector<std::ptrdiff_t> m_pocketfft_stride_fft;
-    std::size_t m_order;
+    PlmRecursion m_recursion{};
+    std::vector<double> m_glq_nodes{};
+    std::vector<double> m_glq_weights{};
+    std::vector<double> m_plm_grid{};
+    std::vector<std::complex<double>> m_ffts{};
+    std::vector<std::complex<double>> m_symm_asymm{};
+    std::vector<std::size_t> m_pocketfft_shape_grid{};
+    std::vector<std::ptrdiff_t> m_pocketfft_stride_grid{};
+    std::vector<std::ptrdiff_t> m_pocketfft_stride_fft{};
+    std::size_t m_order{};
 };
 
 /**

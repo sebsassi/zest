@@ -324,12 +324,12 @@ private:
                 /m_sqrl[2*order - 2]);
     }
 
-    std::vector<double> m_sqrl;
-    std::vector<double> m_alm;
-    std::vector<double> m_blm;
-    std::vector<double> m_u_scaled;
-    std::vector<double> m_u;
-    std::size_t m_max_order;
+    std::vector<double> m_sqrl{};
+    std::vector<double> m_alm{};
+    std::vector<double> m_blm{};
+    std::vector<double> m_u_scaled{};
+    std::vector<double> m_u{};
+    std::size_t m_max_order{};
 };
 
 } // namespace st

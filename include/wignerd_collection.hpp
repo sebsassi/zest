@@ -54,9 +54,9 @@ public:
     }
 
 private:
-    ElementType* m_data;
-    std::size_t m_size;
-    std::size_t m_order;
+    ElementType* m_data{};
+    std::size_t m_size{};
+    std::size_t m_order{};
 };
 
 /**
@@ -95,10 +95,10 @@ private:
         return (l*(l + 1)*(2*l + 1))/6 + (l + 1)*m1 + m2;
     }
 
-    std::vector<double> m_matrices;
-    std::vector<double> m_sqrtl_cache;
-    std::vector<double> m_inv_sqrtl_cache;
-    std::size_t m_max_order;
+    std::vector<double> m_matrices{};
+    std::vector<double> m_sqrtl_cache{};
+    std::vector<double> m_inv_sqrtl_cache{};
+    std::size_t m_max_order{};
 };
 
 /**

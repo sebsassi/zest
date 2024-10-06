@@ -153,14 +153,14 @@ private:
 
     void sum_m(MDSpan<double, 2> values, std::size_t order) noexcept;
 
-    st::PlmRecursion m_plm_recursion;
-    std::vector<double> m_plm_grid;
-    std::vector<double> m_cos_colat;
-    std::vector<std::array<double, 2>> m_cossin_lon_grid;
-    std::vector<std::array<double, 2>> m_fm_grid;
-    std::size_t m_lon_size;
-    std::size_t m_lat_size;
-    std::size_t m_max_order;
+    st::PlmRecursion m_plm_recursion{};
+    std::vector<double> m_plm_grid{};
+    std::vector<double> m_cos_colat{};
+    std::vector<std::array<double, 2>> m_cossin_lon_grid{};
+    std::vector<std::array<double, 2>> m_fm_grid{};
+    std::size_t m_lon_size{};
+    std::size_t m_lat_size{};
+    std::size_t m_max_order{};
 };
 
 } // namespace st
@@ -300,18 +300,18 @@ private:
 
     void sum_m(MDSpan<double, 3> values, std::size_t order) noexcept;
 
-    RadialZernikeRecursion m_zernike_recursion;
-    st::PlmRecursion m_plm_recursion;
-    std::vector<double> m_zernike_grid;
-    std::vector<double> m_plm_grid;
-    std::vector<double> m_cos_colat;
-    std::vector<std::array<double, 2>> m_cossin_lon_grid;
-    std::vector<std::array<double, 2>> m_flm_grid;
-    std::vector<std::array<double, 2>> m_fm_grid;
-    std::size_t m_lon_size;
-    std::size_t m_lat_size;
-    std::size_t m_rad_size;
-    std::size_t m_max_order;
+    RadialZernikeRecursion m_zernike_recursion{};
+    st::PlmRecursion m_plm_recursion{};
+    std::vector<double> m_zernike_grid{};
+    std::vector<double> m_plm_grid{};
+    std::vector<double> m_cos_colat{};
+    std::vector<std::array<double, 2>> m_cossin_lon_grid{};
+    std::vector<std::array<double, 2>> m_flm_grid{};
+    std::vector<std::array<double, 2>> m_fm_grid{};
+    std::size_t m_lon_size{};
+    std::size_t m_lat_size{};
+    std::size_t m_rad_size{};
+    std::size_t m_max_order{};
 };
 
 } // namespace zt

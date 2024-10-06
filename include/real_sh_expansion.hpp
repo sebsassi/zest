@@ -233,8 +233,8 @@ public:
     }
 
 private:
-    std::vector<element_type> m_data;
-    size_type m_order;
+    std::vector<element_type> m_data{};
+    size_type m_order{};
 };
 
 /**
