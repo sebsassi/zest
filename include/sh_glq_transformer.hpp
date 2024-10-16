@@ -302,6 +302,7 @@ class SphereGLQGridPoints
 public:
     using GridLayout = LayoutType;
     SphereGLQGridPoints() = default;
+    explicit SphereGLQGridPoints(std::size_t order) { resize(order); }
 
     void resize(std::size_t order)
     {
@@ -1152,6 +1153,132 @@ using GLQTransformerQM
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerGeo
     = GLQTransformer<SHNorm::GEO, SHPhase::NONE, GridLayout>;
+
+/**
+    @brief Function concept taking Cartesian coordinates as inputs.
+*/
+template <typename Func>
+concept cartesian_function = requires (Func f, std::array<double, 3> x)
+{
+    { f(x) } -> std::same_as<double>;
+};
+
+/**
+    @brief Function concept taking spherical angles as inputs.
+*/
+template <typename Func>
+concept spherical_function = requires (Func f, double lon, double colat)
+{
+    { f(lon, colat) } -> std::same_as<double>;
+};
+
+/**
+    @brief High-level interface for taking SH transforms of functions on balls of arbitrary radii.
+
+    @tparam SH_NORM normalization convention of spherical harmonics
+    @tparam PHASE phase convention of spherical harmonics
+    @tparam GridLayoutType
+*/
+template <st::SHNorm SH_NORM, st::SHPhase PHASE, typename GridLayoutType = DefaultLayout>
+class SHTransformer
+{
+public:
+    using GridLayout = GridLayoutType;
+    SHTransformer() = default;
+    explicit SHTransformer(std::size_t order):
+        m_grid(order), m_points(order), m_transformer(order) {}
+
+    void resize(std::size_t order)
+    {
+        m_points.resize(order);
+        m_grid.resize(order);
+        m_transformer.resize(order);
+    }
+
+    template <spherical_function Func>
+    void transform(
+        Func&& f,
+        RealSHExpansionSpan<std::array<double, 2>, SH_NORM, PHASE> expansion)
+    {
+        resize(expansion.order());
+        m_points.generate_values(m_grid, f);
+        m_transformer.forward_transform(m_grid, expansion);
+    }
+
+    template <spherical_function Func>
+    [[nodiscard]] RealSHExpansion<SH_NORM, PHASE> transform(
+        Func&& f, double radius, std::size_t order)
+    {
+        resize(order);
+        m_points.generate_values(m_grid, f);
+        return m_transformer.forward_transform(m_grid, order);
+    }
+
+    template <cartesian_function Func>
+    void transform(
+        Func&& f, 
+        RealSHExpansionSpan<std::array<double, 2>, SH_NORM, PHASE> expansion)
+    {
+        auto f_scaled = [&](double lon, double colat) {
+            const double scolat = std::sin(colat);
+            const std::array<double, 3> x = {
+                scolat*std::cos(lon), scolat*std::sin(lon), std::cos(colat)
+            };
+            return f(x);
+        };
+        resize(expansion.order());
+        m_points.generate_values(m_grid, f_scaled);
+        m_transformer.forward_transform(m_grid, expansion);
+    }
+
+    template <cartesian_function Func>
+    [[nodiscard]] RealSHExpansion<SH_NORM, PHASE> transform(
+        Func&& f, std::size_t order)
+    {
+        auto f_scaled = [&](double lon, double colat) {
+            const double scolat = std::sin(colat);
+            const std::array<double, 3> x = {
+                scolat*std::cos(lon), scolat*std::sin(lon), std::cos(colat)
+            };
+            return f(x);
+        };
+        resize(order);
+        m_points.generate_values(m_grid, f_scaled);
+        return m_transformer.forward_transform(m_grid, order);
+    }
+
+private:
+    SphereGLQGrid<double, GridLayout> m_grid;
+    SphereGLQGridPoints<GridLayout> m_points;
+    GLQTransformer<SH_NORM, PHASE, GridLayout> m_transformer;
+};
+
+/**
+    @brief Convenient alias for `SHTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = DefaultLayout>
+using SHTransformerAcoustics
+    = SHTransformer<SHNorm::QM, SHPhase::NONE, GridLayout>;
+
+/**
+    @brief Convenient alias for `SHTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = DefaultLayout>
+using SHTransformerQM
+    = SHTransformer<SHNorm::QM, SHPhase::CS, GridLayout>;
+
+/**
+    @brief Convenient alias for `SHTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = DefaultLayout>
+using SHTransformerGeo
+    = SHTransformer<SHNorm::GEO, SHPhase::NONE, GridLayout>;
 
 } // namespace st
 } // namespace zest

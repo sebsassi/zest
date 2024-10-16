@@ -261,7 +261,7 @@ class BallGLQGridPoints
 public:
     using GridLayout = LayoutType;
     BallGLQGridPoints() = default;
-    BallGLQGridPoints(std::size_t order) { resize(order); }
+    explicit BallGLQGridPoints(std::size_t order) { resize(order); }
 
     void resize(std::size_t order)
     {
