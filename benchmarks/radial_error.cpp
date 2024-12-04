@@ -48,7 +48,7 @@ std::vector<double> make_radial(
     DistributionSpherical function, std::size_t order, std::span<const double> radii)
 {
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::GLQTransformerGeo transformer(order);
+    zest::zt::GLQTransformerOrthoGeo transformer(order);
     zest::zt::RadialZernikeRecursion radial_recursion(order);
 
     using RadialSpan = zest::zt::RadialZernikeSpan<zest::zt::ZernikeNorm::NORMED, double>;
@@ -64,7 +64,7 @@ std::vector<double> make_radial(
     {   
         radial_recursion.zernike(radii[i], radial_zernike);
         double rad = 0.0;
-        for (std::size_t n = 0; n < order; ++n)
+        for (std::size_t n = 0; n < order; n += 2)
             rad += expansion(n, 0, 0)[0]*radial_zernike(n, 0);
         radial[i] = rad;
     }
