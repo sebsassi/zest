@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include <algorithm>
 #include <fstream>
+#include <iomanip>
 
 #include "distributions.hpp"
 
@@ -82,6 +83,7 @@ void zernike_expansion_error(
         std::sprintf(fname, "zernike_error_absolute_%s_order_%lu.dat", name, order);
     std::ofstream output{};
     output.open(fname);
+    output << std::setprecision(16);
     for (std::size_t i = 0; i < out.size(); ++i)
     {
         double error = 0.0;

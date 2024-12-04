@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include <algorithm>
 #include <fstream>
+#include <iomanip>
 
 #include "distributions.hpp"
 
@@ -79,6 +80,7 @@ void zernike_radial_error(
     std::sprintf(fname, "zernike_radial_error_%s_order_%lu.dat", name, order);
     std::ofstream output{};
     output.open(fname);
+    output << std::setprecision(16);
     for (std::size_t i = 0; i < radii.size(); ++i)
     {
         const double error = reference_radial[i] - radial[i];
