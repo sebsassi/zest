@@ -35,12 +35,19 @@ create_nanobench(benchmark_sh_glq_forward_transform)
 create_nanobench(benchmark_sh_glq_backward_transform)
 create_nanobench(benchmark_rotor)
 
-add_executable(zernike_error.out zernike_error.cpp)
-target_include_directories(zernike_error.out
-    PRIVATE ${PROJECT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}
-)
-target_compile_options(zernike_error.out
-    PRIVATE
-        $<$<CONFIG:Debug>:-Wall;-Wextra;-Wpedantic;-Wconversion;-Werror;-g;-O3;-mavx2;-mfma>
-)
-target_link_libraries(zernike_error.out zest)
+macro(create_other_bench BENCHNAME)
+    add_executable(${BENCHNAME}.out
+        ${BENCHNAME}.cpp
+    )
+    target_include_directories(${BENCHNAME}.out
+        PRIVATE ${PROJECT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    target_compile_options(${BENCHNAME}.out
+        PRIVATE
+            $<$<CONFIG:Release>:-Wall;-Wextra;-Wpedantic;-Wconversion;-Werror;-g;-O3;-mavx2;-mfma>
+    )
+    target_link_libraries(${BENCHNAME}.out zest)
+endmacro()
+
+create_other_bench(zernike_error)
+create_other_bench(radial_error)

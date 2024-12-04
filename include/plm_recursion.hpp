@@ -228,7 +228,7 @@ private:
 
         assert(z.size() == plm.vec_size());
 
-        for (auto zi : z)
+        for ([[maybe_unused]] auto zi : z)
             assert(std::fabs(zi) <= 1.0);
 
         expand(order);
