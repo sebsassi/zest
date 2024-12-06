@@ -54,7 +54,7 @@ bool test_linearfit_3_parameter_function()
     for (std::size_t i = 0; i < data_size; ++i)
         data[i] = fit_f(points[i]);
     
-    Matrix<double> model(data_size, 3);
+    zest::Matrix<double> model(data_size, 3);
     for (std::size_t i = 0; i < model.nrows(); ++i)
     {
         model[i][0] = f0(points[i]);

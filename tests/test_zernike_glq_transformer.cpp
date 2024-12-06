@@ -59,8 +59,8 @@ bool test_glq_forward_transform_expands_Z000()
     std::size_t order = 6;
 
     auto function = [](
-        [[maybe_unused]] double r, [[maybe_unused]] double lon, 
-        [[maybe_unused]] double colat)
+        [[maybe_unused]] double lon, [[maybe_unused]] double colat, 
+        [[maybe_unused]] double r)
     {
         constexpr double znorm
             = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
@@ -132,7 +132,7 @@ bool test_glq_forward_transform_expands_Z200()
     std::size_t order = 6;
 
     auto function = [](
-        double r, [[maybe_unused]] double lon, [[maybe_unused]] double colat)
+        [[maybe_unused]] double lon, [[maybe_unused]] double colat, double r)
     {
         constexpr double znorm
             = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt7 : 1.0;
@@ -201,7 +201,7 @@ bool test_glq_forward_transform_expands_Z110()
     constexpr double sqrt5 = 2.2360679774997896964091737;
     std::size_t order = 6;
 
-    auto function = [](double r, [[maybe_unused]] double lon, double colat)
+    auto function = []([[maybe_unused]] double lon, double colat, double r)
     {
         constexpr double znorm
             = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt5 : 1.0;
@@ -272,8 +272,7 @@ bool test_glq_forward_transform_expands_Z221()
 
     std::size_t order = 6;
 
-    auto function = [](
-        double r, double lon, double colat)
+    auto function = [](double lon, double colat, double r)
     {
         constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
         constexpr double znorm
@@ -343,8 +342,7 @@ bool test_glq_forward_transform_expands_Z33m2()
 {
     std::size_t order = 6;
 
-    auto function = [](
-        double r, double lon, double colat)
+    auto function = [](double lon, double colat, double r)
     {
         constexpr double znorm
             = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? 3.0 : 1.0;
@@ -415,8 +413,7 @@ bool test_glq_forward_transform_expands_Z531()
 
     std::size_t order = 6;
 
-    auto function = [](
-        double r, double lon, double colat)
+    auto function = [](double lon, double colat, double r)
     {
         constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
         constexpr double znorm
@@ -487,8 +484,8 @@ bool test_glq_backward_transform_evaluates_Z000()
     constexpr std::size_t order = 6; 
 
     auto function = [](
-        [[maybe_unused]] double r, [[maybe_unused]] double lon, 
-        [[maybe_unused]] double colat)
+        [[maybe_unused]] double lon, [[maybe_unused]] double colat, 
+        [[maybe_unused]] double r)
     {
         constexpr double znorm
             = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ?
@@ -554,7 +551,7 @@ bool test_glq_backward_transform_evaluates_Z110()
 
     constexpr std::size_t order = 6; 
 
-    auto function = [](double r, [[maybe_unused]] double lon, double colat)
+    auto function = []([[maybe_unused]] double lon, double colat, double r)
     {
         constexpr double znorm
             = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt5 : 1.0;
@@ -621,7 +618,7 @@ bool test_glq_backward_transform_evaluates_Z200()
     constexpr std::size_t order = 6; 
 
     auto function = [](
-        double r, [[maybe_unused]] double lon, [[maybe_unused]] double colat)
+        [[maybe_unused]] double lon, [[maybe_unused]] double colat, double r)
     {
         constexpr double znorm
             = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? sqrt7 : 1.0;
@@ -686,8 +683,7 @@ bool test_glq_backward_transform_evaluates_Z221()
 
     constexpr std::size_t order = 6; 
 
-    auto function = [](
-        double r, double lon, double colat)
+    auto function = [](double lon, double colat, double r)
     {
         constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
         constexpr double znorm
@@ -752,8 +748,7 @@ bool test_glq_backward_transform_evaluates_Z33m2()
 {
     constexpr std::size_t order = 6; 
 
-    auto function = [](
-        double r, double lon, double colat)
+    auto function = [](double lon, double colat, double r)
     {
         constexpr double znorm
             = (ZERNIKE_NORM == zest::zt::ZernikeNorm::NORMED) ? 3.0 : 1.0;
@@ -819,8 +814,7 @@ bool test_glq_backward_transform_evaluates_Z531()
 
     constexpr std::size_t order = 6; 
 
-    auto function = [](
-        double r, double lon, double colat)
+    auto function = [](double lon, double colat, double r)
     {
         constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
         constexpr double znorm

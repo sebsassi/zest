@@ -72,7 +72,7 @@ void zernike_expansion_error(
         for (std::size_t j = 0; j < num_lat; ++j)
         {
             for (std::size_t k = 0; k < num_rad; ++k)
-                reference(i, j, k) = function(radii[i], longitudes[k], colatitudes[j]);
+                reference(i, j, k) = function(longitudes[i], colatitudes[j], radii[k]);
         }
     }
 

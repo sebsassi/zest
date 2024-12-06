@@ -27,7 +27,7 @@ SOFTWARE.
 
 int main()
 {
-    auto function = [](double r, double lon, double colat)
+    auto function = [](double lon, double colat, double r)
     {
         const double x = std::sin(colat)*std::cos(lon);
         return r*std::exp(-x*x);

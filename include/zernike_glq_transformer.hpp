@@ -305,7 +305,7 @@ public:
                     for (std::size_t k = 0; k < m_rad_glq_nodes.size(); ++k)
                     {
                         const double r = m_rad_glq_nodes[k];
-                        grid(i, j, k) = f(r, lon, colatitude);
+                        grid(i, j, k) = f(lon, colatitude, r);
                     }
                 }
             }
@@ -881,9 +881,9 @@ concept cartesian_function = requires (Func f, std::array<double, 3> x)
     @brief Function concept taking spherical coordinates as inputs.
 */
 template <typename Func>
-concept spherical_function = requires (Func f, double r, double lon, double colat)
+concept spherical_function = requires (Func f, double lon, double colat, double r)
 {
-    { f(r, lon, colat) } -> std::same_as<double>;
+    { f(lon, colat, r) } -> std::same_as<double>;
 };
 
 /**
@@ -915,8 +915,8 @@ public:
         Func&& f, double radius,
         ZernikeExpansionSpan<std::array<double, 2>, ZERNIKE_NORM, SH_NORM, PHASE> expansion)
     {
-        auto f_scaled = [&](double r, double lon, double colat) {
-            return f(r*radius, lon, colat);
+        auto f_scaled = [&](double lon, double colat, double r) {
+            return f(lon, colat, r*radius);
         };
         resize(expansion.order());
         m_points.generate_values(m_grid, f_scaled);
@@ -927,8 +927,8 @@ public:
     [[nodiscard]] ZernikeExpansion<ZERNIKE_NORM, SH_NORM, PHASE> transform(
         Func&& f, double radius, std::size_t order)
     {
-        auto f_scaled = [&](double r, double lon, double colat) {
-            return f(r*radius, lon, colat);
+        auto f_scaled = [&](double lon, double colat, double r) {
+            return f(lon, colat, r*radius);
         };
         resize(order);
         m_points.generate_values(m_grid, f_scaled);
@@ -940,7 +940,7 @@ public:
         Func&& f, double radius,
         ZernikeExpansionSpan<std::array<double, 2>, ZERNIKE_NORM, SH_NORM, PHASE> expansion)
     {
-        auto f_scaled = [&](double r, double lon, double colat) {
+        auto f_scaled = [&](double lon, double colat, double r) {
             const double rad = r*radius;
             const double scolat = std::sin(colat);
             const std::array<double, 3> x = {
@@ -958,7 +958,7 @@ public:
     [[nodiscard]] ZernikeExpansion<ZERNIKE_NORM, SH_NORM, PHASE> transform(
         Func&& f, double radius, std::size_t order)
     {
-        auto f_scaled = [&](double r, double lon, double colat) {
+        auto f_scaled = [&](double lon, double colat, double r) {
             const double rad = r*radius;
             const double scolat = std::sin(colat);
             const std::array<double, 3> x = {
