@@ -56,6 +56,8 @@ void recursive_trig(
     for (std::size_t i = 0; i < angles.size(); ++i)
         trigs_0[i] = {1.0, 0.0};
     
+    if (trigs.extents()[0] == 1) return;
+
     MDSpan<std::array<double, 2>, 1> trigs_1 = trigs[1];
     for (std::size_t i = 0; i < angles.size(); ++i)
         trigs_1[i] = {std::cos(angles[i]), std::sin(angles[i])};
