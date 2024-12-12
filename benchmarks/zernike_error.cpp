@@ -100,7 +100,7 @@ void zernike_expansion_error(
 
 void produce_errors(DistributionSpherical f, const char* name, bool do_relative_error)
 {
-    std::vector<std::size_t> orders = {2,3,4,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,50,60,70,80,90,100,120,140,160,180,200};
+    std::vector<std::size_t> orders = {2,3,4,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,50,60,70,80,90,100,120,140,160,180,200,240,280};
     for (auto order : orders)
     {
         std::printf("%s: %lu\n", name, order);

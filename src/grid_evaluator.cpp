@@ -94,16 +94,16 @@ GridEvaluator::GridEvaluator(
 void GridEvaluator::resize(
     std::size_t max_order, std::size_t lon_size, std::size_t lat_size)
 {
-    if (max_order < m_max_order)
+    if (m_max_order < max_order)
         m_plm_recursion.expand(max_order);
 
-    if (max_order < m_max_order || lat_size != m_lat_size)
+    if (m_max_order < max_order || lat_size != m_lat_size)
     {
         m_plm_grid.resize(TriangleLayout::size(max_order)*lat_size);
         m_fm_grid.resize(max_order*lat_size);
     }
 
-    if (max_order < m_max_order || lon_size != m_lon_size)
+    if (m_max_order < max_order || lon_size != m_lon_size)
         m_cossin_lon_grid.resize(max_order*lon_size);
 
     if (lat_size != m_lat_size)
