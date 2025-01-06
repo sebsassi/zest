@@ -407,7 +407,7 @@ private:
     std::size_t m_vec_size{};
 };
 
-enum class Parity { EVEN = 0, ODD = 1 };
+enum class Parity { even = 0, odd = 1 };
 
 template <typename T>
 concept has_parity = requires (T x) { { x.parity() } -> std::same_as<Parity>; };

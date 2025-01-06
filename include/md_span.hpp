@@ -55,9 +55,9 @@ auto prod(T a) noexcept
     @brief Poor man's mdspan for modeling dynamic multidimensional arrays.
 
     @tparam ElementType type of array elements
-    @tparam NDIM number of array dimensions
+    @tparam ndim number of array dimensions
 */
-template <typename ElementType, std::size_t NDIM>
+template <typename ElementType, std::size_t ndim>
 class MDSpan
 {
 public:
@@ -66,11 +66,11 @@ public:
     using size_type = std::size_t;
     using index_type = std::size_t;
     using data_handle_type = element_type*;
-    using ConstView = MDSpan<const element_type, NDIM>;
+    using ConstView = MDSpan<const element_type, ndim>;
 
     constexpr MDSpan() noexcept = default;
     constexpr MDSpan(
-        data_handle_type data, const std::array<std::size_t, NDIM>& extents) noexcept:
+        data_handle_type data, const std::array<std::size_t, ndim>& extents) noexcept:
         m_data(data), m_size(detail::prod(extents)), m_extents(extents) {}
 
     [[nodiscard]] constexpr operator ConstView() const noexcept
@@ -98,48 +98,48 @@ public:
         return m_size == 0;
     }
 
-    [[nodiscard]] constexpr const std::array<std::size_t, NDIM>&
+    [[nodiscard]] constexpr const std::array<std::size_t, ndim>&
     extents() const noexcept
     {
         return m_extents;
     }
 
     template <typename... Ts>
-        requires (sizeof...(Ts) == NDIM)
+        requires (sizeof...(Ts) == ndim)
     [[nodiscard]] constexpr element_type& operator()(Ts... inds) const noexcept
     {
         return m_data[idx(inds...)];
     }
 
     template <typename... Ts>
-        requires (sizeof...(Ts) < NDIM)
-    [[nodiscard]] constexpr MDSpan<element_type, NDIM - sizeof...(Ts)>
+        requires (sizeof...(Ts) < ndim)
+    [[nodiscard]] constexpr MDSpan<element_type, ndim - sizeof...(Ts)>
     operator()(Ts... inds) const noexcept
     {
         index_type ind = idx(inds...);
-        std::array<index_type, NDIM - sizeof...(Ts)> extents = detail::last<NDIM - sizeof...(Ts)>(m_extents);
-        return MDSpan<element_type, NDIM - sizeof...(Ts)>(m_data + ind*detail::prod(extents), extents);
+        std::array<index_type, ndim - sizeof...(Ts)> extents = detail::last<ndim - sizeof...(Ts)>(m_extents);
+        return MDSpan<element_type, ndim - sizeof...(Ts)>(m_data + ind*detail::prod(extents), extents);
     }
 
     template <typename T>
-        requires (NDIM == 1UL)
+        requires (ndim == 1UL)
     [[nodiscard]] constexpr element_type& operator[](T i) const noexcept
     {
         return (*this)(i);
     }
 
     template <typename T>
-    [[nodiscard]] constexpr MDSpan<element_type, NDIM - 1UL>
+    [[nodiscard]] constexpr MDSpan<element_type, ndim - 1UL>
     operator[](T i) const noexcept
     {
         return (*this)(i);
     }
 
 protected:
-    friend MDSpan<std::remove_const_t<element_type>, NDIM>;
+    friend MDSpan<std::remove_const_t<element_type>, ndim>;
 
     constexpr MDSpan(
-        data_handle_type data, size_type size, const std::array<std::size_t, NDIM>& extents) noexcept:
+        data_handle_type data, size_type size, const std::array<std::size_t, ndim>& extents) noexcept:
         m_data(data), m_size(size), m_extents(extents) {}
 
 private:
@@ -154,7 +154,7 @@ private:
     [[nodiscard]] constexpr index_type
     idx_impl(index_type ind, index_type next, Ts... inds) const noexcept
     {
-        if constexpr (N < NDIM)
+        if constexpr (N < ndim)
             return idx_impl<N + 1>(ind*m_extents[N] + next, inds...);
         else
             return ind;
@@ -169,7 +169,7 @@ private:
     
     data_handle_type m_data{};
     size_type m_size{};
-    std::array<size_type, NDIM> m_extents{};
+    std::array<size_type, ndim> m_extents{};
 };
 
 } // namespace zest
