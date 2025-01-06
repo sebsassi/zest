@@ -45,7 +45,7 @@ bool to_real_is_inverse_of_to_complex()
 {
     constexpr std::size_t order = 6;
     
-    using ExpansionSpan = zest::st::RealSHExpansionSpan<std::array<double, 2>, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>;
+    using ExpansionSpan = zest::st::RealSHExpansionSpan<std::array<double, 2>, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
 
     std::vector<std::array<double, 2>> buffer(ExpansionSpan::Layout::size(order));
     
@@ -62,9 +62,9 @@ bool to_real_is_inverse_of_to_complex()
     std::ranges::copy(buffer, test_buffer.begin());
     ExpansionSpan test_expansion(test_buffer, order);
 
-    zest::st::RealSHExpansionSpan<std::complex<double>, zest::st::SHNorm::QM, zest::st::SHPhase::CS> complex_expansion
-            = zest::st::to_complex_expansion<zest::st::SHNorm::QM, zest::st::SHPhase::CS>(expansion);
-    zest::st::to_real_expansion<zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>(complex_expansion);
+    zest::st::RealSHExpansionSpan<std::complex<double>, zest::st::SHNorm::qm, zest::st::SHPhase::cs> complex_expansion
+            = zest::st::to_complex_expansion<zest::st::SHNorm::qm, zest::st::SHPhase::cs>(expansion);
+    zest::st::to_real_expansion<zest::st::SHNorm::geo, zest::st::SHPhase::none>(complex_expansion);
 
     bool success = true;
     for (std::size_t l = 0; l < order; ++l)
@@ -269,7 +269,7 @@ bool test_rotation_completes()
     ExpansionSpanType expansion(buffer, order);
     rotor.rotate(
             expansion, wigner_d_pi2, std::array<double, 3>{}, 
-            zest::RotationType::OBJECT);
+            zest::RotationType::object);
 
     return true;
 }
@@ -278,7 +278,7 @@ bool test_sh_trivial_rotation_is_trivial_order_6()
 {
     constexpr std::size_t order = 6;
     
-    using ExpansionSpan = zest::st::RealSHExpansionSpan<std::array<double, 2>, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>;
+    using ExpansionSpan = zest::st::RealSHExpansionSpan<std::array<double, 2>, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
 
     std::vector<std::array<double, 2>> buffer(ExpansionSpan::Layout::size(order));
     
@@ -303,7 +303,7 @@ bool test_sh_trivial_rotation_is_trivial_order_6()
     zest::Rotor rotor(order);
     rotor.rotate(
             expansion, wigner_d_pi2, std::array<double, 3>{}, 
-            zest::RotationType::OBJECT);
+            zest::RotationType::object);
 
     bool success = true;
     for (std::size_t l = 0; l < order; ++l)
@@ -331,7 +331,7 @@ bool test_zernike_trivial_rotation_is_trivial_order_6()
 {
     constexpr std::size_t order = 6;
     
-    using ExpansionSpan = zest::zt::ZernikeExpansionSpan<std::array<double, 2>, zest::zt::ZernikeNorm::NORMED, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>;
+    using ExpansionSpan = zest::zt::ZernikeExpansionSpan<std::array<double, 2>, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
 
     std::vector<std::array<double, 2>> buffer(ExpansionSpan::Layout::size(order));
     
@@ -359,7 +359,7 @@ bool test_zernike_trivial_rotation_is_trivial_order_6()
     zest::Rotor rotor(order);
     rotor.rotate(
             expansion, wigner_d_pi2, std::array<double, 3>{}, 
-            zest::RotationType::OBJECT);
+            zest::RotationType::object);
 
     bool success = true;
 
@@ -395,7 +395,7 @@ bool test_sh_trivial_polar_rotation_is_trivial_order_6()
 {
     constexpr std::size_t order = 6;
     
-    using ExpansionSpan = zest::st::RealSHExpansionSpan<std::array<double, 2>, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>;
+    using ExpansionSpan = zest::st::RealSHExpansionSpan<std::array<double, 2>, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
 
     std::vector<std::array<double, 2>> buffer(ExpansionSpan::Layout::size(order));
     
@@ -418,7 +418,7 @@ bool test_sh_trivial_polar_rotation_is_trivial_order_6()
 
     zest::WignerdPiHalfCollection wigner_d_pi2(order);
     zest::Rotor rotor(order);
-    rotor.polar_rotate(expansion, 0.0, zest::RotationType::OBJECT);
+    rotor.polar_rotate(expansion, 0.0, zest::RotationType::object);
 
     bool success = true;
     for (std::size_t l = 0; l < order; ++l)
@@ -446,7 +446,7 @@ bool test_zernike_trivial_polar_rotation_is_trivial_order_6()
 {
     constexpr std::size_t order = 6;
     
-    using ExpansionSpan = zest::zt::ZernikeExpansionSpan<std::array<double, 2>, zest::zt::ZernikeNorm::NORMED, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>;
+    using ExpansionSpan = zest::zt::ZernikeExpansionSpan<std::array<double, 2>, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
 
     std::vector<std::array<double, 2>> buffer(ExpansionSpan::Layout::size(order));
     
@@ -472,7 +472,7 @@ bool test_zernike_trivial_polar_rotation_is_trivial_order_6()
 
     zest::WignerdPiHalfCollection wigner_d_pi2(order);
     zest::Rotor rotor(order);
-    rotor.polar_rotate(expansion, 0.0, zest::RotationType::OBJECT);
+    rotor.polar_rotate(expansion, 0.0, zest::RotationType::object);
 
     bool success = true;
 
@@ -510,13 +510,13 @@ int main()
 
     assert(test_wigner_d_pi2_is_correct_to_order_5());
 
-    using SHExpansionSpan = zest::st::RealSHExpansionSpan<std::array<double, 2>, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>;
+    using SHExpansionSpan = zest::st::RealSHExpansionSpan<std::array<double, 2>, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
     assert(test_rotation_completes<SHExpansionSpan>());
 
-    using ZernikeExpansionSpan = zest::zt::ZernikeExpansionSpan<std::array<double, 2>, zest::zt::ZernikeNorm::NORMED, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>;
+    using ZernikeExpansionSpan = zest::zt::ZernikeExpansionSpan<std::array<double, 2>, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
     assert(test_rotation_completes<ZernikeExpansionSpan>());
 
-    using ZernikeExpansionSHSpan = zest::zt::ZernikeExpansionSHSpan<std::array<double, 2>, zest::zt::ZernikeNorm::NORMED, zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>;
+    using ZernikeExpansionSHSpan = zest::zt::ZernikeExpansionSHSpan<std::array<double, 2>, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
     assert(test_rotation_completes<ZernikeExpansionSHSpan>());
 
     assert(test_sh_trivial_rotation_is_trivial_order_6());

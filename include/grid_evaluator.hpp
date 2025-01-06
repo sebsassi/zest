@@ -100,8 +100,8 @@ public:
     [[nodiscard]] std::vector<double> evaluate(
         ExpansionType&& expansion, std::span<const double> longitudes, std::span<const double> colatitudes)
     {
-        constexpr SHNorm SH_NORM = std::remove_cvref_t<ExpansionType>::sh_norm;
-        constexpr SHPhase PHASE = std::remove_cvref_t<ExpansionType>::phase;
+        constexpr SHNorm sh_norm = std::remove_cvref_t<ExpansionType>::norm;
+        constexpr SHPhase sh_phase = std::remove_cvref_t<ExpansionType>::phase;
         if (longitudes.size() == 0 || colatitudes.size() == 0)
             return std::vector<double>{};
 
@@ -111,7 +111,7 @@ public:
         for (std::size_t i = 0; i < m_lat_size; ++i)
             m_cos_colat[i] = std::cos(colatitudes[i]);
 
-        st::PlmVecSpan<double, SH_NORM, PHASE> plm(
+        st::PlmVecSpan<double, sh_norm, sh_phase> plm(
                 m_plm_grid, order, m_lat_size);
         m_plm_recursion.plm_real(m_cos_colat, plm);
 
@@ -221,11 +221,11 @@ public:
     [[nodiscard]] std::vector<double> evaluate(
         ExpansionType&& expansion, std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
     {
-        constexpr ZernikeNorm ZERNIKE_NORM
+        constexpr ZernikeNorm zernike_norm
             = std::remove_cvref_t<ExpansionType>::zernike_norm;
-        constexpr st::SHNorm SH_NORM
+        constexpr st::SHNorm sh_norm
             = std::remove_cvref_t<ExpansionType>::sh_norm;
-        constexpr st::SHPhase PHASE = std::remove_cvref_t<ExpansionType>::phase;
+        constexpr st::SHPhase sh_phase = std::remove_cvref_t<ExpansionType>::sh_phase;
         if (longitudes.size() == 0 || colatitudes.size() == 0 || radii.size() == 0)
             return std::vector<double>{};
         
@@ -233,14 +233,14 @@ public:
         resize(order, longitudes.size(), colatitudes.size(), radii.size());
 
 
-        RadialZernikeVecSpan<ZERNIKE_NORM, double> zernike(
+        RadialZernikeVecSpan<zernike_norm, double> zernike(
                 m_zernike_grid, order, m_rad_size);
-        m_zernike_recursion.zernike<ZERNIKE_NORM>(radii, zernike);
+        m_zernike_recursion.zernike<zernike_norm>(radii, zernike);
 
         for (std::size_t i = 0; i < m_lat_size; ++i)
             m_cos_colat[i] = std::cos(colatitudes[i]);
         
-        st::PlmVecSpan<double, SH_NORM, PHASE> plm(m_plm_grid, order, m_lat_size);
+        st::PlmVecSpan<double, sh_norm, sh_phase> plm(m_plm_grid, order, m_lat_size);
         m_plm_recursion.plm_real(m_cos_colat, plm);
 
         MDSpan<std::array<double, 2>, 2> cossin_lon(
@@ -261,10 +261,10 @@ private:
     template <zernike_expansion ExpansionType>
     void sum_n(ExpansionType&& expansion) noexcept
     {
-        constexpr ZernikeNorm ZERNIKE_NORM
+        constexpr ZernikeNorm zernike_norm
             = std::remove_cvref_t<ExpansionType>::zernike_norm;
         const std::size_t order = expansion.order();
-        RadialZernikeVecSpan<ZERNIKE_NORM, const double> zernike(
+        RadialZernikeVecSpan<zernike_norm, const double> zernike(
                 m_zernike_grid, order, m_rad_size);
 
         std::ranges::fill(m_flm_grid, std::array<double, 2>{});

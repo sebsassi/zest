@@ -39,10 +39,12 @@ namespace st
 
     @tparam ElementType type of elements
     @tparam LayoutType layout of the elements
-    @tparam NORM normalization convention of the spherical harmonics
-    @tparam PHASE phase convention of the spherical harmonics
+    @tparam sh_norm_param normalization convention of the spherical harmonics
+    @tparam sh_phase_param phase convention of the spherical harmonics
 */
-template <typename ElementType, typename LayoutType, SHNorm SH_NORM, SHPhase PHASE>
+template <
+    typename ElementType, typename LayoutType, SHNorm sh_norm_param,
+    SHPhase sh_phase_param>
 class SHLMSpan: public TriangleSpan<ElementType, LayoutType>
 {
 public:
@@ -51,10 +53,10 @@ public:
     using TriangleSpan<ElementType, LayoutType>::size;
     using TriangleSpan<ElementType, LayoutType>::order;
 
-    using ConstView = SHLMSpan<const ElementType, LayoutType, SH_NORM, PHASE>;
+    using ConstView = SHLMSpan<const ElementType, LayoutType, sh_norm_param, sh_phase_param>;
 
-    static constexpr SHNorm sh_norm = SH_NORM;
-    static constexpr SHPhase phase = PHASE;
+    static constexpr SHNorm norm = sh_norm_param;
+    static constexpr SHPhase phase = sh_phase_param;
 
     [[nodiscard]] constexpr operator ConstView() const noexcept
     {
@@ -62,7 +64,7 @@ public:
     }
 
 private:
-    friend SHLMSpan<std::remove_const_t<ElementType>, LayoutType, SH_NORM, PHASE>;
+    friend SHLMSpan<std::remove_const_t<ElementType>, LayoutType, sh_norm_param, sh_phase_param>;
 };
 
 /**
@@ -71,9 +73,11 @@ private:
     @tparam ElementType type of elements
     @tparam LayoutType layout of the elements
     @tparam NORM normalization convention of the spherical harmonics
-    @tparam PHASE phase convention of the spherical harmonics
+    @tparam sh_phase_param phase convention of the spherical harmonics
 */
-template <typename ElementType, typename LayoutType, SHNorm SH_NORM, SHPhase PHASE>
+template <
+    typename ElementType, typename LayoutType, SHNorm sh_norm_param,
+    SHPhase sh_phase_param>
 class SHLMVecSpan: public TriangleVecSpan<ElementType, LayoutType>
 {
 public:
@@ -83,10 +87,10 @@ public:
     using TriangleVecSpan<ElementType, LayoutType>::order;
     using TriangleVecSpan<ElementType, LayoutType>::vec_size;
 
-    using ConstView = SHLMVecSpan<const ElementType, LayoutType, SH_NORM, PHASE>;
+    using ConstView = SHLMVecSpan<const ElementType, LayoutType, sh_norm_param, sh_phase_param>;
 
-    static constexpr SHNorm sh_norm = SH_NORM;
-    static constexpr SHPhase phase = PHASE;
+    static constexpr SHNorm norm = sh_norm_param;
+    static constexpr SHPhase phase = sh_phase_param;
 
     [[nodiscard]] constexpr operator ConstView() const noexcept
     {
@@ -94,7 +98,7 @@ public:
     }
 
 private:
-    friend SHLMVecSpan<std::remove_const_t<ElementType>, LayoutType, SH_NORM, PHASE>;
+    friend SHLMVecSpan<std::remove_const_t<ElementType>, LayoutType, sh_norm_param, sh_phase_param>;
 };
 
 template <typename T>
@@ -108,41 +112,41 @@ concept real_plane_vector
 
     @tparam ElementType type of elements
     @tparam NORM normalization convention of the spherical harmonics
-    @tparam PHASE phase convention of the spherical harmonics
+    @tparam sh_phase_param phase convention of the spherical harmonics
 */
-template <typename ElementType, SHNorm SH_NORM, SHPhase PHASE>
+template <typename ElementType, SHNorm sh_norm_param, SHPhase sh_phase_param>
     requires real_plane_vector<std::remove_const_t<ElementType>>
-using RealSHExpansionSpan = SHLMSpan<ElementType, TriangleLayout, SH_NORM, PHASE>;
+using RealSHExpansionSpan = SHLMSpan<ElementType, TriangleLayout, sh_norm_param, sh_phase_param>;
 
 /**
     @brief Convenient alias for `RealSHExpansionSpan` with orthonormal spherical harmonics and no Condon-Shortley phase.
 */
 template <typename ElementType>
 using RealSHExpansionSpanAcoustics
-    = RealSHExpansionSpan<ElementType, SHNorm::QM, SHPhase::NONE>;
+    = RealSHExpansionSpan<ElementType, SHNorm::qm, SHPhase::none>;
 /**
     @brief Convenient alias for `RealSHExpansionSpan` with orthonormal spherical harmonics with Condon-Shortley phase.
 */
 template <typename ElementType>
 using RealSHExpansionSpanQM
-    = RealSHExpansionSpan<ElementType, SHNorm::QM, SHPhase::CS>;
+    = RealSHExpansionSpan<ElementType, SHNorm::qm, SHPhase::cs>;
 
 /**
     @brief Convenient alias for `RealSHExpansionSpan` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
 */
 template <typename ElementType>
 using RealSHExpansionSpanGeo
-    = RealSHExpansionSpan<ElementType, SHNorm::GEO, SHPhase::NONE>;
+    = RealSHExpansionSpan<ElementType, SHNorm::geo, SHPhase::none>;
 
 /**
     @brief A container for spherical harmonic expansion of a real function.
 
     @tparam NORM normalization convention of the spherical harmonics
-    @tparam PHASE phase convention of the spherical harmonics
+    @tparam sh_phase_param phase convention of the spherical harmonics
     @tparam ElementType type of elements
 */
 template <
-    SHNorm SH_NORM, SHPhase PHASE, typename ElementType = std::array<double, 2>>
+    SHNorm sh_norm_param, SHPhase sh_phase_param, typename ElementType = std::array<double, 2>>
     requires real_plane_vector<std::remove_const_t<ElementType>>
 class RealSHExpansion
 {
@@ -152,13 +156,13 @@ public:
     using value_type = std::remove_cvref_t<element_type>;
     using index_type = Layout::index_type;
     using size_type = std::size_t;
-    using View = RealSHExpansionSpan<element_type, SH_NORM, PHASE>;
-    using ConstView = RealSHExpansionSpan<const element_type, SH_NORM, PHASE>;
+    using View = RealSHExpansionSpan<element_type, sh_norm_param, sh_phase_param>;
+    using ConstView = RealSHExpansionSpan<const element_type, sh_norm_param, sh_phase_param>;
     using SubSpan = std::span<element_type>;
     using ConstSubSpan = std::span<element_type>;
 
-    static constexpr SHNorm sh_norm = SH_NORM;
-    static constexpr SHPhase phase = PHASE;
+    static constexpr SHNorm norm = sh_norm_param;
+    static constexpr SHPhase phase = sh_phase_param;
 
     [[nodiscard]] static constexpr size_type size(size_type order) noexcept
     {
@@ -240,17 +244,17 @@ private:
 /**
     @brief Convenient alias for `RealSHExpansion` with orthonormal spherical harmonics and no Condon-Shortley phase.
 */
-using RealSHExpansionAcoustics = RealSHExpansion<SHNorm::QM, SHPhase::NONE>;
+using RealSHExpansionAcoustics = RealSHExpansion<SHNorm::qm, SHPhase::none>;
 
 /**
     @brief Convenient alias for `RealSHExpansion` with orthonormal spherical harmonics with Condon-Shortley phase.
 */
-using RealSHExpansionQM = RealSHExpansion<SHNorm::QM, SHPhase::CS>;
+using RealSHExpansionQM = RealSHExpansion<SHNorm::qm, SHPhase::cs>;
 
 /**
     @brief Convenient alias for `RealSHExpansion` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
 */
-using RealSHExpansionGeo = RealSHExpansion<SHNorm::GEO, SHPhase::NONE>;
+using RealSHExpansionGeo = RealSHExpansion<SHNorm::geo, SHPhase::none>;
 
 template <typename T>
 concept two_dimensional_range
@@ -273,24 +277,28 @@ concept even_odd_sh_layout = std::same_as<T, TriangleLayout>
 template <typename T>
 concept even_odd_real_sh_expansion
     = even_odd_sh_layout<typename std::remove_cvref_t<T>::Layout>
-    && std::same_as<decltype(std::remove_cvref_t<T>::sh_norm), const SHNorm>
-    && std::same_as<decltype(std::remove_cvref_t<T>::phase), const SHPhase>
+    && std::same_as<
+        std::remove_const_t<decltype(std::remove_cvref_t<T>::norm)>, SHNorm>
+    && std::same_as<
+        std::remove_const_t<decltype(std::remove_cvref_t<T>::phase)>, SHPhase>
     && real_plane_vector<typename std::remove_cvref_t<T>::value_type>
     && two_dimensional_range<std::remove_cvref_t<T>>;
 
 template <typename T>
 concept real_sh_expansion
     = std::same_as<typename std::remove_cvref_t<T>::Layout, TriangleLayout>
-    && std::same_as<decltype(std::remove_cvref_t<T>::sh_norm), const SHNorm>
-    && std::same_as<decltype(std::remove_cvref_t<T>::phase), const SHPhase>
+    && std::same_as<
+        std::remove_const_t<decltype(std::remove_cvref_t<T>::norm)>, SHNorm>
+    && std::same_as<
+        std::remove_const_t<decltype(std::remove_cvref_t<T>::phase)>, SHPhase>
     && real_plane_vector<typename std::remove_cvref_t<T>::value_type>
     && two_dimensional_range<std::remove_cvref_t<T>>;
 
 /**
     @brief Convert real spherical harmonic expansion of a real function to a complex spherical harmonic expansion.
 
-    @tparam DEST_NORM normalization convention of the output view
-    @tparam DEST_PHASE phase convention of the output view
+    @tparam dest_sh_norm normalization convention of the output view
+    @tparam dest_sh_phase phase convention of the output view
 
     @param expansion spherical harmonic expansion
 
@@ -298,12 +306,12 @@ concept real_sh_expansion
 
     @note This function modifies the input data and merely produces a new view over the same data.
 */
-template <SHNorm DEST_NORM, SHPhase DEST_PHASE, real_sh_expansion ExpansionType>
-RealSHExpansionSpan<std::complex<double>, DEST_NORM, DEST_PHASE>
+template <SHNorm dest_sh_norm, SHPhase dest_sh_phase, real_sh_expansion ExpansionType>
+RealSHExpansionSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>
 to_complex_expansion(ExpansionType&& expansion) noexcept
 {
     constexpr double shnorm
-        = conversion_const<std::remove_cvref_t<ExpansionType>::sh_norm, DEST_NORM>();
+        = conversion_const<std::remove_cvref_t<ExpansionType>::norm, dest_sh_norm>();
     constexpr double cnorm = 1.0/std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
@@ -313,7 +321,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
         expansion_l[0][0] *= shnorm;
         expansion_l[0][1] *= shnorm;
 
-        if constexpr (DEST_PHASE == std::remove_cvref_t<ExpansionType>::phase)
+        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::phase)
         {
             for (std::size_t m = 1; m <= l; ++m)
             {
@@ -333,15 +341,15 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
         }
     }
 
-    return RealSHExpansionSpan<std::complex<double>, DEST_NORM, DEST_PHASE>(
+    return RealSHExpansionSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>(
             as_complex_span(expansion.flatten()), expansion.order());
 }
 
 /**
     @brief Convert complex spherical harmonic expansion of a real function to a real spherical harmonic expansion.
 
-    @tparam DEST_NORM normalization convention of the output view
-    @tparam DEST_PHASE phase convention of the output view
+    @tparam dest_sh_norm normalization convention of the output view
+    @tparam dest_sh_phase phase convention of the output view
 
     @param expansion spherical harmonic expansion
 
@@ -349,16 +357,16 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
 
     @note This function modifies the input data and merely produces a new view over the same data.
 */
-template <SHNorm DEST_NORM, SHPhase DEST_PHASE, real_sh_expansion ExpansionType>
-RealSHExpansionSpan<std::array<double, 2>, DEST_NORM, DEST_PHASE>
+template <SHNorm dest_sh_norm, SHPhase dest_sh_phase, real_sh_expansion ExpansionType>
+RealSHExpansionSpan<std::array<double, 2>, dest_sh_norm, dest_sh_phase>
 to_real_expansion(ExpansionType&& expansion) noexcept
 {
     constexpr double shnorm
-        = conversion_const<std::remove_cvref_t<ExpansionType>::sh_norm, DEST_NORM>();
+        = conversion_const<std::remove_cvref_t<ExpansionType>::norm, dest_sh_norm>();
     constexpr double cnorm = std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
-    RealSHExpansionSpan<std::array<double, 2>, DEST_NORM, DEST_PHASE> res(
+    RealSHExpansionSpan<std::array<double, 2>, dest_sh_norm, dest_sh_phase> res(
             as_array_span(expansion.flatten()), expansion.order());
 
     for (std::size_t l = 0; l < expansion.order(); ++l)
@@ -367,7 +375,7 @@ to_real_expansion(ExpansionType&& expansion) noexcept
         res_l[0][0] *= shnorm;
         res_l[0][1] *= shnorm;
 
-        if constexpr (DEST_PHASE == std::remove_cvref_t<ExpansionType>::phase)
+        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::phase)
         {
             for (std::size_t m = 1; m <= l; ++m)
             {

@@ -379,12 +379,12 @@ private:
         if (num_lat != m_lat_glq_nodes.size())
         {
             m_lat_glq_nodes.resize(num_lat);
-            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::ANGLE>(m_lat_glq_nodes, m_lat_glq_nodes.size() & 1);
+            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::angle>(m_lat_glq_nodes, m_lat_glq_nodes.size() & 1);
         }
         if (num_rad != m_rad_glq_nodes.size())
         {
             m_rad_glq_nodes.resize(num_rad);
-            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::COS>(m_rad_glq_nodes, m_rad_glq_nodes.size() & 1);
+            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::cos>(m_rad_glq_nodes, m_rad_glq_nodes.size() & 1);
             for (auto& node : m_rad_glq_nodes)
                 node = 0.5*(1.0 + node);
         }
@@ -398,20 +398,22 @@ private:
 /**
     @brief Class for transforming between a Gauss-Legendre quadrature grid representation and Zernike polynomial expansion representation of data in the unit baal.
 
-    @tparam ZERNIKE_NORM normalization convention of Zernike functions
-    @tparam SH_NORM normalization convention of spherical harmonics
-    @tparam PHASE phase convention of spherical harmonics
+    @tparam zernike_norm_param normalization convention of Zernike functions
+    @tparam sh_norm_param normalization convention of spherical harmonics
+    @tparam sh_phase_param phase convention of spherical harmonics
     @tparam GridLayoutType
 */
-template <ZernikeNorm ZERNIKE_NORM, st::SHNorm SH_NORM, st::SHPhase PHASE, typename GridLayoutType = DefaultLayout>
+template <
+    ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param,
+    st::SHPhase sh_phase_param, typename GridLayoutType = DefaultLayout>
 class GLQTransformer
 {
 public:
     using GridLayout = GridLayoutType;
 
-    static constexpr ZernikeNorm zernike_norm = ZERNIKE_NORM;
-    static constexpr st::SHNorm sh_norm = SH_NORM;
-    static constexpr st::SHPhase phase = PHASE;
+    static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
+    static constexpr st::SHNorm sh_norm = sh_norm_param;
+    static constexpr st::SHPhase phase = sh_phase_param;
 
     GLQTransformer():
         m_pocketfft_shape_grid(3), m_pocketfft_stride_grid(3), 
@@ -428,22 +430,22 @@ public:
         m_ffts(GridLayout::rad_size(order)*GridLayout::lat_size(order)*GridLayout::fft_size(order)), m_pocketfft_shape_grid(3),
         m_pocketfft_stride_grid(3), m_pocketfft_stride_fft(3), m_order(order)
     {
-        gl::gl_nodes_and_weights<gl::UnpackedLayout, gl::GLNodeStyle::COS>(
+        gl::gl_nodes_and_weights<gl::UnpackedLayout, gl::GLNodeStyle::cos>(
                 m_rad_glq_nodes, m_rad_glq_weights,
                 m_rad_glq_weights.size() & 1);
-        gl::gl_nodes_and_weights<gl::UnpackedLayout, gl::GLNodeStyle::COS>(
+        gl::gl_nodes_and_weights<gl::UnpackedLayout, gl::GLNodeStyle::cos>(
                 m_lat_glq_nodes, m_lat_glq_weights,
                 m_lat_glq_weights.size() & 1);
         
         for (auto& node : m_rad_glq_nodes)
             node = 0.5*(1.0 + node);
         
-        RadialZernikeVecSpan<ZERNIKE_NORM, double> zernike(
+        RadialZernikeVecSpan<zernike_norm_param, double> zernike(
                 m_zernike_grid, order, m_rad_glq_nodes.size());
-        m_zernike_recursion.zernike<ZERNIKE_NORM>(
+        m_zernike_recursion.zernike<zernike_norm_param>(
                 m_rad_glq_nodes, zernike);
 
-        st::PlmVecSpan<double, SH_NORM, PHASE> plm(
+        st::PlmVecSpan<double, sh_norm_param, sh_phase_param> plm(
                 m_plm_grid, order, m_lat_glq_nodes.size());
         m_plm_recursion.plm_real(m_lat_glq_nodes, plm);
 
@@ -476,10 +478,10 @@ public:
         m_lat_glq_nodes.resize(GridLayout::lat_size(order));
         m_lat_glq_weights.resize(GridLayout::lat_size(order));
 
-        gl::gl_nodes_and_weights<gl::UnpackedLayout, gl::GLNodeStyle::COS>(
+        gl::gl_nodes_and_weights<gl::UnpackedLayout, gl::GLNodeStyle::cos>(
                 m_rad_glq_nodes, m_rad_glq_weights,
                 m_rad_glq_weights.size() & 1);
-        gl::gl_nodes_and_weights<gl::UnpackedLayout, gl::GLNodeStyle::COS>(
+        gl::gl_nodes_and_weights<gl::UnpackedLayout, gl::GLNodeStyle::cos>(
                 m_lat_glq_nodes, m_lat_glq_weights,
                 m_lat_glq_weights.size() & 1);
         
@@ -488,15 +490,15 @@ public:
         
         m_zernike_grid.resize(GridLayout::rad_size(order)*RadialZernikeLayout::size(order));
         
-        RadialZernikeVecSpan<ZERNIKE_NORM, double> zernike(
+        RadialZernikeVecSpan<zernike_norm_param, double> zernike(
                 m_zernike_grid, order, m_rad_glq_nodes.size());
-        m_zernike_recursion.zernike<ZERNIKE_NORM>(
+        m_zernike_recursion.zernike<zernike_norm_param>(
                 m_rad_glq_nodes, zernike);
         
         m_plm_grid.resize(GridLayout::lat_size(order)*TriangleLayout::size(order));
         m_flm_grid.resize(GridLayout::rad_size(order)*TriangleLayout::size(order));
 
-        st::PlmVecSpan<double, SH_NORM, PHASE> plm(
+        st::PlmVecSpan<double, sh_norm_param, sh_phase_param> plm(
                 m_plm_grid, order, m_lat_glq_nodes.size());
         m_plm_recursion.plm_real(m_lat_glq_nodes, plm);
 
@@ -520,7 +522,7 @@ public:
 
     void forward_transform(
         BallGLQGridSpan<const double, GridLayout> values,
-        ZernikeExpansionSpan<std::array<double, 2>, ZERNIKE_NORM, SH_NORM, PHASE> expansion)
+        ZernikeExpansionSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
     {
         resize(values.order());
 
@@ -533,7 +535,7 @@ public:
     }
 
     void backward_transform(
-        ZernikeExpansionSpan<const std::array<double, 2>, ZERNIKE_NORM, SH_NORM, PHASE> expansion,
+        ZernikeExpansionSpan<const std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion,
         BallGLQGridSpan<double, GridLayout> values)
     {
         resize(values.order());
@@ -545,16 +547,16 @@ public:
         sum_m(values);
     }
     
-    [[nodiscard]] ZernikeExpansion<ZERNIKE_NORM, SH_NORM, PHASE> forward_transform(
+    [[nodiscard]] ZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> forward_transform(
         BallGLQGridSpan<const double, GridLayout> values, std::size_t order)
     {
-        ZernikeExpansion<ZERNIKE_NORM, SH_NORM, PHASE> expansion(order);
+        ZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> expansion(order);
         forward_transform(values, expansion);
         return expansion;
     }
 
     [[nodiscard]] BallGLQGrid<double, GridLayout> backward_transform(
-        ZernikeExpansionSpan<const std::array<double, 2>, ZERNIKE_NORM, SH_NORM, PHASE> expansion, std::size_t order)
+        ZernikeExpansionSpan<const std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion, std::size_t order)
     {
         BallGLQGrid<double, GridLayout> grid(order);
         backward_transform(expansion, grid);
@@ -567,7 +569,7 @@ private:
     {
         constexpr std::size_t lon_axis = GridLayout::lon_axis;
         constexpr double radial_integral_norm = 0.5;
-        constexpr double sh_norm = st::normalization<SH_NORM>();
+        constexpr double sh_norm = st::normalization<sh_norm_param>();
         const double fourier_norm = (2.0*std::numbers::pi)/double(values.shape()[lon_axis]);
         const double prefactor = sh_norm*radial_integral_norm*fourier_norm;
         pocketfft::r2c(
@@ -640,7 +642,7 @@ private:
         TriangleVecSpan<std::array<double, 2>, TriangleLayout>
         flm(m_flm_grid, m_order, rad_glq_size);
 
-        st::PlmVecSpan<const double, SH_NORM, PHASE> ass_leg(
+        st::PlmVecSpan<const double, sh_norm_param, sh_phase_param> ass_leg(
                 m_plm_grid, m_order, m_lat_glq_nodes.size());
 
         MDSpan<const std::complex<double>, 3> fft(
@@ -670,7 +672,7 @@ private:
     }
 
     void integrate_radial(
-        ZernikeExpansionSpan<std::array<double, 2>, ZERNIKE_NORM, SH_NORM, PHASE> expansion, std::size_t min_order) noexcept
+        ZernikeExpansionSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion, std::size_t min_order) noexcept
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
         std::ranges::fill(expansion.flatten(), std::array<double, 2>{});
@@ -678,14 +680,14 @@ private:
         TriangleVecSpan<const std::array<double, 2>, TriangleLayout>
         flm(m_flm_grid, m_order, rad_glq_size);
 
-        RadialZernikeVecSpan<ZERNIKE_NORM, const double> zernike(
+        RadialZernikeVecSpan<zernike_norm_param, const double> zernike(
                 m_zernike_grid, m_order, m_rad_glq_nodes.size());
         if constexpr (std::same_as<GridLayout, LonLatRadLayout<typename GridLayout::Alignment>>)
         {
             for (std::size_t n = 0; n < min_order; ++n)
             {
-                const double norm = normalization<ZERNIKE_NORM>(n);
-                ZernikeExpansionSHSpan<std::array<double, 2>, ZERNIKE_NORM, SH_NORM, PHASE> 
+                const double norm = normalization<zernike_norm_param>(n);
+                ZernikeExpansionSHSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> 
                 expansion_n = expansion[n];
                 
                 for (std::size_t l = n & 1; l <= n; l += 2)
@@ -706,7 +708,7 @@ private:
                             coeff[1] += zernike_nl[i]*flm_lm[i][1];
                         }
 
-                        if constexpr (ZERNIKE_NORM == ZernikeNorm::UNNORMED)
+                        if constexpr (zernike_norm_param == ZernikeNorm::unnormed)
                         {
                             coeff[0] *= norm;
                             coeff[1] *= norm;
@@ -718,13 +720,13 @@ private:
     }
 
     void sum_n(
-        ZernikeExpansionSpan<const std::array<double, 2>, ZERNIKE_NORM, SH_NORM, PHASE> expansion, 
+        ZernikeExpansionSpan<const std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion, 
         std::size_t min_order) noexcept
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
         std::ranges::fill(m_flm_grid, std::array<double, 2>{});
 
-        RadialZernikeVecSpan<ZERNIKE_NORM, const double> zernike(
+        RadialZernikeVecSpan<zernike_norm_param, const double> zernike(
                 m_zernike_grid, m_order, m_rad_glq_nodes.size());
 
         TriangleVecSpan<std::array<double, 2>, TriangleLayout>
@@ -759,7 +761,7 @@ private:
         TriangleVecSpan<const std::array<double, 2>, TriangleLayout>
         flm(m_flm_grid, m_order, rad_glq_size);
         
-        st::PlmVecSpan<const double, SH_NORM, PHASE> ass_leg(
+        st::PlmVecSpan<const double, sh_norm_param, sh_phase_param> ass_leg(
                 m_plm_grid, m_order, m_lat_glq_nodes.size());
 
         std::ranges::fill(m_ffts, std::complex<double>{});
@@ -821,7 +823,8 @@ private:
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerAcoustics
-    = GLQTransformer<ZernikeNorm::UNNORMED, st::SHNorm::QM, st::SHPhase::NONE, GridLayout>;
+    = GLQTransformer<
+        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with orthonorml Zernike functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
@@ -830,7 +833,8 @@ using GLQTransformerAcoustics
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerOrthoAcoustics
-    = GLQTransformer<ZernikeNorm::NORMED, st::SHNorm::QM, st::SHPhase::NONE, GridLayout>;
+    = GLQTransformer<
+        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with unnormalized Zernike functions, orthonormal spherical harmonics, and Condon-Shortley phase.
@@ -839,7 +843,8 @@ using GLQTransformerOrthoAcoustics
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerQM
-    = GLQTransformer<ZernikeNorm::UNNORMED, st::SHNorm::QM, st::SHPhase::CS, GridLayout>;
+    = GLQTransformer<
+        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with orthonormal Zernike functions, orthonormal spherical harmonics, and Condon-Shortley phase.
@@ -848,7 +853,8 @@ using GLQTransformerQM
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerOrthoQM
-    = GLQTransformer<ZernikeNorm::NORMED, st::SHNorm::QM, st::SHPhase::CS, GridLayout>;
+    = GLQTransformer<
+        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with unnormalized Zernike functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
@@ -857,7 +863,8 @@ using GLQTransformerOrthoQM
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerGeo
-    = GLQTransformer<ZernikeNorm::UNNORMED, st::SHNorm::GEO, st::SHPhase::NONE, GridLayout>;
+    = GLQTransformer<
+        ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with orthonormal Zernike functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
@@ -866,7 +873,8 @@ using GLQTransformerGeo
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerOrthoGeo
-    = GLQTransformer<ZernikeNorm::NORMED, st::SHNorm::GEO, st::SHPhase::NONE, GridLayout>;
+    = GLQTransformer<
+        ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
 
 /**
     @brief Function concept taking Cartesian coordinates as inputs.
@@ -889,12 +897,12 @@ concept spherical_function = requires (Func f, double lon, double colat, double 
 /**
     @brief High-level interface for taking Zernike transforms of functions on balls of arbitrary radii.
 
-    @tparam ZERNIKE_NORM normalization convention of Zernike functions
-    @tparam SH_NORM normalization convention of spherical harmonics
-    @tparam PHASE phase convention of spherical harmonics
+    @tparam zernike_norm_param normalization convention of Zernike functions
+    @tparam sh_norm_param normalization convention of spherical harmonics
+    @tparam sh_phase_param phase convention of spherical harmonics
     @tparam GridLayoutType
 */
-template <ZernikeNorm ZERNIKE_NORM, st::SHNorm SH_NORM, st::SHPhase PHASE, typename GridLayoutType = DefaultLayout>
+template <ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param, typename GridLayoutType = DefaultLayout>
 class ZernikeTransformer
 {
 public:
@@ -913,7 +921,7 @@ public:
     template <spherical_function Func>
     void transform(
         Func&& f, double radius,
-        ZernikeExpansionSpan<std::array<double, 2>, ZERNIKE_NORM, SH_NORM, PHASE> expansion)
+        ZernikeExpansionSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
             return f(lon, colat, r*radius);
@@ -924,7 +932,7 @@ public:
     }
 
     template <spherical_function Func>
-    [[nodiscard]] ZernikeExpansion<ZERNIKE_NORM, SH_NORM, PHASE> transform(
+    [[nodiscard]] ZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> transform(
         Func&& f, double radius, std::size_t order)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
@@ -938,7 +946,7 @@ public:
     template <cartesian_function Func>
     void transform(
         Func&& f, double radius,
-        ZernikeExpansionSpan<std::array<double, 2>, ZERNIKE_NORM, SH_NORM, PHASE> expansion)
+        ZernikeExpansionSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
             const double rad = r*radius;
@@ -955,7 +963,7 @@ public:
     }
 
     template <cartesian_function Func>
-    [[nodiscard]] ZernikeExpansion<ZERNIKE_NORM, SH_NORM, PHASE> transform(
+    [[nodiscard]] ZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> transform(
         Func&& f, double radius, std::size_t order)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
@@ -975,7 +983,7 @@ public:
 private:
     BallGLQGrid<double, GridLayout> m_grid;
     BallGLQGridPoints<GridLayout> m_points;
-    GLQTransformer<ZERNIKE_NORM, SH_NORM, PHASE, GridLayout> m_transformer;
+    GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param, GridLayout> m_transformer;
 };
 
 /**
@@ -985,7 +993,8 @@ private:
 */
 template <typename GridLayout = DefaultLayout>
 using ZernikeTransformerAcoustics
-    = ZernikeTransformer<ZernikeNorm::UNNORMED, st::SHNorm::QM, st::SHPhase::NONE, GridLayout>;
+    = ZernikeTransformer<
+        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none, GridLayout>;
 
 /**
     @brief Convenient alias for `ZernikeTransformer` with orthonormal Zernike functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
@@ -994,7 +1003,8 @@ using ZernikeTransformerAcoustics
 */
 template <typename GridLayout = DefaultLayout>
 using ZernikeTransformerOrthoAcoustics
-    = ZernikeTransformer<ZernikeNorm::NORMED, st::SHNorm::QM, st::SHPhase::NONE, GridLayout>;
+    = ZernikeTransformer<
+        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none, GridLayout>;
 
 /**
     @brief Convenient alias for `ZernikeTransformer` with unnormalized Zernike functions, orthonormal spherical harmonics, and Condon-Shortley phase.
@@ -1003,7 +1013,8 @@ using ZernikeTransformerOrthoAcoustics
 */
 template <typename GridLayout = DefaultLayout>
 using ZernikeTransformerQM
-    = ZernikeTransformer<ZernikeNorm::UNNORMED, st::SHNorm::QM, st::SHPhase::CS, GridLayout>;
+    = ZernikeTransformer<
+        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs, GridLayout>;
 
 /**
     @brief Convenient alias for `ZernikeTransformer` with orthonormal Zernike functions, orthonormal spherical harmonics, and Condon-Shortley phase.
@@ -1012,7 +1023,8 @@ using ZernikeTransformerQM
 */
 template <typename GridLayout = DefaultLayout>
 using ZernikeTransformerOrthoQM
-    = ZernikeTransformer<ZernikeNorm::NORMED, st::SHNorm::QM, st::SHPhase::CS, GridLayout>;
+    = ZernikeTransformer<
+        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs, GridLayout>;
 
 /**
     @brief Convenient alias for `ZernikeTransformer` with unnormalized Zernike functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
@@ -1021,7 +1033,8 @@ using ZernikeTransformerOrthoQM
 */
 template <typename GridLayout = DefaultLayout>
 using ZernikeTransformerGeo
-    = ZernikeTransformer<ZernikeNorm::UNNORMED, st::SHNorm::GEO, st::SHPhase::NONE, GridLayout>;
+    = ZernikeTransformer<
+        ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
 
 /**
     @brief Convenient alias for `ZernikeTransformer` with orthonormal Zernike functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
@@ -1030,7 +1043,8 @@ using ZernikeTransformerGeo
 */
 template <typename GridLayout = DefaultLayout>
 using ZernikeTransformerOrthoGeo
-    = ZernikeTransformer<ZernikeNorm::NORMED, st::SHNorm::GEO, st::SHPhase::NONE, GridLayout>;
+    = ZernikeTransformer<
+        ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
 
 } // namespace zt
 } // namespace zest

@@ -50,12 +50,13 @@ constexpr bool is_power_of_two(std::size_t n) noexcept
 }
 
 
-// Smallest number greater than or equal to `n` divisible by `POWER_OF_TWO`
-template <std::size_t POWER_OF_TWO>
+// Smallest number greater than or equal to `n` divisible by `power_of_two`
+template <std::size_t power_of_two>
+    requires (is_power_of_two(power_of_two))
 [[nodiscard]] constexpr std::size_t next_divisible(std::size_t n) noexcept
 {
-    constexpr std::size_t shift = detail::ctz(POWER_OF_TWO);
-    return ((n + (POWER_OF_TWO - 1)) >> shift) << shift;
+    constexpr std::size_t shift = detail::ctz(power_of_two);
+    return ((n + (power_of_two - 1)) >> shift) << shift;
 }
 
 } // namespace detail
@@ -65,7 +66,7 @@ template <std::size_t POWER_OF_TWO>
 */
 struct NoAlignment
 {
-    static constexpr std::size_t byte_alignment = 1;
+    static constexpr std::size_t bytes = 1;
 
     /**
         @brief Number of elements that fit in a SIMD vector of given type.
@@ -80,14 +81,14 @@ struct NoAlignment
 /**
     @brief Descriptor for SIMD vector alignment.
 
-    @tparam BYTE_ALIGNMENT number of bytes to align to
+    @tparam byte_alignment number of bytes to align to
 
-    @note `BYTE_ALIGNMENT` must be a power of two.
+    @note `byte_alignment` must be a power of two.
 */
-template <std::size_t BYTE_ALIGNMENT>
+template <std::size_t byte_alignment>
 struct VectorAlignment
 {
-    static constexpr std::size_t byte_alignment = BYTE_ALIGNMENT;
+    static constexpr std::size_t bytes = byte_alignment;
 
     /**
         @brief Number of elements that fit in a SIMD vector of given type.
@@ -97,7 +98,7 @@ struct VectorAlignment
     template <typename T>
     [[nodiscard]] static constexpr std::size_t vector_size() noexcept
     {
-        return byte_alignment/sizeof(T);
+        return bytes/sizeof(T);
     }
 };
 
@@ -142,7 +143,7 @@ template<typename T, valid_simd_alignment Alignment>
     if constexpr (std::same_as<Alignment, NoAlignment>)
         return n*sizeof(T);
     else
-        return detail::next_divisible<Alignment::byte_alignment>(n*sizeof(T));
+        return detail::next_divisible<Alignment::bytes>(n*sizeof(T));
 }
 
 /**
@@ -164,10 +165,10 @@ struct AlignedAllocator
     [[nodiscard]] T* allocate(std::size_t n)
     {
         constexpr std::size_t max_count
-            = (std::numeric_limits<std::size_t>::max() - Alignment::byte_alignment)/sizeof(T);
+            = (std::numeric_limits<std::size_t>::max() - Alignment::bytes)/sizeof(T);
         if (n > max_count) throw std::bad_array_new_length();
  
-        auto p = static_cast<T*>(std::aligned_alloc(Alignment::byte_alignment, aligned_size<T, Alignment>(n)));
+        auto p = static_cast<T*>(std::aligned_alloc(Alignment::bytes, aligned_size<T, Alignment>(n)));
         if (!p) throw std::bad_alloc();
 
         return p;

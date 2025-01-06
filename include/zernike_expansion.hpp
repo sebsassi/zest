@@ -43,7 +43,7 @@ using ZernikeLayout = EvenSemiDiagonalTetrahedralLayout;
 
     @tparam ElementType type of elements in the view
 */
-template <ZernikeNorm NORM, typename ElementType>
+template <ZernikeNorm zernike_norm_param, typename ElementType>
     requires std::same_as<std::remove_const_t<ElementType>, double>
 class RadialZernikeSpan
 {
@@ -53,9 +53,9 @@ public:
     using element_type = ElementType;
     using value_type = std::remove_cv_t<element_type>;
     using size_type = std::size_t;
-    using ConstView = RadialZernikeSpan<NORM, const element_type>;
+    using ConstView = RadialZernikeSpan<zernike_norm_param, const element_type>;
 
-    static constexpr ZernikeNorm norm = NORM;
+    static constexpr ZernikeNorm norm = zernike_norm_param;
 
     constexpr RadialZernikeSpan() noexcept = default;
     constexpr RadialZernikeSpan(element_type* data, std::size_t order) noexcept:
@@ -101,7 +101,7 @@ public:
     }
 
 protected:
-    friend RadialZernikeSpan<NORM, std::remove_const_t<element_type>>;
+    friend RadialZernikeSpan<norm, std::remove_const_t<element_type>>;
 
     constexpr RadialZernikeSpan(
         element_type* data, std::size_t size, std::size_t order) noexcept: 
@@ -116,9 +116,10 @@ private:
 /**
     @brief Non-owning view over vectors of values of radial 3D Zernike polynomials.
 
+    @tparam zernike_norm_param zernike function normalization convention
     @tparam ElementType type of elements in the view
 */
-template <ZernikeNorm NORM, typename ElementType>
+template <ZernikeNorm zernike_norm_param, typename ElementType>
     requires std::same_as<std::remove_const_t<ElementType>, double>
 class RadialZernikeVecSpan
 {
@@ -128,9 +129,9 @@ public:
     using element_type = ElementType;
     using value_type = std::remove_cv_t<element_type>;
     using size_type = std::size_t;
-    using ConstView = RadialZernikeVecSpan<NORM, const element_type>;
+    using ConstView = RadialZernikeVecSpan<zernike_norm_param, const element_type>;
 
-    static constexpr ZernikeNorm norm = NORM;
+    static constexpr ZernikeNorm norm = zernike_norm_param;
 
     constexpr RadialZernikeVecSpan() noexcept = default;
     constexpr RadialZernikeVecSpan(
@@ -177,7 +178,7 @@ public:
     }
 
 protected:
-    friend RadialZernikeVecSpan<NORM, std::remove_const_t<element_type>>;
+    friend RadialZernikeVecSpan<norm, std::remove_const_t<element_type>>;
 
     constexpr RadialZernikeVecSpan(
         element_type* data, std::size_t size, std::size_t order, 
@@ -195,10 +196,13 @@ private:
     @brief A non-owning view of the Zernike expansion coefficients of a given radial index value.
 
     @tparam ElementType type of elements in the view
-    @tparam NORM spherical harmonic normalization convention
-    @tparam PHASE spherical harmonic phase convention
+    @tparam zernike_norm_param zernike function normalization convention
+    @tparam sh_norm_param spherical harmonic normalization convention
+    @tparam sh_phase_param spherical harmonic phase convention
 */
-template <typename ElementType, ZernikeNorm ZERNIKE_NORM, st::SHNorm SH_NORM, st::SHPhase PHASE>
+template <
+    typename ElementType, ZernikeNorm zernike_norm_param,
+    st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
 class ZernikeExpansionSHSpan:
     public TriangleSpan<ElementType, EvenOddPrimaryTriangleLayout>
 {
@@ -208,11 +212,11 @@ public:
     using TriangleSpan<ElementType, EvenOddPrimaryTriangleLayout>::size;
     using TriangleSpan<ElementType, EvenOddPrimaryTriangleLayout>::order;
 
-    using ConstView = ZernikeExpansionSHSpan<const ElementType, ZERNIKE_NORM, SH_NORM, PHASE>;
+    using ConstView = ZernikeExpansionSHSpan<const ElementType, zernike_norm_param, sh_norm_param, sh_phase_param>;
     
-    static constexpr ZernikeNorm zernike_norm = ZERNIKE_NORM;
-    static constexpr st::SHNorm sh_norm = SH_NORM;
-    static constexpr st::SHPhase phase = PHASE;
+    static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
+    static constexpr st::SHNorm norm = sh_norm_param;
+    static constexpr st::SHPhase phase = sh_phase_param;
 
     Parity parity() const noexcept { return Parity((order() & 1) ^ 1); }
 
@@ -222,17 +226,19 @@ public:
     }
     
 private:
-    friend ZernikeExpansionSHSpan<std::remove_const_t<ElementType>, ZERNIKE_NORM, SH_NORM, PHASE>;
+    friend ZernikeExpansionSHSpan<
+        std::remove_const_t<ElementType>, zernike_norm, norm, phase>;
 };
 
 /**
     @brief A non-owning view of a function expansion in the basis of real Zernike functions.
 
     @tparam ElementType type of elements in the view
-    @tparam NORM spherical harmonic normalization convention
-    @tparam PHASE spherical harmonic phase convention
+    @tparam zernike_norm_param zernike function normalization convention
+    @tparam sh_norm_param spherical harmonic normalization convention
+    @tparam sh_phase_param spherical harmonic phase convention
 */
-template <typename ElementType, ZernikeNorm ZERNIKE_NORM, st::SHNorm SH_NORM, st::SHPhase PHASE>
+template <typename ElementType, ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
 class ZernikeExpansionSpan
 {
 public:
@@ -240,12 +246,12 @@ public:
     using value_type = std::remove_cv_t<ElementType>;
     using size_type = std::size_t;
     using Layout = EvenSemiDiagonalTetrahedralLayout;
-    using SubSpan = ZernikeExpansionSHSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE>;
-    using ConstView = ZernikeExpansionSpan<const element_type, ZERNIKE_NORM, SH_NORM, PHASE>;
+    using SubSpan = ZernikeExpansionSHSpan<element_type, zernike_norm_param, sh_norm_param, sh_phase_param>;
+    using ConstView = ZernikeExpansionSpan<const element_type, zernike_norm_param, sh_norm_param, sh_phase_param>;
     
-    static constexpr ZernikeNorm zernike_norm = ZERNIKE_NORM;
-    static constexpr st::SHNorm sh_norm = SH_NORM;
-    static constexpr st::SHPhase phase = PHASE;
+    static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
+    static constexpr st::SHNorm sh_norm = sh_norm_param;
+    static constexpr st::SHPhase sh_phase = sh_phase_param;
 
     [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
     {
@@ -298,7 +304,8 @@ public:
     }
 
 protected:
-    friend ZernikeExpansionSpan<std::remove_const_t<element_type>, ZERNIKE_NORM, SH_NORM, PHASE>;
+    friend ZernikeExpansionSpan<
+        std::remove_const_t<element_type>, zernike_norm, sh_norm, sh_phase>;
 
     constexpr ZernikeExpansionSpan(
         element_type* data, std::size_t size, std::size_t order) noexcept: 
@@ -317,7 +324,7 @@ private:
 */
 template <typename ElementType>
 using ZernikeExpansionSpanAcoustics
-    = ZernikeExpansionSpan<ElementType, ZernikeNorm::UNNORMED, st::SHNorm::QM, st::SHPhase::NONE>;
+    = ZernikeExpansionSpan<ElementType, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionSpan` with orthonormal Zernike functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
@@ -326,7 +333,7 @@ using ZernikeExpansionSpanAcoustics
 */
 template <typename ElementType>
 using ZernikeExpansionSpanOrthoAcoustics
-    = ZernikeExpansionSpan<ElementType, ZernikeNorm::UNNORMED, st::SHNorm::QM, st::SHPhase::NONE>;
+    = ZernikeExpansionSpan<ElementType, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionSpan` with unnormalized Zernike functions, orthonormal spherical harmonics, and Condon-Shortley phase.
@@ -334,7 +341,7 @@ using ZernikeExpansionSpanOrthoAcoustics
     @tparam ElementType type of elements in the view
 */
 template <typename ElementType>
-using ZernikeExpansionSpanQM = ZernikeExpansionSpan<ElementType, ZernikeNorm::UNNORMED, st::SHNorm::QM, st::SHPhase::CS>;
+using ZernikeExpansionSpanQM = ZernikeExpansionSpan<ElementType, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionSpan` with orthonormal Zernike functions, orthonormal spherical harmonics, and Condon-Shortley phase.
@@ -342,7 +349,7 @@ using ZernikeExpansionSpanQM = ZernikeExpansionSpan<ElementType, ZernikeNorm::UN
     @tparam ElementType type of elements in the view
 */
 template <typename ElementType>
-using ZernikeExpansionSpanOrthoQM = ZernikeExpansionSpan<ElementType, ZernikeNorm::NORMED, st::SHNorm::QM, st::SHPhase::CS>;
+using ZernikeExpansionSpanOrthoQM = ZernikeExpansionSpan<ElementType, ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionSpan` with unnormalized Zernike functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
@@ -351,7 +358,7 @@ using ZernikeExpansionSpanOrthoQM = ZernikeExpansionSpan<ElementType, ZernikeNor
 */
 template <typename ElementType>
 using ZernikeExpansionSpanGeo
-    = ZernikeExpansionSpan<ElementType, ZernikeNorm::UNNORMED, st::SHNorm::GEO, st::SHPhase::NONE>;
+    = ZernikeExpansionSpan<ElementType, ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionSpan` with orthonormal Zernike functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
@@ -360,15 +367,15 @@ using ZernikeExpansionSpanGeo
 */
 template <typename ElementType>
 using ZernikeExpansionSpanOrthoGeo
-    = ZernikeExpansionSpan<ElementType, ZernikeNorm::NORMED, st::SHNorm::GEO, st::SHPhase::NONE>;
+    = ZernikeExpansionSpan<ElementType, ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none>;
 
 /**
     @brief A container for a Zernike expansion of a real function.
 
-    @tparam NORM normalization convention of spherical harmonics
-    @tparam PHASE phase convention of spherical harmonics
+    @tparam sh_norm_param normalization convention of spherical harmonics
+    @tparam sh_phase_param phase convention of spherical harmonics
 */
-template<ZernikeNorm ZERNIKE_NORM, st::SHNorm SH_NORM, st::SHPhase PHASE>
+template<ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
 class ZernikeExpansion
 {
 public:
@@ -377,14 +384,14 @@ public:
     using value_type = std::array<double, 2>;
     using index_type = Layout::index_type;
     using size_type = std::size_t;
-    using View = ZernikeExpansionSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE>;
-    using ConstView = ZernikeExpansionSpan<const element_type, ZERNIKE_NORM, SH_NORM, PHASE>;
-    using SubSpan = ZernikeExpansionSHSpan<element_type, ZERNIKE_NORM, SH_NORM, PHASE>;
-    using ConstSubSpan = ZernikeExpansionSHSpan<const element_type, ZERNIKE_NORM, SH_NORM, PHASE>;
+    using View = ZernikeExpansionSpan<element_type, zernike_norm_param, sh_norm_param, sh_phase_param>;
+    using ConstView = ZernikeExpansionSpan<const element_type, zernike_norm_param, sh_norm_param, sh_phase_param>;
+    using SubSpan = ZernikeExpansionSHSpan<element_type, zernike_norm_param, sh_norm_param, sh_phase_param>;
+    using ConstSubSpan = ZernikeExpansionSHSpan<const element_type, zernike_norm_param, sh_norm_param, sh_phase_param>;
     
-    static constexpr ZernikeNorm zernike_norm = ZERNIKE_NORM;
-    static constexpr st::SHNorm sh_norm = SH_NORM;
-    static constexpr st::SHPhase phase = PHASE;
+    static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
+    static constexpr st::SHNorm sh_norm = sh_norm_param;
+    static constexpr st::SHPhase sh_phase = sh_phase_param;
 
     [[nodiscard]] static constexpr size_type size(size_type order) noexcept
     {
@@ -464,53 +471,53 @@ private:
     @brief Convenient alias for `ZernikeExpansion` with unnormalized Zernike functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
 */
 using ZernikeExpansionAcoustics
-    = ZernikeExpansion<ZernikeNorm::UNNORMED, st::SHNorm::QM, st::SHPhase::NONE>;
+    = ZernikeExpansion<ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with orthnormal Zernike functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
 */
 using ZernikeExpansionOrthoAcoustics
-    = ZernikeExpansion<ZernikeNorm::NORMED, st::SHNorm::QM, st::SHPhase::NONE>;
+    = ZernikeExpansion<ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with unnormalized Zernike functions, orthonormal spherical harmonics, and Condon-Shortley phase.
 */
-using ZernikeExpansionQM = ZernikeExpansion<ZernikeNorm::UNNORMED, st::SHNorm::QM, st::SHPhase::CS>;
+using ZernikeExpansionQM = ZernikeExpansion<ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with orthonormal Zernike functions, orthonormal spherical harmonics, and Condon-Shortley phase.
 */
-using ZernikeExpansionOrthoQM = ZernikeExpansion<ZernikeNorm::NORMED, st::SHNorm::QM, st::SHPhase::CS>;
+using ZernikeExpansionOrthoQM = ZernikeExpansion<ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with unnormalized Zernike functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
 */
 using ZernikeExpansionGeo
-    = ZernikeExpansion<ZernikeNorm::UNNORMED, st::SHNorm::GEO, st::SHPhase::NONE>;
+    = ZernikeExpansion<ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with orthonormal Zernike functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
 */
 using ZernikeExpansionOrthoGeo
-    = ZernikeExpansion<ZernikeNorm::NORMED, st::SHNorm::GEO, st::SHPhase::NONE>;
+    = ZernikeExpansion<ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none>;
 
 template <typename T>
 concept zernike_expansion
     = std::same_as<
         std::remove_cvref_t<T>,
         ZernikeExpansion<
-            std::remove_cvref_t<T>::zernike_norm, std::remove_cvref_t<T>::sh_norm, std::remove_cvref_t<T>::phase>>
+            std::remove_cvref_t<T>::zernike_norm, std::remove_cvref_t<T>::sh_norm, std::remove_cvref_t<T>::sh_phase>>
     || std::same_as<
         std::remove_cvref_t<T>,
         ZernikeExpansionSpan<
-            typename std::remove_cvref_t<T>::element_type, std::remove_cvref_t<T>::zernike_norm, std::remove_cvref_t<T>::sh_norm, std::remove_cvref_t<T>::phase>>;
+            typename std::remove_cvref_t<T>::element_type, std::remove_cvref_t<T>::zernike_norm, std::remove_cvref_t<T>::sh_norm, std::remove_cvref_t<T>::sh_phase>>;
 
 /**
     @brief Convert real Zernike expansion of a real function to a complex Zernike expansion.
 
-    @tparam DEST_ZERNIKE_NORM Zernike normalization convention of the output view
-    @tparam DEST_SH_NORM spherical harmonic normalization convention of the output view
-    @tparam DEST_PHASE phase convention of the output view
+    @tparam dest_zernike_norm Zernike normalization convention of the output view
+    @tparam dest_sh_norm spherical harmonic normalization convention of the output view
+    @tparam dest_sh_phase phase convention of the output view
 
     @param expansion Zernike expansion
 
@@ -519,17 +526,19 @@ concept zernike_expansion
     @note This function modifies the input data and merely produces a new view over the same data.
 */
 template <
-    ZernikeNorm DEST_ZERNIKE_NORM, st::SHNorm DEST_SH_NORM, st::SHPhase DEST_PHASE, zernike_expansion ExpansionType>
-ZernikeExpansionSpan<std::complex<double>, DEST_ZERNIKE_NORM, DEST_SH_NORM, DEST_PHASE>
+    ZernikeNorm dest_zernike_norm, st::SHNorm dest_sh_norm,
+    st::SHPhase dest_sh_phase, zernike_expansion ExpansionType>
+ZernikeExpansionSpan<
+    std::complex<double>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>
 to_complex_expansion(ExpansionType&& expansion) noexcept
 {
-    constexpr double shnorm = st::conversion_const<std::remove_cvref_t<ExpansionType>::sh_norm, DEST_SH_NORM>();
+    constexpr double shnorm = st::conversion_const<std::remove_cvref_t<ExpansionType>::sh_norm, dest_sh_norm>();
     constexpr double cnorm = 1.0/std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
     for (std::size_t n = 0; n < expansion.order(); ++n)
     {
-        if constexpr (DEST_ZERNIKE_NORM == std::remove_cvref_t<ExpansionType>::zernike_norm)
+        if constexpr (dest_zernike_norm == std::remove_cvref_t<ExpansionType>::zernike_norm)
         {
             auto expansion_n = expansion[n];
             for (std::size_t l = (n & 1); l <= n; l += 2)
@@ -538,7 +547,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
                 expansion_nl[0][0] *= shnorm;
                 expansion_nl[0][1] *= shnorm;
 
-                if constexpr (DEST_PHASE == std::remove_cvref_t<ExpansionType>::phase)
+                if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::sh_phase)
                 {
                     for (std::size_t m = 1; m <= l; ++m)
                     {
@@ -560,7 +569,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
         }
         else
         {
-            const double znorm = conversion_factor<std::remove_cvref_t<ExpansionType>::zernike_norm, DEST_ZERNIKE_NORM>(n);
+            const double znorm = conversion_factor<std::remove_cvref_t<ExpansionType>::zernike_norm, dest_zernike_norm>(n);
             const double zshnorm = shnorm*znorm;
             const double zshcnorm = norm*znorm;
             auto expansion_n = expansion[n];
@@ -570,7 +579,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
                 expansion_nl[0][0] *= zshnorm;
                 expansion_nl[0][1] *= zshnorm;
 
-                if constexpr (DEST_PHASE == std::remove_cvref_t<ExpansionType>::phase)
+                if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::sh_phase)
                 {
                     for (std::size_t m = 1; m <= l; ++m)
                     {
@@ -592,16 +601,16 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
         }
     }
 
-    return ZernikeExpansionSpan<std::complex<double>, DEST_ZERNIKE_NORM, DEST_SH_NORM, DEST_PHASE>(
+    return ZernikeExpansionSpan<std::complex<double>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>(
             as_complex_span(expansion.flatten()), expansion.order());
 }
 
 /**
     @brief Convert complex Zernike expansion of a real function to a real Zernike expansion.
 
-    @tparam DEST_ZERNIKE_NORM Zernike normalization convention of the output view
-    @tparam DEST_SH_NORM spherical harmonic normalization convention of the output view
-    @tparam DEST_PHASE phase convention of the output view
+    @tparam dest_zernike_norm Zernike normalization convention of the output view
+    @tparam dest_sh_norm spherical harmonic normalization convention of the output view
+    @tparam dest_sh_phase phase convention of the output view
 
     @param expansion Zernike expansion
 
@@ -610,20 +619,22 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
     @note This function modifies the input data and merely produces a new view over the same data.
 */
 template <
-    ZernikeNorm DEST_ZERNIKE_NORM, st::SHNorm DEST_SH_NORM, st::SHPhase DEST_PHASE, zernike_expansion ExpansionType>
-ZernikeExpansionSpan<std::array<double, 2>, DEST_ZERNIKE_NORM, DEST_SH_NORM, DEST_PHASE>
+    ZernikeNorm dest_zernike_norm, st::SHNorm dest_sh_norm,
+    st::SHPhase dest_sh_phase, zernike_expansion ExpansionType>
+ZernikeExpansionSpan<
+    std::array<double, 2>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>
 to_real_expansion(ExpansionType&& expansion) noexcept
 {
-    constexpr double shnorm = st::conversion_const<std::remove_cvref_t<ExpansionType>::sh_norm, DEST_SH_NORM>();
+    constexpr double shnorm = st::conversion_const<std::remove_cvref_t<ExpansionType>::sh_norm, dest_sh_norm>();
     constexpr double cnorm = std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
-    ZernikeExpansionSpan<std::array<double, 2>, DEST_ZERNIKE_NORM, DEST_SH_NORM, DEST_PHASE> res(
+    ZernikeExpansionSpan<std::array<double, 2>, dest_zernike_norm, dest_sh_norm, dest_sh_phase> res(
             as_array_span(expansion.flatten()), expansion.order());
 
     for (std::size_t n = 0; n < expansion.order(); ++n)
     {
-        if constexpr (DEST_ZERNIKE_NORM == std::remove_cvref_t<ExpansionType>::zernike_norm)
+        if constexpr (dest_zernike_norm == std::remove_cvref_t<ExpansionType>::zernike_norm)
         {
             auto res_n = res[n];
             for (std::size_t l = (n & 1); l <= n; l += 2)
@@ -632,7 +643,7 @@ to_real_expansion(ExpansionType&& expansion) noexcept
                 res_nl[0][0] *= shnorm;
                 res_nl[0][1] *= shnorm;
 
-                if constexpr (DEST_PHASE == std::remove_cvref_t<ExpansionType>::phase)
+                if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::sh_phase)
                 {
                     for (std::size_t m = 1; m <= l; ++m)
                     {
@@ -654,7 +665,7 @@ to_real_expansion(ExpansionType&& expansion) noexcept
         }
         else
         {
-            const double znorm = conversion_factor<std::remove_cvref_t<ExpansionType>::zernike_norm, DEST_ZERNIKE_NORM>(n);
+            const double znorm = conversion_factor<std::remove_cvref_t<ExpansionType>::zernike_norm, dest_zernike_norm>(n);
             const double zshnorm = shnorm*znorm;
             const double zshcnorm = norm*znorm;
             auto res_n = res[n];
@@ -664,7 +675,7 @@ to_real_expansion(ExpansionType&& expansion) noexcept
                 res_nl[0][0] *= zshnorm;
                 res_nl[0][1] *= zshnorm;
 
-                if constexpr (DEST_PHASE == std::remove_cvref_t<ExpansionType>::phase)
+                if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::sh_phase)
                 {
                     for (std::size_t m = 1; m <= l; ++m)
                     {
@@ -693,7 +704,7 @@ to_real_expansion(ExpansionType&& expansion) noexcept
     @brief Convert real spherical harmonic expansion of a real function to a complex spherical harmonic expansion.
 
     @tparam DEST_NORM normalization convention of the output view
-    @tparam DEST_PHASE phase convention of the output view
+    @tparam dest_sh_phase phase convention of the output view
 
     @param expansion spherical harmonic expansion
 
@@ -701,17 +712,17 @@ to_real_expansion(ExpansionType&& expansion) noexcept
 
     @note This function modifies the input data and merely produces a new view over the same data.
 */
-template <st::SHNorm DEST_SH_NORM, st::SHPhase DEST_PHASE, typename ExpansionType>
+template <st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase, typename ExpansionType>
     requires std::same_as<std::remove_cvref_t<ExpansionType>, 
         ZernikeExpansionSHSpan<std::array<double, 2>, 
             std::remove_cvref_t<ExpansionType>::zernike_norm, 
-            std::remove_cvref_t<ExpansionType>::sh_norm, 
+            std::remove_cvref_t<ExpansionType>::norm, 
             std::remove_cvref_t<ExpansionType>::phase>>
-ZernikeExpansionSHSpan<std::complex<double>, std::remove_cvref_t<ExpansionType>::zernike_norm, DEST_SH_NORM, DEST_PHASE>
+ZernikeExpansionSHSpan<std::complex<double>, std::remove_cvref_t<ExpansionType>::zernike_norm, dest_sh_norm, dest_sh_phase>
 to_complex_expansion(ExpansionType&& expansion) noexcept
 {
     constexpr double shnorm
-        = st::conversion_const<std::remove_cvref_t<ExpansionType>::sh_norm, DEST_SH_NORM>();
+        = st::conversion_const<std::remove_cvref_t<ExpansionType>::norm, dest_sh_norm>();
     constexpr double cnorm = 1.0/std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
@@ -721,7 +732,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
         expansion_l[0][0] *= shnorm;
         expansion_l[0][1] *= shnorm;
 
-        if constexpr (DEST_PHASE == std::remove_cvref_t<ExpansionType>::phase)
+        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::phase)
         {
             for (std::size_t m = 1; m <= l; ++m)
             {
@@ -741,7 +752,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
         }
     }
 
-    return ZernikeExpansionSHSpan<std::complex<double>, std::remove_cvref_t<ExpansionType>::zernike_norm, DEST_SH_NORM, DEST_PHASE>(
+    return ZernikeExpansionSHSpan<std::complex<double>, std::remove_cvref_t<ExpansionType>::zernike_norm, dest_sh_norm, dest_sh_phase>(
             as_complex_span(expansion.flatten()), expansion.order());
 }
 
@@ -749,7 +760,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
     @brief Convert complex spherical harmonic expansion of a real function to a real spherical harmonic expansion.
 
     @tparam DEST_NORM normalization convention of the output view
-    @tparam DEST_PHASE phase convention of the output view
+    @tparam dest_sh_phase phase convention of the output view
 
     @param expansion spherical harmonic expansion
 
@@ -757,21 +768,21 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
 
     @note This function modifies the input data and merely produces a new view over the same data.
 */
-template <st::SHNorm DEST_SH_NORM, st::SHPhase DEST_PHASE, typename ExpansionType>
+template <st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase, typename ExpansionType>
     requires std::same_as<std::remove_cvref_t<ExpansionType>, 
         ZernikeExpansionSHSpan<std::complex<double>, 
             std::remove_cvref_t<ExpansionType>::zernike_norm, 
-            std::remove_cvref_t<ExpansionType>::sh_norm, 
+            std::remove_cvref_t<ExpansionType>::norm, 
             std::remove_cvref_t<ExpansionType>::phase>>
-ZernikeExpansionSHSpan<std::array<double, 2>, std::remove_cvref_t<ExpansionType>::zernike_norm, DEST_SH_NORM, DEST_PHASE>
+ZernikeExpansionSHSpan<std::array<double, 2>, std::remove_cvref_t<ExpansionType>::zernike_norm, dest_sh_norm, dest_sh_phase>
 to_real_expansion(ExpansionType&& expansion) noexcept
 {
     constexpr double shnorm
-        = st::conversion_const<std::remove_cvref_t<ExpansionType>::sh_norm, DEST_SH_NORM>();
+        = st::conversion_const<std::remove_cvref_t<ExpansionType>::norm, dest_sh_norm>();
     constexpr double cnorm = std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
-    ZernikeExpansionSHSpan<std::array<double, 2>, std::remove_cvref_t<ExpansionType>::zernike_norm, DEST_SH_NORM, DEST_PHASE> res(
+    ZernikeExpansionSHSpan<std::array<double, 2>, std::remove_cvref_t<ExpansionType>::zernike_norm, dest_sh_norm, dest_sh_phase> res(
             as_array_span(expansion.flatten()), expansion.order());
 
     for (std::size_t l = std::size_t(expansion.parity()); l < expansion.order(); l += 2)
@@ -780,7 +791,7 @@ to_real_expansion(ExpansionType&& expansion) noexcept
         res_l[0][0] *= shnorm;
         res_l[0][1] *= shnorm;
 
-        if constexpr (DEST_PHASE == std::remove_cvref_t<ExpansionType>::phase)
+        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::phase)
         {
             for (std::size_t m = 1; m <= l; ++m)
             {

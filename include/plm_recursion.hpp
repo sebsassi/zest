@@ -39,16 +39,16 @@ namespace st
 /**
     @brief Non-owfning view of associated Legendre polynomials.
 */
-template <typename T, SHNorm NORM, SHPhase PHASE>
+template <typename T, SHNorm sh_norm_param, SHPhase sh_phase_param>
     requires std::same_as<std::remove_const_t<T>, double>
-using PlmSpan = SHLMSpan<T, TriangleLayout, NORM, PHASE>;
+using PlmSpan = SHLMSpan<T, TriangleLayout, sh_norm_param, sh_phase_param>;
 
 /**
     @brief Non-owfning view of vectors of associated Legendre polynomials.
 */
-template <typename T, SHNorm NORM, SHPhase PHASE>
+template <typename T, SHNorm sh_norm_param, SHPhase sh_phase_param>
     requires std::same_as<std::remove_const_t<T>, double>
-using PlmVecSpan = SHLMVecSpan<T, TriangleLayout, NORM, PHASE>;
+using PlmVecSpan = SHLMVecSpan<T, TriangleLayout, sh_norm_param, sh_phase_param>;
 
 /**
     @brief Recursion of associated Legendre polynomials.
@@ -84,8 +84,8 @@ public:
         @param z point at which the polynomials are evaluated
         @param plm output buffer for the evaluated polynomials
     */
-    template <SHNorm NORM, SHPhase PHASE>
-    void plm_real(double z, PlmSpan<double, NORM, PHASE> plm)
+    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
+    void plm_real(double z, PlmSpan<double, sh_norm_param, sh_phase_param> plm)
     {
         return plm_impl(z, std::numbers::sqrt2, plm);
     }
@@ -96,9 +96,9 @@ public:
         @param z points at which the polynomials are evaluated
         @param plm output buffer for the evaluated polynomials
     */
-    template <SHNorm NORM, SHPhase PHASE>
+    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
     void plm_real(
-        std::span<const double> z, PlmVecSpan<double, NORM, PHASE> plm)
+        std::span<const double> z, PlmVecSpan<double, sh_norm_param, sh_phase_param> plm)
     {
         return plm_impl(z, std::numbers::sqrt2, plm);
     }
@@ -109,8 +109,8 @@ public:
         @param z point at which the polynomials are evaluated
         @param plm utput buffer for the evaluated polynomials
     */
-    template <SHNorm NORM, SHPhase PHASE>
-    void plm_complex(double z, PlmSpan<double, NORM, PHASE> plm)
+    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
+    void plm_complex(double z, PlmSpan<double, sh_norm_param, sh_phase_param> plm)
     {
         return plm_impl(z, 1.0, plm);
     }
@@ -121,17 +121,17 @@ public:
         @param plm utput buffer for the evaluated polynomials
         @param z points at which the polynomials are evaluated
     */
-    template <SHNorm NORM, SHPhase PHASE>
+    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
     void plm_complex(
-        std::span<const double> z, PlmVecSpan<double, NORM, PHASE> plm)
+        std::span<const double> z, PlmVecSpan<double, sh_norm_param, sh_phase_param> plm)
     {
         return plm_impl(z, 1.0, plm);
     }
 
 private:
-    template <SHNorm NORM, SHPhase PHASE>
+    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
     void plm_impl(
-        double z, double norm, PlmSpan<double, NORM, PHASE> plm)
+        double z, double complex_norm, PlmSpan<double, sh_norm_param, sh_phase_param> plm)
     {
         constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
 
@@ -144,16 +144,16 @@ private:
         
         const double u = std::sqrt((1.0 - z)*(1.0 + z));
 
-        if constexpr (NORM == SHNorm::GEO)
+        if constexpr (sh_norm_param == SHNorm::geo)
             plm(0, 0) = 1.0;
-        else if constexpr (NORM == SHNorm::QM)
+        else if constexpr (sh_norm_param == SHNorm::qm)
             plm(0, 0) = inv_sqrt_4pi;
 
         if (order == 1) return;
 
-        if constexpr (NORM == SHNorm::GEO)
+        if constexpr (sh_norm_param == SHNorm::geo)
             plm(1, 0) = m_sqrl[3]*z;
-        else if constexpr (NORM == SHNorm::QM)
+        else if constexpr (sh_norm_param == SHNorm::qm)
             plm(1, 0) = m_sqrl[3]*z*inv_sqrt_4pi;
 
         std::span<double> plm_flat = plm.flatten();
@@ -168,10 +168,10 @@ private:
         constexpr double underflow_compensation = 1.0e-280;
 
         double pmm;
-        if constexpr (NORM == SHNorm::GEO)
-            pmm = underflow_compensation*norm;
-        else if constexpr (NORM == SHNorm::QM)
-            pmm = underflow_compensation*norm*inv_sqrt_4pi;
+        if constexpr (sh_norm_param == SHNorm::geo)
+            pmm = underflow_compensation*complex_norm;
+        else if constexpr (sh_norm_param == SHNorm::qm)
+            pmm = underflow_compensation*complex_norm*inv_sqrt_4pi;
 
         // This number is repeatedly multiplied by u < 1. To avoid underflow
         // at small values of u, we make it large. The rescaling is countered
@@ -184,7 +184,7 @@ private:
 
             // `P(m,m) = u*sqrt((2m + 1)/(2m))*P(m - 1,m - 1)`
             // NOTE: multiplication by `u` happens later
-            pmm *= double(PHASE)*m_sqrl[2*m + 1]/m_sqrl[2*m];
+            pmm *= double(sh_phase_param)*m_sqrl[2*m + 1]/m_sqrl[2*m];
             plm(m, m) = pmm;
 
             // `P(m+1,m) = z*sqrt(2m + 3)*P(m,m)`
@@ -211,15 +211,15 @@ private:
 
         // P(lmax,lmax)
         plm(order - 1, order - 1)
-                = double(PHASE)*pmm*u_scaled*m_sqrl[2*order - 1]
+                = double(sh_phase_param)*pmm*u_scaled*m_sqrl[2*order - 1]
                 /m_sqrl[2*order - 2];
     }
     
 
-    template <SHNorm NORM, SHPhase PHASE>
+    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
     void plm_impl(
-        std::span<const double> z, double norm,
-        PlmVecSpan<double, NORM, PHASE> plm)
+        std::span<const double> z, double complex_norm,
+        PlmVecSpan<double, sh_norm_param, sh_phase_param> plm)
     {
         constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
 
@@ -239,9 +239,9 @@ private:
 
         for (std::size_t i = 0; i < z.size(); ++i)
         {
-            if constexpr (NORM == SHNorm::GEO)
+            if constexpr (sh_norm_param == SHNorm::geo)
                 plm[0][i] = 1.0;
-            else if constexpr (NORM == SHNorm::QM)
+            else if constexpr (sh_norm_param == SHNorm::qm)
                 plm[0][i] = inv_sqrt_4pi;
         }
 
@@ -249,9 +249,9 @@ private:
 
         for (std::size_t i = 0; i < z.size(); ++i)
         {
-            if constexpr (NORM == SHNorm::GEO)
+            if constexpr (sh_norm_param == SHNorm::geo)
                 plm[1][i] = z[i]*m_sqrl[3];
-            else if constexpr (NORM == SHNorm::QM)
+            else if constexpr (sh_norm_param == SHNorm::qm)
                 plm[1][i] = z[i]*(m_sqrl[3]*inv_sqrt_4pi);
         }
         // Calculate P(l,0)
@@ -267,10 +267,10 @@ private:
         constexpr double underflow_compensation = 1.0e-280;
 
         double pmm;
-        if constexpr (NORM == SHNorm::GEO)
-            pmm = underflow_compensation*norm;
-        else if constexpr (NORM == SHNorm::QM)
-            pmm = underflow_compensation*norm*inv_sqrt_4pi;
+        if constexpr (sh_norm_param == SHNorm::geo)
+            pmm = underflow_compensation*complex_norm;
+        else if constexpr (sh_norm_param == SHNorm::qm)
+            pmm = underflow_compensation*complex_norm*inv_sqrt_4pi;
 
         // This number is repeatedly multiplied by u < 1. To avoid underflow
         // at small values of u, we make it large. The rescaling is countered
@@ -285,7 +285,7 @@ private:
 
             // `P(m,m) = u*sqrt((2m + 1)/(2m))*P(m - 1,m - 1)`
             // NOTE: multiplication by `u` happens later
-            pmm *= double(PHASE)*m_sqrl[2*m + 1]/m_sqrl[2*m];
+            pmm *= double(sh_phase_param)*m_sqrl[2*m + 1]/m_sqrl[2*m];
             for (std::size_t i = 0; i < z.size(); ++i)
                 plm[TriangleLayout::idx(m, m)][i] = pmm;
 
@@ -320,7 +320,7 @@ private:
         // P(lmax,lmax)
         for (std::size_t i = 0; i < z.size(); ++i)
             plm[TriangleLayout::idx(order - 1, order - 1)][i]
-                = m_u_scaled[i]*(double(PHASE)*pmm*m_sqrl[2*order - 1]
+                = m_u_scaled[i]*(double(sh_phase_param)*pmm*m_sqrl[2*order - 1]
                 /m_sqrl[2*order - 2]);
     }
 

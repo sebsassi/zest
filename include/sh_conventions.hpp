@@ -31,7 +31,7 @@ namespace st
 /**
     @brief Spherical harmonic phase conventions.
 */
-enum class SHPhase { NONE = -1, CS = 1 };
+enum class SHPhase { none = -1, cs = 1 };
 
 /**
     @brief Spherical harmonic normalization conventions
@@ -39,37 +39,37 @@ enum class SHPhase { NONE = -1, CS = 1 };
 enum class SHNorm
 {
     /** geodesy (4 pi) normalization */
-    GEO,
+    geo,
     /** quantum mechanics (unit norm) normalization */
-    QM
+    qm
 };
 
 /**
     @brief Normalization constant of spherical harmonics coefficients.
 
-    @tparam NORM normalization convention
+    @tparam sh_norm_param normalization convention
 
     @return normalization constant
 */
-template <SHNorm NORM>
+template <SHNorm sh_norm_param>
 [[nodiscard]] constexpr double normalization() noexcept
 {
-    if constexpr (NORM == SHNorm::QM)
+    if constexpr (sh_norm_param == SHNorm::qm)
         return 1.0;
-    else if constexpr (NORM == SHNorm::GEO)
+    else if constexpr (sh_norm_param == SHNorm::geo)
         return 1.0/(4.0*std::numbers::pi);
 }
 
 /**
     @brief Constant for converting between spherical harmonics conventions.
 
-    @tparam FROM source normalization convention
-    @tparam TO destination normalization convention
+    @tparam from source normalization convention
+    @tparam to destination normalization convention
 
     @return conversion constant
 */
-template <SHNorm FROM, SHNorm TO>
-    requires (FROM == TO)
+template <SHNorm from, SHNorm to>
+    requires (from == to)
 [[nodiscard]] constexpr double conversion_const() noexcept
 {
     return 1.0;
@@ -78,29 +78,28 @@ template <SHNorm FROM, SHNorm TO>
 /**
     @brief Constant for converting between spherical harmonics conventions.
 
-    @tparam FROM source normalization convention
-    @tparam TO destination normalization convention
+    @tparam from source normalization convention
+    @tparam to destination normalization convention
 
     @return conversion constant
 */
-template <SHNorm FROM, SHNorm TO>
+template <SHNorm from, SHNorm to>
 [[nodiscard]] constexpr double conversion_const() noexcept
 {
     constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
     constexpr double sqrt_4pi = 1.0/inv_sqrt_4pi;
-    double from;
-    if constexpr (FROM == SHNorm::QM)
-        from = 1.0;
-    else if constexpr (FROM == SHNorm::GEO)
-        from = sqrt_4pi;
+    double norm;
+    if constexpr (from == SHNorm::qm)
+        norm = 1.0;
+    else if constexpr (from == SHNorm::geo)
+        norm = sqrt_4pi;
 
-    double to;
-    if constexpr (TO == SHNorm::QM)
-        to = 1.0;
-    else if constexpr (TO == SHNorm::GEO)
-        to = inv_sqrt_4pi;
+    if constexpr (to == SHNorm::qm)
+        norm *= 1.0;
+    else if constexpr (to == SHNorm::geo)
+        norm *= inv_sqrt_4pi;
 
-    return from*to;
+    return norm;
 }
 
 } // namespace st

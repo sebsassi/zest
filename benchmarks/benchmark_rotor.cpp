@@ -50,7 +50,7 @@ void benchmark_rotor(
     };
 
     bench.run(name, [&](){
-        rotor.rotate(expansion, winger_d_pi2, euler_angles, zest::RotationType::OBJECT);
+        rotor.rotate(expansion, winger_d_pi2, euler_angles, zest::RotationType::object);
     });
 }
 

@@ -34,7 +34,7 @@ bool test_num_nodes_can_be_zero()
 {
     std::vector<double> nodes{};
     std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::COS>(nodes, weights, std::size_t(0));
+    zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::cos>(nodes, weights, std::size_t(0));
     return true;
 }
 
@@ -49,7 +49,7 @@ bool test_unpacked_layout_first_node_is_negative()
 {
     std::vector<double> nodes(num_nodes);
     std::vector<double> weights(num_nodes);
-    zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
+    zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::cos>(nodes, weights, num_nodes & 1);
     return nodes.front() < 0.0;
 }
 
@@ -58,7 +58,7 @@ bool test_unpacked_layout_node_order_is_increasing()
 {
     std::vector<double> nodes(num_nodes);
     std::vector<double> weights(num_nodes);
-    zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
+    zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::cos>(nodes, weights, num_nodes & 1);
     for (std::size_t i = 1; i < nodes.size(); ++i)
         if (nodes[i] <= nodes[i - 1]) return false;
     return true;
@@ -70,7 +70,7 @@ bool test_unpacked_layout_even_middle_nodes_are_negative_and_positive()
 {
     std::vector<double> nodes(num_nodes);
     std::vector<double> weights(num_nodes);
-    zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
+    zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::cos>(nodes, weights, num_nodes & 1);
     std::size_t half = nodes.size() >> 1;
     return nodes[half - 1] < 0.0 && 0.0 < nodes[half];
 }
@@ -81,7 +81,7 @@ bool test_unpacked_layout_odd_middle_node_is_near_zero()
 {
     std::vector<double> nodes(num_nodes);
     std::vector<double> weights(num_nodes);
-    zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
+    zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::cos>(nodes, weights, num_nodes & 1);
     std::size_t half = nodes.size() >> 1;
     return is_close(nodes[half], 0.0, 1.0e-14);
 }
@@ -97,7 +97,7 @@ bool test_packed_layout_node_order_is_increasing()
 {
     std::vector<double> nodes(zest::gl::PackedLayout::size(num_nodes));
     std::vector<double> weights(zest::gl::PackedLayout::size(num_nodes));
-    zest::gl::gl_nodes_and_weights<zest::gl::PackedLayout, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
+    zest::gl::gl_nodes_and_weights<zest::gl::PackedLayout, zest::gl::GLNodeStyle::cos>(nodes, weights, num_nodes & 1);
     for (std::size_t i = 1; i < nodes.size(); ++i)
         if (nodes[i] <= nodes[i - 1]) return false;
     return true;
@@ -110,7 +110,7 @@ bool test_packed_layout_even_first_node_is_positive()
 
     std::vector<double> nodes(zest::gl::PackedLayout::size(num_nodes));
     std::vector<double> weights(zest::gl::PackedLayout::size(num_nodes));
-    zest::gl::gl_nodes_and_weights<zest::gl::PackedLayout, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
+    zest::gl::gl_nodes_and_weights<zest::gl::PackedLayout, zest::gl::GLNodeStyle::cos>(nodes, weights, num_nodes & 1);
     return nodes.front() > 0.0;
 }
 
@@ -120,7 +120,7 @@ bool test_packed_layout_odd_first_node_is_near_zero()
 {
     std::vector<double> nodes(zest::gl::PackedLayout::size(num_nodes));
     std::vector<double> weights(zest::gl::PackedLayout::size(num_nodes));
-    zest::gl::gl_nodes_and_weights<zest::gl::PackedLayout, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
+    zest::gl::gl_nodes_and_weights<zest::gl::PackedLayout, zest::gl::GLNodeStyle::cos>(nodes, weights, num_nodes & 1);
     return is_close(nodes.front(), 0.0, 1.0e-14);
 }
 
@@ -132,7 +132,7 @@ bool test_unpacked_weights_sum_to_two_for_num_nodes_less_than_71()
     {
         nodes.resize(num_nodes);
         weights.resize(num_nodes);
-        zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
+        zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::cos>(nodes, weights, num_nodes & 1);
         double sum = 0.0;
         for (const auto& weight : weights)
             sum += weight;
@@ -151,7 +151,7 @@ bool test_unpacked_weights_sum_to_two_for_num_nodes_between_71_and_100()
     {
         nodes.resize(num_nodes);
         weights.resize(num_nodes);
-        zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
+        zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::cos>(nodes, weights, num_nodes & 1);
         double sum = 0.0;
         for (const auto& weight : weights)
             sum += weight;
@@ -168,7 +168,7 @@ void compare_nodes_and_weights(std::size_t num_nodes)
 {
     std::vector<double> nodes{};
     std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::COS>(nodes, weights, num_nodes & 1);
+    zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::cos>(nodes, weights, num_nodes & 1);
     for (const auto& node : nodes)
         std::printf("%.15Lf\n", (long double)node);
     std::printf("\n");

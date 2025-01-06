@@ -88,18 +88,6 @@ public:
         return m_data[m_ncols*i + j];
     }
 
-#if (__GNUC__ > 11)
-    [[nodiscard]] const T& operator[](std::size_t i, std::size_t j) const noexcept
-    {
-        return m_data[m_ncols*i + j];
-    }
-
-    T& operator[](std::size_t i, std::size_t j) noexcept
-    {
-        return m_data[m_ncols*i + j];
-    }
-#endif
-
     [[nodiscard]] std::span<const T> operator[](std::size_t i) const noexcept
     {
         return std::span<T>(m_data.begin() + i*m_ncols, m_ncols);
@@ -119,14 +107,6 @@ public:
     {
         return std::span<T>(m_data.begin() + i*m_ncols, m_ncols);
     }
-
-#if (__GNUC__ > 11)
-    std::views::stride column(std::size_t j) noexcept
-    {
-        return std::span<T>(m_data.begin() + j, m_data.end())
-            | std::views::stride(m_ncols);
-    }
-#endif
 
     void resize(std::size_t p_nrows, std::size_t p_ncols)
     {

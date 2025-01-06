@@ -12,10 +12,10 @@ The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+IMPLIED, INCLUDING BUT NOT LIMITED to THE WARRANTIES OF MERCHANTABILITY, 
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING from, 
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 SOFTWARE.
 */
@@ -32,34 +32,34 @@ namespace zt
 /**
     @brief Zernike polynomial normalizations.
 */
-enum class ZernikeNorm { NORMED, UNNORMED };
+enum class ZernikeNorm { normed, unnormed };
 
 /**
     @brief Normalization of Zernike polynomials.
 
-    @tparam NORM normalization convention
+    @tparam zernike_norm_param normalization convention
 
     @return normalization constant
 */
-template <ZernikeNorm NORM>
+template <ZernikeNorm zernike_norm_param>
 [[nodiscard]] inline double normalization(std::size_t n) noexcept
 {
-    if constexpr (NORM == ZernikeNorm::NORMED)
+    if constexpr (zernike_norm_param == ZernikeNorm::normed)
         return 1.0;
-    else if constexpr (NORM == ZernikeNorm::UNNORMED)
+    else if constexpr (zernike_norm_param == ZernikeNorm::unnormed)
         return double(2*n + 3);
 }
 
 /**
     @brief Constant for converting between Zernike polynomial conventions.
 
-    @tparam FROM source normalization convention
-    @tparam TO destination normalization convention
+    @tparam from source normalization convention
+    @tparam to destination normalization convention
 
     @return conversion constant
 */
-template <ZernikeNorm FROM, ZernikeNorm TO>
-    requires (FROM == TO)
+template <ZernikeNorm from, ZernikeNorm to>
+    requires (from == to)
 [[nodiscard]] inline double conversion_factor(std::size_t n) noexcept
 {
     return 1.0;
@@ -68,16 +68,16 @@ template <ZernikeNorm FROM, ZernikeNorm TO>
 /**
     @brief Constant for converting between Zernike polynomial conventions.
 
-    @tparam FROM source normalization convention
-    @tparam TO destination normalization convention
+    @tparam from source normalization convention
+    @tparam to destination normalization convention
 
     @return conversion constant
 */
-template <ZernikeNorm FROM, ZernikeNorm TO>
-    requires (FROM != TO)
+template <ZernikeNorm from, ZernikeNorm to>
+    requires (from != to)
 [[nodiscard]] inline double conversion_factor(std::size_t n) noexcept
 {
-    if constexpr (TO == ZernikeNorm::NORMED)
+    if constexpr (to == ZernikeNorm::normed)
         return 1.0/std::sqrt(double(2*n + 3));
     else
         return std::sqrt(double(2*n + 3));

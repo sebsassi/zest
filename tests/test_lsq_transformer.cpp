@@ -36,12 +36,12 @@ constexpr bool is_close(
     return std::fabs(a[0] - b[0]) < tol && std::fabs(a[1] - b[1]) < tol;
 }
 
-template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
 bool test_ylm_generator_generates_correct_up_to_order_5(double lon, double lat)
 {
     constexpr std::size_t order = 5;
-    constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
-    constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+    constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
+    constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
         0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double z = std::sin(lat);
@@ -79,9 +79,9 @@ bool test_ylm_generator_generates_correct_up_to_order_5(double lon, double lat)
 
     std::vector<double> ylm(zest::DualTriangleLayout::size(order));
 
-    generator.generate<zest::st::SequentialRealYlmPacking, NORM, PHASE>(
+    generator.generate<zest::st::SequentialRealYlmPacking, sh_norm_param, sh_phase_param>(
             lon, lat, 
-            zest::st::RealYlmSpan<zest::st::SequentialRealYlmPacking, NORM, PHASE>(ylm, order));
+            zest::st::RealYlmSpan<zest::st::SequentialRealYlmPacking, sh_norm_param, sh_phase_param>(ylm, order));
 
     bool success = is_close(ylm[0], Y00, 1.0e-10)
             && is_close(ylm[1], Y1m1, 1.0e-10)
@@ -142,14 +142,14 @@ bool test_ylm_generator_generates_correct_up_to_order_5(double lon, double lat)
     }
 }
 
-template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
 bool test_lsq_geo_expansion_expands_Y00()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm;
     };
@@ -174,7 +174,7 @@ bool test_lsq_geo_expansion_expands_Y00()
     
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform<NORM, PHASE>(values, lat, lon, order);
+    auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -209,15 +209,15 @@ bool test_lsq_geo_expansion_expands_Y00()
     return success;
 }
 
-template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
 bool test_lsq_geo_expansion_expands_Y21()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
-        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
+        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
@@ -242,7 +242,7 @@ bool test_lsq_geo_expansion_expands_Y21()
     
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform<NORM, PHASE>(values, lat, lon, order);
+    auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -277,15 +277,15 @@ bool test_lsq_geo_expansion_expands_Y21()
     return success;
 }
 
-template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
 bool test_lsq_geo_expansion_expands_Y31()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
-        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
+        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
@@ -310,7 +310,7 @@ bool test_lsq_geo_expansion_expands_Y31()
     
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform<NORM, PHASE>(values, lat, lon, order);
+    auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -345,15 +345,15 @@ bool test_lsq_geo_expansion_expands_Y31()
     return success;
 }
 
-template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
 bool test_lsq_geo_expansion_expands_Y4m3()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
-        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
+        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
     };
@@ -378,7 +378,7 @@ bool test_lsq_geo_expansion_expands_Y4m3()
     
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform<NORM, PHASE>(values, lat, lon, order);
+    auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -413,15 +413,15 @@ bool test_lsq_geo_expansion_expands_Y4m3()
     return success;
 }
 
-template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
 bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
-        constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
+        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
     };
@@ -446,7 +446,7 @@ bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
     
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform<NORM, PHASE>(values, lat, lon, order);
+    auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
 
     const auto& coeffs = expansion.flatten();
 
@@ -489,22 +489,22 @@ bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
     return success;
 }
 
-template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
 void test_lsq()
 {
-    assert((test_ylm_generator_generates_correct_up_to_order_5<NORM, PHASE>(0.0, 0.0)));
+    assert((test_ylm_generator_generates_correct_up_to_order_5<sh_norm_param, sh_phase_param>(0.0, 0.0)));
 
-    assert((test_lsq_geo_expansion_expands_Y00<NORM, PHASE>()));
-    assert((test_lsq_geo_expansion_expands_Y21<NORM, PHASE>()));
-    assert((test_lsq_geo_expansion_expands_Y31<NORM, PHASE>()));
-    assert((test_lsq_geo_expansion_expands_Y4m3<NORM, PHASE>()));
-    assert((test_lsq_geo_expansion_expands_Y31_plus_Y4m3<NORM, PHASE>()));
+    assert((test_lsq_geo_expansion_expands_Y00<sh_norm_param, sh_phase_param>()));
+    assert((test_lsq_geo_expansion_expands_Y21<sh_norm_param, sh_phase_param>()));
+    assert((test_lsq_geo_expansion_expands_Y31<sh_norm_param, sh_phase_param>()));
+    assert((test_lsq_geo_expansion_expands_Y4m3<sh_norm_param, sh_phase_param>()));
+    assert((test_lsq_geo_expansion_expands_Y31_plus_Y4m3<sh_norm_param, sh_phase_param>()));
 }
 
 int main()
 {
-    test_lsq<zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>();
-    test_lsq<zest::st::SHNorm::GEO, zest::st::SHPhase::CS>();
-    test_lsq<zest::st::SHNorm::QM, zest::st::SHPhase::NONE>();
-    test_lsq<zest::st::SHNorm::QM, zest::st::SHPhase::CS>();
+    test_lsq<zest::st::SHNorm::geo, zest::st::SHPhase::none>();
+    test_lsq<zest::st::SHNorm::geo, zest::st::SHPhase::cs>();
+    test_lsq<zest::st::SHNorm::qm, zest::st::SHPhase::none>();
+    test_lsq<zest::st::SHNorm::qm, zest::st::SHPhase::cs>();
 }

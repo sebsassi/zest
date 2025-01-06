@@ -61,19 +61,21 @@ concept real_ylm_packing
 
     @tparam PackingType layout of the spherical harmonics 
 */
-template <real_ylm_packing PackingType, SHNorm NORM, SHPhase PHASE>
+template <
+    real_ylm_packing PackingType, SHNorm sh_norm_param, SHPhase sh_phase_param>
 using RealYlmSpan = SHLMSpan<
-    typename PackingType::element_type, typename PackingType::Layout, NORM, PHASE>;
+    typename PackingType::element_type, typename PackingType::Layout, 
+    sh_norm_param, sh_phase_param>;
 
 /**
     @brief A container for spherical harmonics.
 
-    @tparam NORM normalization convention of the spherical harmonics
-    @tparam PHASE phase convention of the spherical harmonics
+    @tparam sh_norm_param normalization convention of the spherical harmonics
+    @tparam sh_phase_param phase convention of the spherical harmonics
     @tparam PackingType layout of the spherical harmonics
 */
 template <
-    SHNorm NORM, SHPhase PHASE, real_ylm_packing PackingType>
+    SHNorm sh_norm_param, SHPhase sh_phase_param, real_ylm_packing PackingType>
     requires std::same_as<
             typename PackingType::element_type, std::array<double, 2>>
         || std::same_as<
@@ -85,8 +87,8 @@ public:
     using Layout = typename PackingType::Layout;
     using element_type = typename PackingType::element_type;
     using index_type = Layout::index_type;
-    using View = RealYlmSpan<element_type, NORM, PHASE>;
-    using ConstView = RealYlmSpan<const element_type, NORM, PHASE>;
+    using View = RealYlmSpan<element_type, sh_norm_param, sh_phase_param>;
+    using ConstView = RealYlmSpan<const element_type, sh_norm_param, sh_phase_param>;
 
     RealYlm() = default;
     explicit RealYlm(std::size_t order):
@@ -151,16 +153,16 @@ public:
     /*
     Generate spherical harmonics at longitude and latitude values `lon`, `lat`
     */
-    template <real_ylm_packing T, SHNorm NORM, SHPhase PHASE>
+    template <real_ylm_packing T, SHNorm sh_norm_param, SHPhase sh_phase_param>
     void generate(
-        double lon, double lat, RealYlmSpan<T, NORM, PHASE> ylm)
+        double lon, double lat, RealYlmSpan<T, sh_norm_param, sh_phase_param> ylm)
     {
-        using index_type = RealYlmSpan<T, NORM, PHASE>::index_type;
+        using index_type = RealYlmSpan<T, sh_norm_param, sh_phase_param>::index_type;
         expand(ylm.order());
 
         const double z = std::sin(lat);
         m_recursion.plm_real(
-                z, PlmSpan<double, NORM, PHASE>(m_ass_leg_poly, ylm.order()));
+                z, PlmSpan<double, sh_norm_param, sh_phase_param>(m_ass_leg_poly, ylm.order()));
 
         for (std::size_t m = 0; m < ylm.order(); ++m)
         {

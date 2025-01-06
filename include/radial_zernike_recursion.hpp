@@ -47,13 +47,13 @@ public:
     /**
         @brief Evaluate Zernike polynomials at point `r`.
 
-        @tparam NORM normalization of the polynomials
+        @tparam zernike_norm_param normalization of the polynomials
 
         @param zernike storage for the evaluated polynomials
         @param r point at which the polynomials are evaluated
     */
-    template <ZernikeNorm NORM>
-    void zernike(double r, RadialZernikeSpan<NORM, double> zernike)
+    template <ZernikeNorm zernike_norm_param>
+    void zernike(double r, RadialZernikeSpan<zernike_norm_param, double> zernike)
     {
         constexpr double sqrt5 = 2.2360679774997896964091737;
         constexpr double sqrt7 = 2.6457513110645905905016158;
@@ -68,7 +68,7 @@ public:
         zernike(0, 0) = 1.0;
         if (order == 1)
         {
-            if constexpr (NORM == ZernikeNorm::NORMED)
+            if constexpr (zernike_norm_param == ZernikeNorm::normed)
                 zernike(0, 0) *= std::numbers::sqrt3;
             return;
         }
@@ -76,7 +76,7 @@ public:
         zernike(1, 1) = r;
         if (order == 2)
         {
-            if constexpr (NORM == ZernikeNorm::NORMED)
+            if constexpr (zernike_norm_param == ZernikeNorm::normed)
             {
                 zernike(0, 0) *= std::numbers::sqrt3;
                 zernike(1, 1) *= sqrt5;
@@ -88,7 +88,7 @@ public:
         zernike(2, 2) = r2;
         if (order == 3)
         {
-            if constexpr (NORM == ZernikeNorm::NORMED)
+            if constexpr (zernike_norm_param == ZernikeNorm::normed)
             {
                 zernike(0, 0) *= std::numbers::sqrt3;
                 zernike(1, 1) *= sqrt5;
@@ -108,7 +108,7 @@ public:
                 const std::size_t ind = EvenDiagonalTriangleLayout::idx(n,l);
                 zernike(n, l) = (m_k2[ind] + m_k1[ind]*r2)*zernike(n - 2, l) + m_k3[ind]*zernike(n - 4, l);
 
-                if constexpr (NORM == ZernikeNorm::NORMED)
+                if constexpr (zernike_norm_param == ZernikeNorm::normed)
                     zernike(n - 4, l) *= m_norms[n - 4];
             }
 
@@ -118,7 +118,7 @@ public:
                     - (dn - 0.5)*zernike(n - 2, n - 2);
         }
 
-        if constexpr (NORM == ZernikeNorm::NORMED)
+        if constexpr (zernike_norm_param == ZernikeNorm::normed)
         {
             for (std::size_t n = order - 4; n < order; ++n)
             {
@@ -131,14 +131,14 @@ public:
     /**
         @brief Evaluate Zernike polynomials at vector of points `r`.
 
-        @tparam NORM normalization of the polynomials
+        @tparam zernike_norm_param normalization of the polynomials
 
         @param zernike storage for the evaluated polynomials
         @param r points at which the polynomials are evaluated
     */
-    template <ZernikeNorm NORM>
+    template <ZernikeNorm zernike_norm_param>
     void zernike(
-        std::span<const double> r, RadialZernikeVecSpan<NORM, double> zernike)
+        std::span<const double> r, RadialZernikeVecSpan<zernike_norm_param, double> zernike)
     {
         constexpr double sqrt5 = 2.2360679774997896964091737;
         constexpr double sqrt7 = 2.6457513110645905905016158;
@@ -155,7 +155,7 @@ public:
             z_00[i] = 1.0;
         if (order == 1)
         {
-            if constexpr (NORM == ZernikeNorm::NORMED)
+            if constexpr (zernike_norm_param == ZernikeNorm::normed)
             {
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
                     z_00[i] *= std::numbers::sqrt3;
@@ -168,7 +168,7 @@ public:
             z_11[i] = r[i];
         if (order == 2)
         {
-            if constexpr (NORM == ZernikeNorm::NORMED)
+            if constexpr (zernike_norm_param == ZernikeNorm::normed)
             {
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
                     z_00[i] *= std::numbers::sqrt3;
@@ -188,7 +188,7 @@ public:
             z_20[i] = 2.5*z_22[i] - 1.5;
         if (order == 3)
         {
-            if constexpr (NORM == ZernikeNorm::NORMED)
+            if constexpr (zernike_norm_param == ZernikeNorm::normed)
             {
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
                     z_00[i] *= std::numbers::sqrt3;
@@ -224,7 +224,7 @@ public:
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
                     z_nl[i] = (m_k2[ind] + m_k1[ind]*z_22[i])*z_nm2l[i] + m_k3[ind]*z_nm4l[i];
 
-                if constexpr (NORM == ZernikeNorm::NORMED)
+                if constexpr (zernike_norm_param == ZernikeNorm::normed)
                 {
                     // We do not norm R22 yet because we use R22 as the r^2 value in the recursion.
                     const double norm = (n == 6 && l == 2) ?
@@ -248,7 +248,7 @@ public:
                     - (dn - 0.5)*z_nm2nm2[i];
         }
 
-        if constexpr (NORM == ZernikeNorm::NORMED)
+        if constexpr (zernike_norm_param == ZernikeNorm::normed)
         {
             if (order > 6)
             {

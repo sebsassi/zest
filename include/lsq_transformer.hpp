@@ -52,11 +52,11 @@ public:
         return m_sh_values;
     }
 
-    template <SHNorm NORM, SHPhase PHASE>
+    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
     void transform(
-        std::span<const double> data, std::span<const double> lat, std::span<const double> lon, RealSHExpansionSpan<std::array<double, 2>, NORM, PHASE> expansion)
+        std::span<const double> data, std::span<const double> lat, std::span<const double> lon, RealSHExpansionSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
     {
-        using Expansion = RealSHExpansionSpan<std::array<double, 2>, NORM, PHASE>;
+        using Expansion = RealSHExpansionSpan<std::array<double, 2>, sh_norm_param, sh_phase_param>;
 
         m_ylm_gen.expand(expansion.order());
 
@@ -65,8 +65,8 @@ public:
 
         for (size_t i = 0; i < data.size(); ++i)
         {
-            RealYlmSpan<SequentialRealYlmPacking, NORM, PHASE> ylm(m_sh_values.row(i), expansion.order());
-            m_ylm_gen.generate<SequentialRealYlmPacking, NORM, PHASE>(lon[i], lat[i], ylm);
+            RealYlmSpan<SequentialRealYlmPacking, sh_norm_param, sh_phase_param> ylm(m_sh_values.row(i), expansion.order());
+            m_ylm_gen.generate<SequentialRealYlmPacking, sh_norm_param, sh_phase_param>(lon[i], lat[i], ylm);
         }
 
         m_coeffs.resize(m_sh_values.ncols());
@@ -89,12 +89,12 @@ public:
         }
     }
     
-    template <SHNorm NORM, SHPhase PHASE>
-    RealSHExpansion<NORM, PHASE> transform(
+    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
+    RealSHExpansion<sh_norm_param, sh_phase_param> transform(
         std::span<const double> data, std::span<const double> lat, std::span<const double> lon, std::size_t order)
     {
-        RealSHExpansion<NORM, PHASE> expansion(order);
-        transform<NORM, PHASE>(data, lat, lon, expansion);
+        RealSHExpansion<sh_norm_param, sh_phase_param> expansion(order);
+        transform<sh_norm_param, sh_phase_param>(data, lat, lon, expansion);
         return expansion;
     }
 

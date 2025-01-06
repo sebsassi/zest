@@ -51,7 +51,7 @@ std::vector<double> make_radial(
     zest::zt::GLQTransformerOrthoGeo transformer(order);
     zest::zt::RadialZernikeRecursion radial_recursion(order);
 
-    using RadialSpan = zest::zt::RadialZernikeSpan<zest::zt::ZernikeNorm::NORMED, double>;
+    using RadialSpan = zest::zt::RadialZernikeSpan<zest::zt::ZernikeNorm::normed, double>;
 
     std::vector<double> radial_buffer(RadialSpan::Layout::size(order));
     RadialSpan radial_zernike(radial_buffer.data(), order);

@@ -381,7 +381,7 @@ private:
         if (num_lat != m_glq_nodes.size())
         {
             m_glq_nodes.resize(num_lat);
-            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::ANGLE>(m_glq_nodes, m_glq_nodes.size() & 1);
+            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::angle>(m_glq_nodes, m_glq_nodes.size() & 1);
         }
     }
 
@@ -393,17 +393,19 @@ private:
     @brief Transformations between a Gauss-Legendre quadrature grid representation and spherical harmonic expansion representation of real data.
 
     @tparam NORM normalization convention of spherical harmonics
-    @tparam PHASE phase convention of spherical harmonics
+    @tparam sh_phase_param phase convention of spherical harmonics
     @tparam GridLayoutType
 */
-template <SHNorm SH_NORM, SHPhase PHASE, typename GridLayoutType = DefaultLayout>
+template <
+    SHNorm sh_norm_param, SHPhase sh_phase_param,
+    typename GridLayoutType = DefaultLayout>
 class GLQTransformer
 {
 public:
     using GridLayout = GridLayoutType;
 
-    static constexpr SHNorm sh_norm = SH_NORM;
-    static constexpr SHPhase phase = PHASE;
+    static constexpr SHNorm norm = sh_norm_param;
+    static constexpr SHPhase phase = sh_phase_param;
 
     GLQTransformer(): 
         m_pocketfft_shape_grid(2),
@@ -420,7 +422,7 @@ public:
         m_pocketfft_stride_fft(2),
         m_order(order)
     {
-        gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::COS>(
+        gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::cos>(
                 m_glq_nodes, m_glq_weights, GridLayout::lat_size(order) & 1);
         
         if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
@@ -428,7 +430,7 @@ public:
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
             {
                 const double z = m_glq_nodes[i];
-                PlmSpan<double, SH_NORM, PHASE> plm(
+                PlmSpan<double, sh_norm_param, sh_phase_param> plm(
                         m_plm_grid.data() + i*TriangleLayout::size(order), 
                         order);
                 m_recursion.plm_real(z, plm);
@@ -436,7 +438,7 @@ public:
         }
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
-            PlmVecSpan<double, SH_NORM, PHASE> plm(m_plm_grid, order, m_glq_nodes.size());
+            PlmVecSpan<double, sh_norm_param, sh_phase_param> plm(m_plm_grid, order, m_glq_nodes.size());
             m_recursion.plm_real(m_glq_nodes, plm);
         }
 
@@ -467,7 +469,7 @@ public:
 
         m_glq_nodes.resize(gl::PackedLayout::size(GridLayout::lat_size(order)));
         m_glq_weights.resize(gl::PackedLayout::size(GridLayout::lat_size(order)));
-        gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::COS>(
+        gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::cos>(
                 m_glq_nodes, m_glq_weights, GridLayout::lat_size(order) & 1);
         m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(order));
         
@@ -476,7 +478,7 @@ public:
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
             {
                 const double z = m_glq_nodes[i];
-                PlmSpan<double, SH_NORM, PHASE> plm(
+                PlmSpan<double, sh_norm_param, sh_phase_param> plm(
                         m_plm_grid.data() + i*TriangleLayout::size(order), 
                         order);
                 m_recursion.plm_real(z, plm);
@@ -484,7 +486,7 @@ public:
         }
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
-            PlmVecSpan<double, SH_NORM, PHASE> plm(m_plm_grid, order, m_glq_nodes.size());
+            PlmVecSpan<double, sh_norm_param, sh_phase_param> plm(m_plm_grid, order, m_glq_nodes.size());
             m_recursion.plm_real(m_glq_nodes, plm);
         }
 
@@ -513,7 +515,7 @@ public:
     */
     void forward_transform(
         SphereGLQGridSpan<const double, GridLayout> values,
-        RealSHExpansionSpan<std::array<double, 2>, SH_NORM, PHASE> expansion)
+        RealSHExpansionSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
     {
         resize(values.order());
         
@@ -532,7 +534,7 @@ public:
         @param values values on the spherical quadrature grid
     */
     void backward_transform(
-        RealSHExpansionSpan<const std::array<double, 2>, SH_NORM, PHASE> expansion,
+        RealSHExpansionSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion,
         SphereGLQGridSpan<double, GridLayout> values)
     {
         resize(values.order());
@@ -555,8 +557,8 @@ public:
         @note A spherical harmonic expansion has even/odd parity if the first index of all nonzero coefficients has even/odd parity.
     */
     template <even_odd_real_sh_expansion Expansion>
-        requires (std::remove_cvref_t<Expansion>::sh_norm == SH_NORM)
-        && (std::remove_cvref_t<Expansion>::phase == PHASE)
+        requires (std::remove_cvref_t<Expansion>::norm == sh_norm_param)
+        && (std::remove_cvref_t<Expansion>::phase == sh_phase_param)
         && std::same_as<
             typename std::remove_cvref_t<Expansion>::value_type, 
             std::array<double, 2>>
@@ -583,7 +585,7 @@ public:
         @note The parity of a spherical harmonic coefficient is determined by the parity of the first index of the coefficient.
     */
     void backward_transform(
-        RealSHExpansionSpan<const std::array<double, 2>, SH_NORM, PHASE> expansion,
+        RealSHExpansionSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion,
         SphereGLQGridSpan<double, GridLayout> values, Parity parity)
     {
         resize(values.order());
@@ -602,11 +604,11 @@ public:
     `values`: values on the spherical quadrature grid.
     `order`: order of expansion.
     */
-    [[nodiscard]] RealSHExpansion<SH_NORM, PHASE>
+    [[nodiscard]] RealSHExpansion<sh_norm_param, sh_phase_param>
     forward_transform(
         SphereGLQGridSpan<const double, GridLayout> values, std::size_t order)
     {
-        RealSHExpansion<SH_NORM, PHASE> expansion(order);
+        RealSHExpansion<sh_norm_param, sh_phase_param> expansion(order);
         forward_transform(values, expansion);
         return expansion;
     }
@@ -618,7 +620,7 @@ public:
         @param expansion coefficients of the expansion
     */
     [[nodiscard]] SphereGLQGrid<double, GridLayout> backward_transform(
-        RealSHExpansionSpan<const std::array<double, 2>, SH_NORM, PHASE> expansion, std::size_t order)
+        RealSHExpansionSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion, std::size_t order)
     {
         SphereGLQGrid<double, GridLayout> grid(order);
         backward_transform(expansion, grid);
@@ -636,8 +638,8 @@ public:
         @note A spherical harmonic expansion has even/odd parity if the first index of all nonzero coefficients has even/odd parity.
     */
     template <even_odd_real_sh_expansion Expansion>
-        requires (std::remove_cvref_t<Expansion>::sh_norm == SH_NORM)
-        && (std::remove_cvref_t<Expansion>::phase == PHASE)
+        requires (std::remove_cvref_t<Expansion>::norm == sh_norm_param)
+        && (std::remove_cvref_t<Expansion>::phase == sh_phase_param)
         && std::same_as<
             typename std::remove_cvref_t<Expansion>::value_type, 
             std::array<double, 2>>
@@ -660,7 +662,7 @@ public:
         @note The parity of a spherical harmonic coefficient is determined by the parity of the first index of the coefficient.
     */
     [[nodiscard]] SphereGLQGrid<double, GridLayout> backward_transform(
-        RealSHExpansionSpan<const std::array<double, 2>, SH_NORM, PHASE> expansion, std::size_t order, Parity parity)
+        RealSHExpansionSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion, std::size_t order, Parity parity)
     {
         SphereGLQGrid<double, GridLayout> grid(order);
         backward_transform(expansion, grid, parity);
@@ -672,7 +674,7 @@ private:
         SphereGLQGridSpan<const double, GridLayout> values)
     {
         constexpr std::size_t lon_axis = GridLayout::lon_axis;
-        constexpr double sh_normalization = normalization<SH_NORM>();
+        constexpr double sh_normalization = normalization<sh_norm_param>();
         const double prefactor = sh_normalization*(2.0*std::numbers::pi)/double(values.shape()[lon_axis]);
         pocketfft::r2c(
             m_pocketfft_shape_grid, m_pocketfft_stride_grid, m_pocketfft_stride_fft, lon_axis, pocketfft::FORWARD, values.flatten().data(), m_ffts.data(), prefactor);
@@ -798,7 +800,7 @@ private:
     }
 
     void integrate_latitudinal(
-        RealSHExpansionSpan<std::array<double, 2>, SH_NORM, PHASE> expansion, std::size_t min_order) noexcept
+        RealSHExpansionSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion, std::size_t min_order) noexcept
     {
         const std::size_t fft_order = GridLayout::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
@@ -809,7 +811,7 @@ private:
         {
             for (std::size_t i = 0; i < num_unique_nodes; ++i)
             {
-                PlmSpan<double, SH_NORM, PHASE> plm(
+                PlmSpan<double, sh_norm_param, sh_phase_param> plm(
                         m_plm_grid.data() + i*TriangleLayout::size(m_order), 
                         m_order);
                 std::span plm_flat = plm.flatten();
@@ -892,7 +894,7 @@ private:
     }
 
     void sum_l(
-        RealSHExpansionSpan<const std::array<double, 2>, SH_NORM, PHASE> expansion, std::size_t min_order) noexcept
+        RealSHExpansionSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion, std::size_t min_order) noexcept
     {
         const std::size_t fft_order = GridLayout::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
@@ -906,7 +908,7 @@ private:
             {
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
-                PlmSpan<double, SH_NORM, PHASE> plm(
+                PlmSpan<double, sh_norm_param, sh_phase_param> plm(
                         m_plm_grid.data() + i*TriangleLayout::size(m_order), 
                         m_order);
                 std::span plm_flat = plm.flatten();
@@ -931,7 +933,7 @@ private:
         }
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
-            PlmVecSpan<const double, SH_NORM, PHASE> ass_leg(
+            PlmVecSpan<const double, sh_norm_param, sh_phase_param> ass_leg(
                     m_plm_grid, m_order, num_plm);
 
             std::span coeffs = expansion.flatten();
@@ -967,8 +969,8 @@ private:
     }
 
     template <even_odd_real_sh_expansion Expansion>
-        requires (std::remove_cvref_t<Expansion>::sh_norm == SH_NORM)
-        && (std::remove_cvref_t<Expansion>::phase == PHASE)
+        requires (std::remove_cvref_t<Expansion>::norm == sh_norm_param)
+        && (std::remove_cvref_t<Expansion>::phase == sh_phase_param)
         && std::same_as<
             typename std::remove_cvref_t<Expansion>::value_type, 
             std::array<double, 2>>
@@ -987,7 +989,7 @@ private:
             {
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
-                PlmSpan<double, SH_NORM, PHASE> plm(
+                PlmSpan<double, sh_norm_param, sh_phase_param> plm(
                         m_plm_grid.data() + i*TriangleLayout::size(m_order), 
                         m_order);
                 std::span plm_flat = plm.flatten();
@@ -1012,7 +1014,7 @@ private:
         }
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
-            PlmVecSpan<const double, SH_NORM, PHASE> ass_leg(
+            PlmVecSpan<const double, sh_norm_param, sh_phase_param> ass_leg(
                     m_plm_grid, m_order, num_plm);
 
             std::span coeffs = expansion.flatten();
@@ -1134,7 +1136,7 @@ private:
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerAcoustics
-    = GLQTransformer<SHNorm::QM, SHPhase::NONE, GridLayout>;
+    = GLQTransformer<SHNorm::qm, SHPhase::none, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
@@ -1143,7 +1145,7 @@ using GLQTransformerAcoustics
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerQM
-    = GLQTransformer<SHNorm::QM, SHPhase::CS, GridLayout>;
+    = GLQTransformer<SHNorm::qm, SHPhase::cs, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
@@ -1152,7 +1154,7 @@ using GLQTransformerQM
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerGeo
-    = GLQTransformer<SHNorm::GEO, SHPhase::NONE, GridLayout>;
+    = GLQTransformer<SHNorm::geo, SHPhase::none, GridLayout>;
 
 /**
     @brief Function concept taking Cartesian coordinates as inputs.
@@ -1175,11 +1177,13 @@ concept spherical_function = requires (Func f, double lon, double colat)
 /**
     @brief High-level interface for taking SH transforms of functions on balls of arbitrary radii.
 
-    @tparam SH_NORM normalization convention of spherical harmonics
-    @tparam PHASE phase convention of spherical harmonics
+    @tparam sh_norm_param normalization convention of spherical harmonics
+    @tparam sh_phase_param phase convention of spherical harmonics
     @tparam GridLayoutType
 */
-template <st::SHNorm SH_NORM, st::SHPhase PHASE, typename GridLayoutType = DefaultLayout>
+template <
+    st::SHNorm sh_norm_param, st::SHPhase sh_phase_param,
+    typename GridLayoutType = DefaultLayout>
 class SHTransformer
 {
 public:
@@ -1198,7 +1202,7 @@ public:
     template <spherical_function Func>
     void transform(
         Func&& f,
-        RealSHExpansionSpan<std::array<double, 2>, SH_NORM, PHASE> expansion)
+        RealSHExpansionSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
     {
         resize(expansion.order());
         m_points.generate_values(m_grid, f);
@@ -1206,7 +1210,7 @@ public:
     }
 
     template <spherical_function Func>
-    [[nodiscard]] RealSHExpansion<SH_NORM, PHASE> transform(
+    [[nodiscard]] RealSHExpansion<sh_norm_param, sh_phase_param> transform(
         Func&& f, double radius, std::size_t order)
     {
         resize(order);
@@ -1217,7 +1221,7 @@ public:
     template <cartesian_function Func>
     void transform(
         Func&& f, 
-        RealSHExpansionSpan<std::array<double, 2>, SH_NORM, PHASE> expansion)
+        RealSHExpansionSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
     {
         auto f_scaled = [&](double lon, double colat) {
             const double scolat = std::sin(colat);
@@ -1232,7 +1236,7 @@ public:
     }
 
     template <cartesian_function Func>
-    [[nodiscard]] RealSHExpansion<SH_NORM, PHASE> transform(
+    [[nodiscard]] RealSHExpansion<sh_norm_param, sh_phase_param> transform(
         Func&& f, std::size_t order)
     {
         auto f_scaled = [&](double lon, double colat) {
@@ -1250,7 +1254,7 @@ public:
 private:
     SphereGLQGrid<double, GridLayout> m_grid;
     SphereGLQGridPoints<GridLayout> m_points;
-    GLQTransformer<SH_NORM, PHASE, GridLayout> m_transformer;
+    GLQTransformer<sh_norm_param, sh_phase_param, GridLayout> m_transformer;
 };
 
 /**
@@ -1260,7 +1264,7 @@ private:
 */
 template <typename GridLayout = DefaultLayout>
 using SHTransformerAcoustics
-    = SHTransformer<SHNorm::QM, SHPhase::NONE, GridLayout>;
+    = SHTransformer<SHNorm::qm, SHPhase::none, GridLayout>;
 
 /**
     @brief Convenient alias for `SHTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
@@ -1269,7 +1273,7 @@ using SHTransformerAcoustics
 */
 template <typename GridLayout = DefaultLayout>
 using SHTransformerQM
-    = SHTransformer<SHNorm::QM, SHPhase::CS, GridLayout>;
+    = SHTransformer<SHNorm::qm, SHPhase::cs, GridLayout>;
 
 /**
     @brief Convenient alias for `SHTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
@@ -1278,7 +1282,7 @@ using SHTransformerQM
 */
 template <typename GridLayout = DefaultLayout>
 using SHTransformerGeo
-    = SHTransformer<SHNorm::GEO, SHPhase::NONE, GridLayout>;
+    = SHTransformer<SHNorm::geo, SHPhase::none, GridLayout>;
 
 } // namespace st
 } // namespace zest

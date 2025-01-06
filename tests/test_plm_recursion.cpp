@@ -36,12 +36,12 @@ constexpr bool is_close(
     return std::fabs(a[0] - b[0]) < tol && std::fabs(a[1] - b[1]) < tol;
 }
 
-template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
 bool test_plm_real_generates_real_correct_up_to_order_5(double z)
 {
     constexpr std::size_t order = 5;
-    constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
-    constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+    constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
+    constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
         0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double P00 = shnorm;
@@ -68,7 +68,7 @@ bool test_plm_real_generates_real_correct_up_to_order_5(double z)
 
     std::vector<double> plm(zest::TriangleLayout::size(order));
 
-    recursion.plm_real(z, zest::st::PlmSpan<double, NORM, PHASE>(plm, recursion.max_order()));
+    recursion.plm_real(z, zest::st::PlmSpan<double, sh_norm_param, sh_phase_param>(plm, recursion.max_order()));
     bool success = is_close(plm[0], P00, 1.0e-10)
             && is_close(plm[1], P10, 1.0e-10)
             && is_close(plm[2], P11, 1.0e-10)
@@ -108,12 +108,12 @@ bool test_plm_real_generates_real_correct_up_to_order_5(double z)
     }
 }
 
-template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
 bool test_plm_real_generates_real_vec_correct_up_to_order_5(double z)
 {
     constexpr std::size_t order = 5;
-    constexpr double phase = (PHASE == zest::st::SHPhase::NONE) ? -1.0 : 1.0;
-    constexpr double shnorm = (NORM == zest::st::SHNorm::QM) ?
+    constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
+    constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
         0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double P00 = shnorm;
@@ -140,7 +140,7 @@ bool test_plm_real_generates_real_vec_correct_up_to_order_5(double z)
 
     std::vector<double> plm(zest::TriangleLayout::size(order));
 
-    recursion.plm_real(std::array<double, 1>{z}, zest::st::PlmVecSpan<double, NORM, PHASE>(plm, recursion.max_order(), 1));
+    recursion.plm_real(std::array<double, 1>{z}, zest::st::PlmVecSpan<double, sh_norm_param, sh_phase_param>(plm, recursion.max_order(), 1));
     bool success = is_close(plm[0], P00, 1.0e-10)
             && is_close(plm[1], P10, 1.0e-10)
             && is_close(plm[2], P11, 1.0e-10)
@@ -180,24 +180,24 @@ bool test_plm_real_generates_real_vec_correct_up_to_order_5(double z)
     }
 }
 
-template <zest::st::SHNorm NORM, zest::st::SHPhase PHASE>
+template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
 void test_plm_recursion()
 {
-    assert((test_plm_real_generates_real_correct_up_to_order_5<NORM, PHASE>(1.0)));
-    assert((test_plm_real_generates_real_correct_up_to_order_5<NORM, PHASE>(-1.0)));
-    assert((test_plm_real_generates_real_correct_up_to_order_5<NORM, PHASE>(0.0)));
-    assert((test_plm_real_generates_real_correct_up_to_order_5<NORM, PHASE>(0.9741683087648949)));
+    assert((test_plm_real_generates_real_correct_up_to_order_5<sh_norm_param, sh_phase_param>(1.0)));
+    assert((test_plm_real_generates_real_correct_up_to_order_5<sh_norm_param, sh_phase_param>(-1.0)));
+    assert((test_plm_real_generates_real_correct_up_to_order_5<sh_norm_param, sh_phase_param>(0.0)));
+    assert((test_plm_real_generates_real_correct_up_to_order_5<sh_norm_param, sh_phase_param>(0.9741683087648949)));
 
-    assert((test_plm_real_generates_real_vec_correct_up_to_order_5<NORM, PHASE>(1.0)));
-    assert((test_plm_real_generates_real_vec_correct_up_to_order_5<NORM, PHASE>(-1.0)));
-    assert((test_plm_real_generates_real_vec_correct_up_to_order_5<NORM, PHASE>(0.0)));
-    assert((test_plm_real_generates_real_vec_correct_up_to_order_5<NORM, PHASE>(0.9741683087648949)));
+    assert((test_plm_real_generates_real_vec_correct_up_to_order_5<sh_norm_param, sh_phase_param>(1.0)));
+    assert((test_plm_real_generates_real_vec_correct_up_to_order_5<sh_norm_param, sh_phase_param>(-1.0)));
+    assert((test_plm_real_generates_real_vec_correct_up_to_order_5<sh_norm_param, sh_phase_param>(0.0)));
+    assert((test_plm_real_generates_real_vec_correct_up_to_order_5<sh_norm_param, sh_phase_param>(0.9741683087648949)));
 }
 
 int main()
 {
-    test_plm_recursion<zest::st::SHNorm::GEO, zest::st::SHPhase::NONE>();
-    test_plm_recursion<zest::st::SHNorm::GEO, zest::st::SHPhase::CS>();
-    test_plm_recursion<zest::st::SHNorm::QM, zest::st::SHPhase::NONE>();
-    test_plm_recursion<zest::st::SHNorm::QM, zest::st::SHPhase::CS>();
+    test_plm_recursion<zest::st::SHNorm::geo, zest::st::SHPhase::none>();
+    test_plm_recursion<zest::st::SHNorm::geo, zest::st::SHPhase::cs>();
+    test_plm_recursion<zest::st::SHNorm::qm, zest::st::SHPhase::none>();
+    test_plm_recursion<zest::st::SHNorm::qm, zest::st::SHPhase::cs>();
 }
