@@ -27,8 +27,7 @@ and finally install it to your preferred directory
 ```bash
 cmake --install . --prefix <install directory>
 ```
-
-Note that this library uses C++20 features, so a sufficiently modern compiler is required, e.g., GGC 11 or greater or Clang 14 or greater.
+Note: this library aims to use the C++20 standard. Therefore, a sufficiently modern compiler is required. At least GGC 13 or Clang 17 is recommended. The library may compile at any point with compilers down to GCC 11 and Clang 14, but no guarantees are made about this.
 
 ## Usage
 
