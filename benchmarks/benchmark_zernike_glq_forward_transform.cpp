@@ -54,7 +54,7 @@ int main()
     bench.minEpochTime(std::chrono::nanoseconds(1000000000));
 
     std::vector<std::size_t> order_vec = {
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 200, 250, 300, 400
+        2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 25, 30, 35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 250, 300, 400
     };
 
     bench.title("zt::GLQTransformer::forward_transform");

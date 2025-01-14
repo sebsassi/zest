@@ -68,7 +68,7 @@ public:
     using data_handle_type = element_type*;
     using ConstView = MDSpan<const element_type, ndim>;
 
-    static constexpr rank() { return ndim; }
+    static constexpr std::size_t rank() { return ndim; }
 
     constexpr MDSpan() noexcept = default;
     constexpr MDSpan(
@@ -106,7 +106,7 @@ public:
         return m_extents;
     }
 
-    [[nodiscard]] constexpr const std::size_t
+    [[nodiscard]] constexpr std::size_t
     extent(std::size_t i) const noexcept
     {
         return m_extents[i];
