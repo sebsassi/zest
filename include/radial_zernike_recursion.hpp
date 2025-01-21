@@ -21,10 +21,9 @@ SOFTWARE.
 */
 #pragma once
 
-#include <cmath>
 #include <cassert>
-#include <stdexcept>
 #include <vector>
+#include <span>
 
 #include "zernike_expansion.hpp"
 

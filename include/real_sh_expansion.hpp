@@ -23,7 +23,10 @@ SOFTWARE.
 
 #include <complex>
 #include <vector>
+#include <array>
 #include <span>
+#include <concepts>
+#include <type_traits>
 
 #include "triangle_layout.hpp"
 #include "sh_conventions.hpp"

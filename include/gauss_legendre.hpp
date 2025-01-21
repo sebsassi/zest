@@ -26,6 +26,9 @@ SOFTWARE.
 #include <span>
 #include <numbers>
 #include <ranges>
+#include <concepts>
+#include <type_traits>
+#include <utility>
 
 namespace zest
 {

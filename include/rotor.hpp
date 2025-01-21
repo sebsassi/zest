@@ -23,6 +23,7 @@ SOFTWARE.
 
 #include <array>
 #include <vector>
+#include <type_traits>
 
 #include "real_sh_expansion.hpp"
 #include "zernike_expansion.hpp"

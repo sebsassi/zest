@@ -23,6 +23,7 @@ SOFTWARE.
 
 #include <vector>
 #include <span>
+#include <concepts>
 
 #include "plm_recursion.hpp"
 #include "triangle_layout.hpp"

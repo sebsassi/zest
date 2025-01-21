@@ -21,7 +21,6 @@ SOFTWARE.
 */
 #include "linearfit.hpp"
 
-#include <cassert>
 #include <algorithm>
 
 namespace zest

@@ -22,6 +22,8 @@ SOFTWARE.
 #pragma once
 
 #include <span>
+#include <concepts>
+#include <type_traits>
 
 namespace zest
 {

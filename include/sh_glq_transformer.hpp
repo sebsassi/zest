@@ -23,8 +23,10 @@ SOFTWARE.
 
 #include <span>
 #include <vector>
+#include <array>
 #include <complex>
-#include <cassert>
+#include <type_traits>
+#include <concepts>
 
 #include "pocketfft_spec.hpp"
 

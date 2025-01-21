@@ -23,10 +23,14 @@ SOFTWARE.
 
 #include <concepts>
 #include <vector>
+#include <array>
 #include <complex>
 #include <span>
+#include <type_traits>
+#include <concepts>
 
 #include "triangle_layout.hpp"
+#include "array_complex_view.hpp"
 #include "sh_conventions.hpp"
 #include "zernike_conventions.hpp"
 

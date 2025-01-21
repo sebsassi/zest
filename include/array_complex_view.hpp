@@ -22,6 +22,7 @@ SOFTWARE.
 #pragma once
 
 #include <span>
+#include <array>
 #include <complex>
 
 namespace zest

@@ -26,7 +26,6 @@ SOFTWARE.
 #include <complex>
 #include <cmath>
 #include <utility>
-#include <stdexcept>
 #include <ranges>
 #include <algorithm>
 #include <span>

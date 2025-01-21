@@ -26,6 +26,8 @@ SOFTWARE.
 #include <concepts>
 #include <span>
 #include <vector>
+#include <numbers>
+#include <type_traits>
 
 #include "sh_conventions.hpp"
 #include "triangle_layout.hpp"

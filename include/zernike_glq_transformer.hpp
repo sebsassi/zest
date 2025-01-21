@@ -25,6 +25,8 @@ SOFTWARE.
 #include <array>
 #include <span>
 #include <complex>
+#include <type_traits>
+#include <concepts>
 
 #include "pocketfft_spec.hpp"
 
