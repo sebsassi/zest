@@ -129,20 +129,22 @@ private:
     template <real_sh_expansion ExpansionType>
     void sum_l(ExpansionType&& expansion) noexcept
     {
-        TriangleVecSpan<const double, TriangleLayout> ass_leg(
+        TriangleVecSpan<const double, PlmLayout> ass_leg(
                 m_plm_grid, expansion.order(), m_lat_size);
-        for (std::size_t l = 0; l < expansion.order(); ++l)
+        for (auto l : expansion.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
+            auto expansion_l = expansion[l];
+            auto ass_leg_l = ass_leg[l];
+            for (auto m : expansion_l.indices())
             {
-                const std::array<double, 2> coeff = expansion(l,m);
-                std::span<const double> plm = ass_leg(l,m);
+                const std::array<double, 2> coeff = expansion_l[m];
+                std::span<const double> ass_leg_lm = ass_leg_l[m];
                 
                 std::span<std::array<double, 2>> f_m(
                         m_fm_grid.begin() + m*m_lat_size, m_lat_size);
                 for (std::size_t i = 0; i < m_lat_size; ++i)
                 {
-                    const double weight = plm[i];
+                    const double weight = ass_leg_lm[i];
                     f_m[i][0] += weight*coeff[0];
                     f_m[i][1] += weight*coeff[1];
                 }
@@ -232,7 +234,7 @@ public:
         resize(order, longitudes.size(), colatitudes.size(), radii.size());
 
 
-        RadialZernikeVecSpan<zernike_norm, double> zernike(
+        RadialZernikeVecSpan<double, zernike_norm> zernike(
                 m_zernike_grid, order, m_rad_size);
         m_zernike_recursion.zernike<zernike_norm>(radii, zernike);
 
@@ -263,27 +265,27 @@ private:
         constexpr ZernikeNorm zernike_norm
             = std::remove_cvref_t<ExpansionType>::zernike_norm;
         const std::size_t order = expansion.order();
-        RadialZernikeVecSpan<zernike_norm, const double> zernike(
+        RadialZernikeVecSpan<const double, zernike_norm> zernike(
                 m_zernike_grid, order, m_rad_size);
 
         std::ranges::fill(m_flm_grid, std::array<double, 2>{});
 
-        TriangleVecSpan<std::array<double, 2>, TriangleLayout>
+        TriangleVecSpan<
+            std::array<double, 2>, TriangleLayout<IndexingMode::nonnegative>>
         flm(m_flm_grid, order, m_rad_size);
 
-        for (std::size_t n = 0; n < order; ++n)
+        for (auto n : expansion.indices())
         {
+            auto zernike_n = zernike[n];
             auto expansion_n = expansion[n];
-            for (std::size_t l = n & 1; l <= n; l += 2)
+            for (auto l : expansion_n.indices())
             {
-                std::span<const double> zernike_nl = zernike(n,l);
-
-                std::span<const std::array<double, 2>>
-                expansion_nl = expansion_n[l];
-
-                for (std::size_t m = 0; m <= l; ++m)
+                auto zernike_nl = zernike_n[l];
+                auto expansion_nl = expansion_n[l];
+                auto flm_l = flm[l];
+                for (auto m : expansion_nl.indices())
                 {
-                    std::span<std::array<double, 2>> flm_lm = flm(l,m);
+                    std::span<std::array<double, 2>> flm_lm = flm_l[m];
                     const std::array<double, 2> coeff = expansion_nl[m];
                     for (std::size_t i = 0; i < m_rad_size; ++i)
                     {

@@ -89,6 +89,13 @@ public:
                 m_matrices.data() + (l*(l + 1)*(2*l + 1))/6, l + 1);
     }
 
+    [[nodiscard]] WignerdSpan<const double>
+    operator[](std::size_t l) const noexcept
+    {
+        return WignerdSpan<const double>(
+                m_matrices.data() + (l*(l + 1)*(2*l + 1))/6, l + 1);
+    }
+
 private:
     [[nodiscard]] static constexpr std::size_t idx(
         std::size_t l, std::size_t m1, std::size_t m2) noexcept

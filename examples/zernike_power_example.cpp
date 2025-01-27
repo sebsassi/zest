@@ -36,7 +36,7 @@ int main()
     constexpr std::size_t order = 20;
     constexpr double radius = 1.0;
     zest::zt::ZernikeTransformerOrthoQM transformer{};
-    zest::zt::ZernikeExpansion expansion
+    zest::zt::RealZernikeExpansion expansion
         = transformer.transform(function, radius, order);
 
     std::vector<double> spectrum_data = zest::zt::power_spectrum(expansion);

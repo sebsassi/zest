@@ -26,7 +26,8 @@ SOFTWARE.
 
 #include "linearfit.hpp"
 #include "real_sh_expansion.hpp"
-#include "real_ylm.hpp"
+#include "sh_generator.hpp"
+#include "zernike_generator.hpp"
 
 namespace zest
 {
@@ -44,7 +45,7 @@ public:
 
     [[nodiscard]] std::size_t order() const noexcept
     {
-        return m_ylm_gen.max_order();
+        return m_sh_gen.max_order();
     }
 
     [[nodiscard]] const Matrix<double>& sh_values() const noexcept
@@ -54,43 +55,37 @@ public:
 
     template <SHNorm sh_norm_param, SHPhase sh_phase_param>
     void transform(
-        std::span<const double> data, std::span<const double> lat, std::span<const double> lon, RealSHExpansionSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
+        std::span<const double> data, std::span<const double> lat, std::span<const double> lon, RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
     {
-        using Expansion = RealSHExpansionSpan<std::array<double, 2>, sh_norm_param, sh_phase_param>;
+        using FitExpansion = RealSHSpan<double, sh_norm_param, sh_phase_param>;
 
-        m_ylm_gen.expand(expansion.order());
+        m_sh_gen.expand(expansion.order());
 
         m_sh_values.resize(
-                data.size(), DualTriangleLayout::size(expansion.order()));
+                data.size(), FitExpansion::Layout::size(expansion.order()));
 
         for (size_t i = 0; i < data.size(); ++i)
         {
-            RealYlmSpan<SequentialRealYlmPacking, sh_norm_param, sh_phase_param> ylm(m_sh_values.row(i), expansion.order());
-            m_ylm_gen.generate<SequentialRealYlmPacking, sh_norm_param, sh_phase_param>(lon[i], lat[i], ylm);
+            FitExpansion ylm(m_sh_values.row(i), expansion.order());
+            m_sh_gen.generate(lon[i], lat[i], ylm);
         }
 
         m_coeffs.resize(m_sh_values.ncols());
         m_fitter.fit_parameters(m_sh_values, m_coeffs, data);
 
-        std::span coeffs = expansion.flatten();
-        for (std::size_t l = 0; l < expansion.order(); ++l)
+        FitExpansion coeffs(m_coeffs.data(), expansion.order());
+        for (auto l : expansion.indices())
         {
-            coeffs[Expansion::Layout::idx(l, 0)] = {
-                m_coeffs[DualTriangleLayout::idx(int(l), 0)],
-                0.0
-            };
-            for (std::size_t m = 1; m <= l; ++m)
-            {
-                coeffs[Expansion::Layout::idx(l,m)] = {
-                        m_coeffs[DualTriangleLayout::idx(int(l),int(m))],
-                        m_coeffs[DualTriangleLayout::idx(int(l),-int(m))]
-                    };
-            }
+            auto expansion_l = expansion[l];
+            auto coeffs_l = coeffs[int(l)];
+            expansion_l[0] = {coeffs_l[0], 0.0};
+            for (auto m : expansion_l.indices(1))
+                expansion_l[m] = {coeffs_l[int(m)], coeffs_l[-int(m)]};
         }
     }
     
     template <SHNorm sh_norm_param, SHPhase sh_phase_param>
-    RealSHExpansion<sh_norm_param, sh_phase_param> transform(
+    [[nodiscard]] auto transform(
         std::span<const double> data, std::span<const double> lat, std::span<const double> lon, std::size_t order)
     {
         RealSHExpansion<sh_norm_param, sh_phase_param> expansion(order);
@@ -99,11 +94,92 @@ public:
     }
 
 private:
-    RealYlmGenerator m_ylm_gen;
+    RealSHGenerator m_sh_gen;
     Matrix<double> m_sh_values;
     std::vector<double> m_coeffs;
     detail::LinearMultifit m_fitter;
 };
 
 } // namespace st
+
+namespace zt
+{
+
+/**
+    @brief Least-squares Zernike expansion fit on arbitrary real valued data on the unit ball.
+*/
+class LSQTransformer
+{
+public:
+    LSQTransformer() = default;
+    explicit LSQTransformer(std::size_t order);
+
+    [[nodiscard]] std::size_t order() const noexcept
+    {
+        return m_zernike_gen.max_order();
+    }
+
+    [[nodiscard]] const Matrix<double>& sh_values() const noexcept
+    {
+        return m_sh_values;
+    }
+
+    template <
+        ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
+    void transform(
+        std::span<const double> data, std::span<const double> r, std::span<const double> lon, std::span<const double> colat, RealZernikeSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
+    {
+        using FitExpansion = RealZernikeSpan<
+                double, zernike_norm_param, sh_norm_param, sh_phase_param>;
+
+        m_zernike_gen.expand(expansion.order());
+
+        m_sh_values.resize(
+                data.size(), FitExpansion::Layout::size(expansion.order()));
+
+        for (size_t i = 0; i < data.size(); ++i)
+        {
+            FitExpansion znlm(m_sh_values.row(i), expansion.order());
+            m_zernike_gen.generate(r[i], lon[i], colat[i], znlm);
+        }
+
+        m_coeffs.resize(m_sh_values.ncols());
+        m_fitter.fit_parameters(m_sh_values, m_coeffs, data);
+
+        FitExpansion coeffs(m_coeffs.data(), expansion.order());
+        for (auto n : expansion.indices())
+        {
+            auto expansion_n = expansion[n];
+            auto coeffs_n = coeffs[int(n)];
+            for (auto l : expansion_n.indices())
+            {
+                auto expansion_nl = expansion_n[l];
+                auto coeffs_nl = coeffs[int(l)];
+                expansion_nl[0] = {coeffs_nl[0], 0.0};
+                for (std::size_t m = 1; m <= l; ++m)
+                    expansion_nl[m] = {coeffs_nl[int(m)], coeffs_nl[-int(m)]};
+            }
+        }
+    }
+    
+    template <
+        ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param,
+        st::SHPhase sh_phase_param>
+    [[nodiscard]] auto transform(
+        std::span<const double> data, std::span<const double> lat, std::span<const double> lon, std::size_t order)
+    {
+        RealZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> 
+        expansion(order);
+        transform<sh_norm_param, sh_phase_param>(data, lat, lon, expansion);
+        return expansion;
+    }
+
+private:
+    ZernikeGenerator m_zernike_gen;
+    Matrix<double> m_sh_values;
+    std::vector<double> m_coeffs;
+    detail::LinearMultifit m_fitter;
+};
+
+} // namespace zt
 } // namespace zest

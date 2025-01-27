@@ -303,7 +303,7 @@ bool test_zernike_grid_evaluator_does_constant_function()
         }
     }
     
-    zest::zt::ZernikeExpansion<ZERNIKE_NORM, SH_NORM, sh_phase_param> expansion(order);
+    zest::zt::RealZernikeExpansion<ZERNIKE_NORM, SH_NORM, sh_phase_param> expansion(order);
     
     expansion(0,0,0)[0] = 1.0;
 
@@ -378,7 +378,7 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
         }
     }
     
-    zest::zt::ZernikeExpansion<ZERNIKE_NORM, SH_NORM, sh_phase_param> expansion(order);
+    zest::zt::RealZernikeExpansion<ZERNIKE_NORM, SH_NORM, sh_phase_param> expansion(order);
 
     expansion(3,3,2) = {0.0, 1.0};
     expansion(5,3,1) = {1.0, 0.0};

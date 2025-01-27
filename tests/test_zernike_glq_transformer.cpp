@@ -73,7 +73,7 @@ bool test_glq_forward_transform_expands_Z000()
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
     zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, sh_phase_param> transformer(order);
-    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
+    zest::zt::RealZernikeExpansion expansion = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
 
@@ -144,7 +144,7 @@ bool test_glq_forward_transform_expands_Z200()
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
     zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, sh_phase_param> transformer(order);
-    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
+    zest::zt::RealZernikeExpansion expansion = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
 
@@ -214,7 +214,7 @@ bool test_glq_forward_transform_expands_Z110()
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
     zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, sh_phase_param> transformer(order);
-    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
+    zest::zt::RealZernikeExpansion expansion = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
 
@@ -286,7 +286,7 @@ bool test_glq_forward_transform_expands_Z221()
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
     zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, sh_phase_param> transformer(order);
-    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
+    zest::zt::RealZernikeExpansion expansion = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
 
@@ -355,7 +355,7 @@ bool test_glq_forward_transform_expands_Z33m2()
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
     zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, sh_phase_param> transformer(order);
-    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
+    zest::zt::RealZernikeExpansion expansion = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
 
@@ -427,7 +427,7 @@ bool test_glq_forward_transform_expands_Z531()
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
     zest::zt::GLQTransformer<ZERNIKE_NORM, SH_NORM, sh_phase_param> transformer(order);
-    zest::zt::ZernikeExpansion expansion = transformer.forward_transform(grid, order);
+    zest::zt::RealZernikeExpansion expansion = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
 

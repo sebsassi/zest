@@ -37,13 +37,13 @@ PlmRecursion::PlmRecursion(std::size_t max_order):
 
     for (std::size_t l = 2; l < m_max_order; ++l)
     {
-        const std::size_t ind = TriangleLayout::idx(l,0);
+        const std::size_t ind = PlmLayout::idx(l, 0);
         m_alm[ind] = m_sqrl[2*l - 1]*m_sqrl[2*l + 1]/double(l);
         m_blm[ind] = (double(l) - 1.0)*m_sqrl[2*l + 1]/(m_sqrl[2*l - 3]*double(l));
 
         for (std::size_t m = 1; m < l - 1; ++m)
         {
-            const std::size_t ind = TriangleLayout::idx(l,m);
+            const std::size_t ind = PlmLayout::idx(l, m);
             // a(l,m) = sqrt((2l - 1)(2l + 1)/((l - m)(l + m)))
             m_alm[ind] = m_sqrl[2*l - 1]*m_sqrl[2*l + 1]
                     /(m_sqrl[l - m]*m_sqrl[l + m]);
@@ -68,13 +68,13 @@ void PlmRecursion::expand(std::size_t max_order)
     
     for (std::size_t l = std::max(2UL, m_max_order); l < max_order; ++l)
     {
-        const std::size_t ind = TriangleLayout::idx(l,0);
+        const std::size_t ind = PlmLayout::idx(l, 0);
         m_alm[ind] = m_sqrl[2*l - 1]*m_sqrl[2*l + 1]/double(l);
         m_blm[ind] = (double(l) - 1.0)*m_sqrl[2*l + 1]/(m_sqrl[2*l - 3]*double(l));
 
         for (std::size_t m = 1; m < l - 1; ++m)
         {
-            const std::size_t ind = TriangleLayout::idx(l,m);
+            const std::size_t ind = PlmLayout::idx(l, m);
             // a(l,m) = sqrt((2l - 1)(2l + 1)/((l - m)(l + m)))
             m_alm[ind] = m_sqrl[2*l - 1]*m_sqrl[2*l + 1]
                     /(m_sqrl[l - m]*m_sqrl[l + m]);

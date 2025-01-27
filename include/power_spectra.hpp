@@ -127,7 +127,7 @@ namespace zt
 template <zt::zernike_expansion ExpansionType>
 void power_spectrum(
     ExpansionType&& expansion,
-    RadialZernikeSpan<ExpansionType::zernike_norm, double> out) noexcept
+    RadialZernikeSpan<double, ExpansionType::zernike_norm> out) noexcept
 {
     constexpr double norm = st::normalization<ExpansionType::sh_norm>();
     std::size_t min_order = std::min(out.order(), expansion.order());
@@ -155,7 +155,7 @@ void power_spectrum(
 template <zt::zernike_expansion ExpansionType>
 [[nodiscard]] std::vector<double> power_spectrum(ExpansionType&& expansion)
 {
-    using SpectrumSpan = RadialZernikeSpan<ExpansionType::zernike_norm, double>;
+    using SpectrumSpan = RadialZernikeSpan<double, ExpansionType::zernike_norm>;
     std::vector<double> res(RadialZernikeLayout::size(expansion.order()));
     power_spectrum(
         std::forward(expansion), SpectrumSpan(res, expansion.order()));

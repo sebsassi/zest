@@ -22,12 +22,13 @@ macro(create_test TESTNAME)
     )
     target_compile_options(${TESTNAME}.test
         PRIVATE
-            $<$<CONFIG:Debug>:-Wall;-Wextra;-Wpedantic;-Wconversion;-Werror;-g;-O0>
+            $<$<CONFIG:Debug>:-Wall;-Wextra;-Wpedantic;-Wconversion;-Werror;-g;-O0;-fconcepts-diagnostics-depth=2>
     )
     target_link_libraries(${TESTNAME}.test zest lapack blas gfortran)
     add_test(NAME ${TESTNAME} COMMAND ${TESTNAME}.test)
 endmacro()
 
+create_test(test_index_range)
 create_test(test_gauss_legendre)
 create_test(test_triangle_layout)
 create_test(test_md_span)

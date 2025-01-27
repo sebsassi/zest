@@ -19,23 +19,27 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 SOFTWARE.
 */
-#include "real_sh_expansion.hpp"
+#include "sh_generator.hpp"
 
-constexpr bool test_shlmspan_const_view_can_be_taken()
+namespace zest
 {
-    zest::st::SHLMSpan<double, zest::TriangleLayout<zest::IndexingMode::nonnegative>, zest::st::SHNorm::qm, zest::st::SHPhase::cs> span{};
-    [[maybe_unused]] auto const_view = zest::st::SHLMSpan<const double, zest::TriangleLayout<zest::IndexingMode::nonnegative>, zest::st::SHNorm::qm, zest::st::SHPhase::cs>(span);
-    return true;
+namespace st
+{
+
+RealSHGenerator::RealSHGenerator(std::size_t max_order):
+    m_recursion(max_order),
+    m_ass_leg_poly(TriangleLayout<IndexingMode::nonnegative>::size(max_order)),
+    m_cossin(max_order) {}
+
+void RealSHGenerator::expand(std::size_t max_order)
+{
+    if (max_order <= this->max_order()) return;
+
+    m_recursion.expand(max_order);
+    m_ass_leg_poly.resize(
+            TriangleLayout<IndexingMode::nonnegative>::size(max_order));
+    m_cossin.resize(max_order);
 }
 
-constexpr bool test_shlmvecspan_const_view_can_be_taken()
-{
-    zest::st::SHLMVecSpan<double, zest::TriangleLayout<zest::IndexingMode::nonnegative>, zest::st::SHNorm::qm, zest::st::SHPhase::cs> span{};
-    [[maybe_unused]] auto const_view = zest::st::SHLMVecSpan<const double, zest::TriangleLayout<zest::IndexingMode::nonnegative>, zest::st::SHNorm::qm, zest::st::SHPhase::cs>(span);
-    return true;
-}
-
-static_assert(test_shlmspan_const_view_can_be_taken());
-static_assert(test_shlmvecspan_const_view_can_be_taken());
-
-int main() {}
+} // namespace st
+} // namespace zest

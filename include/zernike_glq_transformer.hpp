@@ -427,8 +427,8 @@ public:
         m_lat_glq_nodes(GridLayout::lat_size(order)),
         m_lat_glq_weights(GridLayout::lat_size(order)),
         m_zernike_grid(GridLayout::rad_size(order)*RadialZernikeLayout::size(order)),
-        m_plm_grid(GridLayout::lat_size(order)*TriangleLayout::size(order)),
-        m_flm_grid(GridLayout::rad_size(order)*TriangleLayout::size(order)),
+        m_plm_grid(GridLayout::lat_size(order)*st::PlmLayout::size(order)),
+        m_flm_grid(GridLayout::rad_size(order)*st::PlmLayout::size(order)),
         m_ffts(GridLayout::rad_size(order)*GridLayout::lat_size(order)*GridLayout::fft_size(order)), m_pocketfft_shape_grid(3),
         m_pocketfft_stride_grid(3), m_pocketfft_stride_fft(3), m_order(order)
     {
@@ -442,7 +442,7 @@ public:
         for (auto& node : m_rad_glq_nodes)
             node = 0.5*(1.0 + node);
         
-        RadialZernikeVecSpan<zernike_norm_param, double> zernike(
+        RadialZernikeVecSpan<double, zernike_norm_param> zernike(
                 m_zernike_grid, order, m_rad_glq_nodes.size());
         m_zernike_recursion.zernike<zernike_norm_param>(
                 m_rad_glq_nodes, zernike);
@@ -492,13 +492,13 @@ public:
         
         m_zernike_grid.resize(GridLayout::rad_size(order)*RadialZernikeLayout::size(order));
         
-        RadialZernikeVecSpan<zernike_norm_param, double> zernike(
+        RadialZernikeVecSpan<double, zernike_norm_param> zernike(
                 m_zernike_grid, order, m_rad_glq_nodes.size());
         m_zernike_recursion.zernike<zernike_norm_param>(
                 m_rad_glq_nodes, zernike);
         
-        m_plm_grid.resize(GridLayout::lat_size(order)*TriangleLayout::size(order));
-        m_flm_grid.resize(GridLayout::rad_size(order)*TriangleLayout::size(order));
+        m_plm_grid.resize(GridLayout::lat_size(order)*st::PlmLayout::size(order));
+        m_flm_grid.resize(GridLayout::rad_size(order)*st::PlmLayout::size(order));
 
         st::PlmVecSpan<double, sh_norm_param, sh_phase_param> plm(
                 m_plm_grid, order, m_lat_glq_nodes.size());
@@ -524,7 +524,7 @@ public:
 
     void forward_transform(
         BallGLQGridSpan<const double, GridLayout> values,
-        ZernikeExpansionSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
+        RealZernikeSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
     {
         resize(values.order());
 
@@ -533,32 +533,40 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
         integrate_latitudinal(min_order);
-        integrate_radial(expansion, min_order);
+
+        RealZernikeSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param>
+        truncated_expansion(expansion.data(), min_order);
+        integrate_radial(truncated_expansion);
     }
 
     void backward_transform(
-        ZernikeExpansionSpan<const std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion,
+        RealZernikeSpan<const std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion,
         BallGLQGridSpan<double, GridLayout> values)
     {
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
         
-        sum_n(expansion, min_order);
+        RealZernikeSpan<
+            const std::array<double, 2>, zernike_norm_param, sh_norm_param, 
+            sh_phase_param>
+        truncated_expansion(expansion.data(), min_order);
+
+        sum_n(truncated_expansion);
         sum_l(min_order);
         sum_m(values);
     }
     
-    [[nodiscard]] ZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> forward_transform(
+    [[nodiscard]] RealZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> forward_transform(
         BallGLQGridSpan<const double, GridLayout> values, std::size_t order)
     {
-        ZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> expansion(order);
+        RealZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> expansion(order);
         forward_transform(values, expansion);
         return expansion;
     }
 
     [[nodiscard]] BallGLQGrid<double, GridLayout> backward_transform(
-        ZernikeExpansionSpan<const std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion, std::size_t order)
+        RealZernikeSpan<const std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion, std::size_t order)
     {
         BallGLQGrid<double, GridLayout> grid(order);
         backward_transform(expansion, grid);
@@ -641,22 +649,24 @@ private:
         const std::size_t fft_order = GridLayout::fft_size(m_order);
         std::ranges::fill(m_flm_grid, std::array<double, 2>{});
 
-        TriangleVecSpan<std::array<double, 2>, TriangleLayout>
-        flm(m_flm_grid, m_order, rad_glq_size);
+        TriangleVecSpan<std::array<double, 2>, st::PlmLayout>
+        flm(m_flm_grid, min_order, rad_glq_size);
 
         st::PlmVecSpan<const double, sh_norm_param, sh_phase_param> ass_leg(
-                m_plm_grid, m_order, m_lat_glq_nodes.size());
+                m_plm_grid, min_order, m_lat_glq_nodes.size());
 
         MDSpan<const std::complex<double>, 3> fft(
                 m_ffts.data(), {fft_order, lat_glq_size, rad_glq_size});
         if constexpr (std::same_as<GridLayout, LonLatRadLayout<typename GridLayout::Alignment>>)
         {
-            for (std::size_t l = 0; l < min_order; ++l)
+            for (auto l : flm.indices())
             {
-                for (std::size_t m = 0; m <= l; ++m)
+                auto ass_leg_l = ass_leg[l];
+                auto flm_l = flm[l];
+                for (auto m : flm_l.indices())
                 {
-                    std::span<std::array<double, 2>> flm_lm = flm(l,m);
-                    std::span<const double> ass_leg_lm = ass_leg(l,m);
+                    std::span<std::array<double, 2>> flm_lm = flm_l[m];
+                    std::span<const double> ass_leg_lm = ass_leg_l[m];
                     MDSpan<const std::complex<double>, 2> fft_m = fft[m];
                     for (std::size_t i = 0; i < lat_glq_size; ++i)
                     {
@@ -674,34 +684,34 @@ private:
     }
 
     void integrate_radial(
-        ZernikeExpansionSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion, std::size_t min_order) noexcept
+        RealZernikeSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion) noexcept
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
         std::ranges::fill(expansion.flatten(), std::array<double, 2>{});
 
-        TriangleVecSpan<const std::array<double, 2>, TriangleLayout>
+        TriangleVecSpan<const std::array<double, 2>, st::PlmLayout>
         flm(m_flm_grid, m_order, rad_glq_size);
 
-        RadialZernikeVecSpan<zernike_norm_param, const double> zernike(
+        RadialZernikeVecSpan<const double, zernike_norm_param> zernike(
                 m_zernike_grid, m_order, m_rad_glq_nodes.size());
         if constexpr (std::same_as<GridLayout, LonLatRadLayout<typename GridLayout::Alignment>>)
         {
-            for (std::size_t n = 0; n < min_order; ++n)
+            for (auto n : expansion.indices())
             {
                 const double norm = normalization<zernike_norm_param>(n);
-                ZernikeExpansionSHSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> 
-                expansion_n = expansion[n];
+                auto zernike_n = zernike[n];
+                auto expansion_n = expansion[n];
                 
-                for (std::size_t l = n & 1; l <= n; l += 2)
+                for (auto l : expansion_n.indices())
                 {
-                    std::span<std::array<double, 2>> expansion_nl
-                        = expansion_n[l];
+                    auto flm_l = flm[l];
+                    auto expansion_nl = expansion_n[l];
                     
-                    std::span<const double> zernike_nl = zernike(n,l);
-                    for (std::size_t m = 0; m <= l; ++m)
+                    std::span<const double> zernike_nl = zernike_n[l];
+                    for (auto m : expansion_nl.indices())
                     {
                         std::span<const std::array<double, 2>>
-                        flm_lm = flm(l,m);
+                        flm_lm = flm_l[m];
 
                         std::array<double, 2>& coeff = expansion_nl[m];
                         for (std::size_t i = 0; i < rad_glq_size; ++i)
@@ -722,27 +732,28 @@ private:
     }
 
     void sum_n(
-        ZernikeExpansionSpan<const std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion, 
-        std::size_t min_order) noexcept
+        RealZernikeSpan<const std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion) noexcept
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
         std::ranges::fill(m_flm_grid, std::array<double, 2>{});
 
-        RadialZernikeVecSpan<zernike_norm_param, const double> zernike(
-                m_zernike_grid, m_order, m_rad_glq_nodes.size());
+        RadialZernikeVecSpan<const double, zernike_norm_param> zernike(
+                m_zernike_grid, expansion.order(), m_rad_glq_nodes.size());
 
-        TriangleVecSpan<std::array<double, 2>, TriangleLayout>
-        flm(m_flm_grid, m_order, rad_glq_size);
-        for (std::size_t n = 0; n < min_order; ++n)
+        TriangleVecSpan<std::array<double, 2>, st::PlmLayout>
+        flm(m_flm_grid, expansion.order(), rad_glq_size);
+        for (auto n : expansion.indices())
         {
+            auto zernike_n = zernike[n];
             auto expansion_n = expansion[n];
-            for (std::size_t l = n & 1; l <= n; l += 2)
+            for (auto l : expansion_n.indices())
             {
-                std::span<const double> zernike_nl = zernike(n,l);
+                std::span<const double> zernike_nl = zernike_n[l];
                 auto expansion_nl = expansion_n[l];
-                for (std::size_t m = 0; m <= l; ++m)
+                auto flm_l = flm[l];
+                for (auto m : expansion_nl.indices())
                 {
-                    std::span<std::array<double, 2>> flm_lm = flm(l,m);
+                    std::span<std::array<double, 2>> flm_lm = flm_l[m];
                     const std::array<double, 2> coeff = expansion_nl[m];
                     for (std::size_t i = 0; i < rad_glq_size; ++i)
                     {
@@ -760,8 +771,8 @@ private:
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
         const std::size_t fft_order = GridLayout::fft_size(m_order);
 
-        TriangleVecSpan<const std::array<double, 2>, TriangleLayout>
-        flm(m_flm_grid, m_order, rad_glq_size);
+        TriangleVecSpan<const std::array<double, 2>, st::PlmLayout>
+        flm(m_flm_grid, min_order, rad_glq_size);
         
         st::PlmVecSpan<const double, sh_norm_param, sh_phase_param> ass_leg(
                 m_plm_grid, m_order, m_lat_glq_nodes.size());
@@ -769,19 +780,21 @@ private:
         std::ranges::fill(m_ffts, std::complex<double>{});
         MDSpan<std::complex<double>, 3> fft(
                 m_ffts.data(), {fft_order, lat_glq_size, rad_glq_size});
-        for (std::size_t l = 0; l < min_order; ++l)
+        for (auto l : flm.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
+            auto ass_leg_l = ass_leg[l];
+            auto flm_l = flm[l];
+            for (auto m : flm_l.indices())
             {
-                std::span<const std::array<double, 2>> flm_lm = flm(l,m);
-                std::span<const double> plm = ass_leg(l,m);
+                std::span<const std::array<double, 2>> flm_lm = flm_l[m];
+                std::span<const double> ass_leg_lm = ass_leg_l[m];
                 const double m_factor = (m > 0) ? 0.5 : 1.0;
                 
                 MDSpan<std::complex<double>, 2> fft_m = fft[m];
                 for (std::size_t i = 0; i < lat_glq_size; ++i)
                 {
-                    const double plm_i = plm[i];
-                    const double weight = m_factor*plm_i;
+                    const double ass_leg_lm_i = ass_leg_lm[i];
+                    const double weight = m_factor*ass_leg_lm_i;
                     MDSpan<std::complex<double>, 1> fft_mi = fft_m[i];
                     for (std::size_t j = 0; j < rad_glq_size; ++j)
                     {
@@ -923,7 +936,7 @@ public:
     template <spherical_function Func>
     void transform(
         Func&& f, double radius,
-        ZernikeExpansionSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
+        RealZernikeSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
             return f(lon, colat, r*radius);
@@ -934,7 +947,7 @@ public:
     }
 
     template <spherical_function Func>
-    [[nodiscard]] ZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> transform(
+    [[nodiscard]] RealZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> transform(
         Func&& f, double radius, std::size_t order)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
@@ -948,7 +961,7 @@ public:
     template <cartesian_function Func>
     void transform(
         Func&& f, double radius,
-        ZernikeExpansionSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
+        RealZernikeSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
             const double rad = r*radius;
@@ -965,7 +978,7 @@ public:
     }
 
     template <cartesian_function Func>
-    [[nodiscard]] ZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> transform(
+    [[nodiscard]] RealZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> transform(
         Func&& f, double radius, std::size_t order)
     {
         auto f_scaled = [&](double lon, double colat, double r) {

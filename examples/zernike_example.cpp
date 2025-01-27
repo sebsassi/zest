@@ -39,7 +39,7 @@ int main()
         = points.generate_values(function, order);
 
     zest::zt::GLQTransformerGeo transformer{};
-    zest::zt::ZernikeExpansion expansion
+    zest::zt::RealZernikeExpansion expansion
         = transformer.forward_transform(grid, order);
 
     const double alpha = std::numbers::pi/2;

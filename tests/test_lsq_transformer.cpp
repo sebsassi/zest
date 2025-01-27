@@ -37,7 +37,8 @@ constexpr bool is_close(
 }
 
 template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
-bool test_ylm_generator_generates_correct_up_to_order_5(double lon, double lat)
+bool test_real_sh_generator_generates_correct_up_to_order_5(
+    double lon, double lat)
 {
     constexpr std::size_t order = 5;
     constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
@@ -75,13 +76,12 @@ bool test_ylm_generator_generates_correct_up_to_order_5(double lon, double lat)
     const double Y43 = phase*shnorm*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::cos(3.0*lon);
     const double Y44 = shnorm*std::sqrt(315.0/64.0)*(1.0 - z*z)*(1.0 - z*z)*std::cos(4.0*lon);
 
-    zest::st::RealYlmGenerator generator(order);
+    zest::st::RealSHGenerator generator(order);
 
-    std::vector<double> ylm(zest::DualTriangleLayout::size(order));
+    using YlmSpan = zest::st::RealSHSpan<double, sh_norm_param, sh_phase_param>;
+    std::vector<double> ylm(YlmSpan::Layout::size(order));
 
-    generator.generate<zest::st::SequentialRealYlmPacking, sh_norm_param, sh_phase_param>(
-            lon, lat, 
-            zest::st::RealYlmSpan<zest::st::SequentialRealYlmPacking, sh_norm_param, sh_phase_param>(ylm, order));
+    generator.generate(lon, lat, YlmSpan(ylm, order));
 
     bool success = is_close(ylm[0], Y00, 1.0e-10)
             && is_close(ylm[1], Y1m1, 1.0e-10)
@@ -492,7 +492,7 @@ bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
 template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
 void test_lsq()
 {
-    assert((test_ylm_generator_generates_correct_up_to_order_5<sh_norm_param, sh_phase_param>(0.0, 0.0)));
+    assert((test_real_sh_generator_generates_correct_up_to_order_5<sh_norm_param, sh_phase_param>(0.0, 0.0)));
 
     assert((test_lsq_geo_expansion_expands_Y00<sh_norm_param, sh_phase_param>()));
     assert((test_lsq_geo_expansion_expands_Y21<sh_norm_param, sh_phase_param>()));
