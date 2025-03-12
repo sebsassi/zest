@@ -48,11 +48,40 @@ target_compile_options(zest
 
 target_compile_features(zest PUBLIC cxx_std_20)
 
+include(GNUInstallDirs)
 install(DIRECTORY include/ DESTINATION include/zest)
 
-install(TARGETS zest
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
+install(TARGETS zest EXPORT zest-targets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+    "cmake/config.cmake.in"
+    "zest/zest-config.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zest
+    PATH_VARS CMAKE_INSTALL_LIBDIR
+)
+
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/zest/zest-config-version.cmake"
+    VERSION ${CMAKE_PROJECT_VERSION}
+    COMPATIBILITY ExactVersion
+)
+
+install(EXPORT zest-targets
+    FILE zest-targets.cmake
+    NAMESPACE zest::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zest
+)
+
+install(
+    FILES 
+        "${CMAKE_CURRENT_BINARY_DIR}/zest/zest-config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/zest/zest-config-version.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zest
+    COMPONENT Devel
 )
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)

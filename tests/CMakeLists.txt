@@ -24,7 +24,8 @@ macro(create_test TESTNAME)
         PRIVATE
             $<$<CONFIG:Debug>:-Wall;-Wextra;-Wpedantic;-Wconversion;-Werror;-g;-O0;-fconcepts-diagnostics-depth=2>
     )
-    target_link_libraries(${TESTNAME}.test zest lapack blas gfortran)
+    find_package(lapack CONFIG REQUIRED)
+    target_link_libraries(${TESTNAME}.test zest lapack gfortran)
     add_test(NAME ${TESTNAME} COMMAND ${TESTNAME}.test)
 endmacro()
 
