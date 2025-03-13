@@ -64,7 +64,7 @@ class PlmRecursion
 public:
     PlmRecursion() = default;
 
-    /*
+    /**
         @brief Precompute cached recursion coefficients up to given order.
 
         @param max_order maximum order of coefficients
@@ -80,6 +80,11 @@ public:
     */
     void expand(std::size_t max_order);
 
+    /**
+        @brief Expand the size of the vector segment the recursion can operate on.
+
+        @param vec_size maximum segment size
+    */
     void expand_vec(std::size_t vec_size);
 
     /**

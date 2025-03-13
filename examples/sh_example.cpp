@@ -51,9 +51,10 @@ int main()
     zest::Rotor rotor{};
     rotor.rotate(expansion, wigner, angles);
 
-    for (std::size_t l = 0; l < order; ++l)
+    for (auto l : expansion.indices())
     {
-        for (std::size_t m = 0; m <= l; ++m)
-            std::printf("f[%lu, %lu] = %f", l, m, expansion(l, m));
+        auto expansion_l = expansion[l];
+        for (auto m : expansion_l.indices())
+            std::printf("f[%lu, %lu] = %f", l, m, expansion_l[m]);
     }
 }

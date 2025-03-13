@@ -61,7 +61,7 @@ private:
 };
 
 /**
-    @brief Collection of Wigner (small) d-matrces at pi/2
+    @brief Collection of Wigner (small) d-matrices at pi/2
 */
 class WignerdPiHalfCollection
 {

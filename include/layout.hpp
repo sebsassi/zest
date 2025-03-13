@@ -98,6 +98,11 @@ struct StandardLinearLayout
     
     static constexpr LayoutTag layout_tag = LayoutTag::linear;
 
+    /**
+        @brief Number of elements in layout for size parameter `order`.
+
+        @param order parameter presenting the size of the layout
+    */
     [[nodiscard]] static constexpr
     std::size_t size(std::size_t order) noexcept
     {
@@ -107,6 +112,9 @@ struct StandardLinearLayout
             return 2*order - std::min(1UL, order);
     }
 
+    /**
+        @brief Linear index of an element in layout.
+    */
     [[nodiscard]] static constexpr
     std::size_t idx(index_type l) noexcept
     {
@@ -134,12 +142,20 @@ struct ParityLinearLayout
     
     static constexpr LayoutTag layout_tag = LayoutTag::linear;
 
+    /**
+        @brief Number of elements in layout for size parameter `order`.
+
+        @param order parameter presenting the size of the layout
+    */
     [[nodiscard]] static constexpr
     std::size_t size(std::size_t order) noexcept
     {
         return (order + 1) >> 1;
     }
 
+    /**
+        @brief Linear index of an element in layout.
+    */
     [[nodiscard]] static constexpr
     std::size_t idx(index_type l) noexcept
     {
@@ -179,6 +195,11 @@ struct TriangleLayout
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
 
+    /**
+        @brief Number of elements in layout for size parameter `order`.
+
+        @param order parameter presenting the size of the layout
+    */
     [[nodiscard]] static constexpr
     std::size_t size(std::size_t order) noexcept
     {
@@ -188,6 +209,9 @@ struct TriangleLayout
             return order*order;
     }
 
+    /**
+        @brief Linear index of an element in layout.
+    */
     [[nodiscard]] static constexpr
     std::size_t idx(index_type l, index_type m) noexcept
     {
@@ -220,6 +244,11 @@ struct OddDiagonalSkippingTriangleLayout
 
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
 
+    /**
+        @brief Number of elements in layout for size parameter `order`.
+
+        @param order parameter presenting the size of the layout
+    */
     [[nodiscard]] static constexpr
     std::size_t size(std::size_t order) noexcept
     {
@@ -227,6 +256,9 @@ struct OddDiagonalSkippingTriangleLayout
         return ((order + 1)*(order + 1)) >> 2; 
     }
     
+    /**
+        @brief Linear index of an element in layout.
+    */
     [[nodiscard]] static constexpr std::size_t
     idx(std::size_t n, std::size_t l) noexcept
     {
@@ -294,6 +326,11 @@ struct RowSkippingTriangleLayout
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
 
+    /**
+        @brief Number of elements in layout for size parameter `order`.
+
+        @param order parameter presenting the size of the layout
+    */
     static constexpr std::size_t size(std::size_t order) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::nonnegative)
@@ -302,6 +339,9 @@ struct RowSkippingTriangleLayout
             return (order*(order + 1)) >> 1;
     }
 
+    /**
+        @brief Linear index of an element in layout.
+    */
     static constexpr std::size_t idx(index_type l, index_type m) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::nonnegative)
@@ -337,6 +377,11 @@ struct ZernikeTetrahedralLayout
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
 
+    /**
+        @brief Number of elements in layout for size parameter `order`.
+
+        @param order parameter presenting the size of the layout
+    */
     [[nodiscard]] static constexpr std::size_t
     size(std::size_t order) noexcept
     {
@@ -346,6 +391,9 @@ struct ZernikeTetrahedralLayout
             return order*(order + 1)*(order + 2)/6; // OEIS A000292
     }
 
+    /**
+        @brief Linear index of an element in layout.
+    */
     [[nodiscard]] static constexpr std::size_t
     idx(index_type n, index_type l, index_type m) noexcept
     {
@@ -386,6 +434,11 @@ public:
     using size_type = std::size_t;
     using ConstView = LinearSpan<const element_type, Layout>;
 
+    /**
+        @brief Number of data elements for size parameter `order`.
+
+        @param order parameter presenting the size of the span
+    */
     static constexpr std::size_t size(std::size_t order) noexcept
     {
         return Layout::size(order);
@@ -398,13 +451,23 @@ public:
         std::span<element_type> buffer, std::size_t order) noexcept:
         m_data(buffer.data()), m_size(Layout::size(order)), m_order(order) {}
 
-    [[nodiscard]] constexpr element_type*
-    data() const noexcept { return m_data; }
-
+    /**
+        @brief Order of data layout.
+    */
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
     
-    [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
+    /**
+        @brief Size of the underlying buffer.
+    */
+    [[nodiscard]] constexpr std::size_t
+    size() const noexcept { return m_size; }
+
+    /**
+        @brief Pointer to underlying buffer.
+    */
+    [[nodiscard]] constexpr element_type*
+    data() const noexcept { return m_data; }
 
     [[nodiscard]] constexpr IndexRange indices()
     {
@@ -472,7 +535,14 @@ public:
     using size_type = std::size_t;
     using ConstView = LinearSpan<const element_type, Layout>;
 
-    static constexpr std::size_t size(std::size_t order) noexcept
+    /**
+        @brief Number of data elements for size parameter `order`.
+
+        @param order parameter presenting the size of the span
+        @param vec_size number of elements in a single data segment
+    */
+    static constexpr std::size_t size(
+        std::size_t order, std::size_t vec_size) noexcept
     {
         return vec_size*Layout::size(order);
     }
@@ -486,16 +556,29 @@ public:
         m_data(buffer.data()), m_size(vec_size*Layout::size(order)),
         m_order(order), m_vec_size(vec_size) {}
 
-    [[nodiscard]] constexpr element_type*
-    data() const noexcept { return m_data; }
-
+    /**
+        @brief Order of data layout.
+    */
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
-    
-    [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
 
-    [[nodiscard]] constexpr std::size_t vec_size() const noexcept
-    { return m_vec_size; }
+    /**
+        @brief Size of a data segment.
+    */
+    [[nodiscard]] constexpr std::size_t
+    vec_size() const noexcept { return m_vec_size; }
+    
+    /**
+        @brief Size of the underlying buffer.
+    */
+    [[nodiscard]] constexpr std::size_t
+    size() const noexcept { return m_size; }
+
+    /**
+        @brief Pointer to underlying buffer.
+    */
+    [[nodiscard]] constexpr element_type*
+    data() const noexcept { return m_data; }
 
     [[nodiscard]] constexpr IndexRange indices()
     {
@@ -568,13 +651,23 @@ public:
         std::span<element_type> buffer, std::size_t size) noexcept:
         m_data(buffer.begin()), m_size(size), m_size(size) {}
 
-    [[nodiscard]] constexpr element_type*
-    data() const noexcept { return m_data; }
-
+    /**
+        @brief Order of data layout.
+    */
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
     
-    [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
+    /**
+        @brief Size of the underlying buffer.
+    */
+    [[nodiscard]] constexpr std::size_t
+    size() const noexcept { return m_size; }
+
+    /**
+        @brief Pointer to underlying buffer.
+    */
+    [[nodiscard]] constexpr element_type*
+    data() const noexcept { return m_data; }
 
     [[nodiscard]] constexpr operator std::span<element_type>() const noexcept
     {
@@ -617,6 +710,11 @@ public:
     using SubSpan = LinearSpan<element_type, typename Layout::SubLayout>;
     using ConstView = TriangleSpan<const element_type, Layout>;
 
+    /**
+        @brief Number of data elements for size parameter `order`.
+
+        @param order parameter presenting the size of the span
+    */
     static constexpr std::size_t size(std::size_t order) noexcept
     {
         return Layout::size(order);
@@ -629,13 +727,23 @@ public:
         std::span<element_type> buffer, std::size_t order) noexcept:
         m_data(buffer.data()), m_size(Layout::size(order)), m_order(order) {}
 
-    [[nodiscard]] constexpr element_type*
-    data() const noexcept { return m_data; }
-
+    /**
+        @brief Order of data layout.
+    */
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
     
-    [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
+    /**
+        @brief Size of the underlying buffer.
+    */
+    [[nodiscard]] constexpr std::size_t
+    size() const noexcept { return m_size; }
+
+    /**
+        @brief Pointer to underlying buffer.
+    */
+    [[nodiscard]] constexpr element_type*
+    data() const noexcept { return m_data; }
 
     [[nodiscard]] constexpr std::span<element_type>
     flatten() const noexcept { return std::span(m_data, m_size); }
@@ -715,6 +823,18 @@ public:
     using LinearView = LinearVecSpan<
         element_type, StandardLinearLayout<IndexingMode::nonnegative>>;
 
+    /**
+        @brief Number of data elements for size parameter `order`.
+
+        @param order parameter presenting the size of the span
+        @param vec_size number of elements in a single data segment
+    */
+    static constexpr std::size_t size(
+        std::size_t order, std::size_t vec_size) noexcept
+    {
+        return vec_size*Layout::size(order);
+    }
+
     constexpr TriangleVecSpan() noexcept = default;
     constexpr TriangleVecSpan(
         element_type* data, std::size_t order, std::size_t vec_size) noexcept:
@@ -726,16 +846,29 @@ public:
         m_data(buffer.data()), m_size(Layout::size(order)*vec_size),
         m_order(order), m_vec_size(vec_size) {}
 
-    [[nodiscard]] constexpr element_type*
-    data() const noexcept { return m_data; }
-    
-    [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
-
+    /**
+        @brief Order of data layout.
+    */
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
 
+    /**
+        @brief Size of a data segment.
+    */
     [[nodiscard]] constexpr std::size_t
     vec_size() const noexcept { return m_vec_size; }
+    
+    /**
+        @brief Size of the underlying buffer.
+    */
+    [[nodiscard]] constexpr std::size_t
+    size() const noexcept { return m_size; }
+
+    /**
+        @brief Pointer to underlying buffer.
+    */
+    [[nodiscard]] constexpr element_type*
+    data() const noexcept { return m_data; }
 
     [[nodiscard]] constexpr std::span<element_type>
     flatten() const noexcept { return std::span(m_data, m_size); }
@@ -823,6 +956,11 @@ public:
     using SubSpan = TriangleSpan<element_type, typename Layout::SubLayout>;
     using ConstView = TetrahedronSpan<const element_type, LayoutType>;
 
+    /**
+        @brief Number of data elements for size parameter `order`.
+
+        @param order parameter presenting the size of the span
+    */
     static constexpr std::size_t size(std::size_t order) noexcept
     {
         return Layout::size(order);
@@ -835,13 +973,22 @@ public:
         std::span<element_type> buffer, std::size_t order) noexcept:
         m_data(buffer.data()), m_size(Layout::size(order)), m_order(order) {}
 
-    [[nodiscard]] constexpr element_type*
-    data() const noexcept { return m_data; }
-    
-    [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
-
+    /**
+        @brief Order of data layout.
+    */
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
+    
+    /**
+        @brief Size of the underlying buffer.
+    */
+    [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
+
+    /**
+        @brief Pointer to underlying buffer.
+    */
+    [[nodiscard]] constexpr element_type*
+    data() const noexcept { return m_data; }
 
     [[nodiscard]] constexpr std::span<element_type>
     flatten() const noexcept { return std::span(m_data, m_size); }
@@ -921,9 +1068,16 @@ public:
     using LinearView = LinearVecSpan<
         element_type, StandardLinearLayout<IndexingMode::nonnegative>>;
 
-    static constexpr std::size_t size(std::size_t order) noexcept
+    /**
+        @brief Number of data elements for size parameter `order`.
+
+        @param order parameter presenting the size of the span
+        @param vec_size number of elements in a single data segment
+    */
+    static constexpr std::size_t size(
+        std::size_t order, std::size_t vec_size) noexcept
     {
-        return Layout::size(order);
+        return vec_size*Layout::size(order);
     }
 
     constexpr TetrahedronVecSpan() noexcept = default;
@@ -937,13 +1091,22 @@ public:
         m_data(buffer.data()), m_size(vec_size*Layout::size(order)),
         m_order(order), m_vec_size(vec_size) {}
 
-    [[nodiscard]] constexpr element_type*
-    data() const noexcept { return m_data; }
-    
-    [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
-
+    /**
+        @brief Order of data layout.
+    */
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
+    
+    /**
+        @brief Size of the underlying buffer.
+    */
+    [[nodiscard]] constexpr std::size_t size() const noexcept { return m_size; }
+
+    /**
+        @brief Pointer to underlying buffer.
+    */
+    [[nodiscard]] constexpr element_type*
+    data() const noexcept { return m_data; }
 
     [[nodiscard]] constexpr std::span<element_type>
     flatten() const noexcept { return std::span(m_data, m_size); }

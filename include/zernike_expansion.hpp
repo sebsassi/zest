@@ -290,6 +290,11 @@ public:
     static constexpr st::SHNorm sh_norm = sh_norm_param;
     static constexpr st::SHPhase sh_phase = sh_phase_param;
 
+    /**
+        @brief Number of data elements for size parameter `order`.
+
+        @param order parameter presenting the size of the expansion
+    */
     [[nodiscard]] static constexpr size_type size(size_type order) noexcept
     {
         return Layout::size(order);
@@ -299,6 +304,9 @@ public:
     explicit RealZernikeExpansion(size_type order):
         m_data(Layout::size(order)), m_order(order) {}
 
+    /**
+        @brief Order of the expansion.
+    */
     [[nodiscard]] size_type order() const noexcept { return m_order; }
 
     [[nodiscard]] constexpr IndexRange indices()
@@ -322,11 +330,18 @@ public:
     {
         return ConstView(m_data, m_order);
     };
+
+    /**
+        @brief Flattened view of the underlying buffer.
+    */
     [[nodiscard]] std::span<const element_type> flatten() const noexcept
     {
         return m_data;
     }
 
+    /**
+        @brief Flattened view of the underlying buffer.
+    */
     [[nodiscard]] std::span<element_type> flatten() noexcept { return m_data; }
     
     [[nodiscard]] element_type operator()(
@@ -341,6 +356,9 @@ public:
         return m_data[Layout::idx(n,l,m)];
     }
 
+    /**
+        @brief Change the size of the expansion.
+    */
     void resize(size_type order)
     {
         m_data.resize(Layout::size(order));

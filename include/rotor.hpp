@@ -62,6 +62,9 @@ enum class RotationType
     };
 }
 
+namespace detail
+{
+
 [[nodiscard]] constexpr std::array<double, 3> convert(
     std::array<double, 3> euler_angles, RotationType convention) noexcept
 {
@@ -83,6 +86,8 @@ enum class RotationType
     const double sign = (convention == RotationType::object) ? 1.0 : -1.0;
     return angle*sign;
 }
+
+} // namespace detail
 
 /**
     @brief Rotations of spherical harmonic and Zernike coefficients.
@@ -304,7 +309,7 @@ public:
 
         st::RealSHSpan<std::complex<double>, sh_norm, sh_phase> complex_expansion = to_complex_expansion<sh_norm, sh_phase>(expansion);
         
-        const double angle_rot = convert(angle, type);
+        const double angle_rot = detail::convert(angle, type);
         for (std::size_t l = 0; l < order; ++l)
             m_exp_alpha[l] = std::polar(1.0, -double(l)*angle_rot);
         
@@ -343,7 +348,7 @@ public:
         zt::RealZernikeSpan<std::complex<double>, zernike_norm, sh_norm, sh_phase> 
         complex_expansion = to_complex_expansion<zernike_norm, sh_norm, sh_phase>(expansion);
         
-        const double angle_rot = convert(angle, type);
+        const double angle_rot = detail::convert(angle, type);
         for (std::size_t l = 0; l < order; ++l)
             m_exp_alpha[l] = std::polar(1.0, -double(l)*angle_rot);
         
@@ -362,7 +367,7 @@ private:
         const std::array<double, 3>& euler_angles, RotationType convention, std::size_t order)
     {
         const auto& [alpha_rot, beta_rot, gamma_rot]
-                = convert(euler_angles, convention);
+                = detail::convert(euler_angles, convention);
 
         for (std::size_t m = 0; m < order; ++m)
             m_exp_alpha[m] = std::polar(1.0, -double(m)*alpha_rot);

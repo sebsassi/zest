@@ -41,6 +41,11 @@ public:
     RadialZernikeRecursion() = default;
     explicit RadialZernikeRecursion(std::size_t max_order);
 
+    /**
+        @brief Expand the number of cached recursion coefficients.
+
+        @param max_order maximum order of coefficients
+    */
     void expand(std::size_t max_order);
 
     /**

@@ -50,35 +50,57 @@ struct LatLonLayout
 {
     using Alignment = AlignmentType;
 
+    /**
+        @brief Number of grid points.
+
+        @param order order of spherical harmonic expansion
+    */
     [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
     {
         return lat_size(order)*lon_size(order);
     }
 
+    /**
+        @brief Shape of the grid.
+
+        @param order order of spherical harmonic expansion
+    */
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
     shape(std::size_t order) noexcept
     {
         return {lat_size(order), lon_size(order)};
     }
 
+    /**
+        @brief Number of longitudinal Fourier coefficients.
+    */
     [[nodiscard]] static constexpr std::size_t
     fft_size(std::size_t order) noexcept
     {
         return (lon_size(order) >> 1) + 1;
     }
 
+    /**
+        @brief Stride of the longitudinally Fourier transformed grid.
+    */
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
     fft_stride(std::size_t order) noexcept
     {
         return {fft_size(order), 1};
     }
 
+    /**
+        @brief Size in latitudinal direction.
+    */
     [[nodiscard]] static constexpr std::size_t
     lat_size(std::size_t order) noexcept
     {
         return order;
     }
 
+    /**
+        @brief Size in latitudinal direction.
+    */
     [[nodiscard]] static constexpr std::size_t
     lon_size(std::size_t order) noexcept
     {
@@ -105,29 +127,48 @@ struct LonLatLayout
 {
     using Alignment = AlignmentType;
 
+    /**
+        @brief Number of grid points.
+
+        @param order order of spherical harmonic expansion
+    */
     [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
     {
         return lat_size(order)*lon_size(order);
     }
     
+    /**
+        @brief Shape of the grid.
+
+        @param order order of spherical harmonic expansion
+    */
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
     shape(std::size_t order) noexcept
     {
         return {lon_size(order), lat_size(order)};
     }
 
+    /**
+        @brief Number of longitudinal Fourier coefficients.
+    */
     [[nodiscard]] static constexpr std::size_t
     fft_size(std::size_t order) noexcept
     {
         return (lon_size(order) >> 1) + 1;
     }
 
+    /**
+        @brief Stride of the longitudinally Fourier transformed grid.
+    */
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
     fft_stride(std::size_t order)
     {
         return {lat_size(order), 1};
     }
 
+    /**
+        @brief Size in latitudinal direction.
+    */
     [[nodiscard]] static constexpr std::size_t
     lat_size(std::size_t order) noexcept
     {
@@ -140,6 +181,9 @@ struct LonLatLayout
             return detail::next_divisible<vector_size>(min_size);
     }
 
+    /**
+        @brief Size in longitudinal direction.
+    */
     [[nodiscard]] static constexpr std::size_t
     lon_size(std::size_t order) noexcept
     {
@@ -170,11 +214,21 @@ public:
     using MDSpan<ElementType, 2>::data;
     using MDSpan<ElementType, 2>::size;
 
+    /**
+        @brief Number of grid points.
+
+        @param order order of spherical harmonic expansion
+    */
     [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
     {
         return Layout::size(order);
     }
 
+    /**
+        @brief Shape of the grid.
+
+        @param order order of spherical harmonic expansion
+    */
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
     shape(std::size_t order) noexcept
     {
@@ -189,12 +243,21 @@ public:
         MDSpan<ElementType, 2>(buffer.data(), Layout::shape(order)),
         m_order(order) {}
 
+    /**
+        @brief Order of spherical harmonic expansion.
+    */
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
     
+    /**
+        @brief Shape of the grid.
+    */
     [[nodiscard]] constexpr const std::array<std::size_t, 2>&
     shape() const noexcept { return extents(); }
 
+    /**
+        @brief Flattened view of the underlying buffer.
+    */
     [[nodiscard]] constexpr std::span<element_type>
     flatten() const noexcept { return std::span<element_type>(data(), size()); }
 
@@ -235,14 +298,26 @@ public:
         m_values(Layout::size(order)), m_shape(Layout::shape(order)), 
         m_order(order) {}
 
+    /**
+        @brief Order of spherical harmonic expansion.
+    */
+    [[nodiscard]] std::size_t order() const noexcept { return m_order; }
+
+    /**
+        @brief Shape of the grid.
+    */
     [[nodiscard]] std::array<std::size_t, 2>
     shape() const noexcept { return m_shape; }
 
-    [[nodiscard]] std::size_t order() const noexcept { return m_order; }
-
+    /**
+        @brief Flattened view of the underlying buffer.
+    */
     [[nodiscard]] std::span<const element_type>
     flatten() const noexcept { return m_values; }
 
+    /**
+        @brief Flattened view of the underlying buffer.
+    */
     std::span<element_type> flatten() noexcept { return m_values; }
 
     [[nodiscard]] operator View() noexcept
@@ -255,6 +330,9 @@ public:
         return ConstView(m_values, m_order);
     };
 
+    /**
+        @brief Change the size of the grid.
+    */
     void resize(std::size_t order)
     {
         m_values.resize(Layout::size(order));
@@ -297,6 +375,8 @@ concept sphere_glq_grid
 
 /**
     @brief Points defining a Gauss-Legendre quadrature grid on the sphere.
+
+    @tparam LayoutType memory layout of the grid
 */
 template <typename LayoutType = DefaultLayout>
 class SphereGLQGridPoints
@@ -306,6 +386,9 @@ public:
     SphereGLQGridPoints() = default;
     explicit SphereGLQGridPoints(std::size_t order) { resize(order); }
 
+    /**
+        @brief Change the size of the corresponding grid.
+    */
     void resize(std::size_t order)
     {
         constexpr std::size_t lon_axis = GridLayout::lon_axis;
@@ -314,20 +397,39 @@ public:
         resize(shape[lon_axis], shape[lat_axis]);
     }
 
+    /**
+        @brief Shape of the corresponding grid.
+    */
     [[nodiscard]] std::array<std::size_t, 2> shape() noexcept
     {
         return {m_glq_nodes.size(), m_longitudes.size()};
     }
 
+    /**
+        @brief Longitude values of the grid points.
+    */
     [[nodiscard]] std::span<const double> longitudes() const noexcept
     {
         return m_longitudes;
     }
+
+    /**
+        @brief Latitudinal Gauss-Legendre nodes.
+    */
     [[nodiscard]] std::span<const double> glq_nodes() const noexcept
     {
         return m_glq_nodes;
     }
 
+    /**
+        @brief Generate Gauss-Legendre quadrature grid values from a function.
+
+        @tparam GridType type of grid
+        @tparam FuncType type of function
+
+        @param grid grid to place the values in
+        @param f function to generate values
+    */
     template <sphere_glq_grid GridType, typename FuncType>
         requires std::same_as<
             typename std::remove_cvref_t<GridType>::Layout, GridLayout>
@@ -361,6 +463,13 @@ public:
         }
     }
 
+    /**
+        @brief Generate Gauss-Legendre quadrature grid values from a function.
+
+        @tparam FuncType type of function
+
+        @param f function to generate values
+    */
     template <typename FuncType>
     auto generate_values(FuncType&& f, std::size_t order)
     {
@@ -394,9 +503,9 @@ private:
 /**
     @brief Transformations between a Gauss-Legendre quadrature grid representation and spherical harmonic expansion representation of real data.
 
-    @tparam NORM normalization convention of spherical harmonics
+    @tparam sh_norm_param normalization convention of spherical harmonics
     @tparam sh_phase_param phase convention of spherical harmonics
-    @tparam GridLayoutType
+    @tparam GridLayoutType memory layout of the grid
 */
 template <
     SHNorm sh_norm_param, SHPhase sh_phase_param,
@@ -457,12 +566,13 @@ public:
         m_pocketfft_stride_fft[1] = fft_stride[1]*sizeof(std::complex<double>);
     }
 
+    /**
+        @brief Order of spherical harmonic expansion.
+    */
     [[nodiscard]] std::size_t order() const noexcept { return m_order; }
 
     /**
-        @brief Resize transformer for specified expansion order
-
-        @param order
+        @brief Resize transformer for specified expansion order.
     */
     void resize(std::size_t order)
     {
@@ -610,12 +720,11 @@ public:
         sum_m(values);
     }*/
     
-    /*
-    Forward transform from Gauss-Legendre quadrature grid to spherical harmonic coefficients.
+    /**
+        @brief Forward transform from Gauss-Legendre quadrature grid to spherical harmonic coefficients.
 
-    Parameters:
-    `values`: values on the spherical quadrature grid.
-    `order`: order of expansion.
+        @param values values on the spherical quadrature grid
+        @param order order of expansion
     */
     [[nodiscard]] RealSHExpansion<sh_norm_param, sh_phase_param>
     forward_transform(
@@ -1204,6 +1313,9 @@ public:
     explicit SHTransformer(std::size_t order):
         m_grid(order), m_points(order), m_transformer(order) {}
 
+    /**
+        @brief Resize the transformer to work with expansions of different order.
+    */
     void resize(std::size_t order)
     {
         m_points.resize(order);
@@ -1211,9 +1323,17 @@ public:
         m_transformer.resize(order);
     }
 
-    template <spherical_function Func>
+    /**
+        @brief Get spherical harmonic expansion of a function expressed in spherical coordinates.
+
+        @tparam FuncType type of function
+
+        @param f function to transform
+        @param expansion buffer to store the expansion
+    */
+    template <spherical_function FuncType>
     void transform(
-        Func&& f,
+        FuncType&& f,
         RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
     {
         resize(expansion.order());
@@ -1221,21 +1341,39 @@ public:
         m_transformer.forward_transform(m_grid, expansion);
     }
 
-    template <spherical_function Func>
+    /**
+        @brief Get spherical harmonic expansion of a function expressed in spherical coordinates.
+
+        @tparam FuncType type of function
+
+        @param f function to transform
+        @param order order of the expansion
+
+        @returns spherical harmonic expansion
+    */
+    template <spherical_function FuncType>
     [[nodiscard]] RealSHExpansion<sh_norm_param, sh_phase_param> transform(
-        Func&& f, double radius, std::size_t order)
+        FuncType&& f, std::size_t order)
     {
         resize(order);
         m_points.generate_values(m_grid, f);
         return m_transformer.forward_transform(m_grid, order);
     }
 
-    template <cartesian_function Func>
+    /**
+        @brief Get spherical harmonic expansion of a function expressed in Cartesian coordinates.
+
+        @tparam FuncType type of function
+
+        @param f function to transform
+        @param expansion buffer to store the expansion
+    */
+    template <cartesian_function FuncType>
     void transform(
-        Func&& f, 
+        FuncType&& f, 
         RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
     {
-        auto f_scaled = [&](double lon, double colat) {
+        auto f_spherical = [&](double lon, double colat) {
             const double scolat = std::sin(colat);
             const std::array<double, 3> x = {
                 scolat*std::cos(lon), scolat*std::sin(lon), std::cos(colat)
@@ -1243,15 +1381,24 @@ public:
             return f(x);
         };
         resize(expansion.order());
-        m_points.generate_values(m_grid, f_scaled);
+        m_points.generate_values(m_grid, f_spherical);
         m_transformer.forward_transform(m_grid, expansion);
     }
 
-    template <cartesian_function Func>
+    /**
+        @brief Get spherical harmonic expansion of a function expressed in Cartesian coordinates.
+
+        @tparam FuncType type of function
+
+        @param f function to transform
+
+        @returns spherical harmonic expansion
+    */
+    template <cartesian_function FuncType>
     [[nodiscard]] RealSHExpansion<sh_norm_param, sh_phase_param> transform(
-        Func&& f, std::size_t order)
+        FuncType&& f, std::size_t order)
     {
-        auto f_scaled = [&](double lon, double colat) {
+        auto f_spherical = [&](double lon, double colat) {
             const double scolat = std::sin(colat);
             const std::array<double, 3> x = {
                 scolat*std::cos(lon), scolat*std::sin(lon), std::cos(colat)
@@ -1259,7 +1406,7 @@ public:
             return f(x);
         };
         resize(order);
-        m_points.generate_values(m_grid, f_scaled);
+        m_points.generate_values(m_grid, f_spherical);
         return m_transformer.forward_transform(m_grid, order);
     }
 

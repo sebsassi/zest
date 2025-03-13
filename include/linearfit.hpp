@@ -31,14 +31,32 @@ namespace zest
 namespace detail
 {
 
+/**
+    @brief Class for applying a linear least-squares fit on data.
+*/
 class LinearMultifit
 {
 public:
     LinearMultifit() = default;
 
+    /**
+        @brief Fit parameters to data.
+
+        @param model model matrix
+        @param data data set to fit
+
+        @returns `std::vector<double>` containing the fitted parameters
+    */
     [[nodiscard]] std::vector<double> fit_parameters(
         MatrixSpan<const double> model, std::span<const double> data);
 
+    /**
+        @brief Fit parameters to data.
+
+        @param model model matrix
+        @param parameters fitted parameters
+        @param data data set to fit
+    */
     void fit_parameters(
         MatrixSpan<const double> model, std::span<double> parameters, std::span<const double> data);
 

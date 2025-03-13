@@ -29,6 +29,11 @@ SOFTWARE.
 namespace zest
 {
 
+/**
+    @brief A non-owning view of a matrix.
+
+    @tparam T type of elements of the matrix
+*/
 template <typename T>
 class MatrixSpan: public MDSpan<T, 2>
 {
@@ -40,13 +45,24 @@ public:
         T* data, std::size_t nrows, std::size_t ncols) noexcept:
         MDSpan<T, 2>::MDSpan(data, {nrows, ncols}) {}
 
+    /**
+        @brief Number of rows in the matrix
+    */
     [[nodiscard]] constexpr std::size_t
-    nrows() const noexcept { return extents()[0]; }
+    nrows() const noexcept { return extent(0); }
 
+    /**
+        @brief Number of columns in the matrix
+    */
     [[nodiscard]] constexpr std::size_t
-    ncols() const noexcept { return extents()[1]; }
+    ncols() const noexcept { return extent(1); }
 };
 
+/*
+    @brief A container representing a matrix.
+
+    @tparam T type of elements of the matrix
+*/
 template <typename T>
 class Matrix
 {
@@ -73,10 +89,25 @@ public:
         return {m_nrows, m_ncols};
     }
 
+    /**
+        @brief Number of rows in the matrix
+    */
     [[nodiscard]] std::size_t nrows() const noexcept { return m_nrows; }
+
+    /**
+        @brief Number of columns in the matrix
+    */
     [[nodiscard]] std::size_t ncols() const noexcept { return m_ncols; }
-    [[nodiscard]] const std::vector<T>& data() const noexcept { return m_data; }
-    std::vector<T>& data() noexcept { return m_data; }
+
+    /**
+        @brief Pointer to underlying buffer.
+    */
+    [[nodiscard]] const T* data() const noexcept { return m_data; }
+
+    /**
+        @brief Pointer to underlying buffer.
+    */
+    T* data() noexcept { return m_data; }
 
     [[nodiscard]] const T& operator()(std::size_t i, std::size_t j) const noexcept
     {

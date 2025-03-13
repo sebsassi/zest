@@ -43,6 +43,12 @@ namespace zest
 namespace detail
 {
 
+/**
+    @brief Recursively evaluate `cos` and `sin` for integer multiples of `angles`.
+
+    @param trigs array to store `{cos, sin}` pairs
+    @param angles array of input angles
+*/
 void recursive_trig(
     MDSpan<std::array<double, 2>, 2> trigs, std::span<const double> angles) noexcept;
 
@@ -60,14 +66,14 @@ public:
     GridEvaluator() = default;
 
     /**
-        @brief reserve memory for an expansion of given order.
+        @brief Reserves memory for an expansion of given order.
 
         @param max_order maximum order of spherical harmonic expansion.
     */
     explicit GridEvaluator(std::size_t max_order);
 
     /**
-        @brief reserve memory for a combination of expansion and grid size.
+        @brief Reserves memory for a combination of expansion and grid size.
 
         @param max_order maximum order of spherical harmonic expansion.
         @param lon_size size of grid in the longitudinal direction.
@@ -178,14 +184,14 @@ public:
     GridEvaluator() = default;
 
     /**
-        @brief reserve memory for an expansion of given order.
+        @brief Reserves memory for an expansion of given order.
 
         @param max_order maximum order of spherical harmonic expansion.
     */
     explicit GridEvaluator(std::size_t max_order);
 
     /**
-        @brief reserve memory for a combination of expansion and grid size.
+        @brief Reserves memory for a combination of expansion and grid size.
 
         @param max_order maximum order of spherical harmonic expansion.
         @param lon_size size of grid in the longitudinal direction.

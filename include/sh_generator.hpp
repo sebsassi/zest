@@ -51,8 +51,8 @@ public:
 
     void expand(std::size_t max_order);
 
-    /*
-    Generate spherical harmonics at longitude and latitude values `lon`, `lat`
+    /**
+        @brief Generate spherical harmonics at longitude and latitude values `lon`, `lat`.
     */
     template <real_sh_expansion ExpansionType>
     void generate(double lon, double lat, ExpansionType&& ylm)

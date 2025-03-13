@@ -52,35 +52,58 @@ struct LonLatRadLayout
 {
     using Alignment = AlignmentType;
 
+    /**
+        @brief Number of grid points.
+
+        @param order order of Zernike expansion
+    */
     [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
     {
         return lat_size(order)*lon_size(order)*rad_size(order);
     }
     
+    /**
+        @brief Shape of the grid.
+
+        @param order order of Zernike expansion
+    */
     [[nodiscard]] static constexpr std::array<std::size_t, 3>
     shape(std::size_t order) noexcept
     {
         return {lon_size(order), lat_size(order), rad_size(order)};
     }
 
+    /**
+        @brief Number of longitudinal Fourier coefficients.
+    */
     [[nodiscard]] static constexpr std::size_t
     fft_size(std::size_t order) noexcept
     {
         return (lon_size(order) >> 1) + 1;
     }
 
+    /**
+        @brief Stride of the longitudinally Fourier transformed grid.
+    */
     [[nodiscard]] static constexpr std::array<std::size_t, 3>
     fft_stride(std::size_t order) noexcept
     {
         return {lat_size(order)*rad_size(order), rad_size(order), 1};
     }
 
+    /**
+        @brief Size in latitudinal direction.
+    */
     [[nodiscard]] static constexpr std::size_t
     lat_size(std::size_t order) noexcept
     {
         return order + 1UL;
     }
 
+
+    /**
+        @brief Size in radial direction.
+    */
     [[nodiscard]] static constexpr std::size_t
     rad_size(std::size_t order) noexcept
     {
@@ -93,6 +116,9 @@ struct LonLatRadLayout
             return detail::next_divisible<vector_size>(min_size);
     }
 
+    /**
+        @brief Size in latitudinal direction.
+    */
     [[nodiscard]] static constexpr std::size_t
     lon_size(std::size_t order) noexcept
     {
@@ -124,11 +150,21 @@ public:
     using MDSpan<ElementType, 3>::data;
     using MDSpan<ElementType, 3>::size;
 
+    /**
+        @brief Number of grid points.
+
+        @param order order of Zernike expansion
+    */
     [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
     {
         return Layout::size(order);
     }
 
+    /**
+        @brief Shape of the grid.
+
+        @param order order of Zernike expansion
+    */
     [[nodiscard]] static constexpr std::array<std::size_t, 3>
     shape(std::size_t order) noexcept
     {
@@ -143,12 +179,21 @@ public:
         MDSpan<ElementType, 3>(buffer.data(), Layout::shape(order)),
         m_order(order) {}
 
+    /**
+        @brief Order of Zernike expansion.
+    */
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
     
+    /**
+        @brief Shape of the grid.
+    */
     [[nodiscard]] constexpr const std::array<std::size_t, 3>&
     shape() const noexcept { return extents(); }
 
+    /**
+        @brief Flattened view of the underlying buffer.
+    */
     [[nodiscard]] constexpr std::span<element_type>
     flatten() const noexcept { return std::span<element_type>(data(), size()); }
 
@@ -183,11 +228,21 @@ public:
     using View = BallGLQGridSpan<double>;
     using ConstView = BallGLQGridSpan<const double>;
 
+    /**
+        @brief Number of grid points.
+
+        @param order order of Zernike expansion
+    */
     [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
     {
         return Layout::size(order);
     }
 
+    /**
+        @brief Shape of the grid.
+
+        @param order order of Zernike expansion
+    */
     [[nodiscard]] static constexpr std::array<std::size_t, 3>
     shape(std::size_t order) noexcept
     {
@@ -199,9 +254,24 @@ public:
         m_data(Layout::size(order)), m_shape(Layout::shape(order)),
         m_order(order) {}
 
-    [[nodiscard]] std::array<std::size_t, 3> shape() { return m_shape; }
+    /**
+        @brief Order of Zernike expansion.
+    */
     [[nodiscard]] std::size_t order() const noexcept { return m_order; }
+
+    /**
+        @brief Shape of the grid.
+    */
+    [[nodiscard]] std::array<std::size_t, 3> shape() { return m_shape; }
+
+    /**
+        @brief Flattened view of the underlying buffer.
+    */
     [[nodiscard]] std::span<const element_type> flatten() const noexcept { return m_data; }
+
+    /**
+        @brief Flattened view of the underlying buffer.
+    */
     std::span<element_type> flatten() noexcept { return m_data; }
 
     [[nodiscard]] operator View() noexcept
@@ -214,6 +284,9 @@ public:
         return ConstView(m_data, m_order);
     };
 
+    /**
+        @brief Change the size of the grid.
+    */
     void resize(std::size_t order)
     {
         m_data.resize(Layout::size(order));
@@ -256,6 +329,8 @@ concept ball_glq_grid
 
 /**
     @brief Points defining a grid in spherical coordinates in the unit ball.
+
+    @tparam LayoutType memory layout of the grid
 */
 template <typename LayoutType = DefaultLayout>
 class BallGLQGridPoints
@@ -265,6 +340,9 @@ public:
     BallGLQGridPoints() = default;
     explicit BallGLQGridPoints(std::size_t order) { resize(order); }
 
+    /**
+        @brief Change the size of the corresponding grid.
+    */
     void resize(std::size_t order)
     {
         constexpr std::size_t lon_axis = GridLayout::lon_axis;
@@ -274,21 +352,39 @@ public:
         resize(shape[lon_axis], shape[lat_axis], shape[rad_axis]);
     }
 
+    /**
+        @brief Longitude values of the grid points.
+    */
     [[nodiscard]] std::span<const double> longitudes() const noexcept
     {
         return m_longitudes;
     }
 
+    /**
+        @brief Radial Gauss-Legendre nodes.
+    */
     [[nodiscard]] std::span<const double> rad_glq_nodes() const noexcept
     {
         return m_rad_glq_nodes;
     }
     
+    /**
+        @brief Latitudinal Gauss-Legendre nodes.
+    */
     [[nodiscard]] std::span<const double> lat_glq_nodes() const noexcept
     {
         return m_lat_glq_nodes;
     }
 
+    /**
+        @brief Generate Gauss-Legendre quadrature grid values from a function.
+
+        @tparam GridType type of grid
+        @tparam FuncType type of function
+
+        @param grid grid to place the values in
+        @param f function to generate values
+    */
     template <ball_glq_grid GridType, typename FuncType>
         requires std::same_as<
             typename std::remove_cvref_t<GridType>::Layout, GridLayout>
@@ -314,6 +410,13 @@ public:
         }
     }
 
+    /**
+        @brief Generate Gauss-Legendre quadrature grid values from a function.
+
+        @tparam FuncType type of function
+
+        @param f function to generate values
+    */
     template <typename FuncType>
     [[nodiscard]] auto generate_values(FuncType&& f, std::size_t order)
     {
@@ -466,8 +569,14 @@ public:
         m_pocketfft_stride_fft[2] = fft_stride[2]*sizeof(std::complex<double>);
     }
 
+    /**
+        @brief Order of Xernike expansion.
+    */
     [[nodiscard]] std::size_t order() const noexcept { return m_order; }
 
+    /**
+        @brief Resize transformer for specified expansion order.
+    */
     void resize(std::size_t order)
     {
         if (order == m_order) return;
@@ -522,6 +631,12 @@ public:
         m_order = order;
     }
 
+    /**
+        @brief Forward transform from Gauss-Legendre quadrature grid to Zernike coefficients.
+
+        @param values values on the ball quadrature grid
+        @param expansion coefficients of the expansion
+    */
     void forward_transform(
         BallGLQGridSpan<const double, GridLayout> values,
         RealZernikeSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
@@ -539,6 +654,12 @@ public:
         integrate_radial(truncated_expansion);
     }
 
+    /**
+        @brief Backward transform from Zernike expansion to Gauss-Legendre quadrature grid.
+
+        @param expansion coefficients of the expansion
+        @param values values on the ball quadrature grid
+    */
     void backward_transform(
         RealZernikeSpan<const std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion,
         BallGLQGridSpan<double, GridLayout> values)
@@ -557,6 +678,12 @@ public:
         sum_m(values);
     }
     
+    /**
+        @brief Forward transform from Gauss-Legendre quadrature grid to Zernike coefficients.
+
+        @param values values on the ball quadrature grid
+        @param order order of expansion
+    */
     [[nodiscard]] RealZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> forward_transform(
         BallGLQGridSpan<const double, GridLayout> values, std::size_t order)
     {
@@ -565,6 +692,12 @@ public:
         return expansion;
     }
 
+    /**
+        @brief Backward transform from Zernike coefficients to Gauss-Legendre quadrature grid.
+
+        @param values values on the ball quadrature grid
+        @param expansion coefficients of the expansion
+    */
     [[nodiscard]] BallGLQGrid<double, GridLayout> backward_transform(
         RealZernikeSpan<const std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion, std::size_t order)
     {
@@ -926,6 +1059,9 @@ public:
     explicit ZernikeTransformer(std::size_t order):
         m_grid(order), m_points(order), m_transformer(order) {}
 
+    /**
+        @brief Resize the transformer to work with expansions of different order.
+    */
     void resize(std::size_t order)
     {
         m_points.resize(order);
@@ -933,9 +1069,18 @@ public:
         m_transformer.resize(order);
     }
 
-    template <spherical_function Func>
+    /**
+        @brief Get Zernike expansion of a function expressed in spherical coordinates.
+
+        @tparam FuncType type of function
+
+        @param f function to transform
+        @param radius radius of the ball `f` is defined on
+        @param expansion buffer to store the expansion
+    */
+    template <spherical_function FuncType>
     void transform(
-        Func&& f, double radius,
+        FuncType&& f, double radius,
         RealZernikeSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
@@ -946,9 +1091,20 @@ public:
         m_transformer.forward_transform(m_grid, expansion);
     }
 
-    template <spherical_function Func>
+    /**
+        @brief Get Zernike expansion of a function expressed in spherical coordinates.
+
+        @tparam FuncType type of function
+
+        @param f function to transform
+        @param radius radius of the ball `f` is defined on
+        @param order order of the expansion
+
+        @returns Zernike expansion
+    */
+    template <spherical_function FuncType>
     [[nodiscard]] RealZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> transform(
-        Func&& f, double radius, std::size_t order)
+        FuncType&& f, double radius, std::size_t order)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
             return f(lon, colat, r*radius);
@@ -958,9 +1114,18 @@ public:
         return m_transformer.forward_transform(m_grid, order);
     }
 
-    template <cartesian_function Func>
+    /**
+        @brief Get Zernike expansion of a function expressed in Cartesian coordinates.
+
+        @tparam FuncType type of function
+
+        @param f function to transform
+        @param radius radius of the ball `f` is defined on
+        @param expansion buffer to store the expansion
+    */
+    template <cartesian_function FuncType>
     void transform(
-        Func&& f, double radius,
+        FuncType&& f, double radius,
         RealZernikeSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
@@ -977,9 +1142,20 @@ public:
         m_transformer.forward_transform(m_grid, expansion);
     }
 
-    template <cartesian_function Func>
+    /**
+        @brief Get spherical harmonic expansion of a function expressed in Cartesian coordinates.
+
+        @tparam FuncType type of function
+
+        @param f function to transform
+        @param radius radius of the ball `f` is defined on
+        @param order order of the expansion
+
+        @returns Zernike expansion
+    */
+    template <cartesian_function FuncType>
     [[nodiscard]] RealZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> transform(
-        Func&& f, double radius, std::size_t order)
+        FuncType&& f, double radius, std::size_t order)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
             const double rad = r*radius;
