@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 zest -- **Ze**\ rnike and **s**\ pherical **t**\ ransforms
-====================================================
+==========================================================
 
 .. toctree::
    :maxdepth: 2
