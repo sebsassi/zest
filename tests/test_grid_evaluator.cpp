@@ -271,7 +271,7 @@ bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
     return success;
 }
 
-template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase sh_phase_param>
+template <zest::zt::ZernikeNorm zernike_norm_param, zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
 bool test_zernike_grid_evaluator_does_constant_function()
 {
     constexpr std::size_t order = 6;
@@ -282,8 +282,8 @@ bool test_zernike_grid_evaluator_does_constant_function()
     auto function = []([[maybe_unused]] double r, [[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
         constexpr double znorm
-            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0;
-        constexpr double shnorm = (SH_NORM == zest::st::SHNorm::qm) ?
+            = (zernike_norm_param == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0;
+        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm;
     };
@@ -303,7 +303,7 @@ bool test_zernike_grid_evaluator_does_constant_function()
         }
     }
     
-    zest::zt::RealZernikeExpansion<ZERNIKE_NORM, SH_NORM, sh_phase_param> expansion(order);
+    zest::zt::RealZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> expansion(order);
     
     expansion(0,0,0)[0] = 1.0;
 
@@ -340,7 +340,7 @@ bool test_zernike_grid_evaluator_does_constant_function()
     return success;
 }
 
-template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase sh_phase_param>
+template <zest::zt::ZernikeNorm zernike_norm_param, zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
 bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
 {
     constexpr std::size_t order = 6;
@@ -355,10 +355,10 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
         const double z = std::cos(colat);
         constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
         constexpr double znorm3
-            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::normed) ? 3.0 : 1.0;
+            = (zernike_norm_param == zest::zt::ZernikeNorm::normed) ? 3.0 : 1.0;
         constexpr double znorm5
-            = (ZERNIKE_NORM == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0;
-        constexpr double shnorm = (SH_NORM == zest::st::SHNorm::qm) ?
+            = (zernike_norm_param == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0;
+        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm*(
             znorm3*r*r*r*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon)
@@ -378,7 +378,7 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
         }
     }
     
-    zest::zt::RealZernikeExpansion<ZERNIKE_NORM, SH_NORM, sh_phase_param> expansion(order);
+    zest::zt::RealZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> expansion(order);
 
     expansion(3,3,2) = {0.0, 1.0};
     expansion(5,3,1) = {1.0, 0.0};
@@ -437,11 +437,11 @@ void test_sh_grid_evaluator()
     assert((test_sh_grid_evaluator_does_Y31_plus_Y4m3<sh_norm_param, sh_phase_param>()));
 }
 
-template <zest::zt::ZernikeNorm ZERNIKE_NORM, zest::st::SHNorm SH_NORM, zest::st::SHPhase sh_phase_param>
+template <zest::zt::ZernikeNorm zernike_norm_param, zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
 void test_zernike_grid_evaluator()
 {
-    assert((test_zernike_grid_evaluator_does_constant_function<ZERNIKE_NORM, SH_NORM, sh_phase_param>()));
-    assert((test_zernike_grid_evaluator_does_Z33m2_plus_Z531<ZERNIKE_NORM, SH_NORM, sh_phase_param>()));
+    assert((test_zernike_grid_evaluator_does_constant_function<zernike_norm_param, sh_norm_param, sh_phase_param>()));
+    assert((test_zernike_grid_evaluator_does_Z33m2_plus_Z531<zernike_norm_param, sh_norm_param, sh_phase_param>()));
 }
 
 int main()
