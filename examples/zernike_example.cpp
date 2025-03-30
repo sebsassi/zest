@@ -39,7 +39,7 @@ int main()
         = points.generate_values(function, order);
 
     zest::zt::GLQTransformerGeo transformer{};
-    zest::zt::ZernikeExpansion expansion
+    zest::zt::RealZernikeExpansion expansion
         = transformer.forward_transform(grid, order);
 
     const double alpha = std::numbers::pi/2;
@@ -51,14 +51,16 @@ int main()
     zest::Rotor rotor{};
     rotor.rotate(expansion, wigner, angles);
 
-    for (std::size_t n = 0; n < order; ++n)
+    for (auto n : expansion.indices())
     {
-        for (std::size_t l = n % 2; l <= n; ++l)
+        auto expansion_n = expansion[n];
+        for (auto l : expansion_n.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
+            auto expansion_nl = expansion_n[l];
+            for (auto m : expansion_nl.indices())
                 std::printf(
                         "f[%lu, %lu, %lu] = %f",
-                        n, l, m, expansion(n, l, m));
+                        n, l, m, expansion_nl[m]);
         }
     }
 }

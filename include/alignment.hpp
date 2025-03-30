@@ -25,6 +25,7 @@ SOFTWARE.
 #include <cstddef>
 #include <limits>
 #include <new>
+#include <concepts>
 
 namespace zest
 {
@@ -162,6 +163,9 @@ struct AlignedAllocator
     template <typename U>
     struct rebind { using other = AlignedAllocator<T, Alignment>; };
  
+    /**
+        @brief Allocate an aligned block of memory that fits `n` values of `value_type`.
+    */
     [[nodiscard]] T* allocate(std::size_t n)
     {
         constexpr std::size_t max_count
@@ -174,6 +178,9 @@ struct AlignedAllocator
         return p;
     }
  
+    /**
+        @brief Free allocated memory.
+    */
     void deallocate(T* p, [[maybe_unused]] std::size_t n) noexcept
     {
         std::free(p);

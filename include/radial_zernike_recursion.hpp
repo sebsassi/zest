@@ -41,6 +41,11 @@ public:
     RadialZernikeRecursion() = default;
     explicit RadialZernikeRecursion(std::size_t max_order);
 
+    /**
+        @brief Expand the number of cached recursion coefficients.
+
+        @param max_order maximum order of coefficients
+    */
     void expand(std::size_t max_order);
 
     /**
@@ -52,8 +57,10 @@ public:
         @param r point at which the polynomials are evaluated
     */
     template <ZernikeNorm zernike_norm_param>
-    void zernike(double r, RadialZernikeSpan<zernike_norm_param, double> zernike)
+    void zernike(
+        double r, RadialZernikeSpan<double, zernike_norm_param> zernike)
     {
+        using ZernikeSpan = RadialZernikeSpan<double, zernike_norm_param>;
         constexpr double sqrt5 = 2.2360679774997896964091737;
         constexpr double sqrt7 = 2.6457513110645905905016158;
 
@@ -100,29 +107,35 @@ public:
         zernike(3, 1) = (3.5*r2 - 2.5)*r;
         zernike(3, 3) = r2*r;
 
-        for (std::size_t n = 4; n < order; ++n)
+
+        for (auto n : zernike.indices(4))
         {
+            auto zernike_n = zernike[n];
+            auto zernike_nm2 = zernike[n - 2];
+            auto zernike_nm4 = zernike[n - 4];
             for (std::size_t l = n & 1; l <= n - 4; l += 2)
             {
-                const std::size_t ind = EvenDiagonalTriangleLayout::idx(n,l);
-                zernike(n, l) = (m_k2[ind] + m_k1[ind]*r2)*zernike(n - 2, l) + m_k3[ind]*zernike(n - 4, l);
+                const std::size_t ind = ZernikeSpan::Layout::idx(n,l);
+                zernike_n[l] = (m_k2[ind] + m_k1[ind]*r2)*zernike_nm2[l]
+                    + m_k3[ind]*zernike_nm4[l];
 
                 if constexpr (zernike_norm_param == ZernikeNorm::normed)
-                    zernike(n - 4, l) *= m_norms[n - 4];
+                    zernike_nm4[l] *= m_norms[n - 4];
             }
 
             const double dn = double(n);
-            zernike(n, n) = r*zernike(n - 1, n - 1);
-            zernike(n, n - 2) = (dn + 0.5)*zernike(n, n)
-                    - (dn - 0.5)*zernike(n - 2, n - 2);
+            zernike_n[n] = r*zernike(n - 1, n - 1);
+            zernike_n[n - 2] = (dn + 0.5)*zernike_n[n]
+                    - (dn - 0.5)*zernike_nm2[n - 2];
         }
 
         if constexpr (zernike_norm_param == ZernikeNorm::normed)
         {
             for (std::size_t n = order - 4; n < order; ++n)
             {
+                auto zernike_n = zernike[n];
                 for (std::size_t l = n & 1; l <= n; l += 2)
-                    zernike(n, l) *= m_norms[n];
+                    zernike_n[l] *= m_norms[n];
             }
         }
     }
@@ -137,8 +150,10 @@ public:
     */
     template <ZernikeNorm zernike_norm_param>
     void zernike(
-        std::span<const double> r, RadialZernikeVecSpan<zernike_norm_param, double> zernike)
+        std::span<const double> r,
+        RadialZernikeVecSpan<double, zernike_norm_param> zernike)
     {
+        using ZernikeVecSpan = RadialZernikeVecSpan<double, zernike_norm_param>;
         constexpr double sqrt5 = 2.2360679774997896964091737;
         constexpr double sqrt7 = 2.6457513110645905905016158;
 
@@ -214,14 +229,18 @@ public:
 
         for (std::size_t n = 4; n < order; ++n)
         {
+            auto zernike_n = zernike[n];
+            auto zernike_nm2 = zernike[n - 2];
+            auto zernike_nm4 = zernike[n - 4];
             for (std::size_t l = n & 1; l <= n - 4; l += 2)
             {
-                const std::size_t ind = EvenDiagonalTriangleLayout::idx(n,l);
-                auto z_nl = zernike(n, l);
-                auto z_nm2l = zernike(n - 2, l);
-                auto z_nm4l = zernike(n - 4, l);
+                const std::size_t ind = ZernikeVecSpan::Layout::idx(n,l);
+                auto z_nl = zernike_n[l];
+                auto z_nm2l = zernike_nm2[l];
+                auto z_nm4l = zernike_nm4[l];
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
-                    z_nl[i] = (m_k2[ind] + m_k1[ind]*z_22[i])*z_nm2l[i] + m_k3[ind]*z_nm4l[i];
+                    z_nl[i] = (m_k2[ind] + m_k1[ind]*z_22[i])*z_nm2l[i]
+                        + m_k3[ind]*z_nm4l[i];
 
                 if constexpr (zernike_norm_param == ZernikeNorm::normed)
                 {
@@ -233,13 +252,13 @@ public:
                 }
             }
 
-            auto z_nn = zernike(n, n);
+            auto z_nn = zernike_n[n];
             auto z_nm1nm1 = zernike(n - 1, n - 1);
             for (std::size_t i = 0; i < zernike.vec_size(); ++i)
                 z_nn[i] = r[i]*z_nm1nm1[i];
             
-            auto z_nm2nm2 = zernike(n - 2, n - 2);
-            auto z_nnm2 = zernike(n, n - 2);
+            auto z_nm2nm2 = zernike_nm2[n - 2];
+            auto z_nnm2 = zernike_n[n - 2];
 
             const double dn = double(n);
             for (std::size_t i = 0; i < zernike.vec_size(); ++i)
@@ -257,9 +276,10 @@ public:
             
             for (std::size_t n = order - 4; n < order; ++n)
             {
+                auto zernike_n = zernike[n];
                 for (std::size_t l = n & 1; l <= n; l += 2)
                 {
-                    auto z_nl = zernike(n, l);
+                    auto z_nl = zernike_n[l];
                     for (std::size_t i = 0; i < zernike.vec_size(); ++i)
                         z_nl[i] *= m_norms[n];
                 }

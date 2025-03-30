@@ -66,7 +66,7 @@ bool test_plm_real_generates_real_correct_up_to_order_5(double z)
 
     zest::st::PlmRecursion recursion(order);
 
-    std::vector<double> plm(zest::TriangleLayout::size(order));
+    std::vector<double> plm(zest::st::PlmLayout::size(order));
 
     recursion.plm_real(z, zest::st::PlmSpan<double, sh_norm_param, sh_phase_param>(plm, recursion.max_order()));
     bool success = is_close(plm[0], P00, 1.0e-10)
@@ -138,7 +138,7 @@ bool test_plm_real_generates_real_vec_correct_up_to_order_5(double z)
 
     zest::st::PlmRecursion recursion(order);
 
-    std::vector<double> plm(zest::TriangleLayout::size(order));
+    std::vector<double> plm(zest::st::PlmLayout::size(order));
 
     recursion.plm_real(std::array<double, 1>{z}, zest::st::PlmVecSpan<double, sh_norm_param, sh_phase_param>(plm, recursion.max_order(), 1));
     bool success = is_close(plm[0], P00, 1.0e-10)

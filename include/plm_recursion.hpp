@@ -30,7 +30,7 @@ SOFTWARE.
 #include <type_traits>
 
 #include "sh_conventions.hpp"
-#include "triangle_layout.hpp"
+#include "layout.hpp"
 #include "real_sh_expansion.hpp"
 
 namespace zest
@@ -38,19 +38,21 @@ namespace zest
 namespace st
 {
 
+using PlmLayout = TriangleLayout<IndexingMode::nonnegative>;
+
 /**
     @brief Non-owfning view of associated Legendre polynomials.
 */
 template <typename T, SHNorm sh_norm_param, SHPhase sh_phase_param>
     requires std::same_as<std::remove_const_t<T>, double>
-using PlmSpan = SHLMSpan<T, TriangleLayout, sh_norm_param, sh_phase_param>;
+using PlmSpan = SHLMSpan<T, PlmLayout, sh_norm_param, sh_phase_param>;
 
 /**
     @brief Non-owfning view of vectors of associated Legendre polynomials.
 */
 template <typename T, SHNorm sh_norm_param, SHPhase sh_phase_param>
     requires std::same_as<std::remove_const_t<T>, double>
-using PlmVecSpan = SHLMVecSpan<T, TriangleLayout, sh_norm_param, sh_phase_param>;
+using PlmVecSpan = SHLMVecSpan<T, PlmLayout, sh_norm_param, sh_phase_param>;
 
 /**
     @brief Recursion of associated Legendre polynomials.
@@ -62,7 +64,7 @@ class PlmRecursion
 public:
     PlmRecursion() = default;
 
-    /*
+    /**
         @brief Precompute cached recursion coefficients up to given order.
 
         @param max_order maximum order of coefficients
@@ -78,6 +80,11 @@ public:
     */
     void expand(std::size_t max_order);
 
+    /**
+        @brief Expand the size of the vector segment the recursion can operate on.
+
+        @param vec_size maximum segment size
+    */
     void expand_vec(std::size_t vec_size);
 
     /**
@@ -135,6 +142,7 @@ private:
     void plm_impl(
         double z, double complex_norm, PlmSpan<double, sh_norm_param, sh_phase_param> plm)
     {
+        using PlmSpan_ = PlmSpan<double, sh_norm_param, sh_phase_param>;
         constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
 
         const std::size_t order = plm.order();
@@ -163,7 +171,7 @@ private:
         // Calculate P(l,0)
         for (std::size_t l = 2; l < order; ++l)
         {
-            const std::size_t ind = TriangleLayout::idx(l,0);
+            const std::size_t ind = PlmSpan_::Layout::idx(l,0);
             plm_flat[ind] = m_alm[ind]*z*plm_flat[ind - l] - m_blm[ind]*plm_flat[ind - 2*l + 1];
         }
 
@@ -195,7 +203,7 @@ private:
             for (std::size_t l = m + 2; l < order; ++l)
             {
                 // P(l,m) = z*a(l,m)*P(l - 1,m) - b(l,m)*P(l - 2,m)
-                const std::size_t ind = TriangleLayout::idx(l, m);
+                const std::size_t ind = PlmSpan_::Layout::idx(l, m);
                 plm_flat[ind] = z*m_alm[ind]*plm_flat[ind - l] - m_blm[ind]*plm_flat[ind - 2*l + 1];
                 
                 // Multiplication by `u` for `m <= l <= lmax - 2`
@@ -223,6 +231,7 @@ private:
         std::span<const double> z, double complex_norm,
         PlmVecSpan<double, sh_norm_param, sh_phase_param> plm)
     {
+        using PlmVecSpan_ = PlmVecSpan<double, sh_norm_param, sh_phase_param>;
         constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
 
         const std::size_t order = plm.order();
@@ -239,30 +248,39 @@ private:
         for (std::size_t i = 0; i < z.size(); ++i)
             m_u[i] = std::sqrt((1.0 - z[i])*(1.0 + z[i]));
 
+        auto plm_00 = plm(0, 0);
         for (std::size_t i = 0; i < z.size(); ++i)
         {
             if constexpr (sh_norm_param == SHNorm::geo)
-                plm[0][i] = 1.0;
+                plm_00[i] = 1.0;
             else if constexpr (sh_norm_param == SHNorm::qm)
-                plm[0][i] = inv_sqrt_4pi;
+                plm_00[i] = inv_sqrt_4pi;
         }
 
         if (order == 1) return;
 
+        auto plm_10 = plm(1, 0);
         for (std::size_t i = 0; i < z.size(); ++i)
         {
             if constexpr (sh_norm_param == SHNorm::geo)
-                plm[1][i] = z[i]*m_sqrl[3];
+                plm_10[i] = z[i]*m_sqrl[3];
             else if constexpr (sh_norm_param == SHNorm::qm)
-                plm[1][i] = z[i]*(m_sqrl[3]*inv_sqrt_4pi);
+                plm_10[i] = z[i]*(m_sqrl[3]*inv_sqrt_4pi);
         }
-        // Calculate P(l,0)
-        for (std::size_t l = 2; l < order; ++l)
+
+        auto plm_linear = plm.linear_view();
+        // Calculate P(l,0) for l >= 2
+        for (auto l : plm.indices(2))
         {
-            const std::size_t ind = TriangleLayout::idx(l,0);
+            const std::size_t ind = PlmVecSpan_::Layout::idx(l, 0);
+            auto plm_l0 = plm_linear[ind];
+            auto plm_lm10 = plm_linear[ind - l];
+            auto plm_lm20 = plm_linear[ind - 2*l + 1];
+            // P(l, 0) = z*a(l,m)*P(l - 1, 0) - b(l,m)*P(l - 2, 0)
             for (std::size_t i = 0; i < z.size(); ++i)
             {
-                plm[ind][i] = m_alm[ind]*z[i]*plm[ind - l][i] - m_blm[ind]*plm[ind - 2*l + 1][i];
+                plm_l0[i] = m_alm[ind]*z[i]*plm_lm10[i]
+                    - m_blm[ind]*plm_lm20[i];
             }
         }
 
@@ -285,43 +303,52 @@ private:
             for (std::size_t i = 0; i < z.size(); ++i)
                 m_u_scaled[i] *= m_u[i];
 
-            // `P(m,m) = u*sqrt((2m + 1)/(2m))*P(m - 1,m - 1)`
+            // `P(m, m) = u*sqrt((2m + 1)/(2m))*P(m - 1, m - 1)`
             // NOTE: multiplication by `u` happens later
             pmm *= double(sh_phase_param)*m_sqrl[2*m + 1]/m_sqrl[2*m];
+            auto plm_mm = plm(m, m);
             for (std::size_t i = 0; i < z.size(); ++i)
-                plm[TriangleLayout::idx(m, m)][i] = pmm;
+                plm_mm[i] = pmm;
 
-            // `P(m+1,m) = z*sqrt(2m + 3)*P(m,m)`
+            // `P(m+1, m) = z*sqrt(2m + 3)*P(m, m)`
+            auto plm_mp1m = plm(m + 1, m);
             for (std::size_t i = 0; i < z.size(); ++i)
-                plm[TriangleLayout::idx(m + 1, m)][i] = z[i]*(m_sqrl[2*m + 3]*pmm);
+                plm_mp1m[i] = z[i]*(m_sqrl[2*m + 3]*pmm);
 
             for (std::size_t l = m + 2; l < order; ++l)
             {
-                // P(l,m) = z*a(l,m)*P(l - 1,m) - b(l,m)*P(l - 2,m)
-                const std::size_t ind = TriangleLayout::idx(l, m);
+                const std::size_t ind = PlmVecSpan_::Layout::idx(l, m);
+                auto plm_lm = plm_linear[ind];
+                auto plm_lm1m = plm_linear[ind - l];
+                auto plm_lm2m = plm_linear[ind - 2*l + 1];
+                // P(l, m) = z*a(l, m)*P(l - 1, m) - b(l, m)*P(l - 2, m)
                 for (std::size_t i = 0; i < z.size(); ++i)
-                    plm[ind][i] = z[i]*m_alm[ind]*plm[ind - l][i] - m_blm[ind]*plm[ind - 2*l + 1][i];
+                    plm_lm[i] = z[i]*m_alm[ind]*plm_lm1m[i]
+                        - m_blm[ind]*plm_lm2m[i];
                 
                 // Multiplication by `u` for `m <= l <= lmax - 2`
                 for (std::size_t i = 0; i < z.size(); ++i)
-                    plm[ind - 2*l + 1][i] *= m_u_scaled[i];
+                    plm_lm2m[i] *= m_u_scaled[i];
             }
 
             // Multiplication by `u` for `l = lmax`
+            auto plm_om1m = plm(order - 1, m);
             for (std::size_t i = 0; i < z.size(); ++i)
-                plm[TriangleLayout::idx(order - 1, m)][i] *= m_u_scaled[i];
+                plm_om1m[i] *= m_u_scaled[i];
 
             // Multiplication by `u` for `l = lmax - 1`
+            auto plm_om2m = plm(order - 2, m);
             for (std::size_t i = 0; i < z.size(); ++i)
-                plm[TriangleLayout::idx(order - 2, m)][i] *= m_u_scaled[i];
+                plm_om2m[i] *= m_u_scaled[i];
         }
 
         for (std::size_t i = 0; i < z.size(); ++i)
             m_u_scaled[i] *= m_u[i];
 
         // P(lmax,lmax)
+        auto plm_om1om1 = plm(order - 1, order - 1);
         for (std::size_t i = 0; i < z.size(); ++i)
-            plm[TriangleLayout::idx(order - 1, order - 1)][i]
+            plm_om1om1[i]
                 = m_u_scaled[i]*(double(sh_phase_param)*pmm*m_sqrl[2*order - 1]
                 /m_sqrl[2*order - 2]);
     }

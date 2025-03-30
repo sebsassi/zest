@@ -25,6 +25,10 @@ SOFTWARE.
 
 #include <cassert>
 
+template <zest::IndexingMode indexing_mode_param>
+using ZernikeLayout
+    = zest::ZernikeTetrahedralLayout<indexing_mode_param>;
+
 constexpr bool is_close(double a, double b, double tol)
 {
     return std::fabs(a - b) < tol;
@@ -71,6 +75,7 @@ bool test_radial_zernike_layout_indices_are_contiguous(std::size_t order)
     return success;
 }
 
+template <zest::IndexingMode indexing_mode_param>
 bool test_zernike_layout_size_is_correct(std::size_t order)
 {
     std::size_t i = 0;
@@ -78,13 +83,16 @@ bool test_zernike_layout_size_is_correct(std::size_t order)
     {
         for (std::size_t l = n & 1; l <= n; l += 2)
         {
-            for (std::size_t m = 0; m <= l; ++m)
+            const int mmin
+                = (indexing_mode_param == zest::IndexingMode::nonnegative) ?
+                    0 : -int(l);
+            for (int m = mmin; m <= int(l); ++m)
                 ++i;
         }
     }
 
     bool success = true;
-    std::size_t size = zest::zt::ZernikeLayout::size(order);
+    std::size_t size = ZernikeLayout<indexing_mode_param>::size(order);
     if (i != size)
     {
         std::printf("%lu %lu", size, i);
@@ -94,22 +102,27 @@ bool test_zernike_layout_size_is_correct(std::size_t order)
     return success;
 }
 
+template <zest::IndexingMode indexing_mode_param>
 bool test_zernike_layout_indices_are_contiguous(std::size_t order)
 {
+    using index_type = typename ZernikeLayout<indexing_mode_param>::index_type;
     bool success = true;
     std::size_t i = 0;
     for (std::size_t n = 0; n < order; ++n)
     {
         for (std::size_t l = n & 1; l <= n; l += 2)
         {
-            for (std::size_t m = 0; m <= l; ++m)
+            const int mmin
+                = (indexing_mode_param == zest::IndexingMode::nonnegative) ?
+                    0 : -int(l);
+            for (int m = mmin; m <= int(l); ++m)
             {
-                const std::size_t ind = zest::zt::ZernikeLayout::idx(n, l, m);
+                const std::size_t ind = ZernikeLayout<indexing_mode_param>::idx(index_type(n), index_type(l), index_type(m));
                 if (ind != i)
                 {
                     std::printf(
-                            "(%lu, %lu, %lu) ind = %lu i = %lu\n",
-                            n, l, m, ind,i);
+                            "(%lu, %lu, %d) ind = %lu i = %lu\n",
+                            n, l, m, ind, i);
                     success = success && false;
                 }
                 ++i;
@@ -130,7 +143,7 @@ bool test_radial_zernike_recursion_correct_for_order_1()
 
     const double R00 = 1.0*((zernike_norm_param == zest::zt::ZernikeNorm::normed) ? std::sqrt(3.0) : 1.0);
 
-    recursion.zernike<zernike_norm_param>(1.0, zest::zt::RadialZernikeSpan<zernike_norm_param, double>(std::span(zernike), order));
+    recursion.zernike<zernike_norm_param>(1.0, zest::zt::RadialZernikeSpan<double, zernike_norm_param>(std::span(zernike), order));
     bool success = is_close(zernike[0], R00, 1.0e-10);
 
     if (!success)
@@ -186,7 +199,7 @@ bool test_radial_zernike_recursion_generates_correct_up_to_order_7(double r)
     std::vector<double> zernike(zest::zt::RadialZernikeLayout::size(order));
     zest::zt::RadialZernikeRecursion recursion(order);
 
-    recursion.zernike<zernike_norm_param>(r, zest::zt::RadialZernikeSpan<zernike_norm_param, double>(std::span(zernike), order));
+    recursion.zernike<zernike_norm_param>(r, zest::zt::RadialZernikeSpan<double, zernike_norm_param>(std::span(zernike), order));
     bool success = is_close(zernike[0], R00, 1.0e-10)
             && is_close(zernike[1], R11, 1.0e-10)
             && is_close(zernike[2], R20, 1.0e-10)
@@ -245,7 +258,8 @@ bool test_radial_zernike_normed_recursion_is_orthonormal()
     for (std::size_t i = 0; i < glq_nodes.size(); ++i)
     {
         const double r = 0.5*(1.0 + glq_nodes[i]);
-        zest::zt::RadialZernikeSpan<zest::zt::ZernikeNorm::normed, double> zernike(
+        zest::zt::RadialZernikeSpan<double, zest::zt::ZernikeNorm::normed> 
+        zernike(
                 zernike_grid.data() + i*zest::zt::RadialZernikeLayout::size(order), order);
         recursion.zernike<zest::zt::ZernikeNorm::normed>(r, zernike);
     }
@@ -257,7 +271,8 @@ bool test_radial_zernike_normed_recursion_is_orthonormal()
     {
         const double r = 0.5*(1.0 + glq_nodes[i]);
         const double weight = 0.5*r*r*glq_weights[i];
-        zest::zt::RadialZernikeSpan<zest::zt::ZernikeNorm::normed, double> zernike(
+        zest::zt::RadialZernikeSpan<double, zest::zt::ZernikeNorm::normed> 
+        zernike(
                 zernike_grid.data() + i*zest::zt::RadialZernikeLayout::size(order), order);
         for (std::size_t l = 0; l < order; ++l)
         {
@@ -329,7 +344,7 @@ bool test_radial_zernike_vec_recursion_correct_for_order_1()
     const double R00 = 1.0
         *((zernike_norm_param == zest::zt::ZernikeNorm::normed) ? std::sqrt(3.0) : 1.0);
 
-    recursion.zernike<zernike_norm_param>(rad, zest::zt::RadialZernikeVecSpan<zernike_norm_param, double>(zernike, order, vec_size));
+    recursion.zernike<zernike_norm_param>(rad, zest::zt::RadialZernikeVecSpan<double, zernike_norm_param>(zernike, order, vec_size));
     bool success = is_close(zernike[0], R00, 1.0e-10)
             && is_close(zernike[1], R00, 1.0e-10)
             && is_close(zernike[2], R00, 1.0e-10)
@@ -396,7 +411,7 @@ bool test_radial_zernike_vec_recursion_generates_correct_up_to_order_7(double r)
             zest::zt::RadialZernikeLayout::size(order)*vec_size);
     zest::zt::RadialZernikeRecursion recursion(order);
 
-    recursion.zernike<zernike_norm_param>(x, zest::zt::RadialZernikeVecSpan<zernike_norm_param, double>(std::span(zernike), order, vec_size));
+    recursion.zernike<zernike_norm_param>(x, zest::zt::RadialZernikeVecSpan<double, zernike_norm_param>(std::span(zernike), order, vec_size));
     bool success = is_close(zernike[0], R00, 1.0e-10)
             && is_close(zernike[1], R11, 1.0e-10)
             && is_close(zernike[2], R20, 1.0e-10)
@@ -444,7 +459,7 @@ bool test_radial_zernike_vec_recursion_end_points_correct_up_to(std::size_t orde
     constexpr std::size_t vec_size = 2;
     std::vector<double> reference_buffer(
             zest::zt::RadialZernikeLayout::size(order)*vec_size);
-    zest::zt::RadialZernikeVecSpan<zernike_norm_param, double> 
+    zest::zt::RadialZernikeVecSpan<double, zernike_norm_param> 
     reference_end_points(reference_buffer, order, vec_size);
 
     std::vector<double> zero_values(order/2);
@@ -477,7 +492,7 @@ bool test_radial_zernike_vec_recursion_end_points_correct_up_to(std::size_t orde
 
     std::vector<double> test_buffer(
             zest::zt::RadialZernikeLayout::size(order)*vec_size);
-    zest::zt::RadialZernikeVecSpan<zernike_norm_param, double> test_end_points(
+    zest::zt::RadialZernikeVecSpan<double, zernike_norm_param> test_end_points(
             test_buffer, order, vec_size);
 
     const std::array<double, 2> x = {0.0, 1.0};
@@ -527,8 +542,10 @@ int main()
 {
     assert(test_radial_zernike_layout_size_is_correct(6));
     assert(test_radial_zernike_layout_indices_are_contiguous(6));
-    assert(test_zernike_layout_size_is_correct(6));
-    assert(test_zernike_layout_indices_are_contiguous(6));
+    assert(test_zernike_layout_size_is_correct<zest::IndexingMode::nonnegative>(6));
+    assert(test_zernike_layout_indices_are_contiguous<zest::IndexingMode::nonnegative>(6));
+    assert(test_zernike_layout_size_is_correct<zest::IndexingMode::negative>(6));
+    assert(test_zernike_layout_indices_are_contiguous<zest::IndexingMode::negative>(6));
 
     test_zernike<zest::zt::ZernikeNorm::unnormed>();
     test_zernike<zest::zt::ZernikeNorm::normed>();

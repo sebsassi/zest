@@ -25,29 +25,49 @@ SOFTWARE.
 
 constexpr bool test_radialzernikespan_const_view_can_be_taken()
 {
-    zest::zt::RadialZernikeSpan<zest::zt::ZernikeNorm::normed, double> span{};
-    [[maybe_unused]] auto const_view = zest::zt::RadialZernikeSpan<zest::zt::ZernikeNorm::normed, const double>(span);
+    zest::zt::RadialZernikeSpan<double, zest::zt::ZernikeNorm::normed>
+    span{};
+
+    [[maybe_unused]] auto const_view = zest::zt::RadialZernikeSpan<
+            const double, zest::zt::ZernikeNorm::normed>(span);
     return true;
 }
 
 constexpr bool test_radialzernikevecspan_const_view_can_be_taken()
 {
-    zest::zt::RadialZernikeVecSpan<zest::zt::ZernikeNorm::normed, double> span{};
-    [[maybe_unused]] auto const_view = zest::zt::RadialZernikeVecSpan<zest::zt::ZernikeNorm::normed, const double>(span);
+    zest::zt::RadialZernikeVecSpan<double, zest::zt::ZernikeNorm::normed>
+    span{};
+    [[maybe_unused]] auto const_view = zest::zt::RadialZernikeVecSpan<
+            const double, zest::zt::ZernikeNorm::normed>(span);
     return true;
 }
 
 constexpr bool test_zernikexpansionshspan_const_view_can_be_taken()
 {
-    zest::zt::ZernikeExpansionSHSpan<double, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none> span{};
-    [[maybe_unused]] auto const_view = zest::zt::ZernikeExpansionSHSpan<const double, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>(span);
+    zest::zt::ZernikeSHSpan<
+            double, 
+            zest::RowSkippingTriangleLayout<zest::IndexingMode::nonnegative>, 
+            zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, 
+            zest::st::SHPhase::none>
+    span{};
+
+    [[maybe_unused]] auto const_view = zest::zt::ZernikeSHSpan<
+            const double, 
+            zest::RowSkippingTriangleLayout<zest::IndexingMode::nonnegative>,
+            zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, 
+            zest::st::SHPhase::none>(span);
     return true;
 }
 
 constexpr bool test_zernikexpansionspan_const_view_can_be_taken()
 {
-    zest::zt::ZernikeExpansionSpan<double, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none> span{};
-    [[maybe_unused]] auto const_view = zest::zt::ZernikeExpansionSpan<const double, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>(span);
+    zest::zt::RealZernikeSpan<
+            double, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, 
+            zest::st::SHPhase::none>
+    span{};
+    [[maybe_unused]] auto const_view = zest::zt::RealZernikeSpan<
+            const double, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, 
+            zest::st::SHPhase::none>(span);
     return true;
 }
 
@@ -60,9 +80,13 @@ bool test_zernike_lm_span_indexing_is_contiguous()
 {
     constexpr std::size_t order = 6;
     std::vector<std::size_t> indices(
-        zest::zt::ZernikeExpansionSHSpan<std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>::size(order));
+        zest::zt::ZernikeSHSpan<
+            std::size_t, 
+            zest::RowSkippingTriangleLayout<zest::IndexingMode::nonnegative>, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>::size(order));
     
-    zest::zt::ZernikeExpansionSHSpan<std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none> index_span(indices, order);
+    zest::zt::ZernikeSHSpan<std::size_t, 
+            zest::RowSkippingTriangleLayout<zest::IndexingMode::nonnegative>, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>
+    index_span(indices, order);
 
     for (std::size_t i = 0; i < indices.size(); ++i)
         indices[i] = i;
@@ -96,16 +120,17 @@ bool test_zernike_lm_span_subspan_indexing_is_contiguous()
 {
     constexpr std::size_t order = 6;
     std::vector<std::size_t> indices(
-        zest::zt::ZernikeExpansionSHSpan<std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>::size(order));
+        zest::zt::ZernikeSHSpan<
+            std::size_t, 
+            zest::RowSkippingTriangleLayout<zest::IndexingMode::nonnegative>, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>::size(order));
     
-    zest::zt::ZernikeExpansionSHSpan<std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none> index_span(indices, order);
+    zest::zt::ZernikeSHSpan<
+            std::size_t, 
+            zest::RowSkippingTriangleLayout<zest::IndexingMode::nonnegative>,zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>
+    index_span(indices, order);
 
     for (std::size_t i = 0; i < indices.size(); ++i)
         indices[i] = i;
-    
-    auto index_span_1 = index_span[1];
-    auto index_span_3 = index_span[3];
-    auto index_span_5 = index_span[5];
 
     bool success = index_span[1][0] == index_span(1,0)
             && index_span[1][1] == index_span(1,1)
@@ -136,9 +161,10 @@ bool test_zernike_expansion_span_indexing_is_contiguous()
 {
     constexpr std::size_t order = 6;
     std::vector<std::size_t> indices(
-        zest::zt::ZernikeExpansionSpan<std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>::size(order));
+        zest::zt::RealZernikeSpan<
+            std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>::size(order));
     
-    zest::zt::ZernikeExpansionSpan<std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none> index_span(indices, order);
+    zest::zt::RealZernikeSpan<std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none> index_span(indices, order);
 
     for (std::size_t i = 0; i < indices.size(); ++i)
         indices[i] = i;
@@ -197,9 +223,12 @@ bool test_zernike_expansion_subspan_indexing_is_contiguous()
 {
     constexpr std::size_t order = 6;
     std::vector<std::size_t> indices(
-        zest::zt::ZernikeExpansionSpan<std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>::size(order));
+        zest::zt::RealZernikeSpan<
+            std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>::size(order));
     
-    zest::zt::ZernikeExpansionSpan<std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none> index_span(indices, order);
+    zest::zt::RealZernikeSpan<
+            std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>
+    index_span(indices, order);
 
     for (std::size_t i = 0; i < indices.size(); ++i)
         indices[i] = i;
@@ -258,9 +287,12 @@ bool test_zernike_expansion_subsubspan_indexing_is_contiguous()
 {
     constexpr std::size_t order = 6;
     std::vector<std::size_t> indices(
-        zest::zt::ZernikeExpansionSpan<std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>::size(order));
+        zest::zt::RealZernikeSpan<
+            std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>::size(order));
     
-    zest::zt::ZernikeExpansionSpan<std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none> index_span(indices, order);
+    zest::zt::RealZernikeSpan<
+            std::size_t, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>
+    index_span(indices, order);
 
     for (std::size_t i = 0; i < indices.size(); ++i)
         indices[i] = i;

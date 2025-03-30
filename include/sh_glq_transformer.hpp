@@ -50,35 +50,57 @@ struct LatLonLayout
 {
     using Alignment = AlignmentType;
 
+    /**
+        @brief Number of grid points.
+
+        @param order order of spherical harmonic expansion
+    */
     [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
     {
         return lat_size(order)*lon_size(order);
     }
 
+    /**
+        @brief Shape of the grid.
+
+        @param order order of spherical harmonic expansion
+    */
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
     shape(std::size_t order) noexcept
     {
         return {lat_size(order), lon_size(order)};
     }
 
+    /**
+        @brief Number of longitudinal Fourier coefficients.
+    */
     [[nodiscard]] static constexpr std::size_t
     fft_size(std::size_t order) noexcept
     {
         return (lon_size(order) >> 1) + 1;
     }
 
+    /**
+        @brief Stride of the longitudinally Fourier transformed grid.
+    */
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
     fft_stride(std::size_t order) noexcept
     {
         return {fft_size(order), 1};
     }
 
+    /**
+        @brief Size in latitudinal direction.
+    */
     [[nodiscard]] static constexpr std::size_t
     lat_size(std::size_t order) noexcept
     {
         return order;
     }
 
+    /**
+        @brief Size in latitudinal direction.
+    */
     [[nodiscard]] static constexpr std::size_t
     lon_size(std::size_t order) noexcept
     {
@@ -105,29 +127,48 @@ struct LonLatLayout
 {
     using Alignment = AlignmentType;
 
+    /**
+        @brief Number of grid points.
+
+        @param order order of spherical harmonic expansion
+    */
     [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
     {
         return lat_size(order)*lon_size(order);
     }
     
+    /**
+        @brief Shape of the grid.
+
+        @param order order of spherical harmonic expansion
+    */
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
     shape(std::size_t order) noexcept
     {
         return {lon_size(order), lat_size(order)};
     }
 
+    /**
+        @brief Number of longitudinal Fourier coefficients.
+    */
     [[nodiscard]] static constexpr std::size_t
     fft_size(std::size_t order) noexcept
     {
         return (lon_size(order) >> 1) + 1;
     }
 
+    /**
+        @brief Stride of the longitudinally Fourier transformed grid.
+    */
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
     fft_stride(std::size_t order)
     {
         return {lat_size(order), 1};
     }
 
+    /**
+        @brief Size in latitudinal direction.
+    */
     [[nodiscard]] static constexpr std::size_t
     lat_size(std::size_t order) noexcept
     {
@@ -140,6 +181,9 @@ struct LonLatLayout
             return detail::next_divisible<vector_size>(min_size);
     }
 
+    /**
+        @brief Size in longitudinal direction.
+    */
     [[nodiscard]] static constexpr std::size_t
     lon_size(std::size_t order) noexcept
     {
@@ -170,11 +214,21 @@ public:
     using MDSpan<ElementType, 2>::data;
     using MDSpan<ElementType, 2>::size;
 
+    /**
+        @brief Number of grid points.
+
+        @param order order of spherical harmonic expansion
+    */
     [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
     {
         return Layout::size(order);
     }
 
+    /**
+        @brief Shape of the grid.
+
+        @param order order of spherical harmonic expansion
+    */
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
     shape(std::size_t order) noexcept
     {
@@ -189,12 +243,21 @@ public:
         MDSpan<ElementType, 2>(buffer.data(), Layout::shape(order)),
         m_order(order) {}
 
+    /**
+        @brief Order of spherical harmonic expansion.
+    */
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
     
+    /**
+        @brief Shape of the grid.
+    */
     [[nodiscard]] constexpr const std::array<std::size_t, 2>&
     shape() const noexcept { return extents(); }
 
+    /**
+        @brief Flattened view of the underlying buffer.
+    */
     [[nodiscard]] constexpr std::span<element_type>
     flatten() const noexcept { return std::span<element_type>(data(), size()); }
 
@@ -235,14 +298,26 @@ public:
         m_values(Layout::size(order)), m_shape(Layout::shape(order)), 
         m_order(order) {}
 
+    /**
+        @brief Order of spherical harmonic expansion.
+    */
+    [[nodiscard]] std::size_t order() const noexcept { return m_order; }
+
+    /**
+        @brief Shape of the grid.
+    */
     [[nodiscard]] std::array<std::size_t, 2>
     shape() const noexcept { return m_shape; }
 
-    [[nodiscard]] std::size_t order() const noexcept { return m_order; }
-
+    /**
+        @brief Flattened view of the underlying buffer.
+    */
     [[nodiscard]] std::span<const element_type>
     flatten() const noexcept { return m_values; }
 
+    /**
+        @brief Flattened view of the underlying buffer.
+    */
     std::span<element_type> flatten() noexcept { return m_values; }
 
     [[nodiscard]] operator View() noexcept
@@ -255,6 +330,9 @@ public:
         return ConstView(m_values, m_order);
     };
 
+    /**
+        @brief Change the size of the grid.
+    */
     void resize(std::size_t order)
     {
         m_values.resize(Layout::size(order));
@@ -297,6 +375,8 @@ concept sphere_glq_grid
 
 /**
     @brief Points defining a Gauss-Legendre quadrature grid on the sphere.
+
+    @tparam LayoutType memory layout of the grid
 */
 template <typename LayoutType = DefaultLayout>
 class SphereGLQGridPoints
@@ -306,6 +386,9 @@ public:
     SphereGLQGridPoints() = default;
     explicit SphereGLQGridPoints(std::size_t order) { resize(order); }
 
+    /**
+        @brief Change the size of the corresponding grid.
+    */
     void resize(std::size_t order)
     {
         constexpr std::size_t lon_axis = GridLayout::lon_axis;
@@ -314,20 +397,39 @@ public:
         resize(shape[lon_axis], shape[lat_axis]);
     }
 
+    /**
+        @brief Shape of the corresponding grid.
+    */
     [[nodiscard]] std::array<std::size_t, 2> shape() noexcept
     {
         return {m_glq_nodes.size(), m_longitudes.size()};
     }
 
+    /**
+        @brief Longitude values of the grid points.
+    */
     [[nodiscard]] std::span<const double> longitudes() const noexcept
     {
         return m_longitudes;
     }
+
+    /**
+        @brief Latitudinal Gauss-Legendre nodes.
+    */
     [[nodiscard]] std::span<const double> glq_nodes() const noexcept
     {
         return m_glq_nodes;
     }
 
+    /**
+        @brief Generate Gauss-Legendre quadrature grid values from a function.
+
+        @tparam GridType type of grid
+        @tparam FuncType type of function
+
+        @param grid grid to place the values in
+        @param f function to generate values
+    */
     template <sphere_glq_grid GridType, typename FuncType>
         requires std::same_as<
             typename std::remove_cvref_t<GridType>::Layout, GridLayout>
@@ -361,6 +463,13 @@ public:
         }
     }
 
+    /**
+        @brief Generate Gauss-Legendre quadrature grid values from a function.
+
+        @tparam FuncType type of function
+
+        @param f function to generate values
+    */
     template <typename FuncType>
     auto generate_values(FuncType&& f, std::size_t order)
     {
@@ -394,9 +503,9 @@ private:
 /**
     @brief Transformations between a Gauss-Legendre quadrature grid representation and spherical harmonic expansion representation of real data.
 
-    @tparam NORM normalization convention of spherical harmonics
+    @tparam sh_norm_param normalization convention of spherical harmonics
     @tparam sh_phase_param phase convention of spherical harmonics
-    @tparam GridLayoutType
+    @tparam GridLayoutType memory layout of the grid
 */
 template <
     SHNorm sh_norm_param, SHPhase sh_phase_param,
@@ -405,6 +514,7 @@ class GLQTransformer
 {
 public:
     using GridLayout = GridLayoutType;
+    using SHLayout = TriangleLayout<IndexingMode::nonnegative>;
 
     static constexpr SHNorm norm = sh_norm_param;
     static constexpr SHPhase phase = sh_phase_param;
@@ -417,7 +527,7 @@ public:
         m_recursion(order),
         m_glq_nodes(gl::PackedLayout::size(GridLayout::lat_size(order))),
         m_glq_weights(gl::PackedLayout::size(GridLayout::lat_size(order))),
-        m_plm_grid(GridLayout::lat_size(order)*TriangleLayout::size(order)),
+        m_plm_grid(GridLayout::lat_size(order)*SHLayout::size(order)),
         m_ffts(GridLayout::lat_size(order)*GridLayout::fft_size(order)), m_symm_asymm(GridLayout::fft_size(order)*((GridLayout::lat_size(order) + 1) >> 1)*2),
         m_pocketfft_shape_grid(2),
         m_pocketfft_stride_grid(2),
@@ -433,7 +543,7 @@ public:
             {
                 const double z = m_glq_nodes[i];
                 PlmSpan<double, sh_norm_param, sh_phase_param> plm(
-                        m_plm_grid.data() + i*TriangleLayout::size(order), 
+                        m_plm_grid.data() + i*SHLayout::size(order), 
                         order);
                 m_recursion.plm_real(z, plm);
             }
@@ -456,12 +566,13 @@ public:
         m_pocketfft_stride_fft[1] = fft_stride[1]*sizeof(std::complex<double>);
     }
 
+    /**
+        @brief Order of spherical harmonic expansion.
+    */
     [[nodiscard]] std::size_t order() const noexcept { return m_order; }
 
     /**
-        @brief Resize transformer for specified expansion order
-
-        @param order
+        @brief Resize transformer for specified expansion order.
     */
     void resize(std::size_t order)
     {
@@ -473,7 +584,7 @@ public:
         m_glq_weights.resize(gl::PackedLayout::size(GridLayout::lat_size(order)));
         gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::cos>(
                 m_glq_nodes, m_glq_weights, GridLayout::lat_size(order) & 1);
-        m_plm_grid.resize(m_glq_weights.size()*TriangleLayout::size(order));
+        m_plm_grid.resize(m_glq_weights.size()*SHLayout::size(order));
         
         if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
         {
@@ -481,7 +592,7 @@ public:
             {
                 const double z = m_glq_nodes[i];
                 PlmSpan<double, sh_norm_param, sh_phase_param> plm(
-                        m_plm_grid.data() + i*TriangleLayout::size(order), 
+                        m_plm_grid.data() + i*SHLayout::size(order), 
                         order);
                 m_recursion.plm_real(z, plm);
             }
@@ -517,7 +628,7 @@ public:
     */
     void forward_transform(
         SphereGLQGridSpan<const double, GridLayout> values,
-        RealSHExpansionSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
+        RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
     {
         resize(values.order());
         
@@ -526,7 +637,10 @@ public:
         fft_to_symm_asymm();
 
         std::size_t min_order = std::min(expansion.order(), values.order());
-        integrate_latitudinal(expansion, min_order);
+
+        RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> truncated_expansion(expansion.data(), min_order);
+
+        integrate_latitudinal(truncated_expansion);
     }
 
     /**
@@ -536,14 +650,16 @@ public:
         @param values values on the spherical quadrature grid
     */
     void backward_transform(
-        RealSHExpansionSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion,
+        RealSHSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion,
         SphereGLQGridSpan<double, GridLayout> values)
     {
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
         
-        sum_l(expansion, min_order);
+        RealSHSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> truncated_expansion(expansion.data(), min_order);
+
+        sum_l(truncated_expansion);
         symm_asymm_to_fft();
         sum_m(values);
     }
@@ -558,7 +674,7 @@ public:
 
         @note A spherical harmonic expansion has even/odd parity if the first index of all nonzero coefficients has even/odd parity.
     */
-    template <even_odd_real_sh_expansion Expansion>
+    template <row_skipping_real_sh_expansion Expansion>
         requires (std::remove_cvref_t<Expansion>::norm == sh_norm_param)
         && (std::remove_cvref_t<Expansion>::phase == sh_phase_param)
         && std::same_as<
@@ -572,7 +688,10 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
         
-        sum_l(std::forward<Expansion>(expansion), min_order, expansion.parity());
+        typename Expansion::ConstView truncated_expansion(
+                expansion.data(), min_order);
+        
+        sum_l(truncated_expansion);
         symm_asymm_to_fft();
         sum_m(values);
     }
@@ -585,26 +704,27 @@ public:
         @param parity parity of the coefficients
 
         @note The parity of a spherical harmonic coefficient is determined by the parity of the first index of the coefficient.
-    */
+    *//*
     void backward_transform(
-        RealSHExpansionSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion,
+        RealSHSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion,
         SphereGLQGridSpan<double, GridLayout> values, Parity parity)
     {
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
         
-        sum_l(expansion, min_order, parity);
+        RealSHSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> truncated_expansion(expansion.data(), min_order);
+
+        sum_l(truncated_expansion, min_order, parity);
         symm_asymm_to_fft();
         sum_m(values);
-    }
+    }*/
     
-    /*
-    Forward transform from Gauss-Legendre quadrature grid to spherical harmonic coefficients.
+    /**
+        @brief Forward transform from Gauss-Legendre quadrature grid to spherical harmonic coefficients.
 
-    Parameters:
-    `values`: values on the spherical quadrature grid.
-    `order`: order of expansion.
+        @param values values on the spherical quadrature grid
+        @param order order of expansion
     */
     [[nodiscard]] RealSHExpansion<sh_norm_param, sh_phase_param>
     forward_transform(
@@ -622,7 +742,7 @@ public:
         @param expansion coefficients of the expansion
     */
     [[nodiscard]] SphereGLQGrid<double, GridLayout> backward_transform(
-        RealSHExpansionSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion, std::size_t order)
+        RealSHSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion, std::size_t order)
     {
         SphereGLQGrid<double, GridLayout> grid(order);
         backward_transform(expansion, grid);
@@ -639,7 +759,7 @@ public:
 
         @note A spherical harmonic expansion has even/odd parity if the first index of all nonzero coefficients has even/odd parity.
     */
-    template <even_odd_real_sh_expansion Expansion>
+    template <row_skipping_real_sh_expansion Expansion>
         requires (std::remove_cvref_t<Expansion>::norm == sh_norm_param)
         && (std::remove_cvref_t<Expansion>::phase == sh_phase_param)
         && std::same_as<
@@ -662,14 +782,14 @@ public:
         @param parity parity of the coefficients
 
         @note The parity of a spherical harmonic coefficient is determined by the parity of the first index of the coefficient.
-    */
+    *//*
     [[nodiscard]] SphereGLQGrid<double, GridLayout> backward_transform(
-        RealSHExpansionSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion, std::size_t order, Parity parity)
+        RealSHSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion, std::size_t order, Parity parity)
     {
         SphereGLQGrid<double, GridLayout> grid(order);
         backward_transform(expansion, grid, parity);
         return grid;
-    }
+    }*/
 
 private:
     void integrate_longitudinal(
@@ -802,7 +922,7 @@ private:
     }
 
     void integrate_latitudinal(
-        RealSHExpansionSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion, std::size_t min_order) noexcept
+        RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion) noexcept
     {
         const std::size_t fft_order = GridLayout::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
@@ -813,20 +933,20 @@ private:
         {
             for (std::size_t i = 0; i < num_unique_nodes; ++i)
             {
-                PlmSpan<double, sh_norm_param, sh_phase_param> plm(
-                        m_plm_grid.data() + i*TriangleLayout::size(m_order), 
+                PlmSpan<double, sh_norm_param, sh_phase_param> ass_leg(
+                        m_plm_grid.data() + i*SHLayout::size(m_order), 
                         m_order);
-                std::span plm_flat = plm.flatten();
-                for (std::size_t l = 0; l < min_order; ++l)
+                std::span plm_flat = ass_leg.flatten();
+                for (auto l : expansion.indices())
                 {
-                    std::span<const double> plm_l = plm[l];
-                    std::span<std::array<double, 2>> expansion_l = expansion[l];
+                    auto ass_leg_l = ass_leg[l];
+                    auto expansion_l = expansion[l];
                     std::span<const std::complex<double>> fft(
                         m_symm_asymm.begin() + (2*i + (l & 1))*fft_order, fft_order);
-                    for (std::size_t m = 0; m <= l; ++m)
+                    for (auto m : expansion_l.indices())
                     {
-                        expansion_l[m][0] += plm_l[m]*fft[m].real();
-                        expansion_l[m][1] += plm_l[m]*fft[m].imag();
+                        expansion_l[m][0] += ass_leg_l[m]*fft[m].real();
+                        expansion_l[m][1] += ass_leg_l[m]*fft[m].imag();
                     }
                 }
             }
@@ -834,16 +954,18 @@ private:
         else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
         {
             const std::size_t num_plm = num_unique_nodes;
-            for (std::size_t l = 0; l < min_order; ++l)
+            PlmVecSpan<double, sh_norm_param, sh_phase_param>
+            ass_leg(m_plm_grid.data(), m_order, num_plm);
+            for (auto l : expansion.indices())
             {
+                auto expansion_l = expansion[l];
+                auto ass_leg_l = ass_leg[l];
                 std::span<const std::complex<double>> ffts;
                 ffts = std::span<const std::complex<double>>(
                     m_symm_asymm.begin() + (l & 1)*num_plm*fft_order, num_plm*fft_order);
-                for (std::size_t m = 0; m <= l; ++m)
+                for (auto m : expansion_l.indices())
                 {
-                    const std::size_t ind = TriangleLayout::idx(l,m);
-                    std::span<const double> plm(
-                        m_plm_grid.begin() + ind*num_plm, num_plm);
+                    std::span<const double> ass_leg_lm = ass_leg_l[m];
                     std::span<const std::complex<double>> fft(
                         ffts.begin() + m*num_plm, num_plm);
                     
@@ -851,36 +973,30 @@ private:
                     switch (num_plm & 3)
                     {
                         case 1:
-                            coeff[0] = plm[0]*fft[0].real();
-                            coeff[1] = plm[0]*fft[0].imag();
+                            coeff[0] = ass_leg_lm[0]*fft[0].real();
+                            coeff[1] = ass_leg_lm[0]*fft[0].imag();
                             break;
                         case 2:
-                            coeff[0] = plm[0]*fft[0].real() + plm[1]*fft[1].real();
-                            coeff[1] = plm[0]*fft[0].imag() + plm[1]*fft[1].imag();
+                            coeff[0] = ass_leg_lm[0]*fft[0].real() + ass_leg_lm[1]*fft[1].real();
+                            coeff[1] = ass_leg_lm[0]*fft[0].imag() + ass_leg_lm[1]*fft[1].imag();
                             break;
                         case 3:
-                            coeff[0] = plm[0]*fft[0].real() + plm[1]*fft[1].real() + plm[2]*fft[2].real();
-                            coeff[1] = plm[0]*fft[0].imag() + plm[1]*fft[1].imag() + plm[2]*fft[2].imag();
+                            coeff[0] = ass_leg_lm[0]*fft[0].real() + ass_leg_lm[1]*fft[1].real() + ass_leg_lm[2]*fft[2].real();
+                            coeff[1] = ass_leg_lm[0]*fft[0].imag() + ass_leg_lm[1]*fft[1].imag() + ass_leg_lm[2]*fft[2].imag();
                             break;
                     }
-
-                    /*for (std::size_t i = 0; i < (num_lat & 3); ++i)
-                    {
-                        coeff[0] += plm[i]*fft[i].real();
-                        coeff[1] += plm[i]*fft[i].imag();
-                    }*/
 
                     std::array<double, 8> partial_sum{};
                     for (std::size_t i = (num_plm & 3); i < num_plm; i += 4)
                     {
-                        partial_sum[0] += plm[i]*fft[i].real();
-                        partial_sum[1] += plm[i]*fft[i].imag();
-                        partial_sum[2] += plm[i + 1]*fft[i + 1].real();
-                        partial_sum[3] += plm[i + 1]*fft[i + 1].imag();
-                        partial_sum[4] += plm[i + 2]*fft[i + 2].real();
-                        partial_sum[5] += plm[i + 2]*fft[i + 2].imag();
-                        partial_sum[6] += plm[i + 3]*fft[i + 3].real();
-                        partial_sum[7] += plm[i + 3]*fft[i + 3].imag();
+                        partial_sum[0] += ass_leg_lm[i]*fft[i].real();
+                        partial_sum[1] += ass_leg_lm[i]*fft[i].imag();
+                        partial_sum[2] += ass_leg_lm[i + 1]*fft[i + 1].real();
+                        partial_sum[3] += ass_leg_lm[i + 1]*fft[i + 1].imag();
+                        partial_sum[4] += ass_leg_lm[i + 2]*fft[i + 2].real();
+                        partial_sum[5] += ass_leg_lm[i + 2]*fft[i + 2].imag();
+                        partial_sum[6] += ass_leg_lm[i + 3]*fft[i + 3].real();
+                        partial_sum[7] += ass_leg_lm[i + 3]*fft[i + 3].imag();
                     }
 
                     for (std::size_t i = 0; i < 8; i += 2)
@@ -889,14 +1005,14 @@ private:
                         coeff[1] += partial_sum[i + 1];
                     }
 
-                    coeffs[ind] = coeff;
+                    expansion_l[m] = coeff;
                 }
             }
         }
     }
 
     void sum_l(
-        RealSHExpansionSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion, std::size_t min_order) noexcept
+        RealSHSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion) noexcept
     {
         const std::size_t fft_order = GridLayout::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
@@ -911,17 +1027,17 @@ private:
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
                 PlmSpan<double, sh_norm_param, sh_phase_param> plm(
-                        m_plm_grid.data() + i*TriangleLayout::size(m_order), 
+                        m_plm_grid.data() + i*SHLayout::size(m_order), 
                         m_order);
                 std::span plm_flat = plm.flatten();
-                for (std::size_t l = 0; l < min_order; ++l)
+                for (auto l : expansion.indices())
                 {
-                    std::span<const double> plm_l = plm[l];
-                    std::span<const std::array<double, 2>> expansion_l = expansion[l];
+                    auto plm_l = plm[l];
+                    auto expansion_l = expansion[l];
                     symm_asymm[(l & 1)*fft_order] += std::complex<double>{
                         plm_l[0]*expansion_l[0][0], -plm_l[0]*expansion_l[0][1]
                     };
-                    for (std::size_t m = 1; m <= l; ++m)
+                    for (auto m : expansion_l.indices(1))
                     {
                         const double weight = 0.5*plm_l[m];
                         symm_asymm[(l & 1)*fft_order + m]
@@ -939,28 +1055,30 @@ private:
                     m_plm_grid, m_order, num_plm);
 
             std::span coeffs = expansion.flatten();
-            for (std::size_t l = 0; l < min_order; ++l)
+            for (auto l : expansion.indices())
             {
-                const std::array<double, 2> coeff = expansion(l, 0);
-                std::span<const double> plm = ass_leg(l, 0);
+                auto expansion_l = expansion[l];
+                auto ass_leg_l = ass_leg[l];
+                const std::array<double, 2> coeff = expansion_l[0];
+                std::span<const double> ass_leg_l0 = ass_leg_l[0];
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + (l & 1)*num_plm*fft_order, num_plm);
                 for (std::size_t i = 0; i < num_plm; ++i)
                 {
                     symm_asymm[i] += std::complex<double>{
-                        plm[i]*coeff[0], -plm[i]*coeff[1]
+                        ass_leg_l0[i]*coeff[0], -ass_leg_l0[i]*coeff[1]
                     };
                 }
 
-                for (std::size_t m = 1; m <= l; ++m)
+                for (auto m : expansion_l.indices(1))
                 {
-                    const std::array<double, 2> coeff = expansion(l, m);
-                    std::span<const double> plm = ass_leg(l, m);
+                    const std::array<double, 2> coeff = expansion_l[m];
+                    std::span<const double> ass_leg_lm = ass_leg_l[m];
                     std::span<std::complex<double>> symm_asymm(
                         m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_plm, num_plm);
                     for (std::size_t i = 0; i < num_plm; ++i)
                     {
-                        const double weight = 0.5*plm[i];
+                        const double weight = 0.5*ass_leg_lm[i];
                         symm_asymm[i] += std::complex<double>{
                             weight*coeff[0], -weight*coeff[1]
                         };
@@ -970,14 +1088,13 @@ private:
         }
     }
 
-    template <even_odd_real_sh_expansion Expansion>
+    template <row_skipping_real_sh_expansion Expansion>
         requires (std::remove_cvref_t<Expansion>::norm == sh_norm_param)
         && (std::remove_cvref_t<Expansion>::phase == sh_phase_param)
         && std::same_as<
             typename std::remove_cvref_t<Expansion>::value_type, 
             std::array<double, 2>>
-    void sum_l(
-        Expansion&& expansion, std::size_t min_order, Parity parity) noexcept
+    void sum_l(Expansion&& expansion) noexcept
     {
         const std::size_t fft_order = GridLayout::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
@@ -992,17 +1109,17 @@ private:
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
                 PlmSpan<double, sh_norm_param, sh_phase_param> plm(
-                        m_plm_grid.data() + i*TriangleLayout::size(m_order), 
+                        m_plm_grid.data() + i*SHLayout::size(m_order), 
                         m_order);
                 std::span plm_flat = plm.flatten();
-                for (std::size_t l = std::size_t(parity); l < min_order; l += 2)
+                for (auto l : expansion.indices())
                 {
-                    std::span<const double> plm_l = plm[l];
-                    std::span<const std::array<double, 2>> expansion_l = expansion[l];
+                    auto plm_l = plm[l];
+                    auto expansion_l = expansion[l];
                     symm_asymm[(l & 1)*fft_order] += std::complex<double>{
                         plm_l[0]*expansion_l[0][0], -plm_l[0]*expansion_l[0][1]
                     };
-                    for (std::size_t m = 1; m <= l; ++m)
+                    for (auto m : expansion_l.indices(1))
                     {
                         const double weight = 0.5*plm_l[m];
                         symm_asymm[(l & 1)*fft_order + m]
@@ -1020,28 +1137,30 @@ private:
                     m_plm_grid, m_order, num_plm);
 
             std::span coeffs = expansion.flatten();
-            for (std::size_t l = std::size_t(parity); l < min_order; l += 2)
+            for (auto l : expansion.indices())
             {
-                const std::array<double, 2> coeff = expansion(l, 0);
-                std::span<const double> plm = ass_leg(l, 0);
+                auto expansion_l = expansion[l];
+                auto ass_leg_l = ass_leg[l];
+                const std::array<double, 2> coeff = expansion_l[0];
+                std::span<const double> ass_leg_l0 = ass_leg_l[0];
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + (l & 1)*num_plm*fft_order, num_plm);
                 for (std::size_t i = 0; i < num_plm; ++i)
                 {
                     symm_asymm[i] += std::complex<double>{
-                        plm[i]*coeff[0], -plm[i]*coeff[1]
+                        ass_leg_l0[i]*coeff[0], -ass_leg_l0[i]*coeff[1]
                     };
                 }
 
-                for (std::size_t m = 1; m <= l; ++m)
+                for (auto m : expansion_l.indices(1))
                 {
-                    const std::array<double, 2> coeff = expansion(l, m);
-                    std::span<const double> plm = ass_leg(l, m);
+                    const std::array<double, 2> coeff = expansion_l[m];
+                    std::span<const double> ass_leg_lm = ass_leg_l[m];
                     std::span<std::complex<double>> symm_asymm(
                         m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_plm, num_plm);
                     for (std::size_t i = 0; i < num_plm; ++i)
                     {
-                        const double weight = 0.5*plm[i];
+                        const double weight = 0.5*ass_leg_lm[i];
                         symm_asymm[i] += std::complex<double>{
                             weight*coeff[0], -weight*coeff[1]
                         };
@@ -1194,6 +1313,9 @@ public:
     explicit SHTransformer(std::size_t order):
         m_grid(order), m_points(order), m_transformer(order) {}
 
+    /**
+        @brief Resize the transformer to work with expansions of different order.
+    */
     void resize(std::size_t order)
     {
         m_points.resize(order);
@@ -1201,31 +1323,57 @@ public:
         m_transformer.resize(order);
     }
 
-    template <spherical_function Func>
+    /**
+        @brief Get spherical harmonic expansion of a function expressed in spherical coordinates.
+
+        @tparam FuncType type of function
+
+        @param f function to transform
+        @param expansion buffer to store the expansion
+    */
+    template <spherical_function FuncType>
     void transform(
-        Func&& f,
-        RealSHExpansionSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
+        FuncType&& f,
+        RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
     {
         resize(expansion.order());
         m_points.generate_values(m_grid, f);
         m_transformer.forward_transform(m_grid, expansion);
     }
 
-    template <spherical_function Func>
+    /**
+        @brief Get spherical harmonic expansion of a function expressed in spherical coordinates.
+
+        @tparam FuncType type of function
+
+        @param f function to transform
+        @param order order of the expansion
+
+        @returns spherical harmonic expansion
+    */
+    template <spherical_function FuncType>
     [[nodiscard]] RealSHExpansion<sh_norm_param, sh_phase_param> transform(
-        Func&& f, double radius, std::size_t order)
+        FuncType&& f, std::size_t order)
     {
         resize(order);
         m_points.generate_values(m_grid, f);
         return m_transformer.forward_transform(m_grid, order);
     }
 
-    template <cartesian_function Func>
+    /**
+        @brief Get spherical harmonic expansion of a function expressed in Cartesian coordinates.
+
+        @tparam FuncType type of function
+
+        @param f function to transform
+        @param expansion buffer to store the expansion
+    */
+    template <cartesian_function FuncType>
     void transform(
-        Func&& f, 
-        RealSHExpansionSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
+        FuncType&& f, 
+        RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
     {
-        auto f_scaled = [&](double lon, double colat) {
+        auto f_spherical = [&](double lon, double colat) {
             const double scolat = std::sin(colat);
             const std::array<double, 3> x = {
                 scolat*std::cos(lon), scolat*std::sin(lon), std::cos(colat)
@@ -1233,15 +1381,24 @@ public:
             return f(x);
         };
         resize(expansion.order());
-        m_points.generate_values(m_grid, f_scaled);
+        m_points.generate_values(m_grid, f_spherical);
         m_transformer.forward_transform(m_grid, expansion);
     }
 
-    template <cartesian_function Func>
+    /**
+        @brief Get spherical harmonic expansion of a function expressed in Cartesian coordinates.
+
+        @tparam FuncType type of function
+
+        @param f function to transform
+
+        @returns spherical harmonic expansion
+    */
+    template <cartesian_function FuncType>
     [[nodiscard]] RealSHExpansion<sh_norm_param, sh_phase_param> transform(
-        Func&& f, std::size_t order)
+        FuncType&& f, std::size_t order)
     {
-        auto f_scaled = [&](double lon, double colat) {
+        auto f_spherical = [&](double lon, double colat) {
             const double scolat = std::sin(colat);
             const std::array<double, 3> x = {
                 scolat*std::cos(lon), scolat*std::sin(lon), std::cos(colat)
@@ -1249,7 +1406,7 @@ public:
             return f(x);
         };
         resize(order);
-        m_points.generate_values(m_grid, f_scaled);
+        m_points.generate_values(m_grid, f_spherical);
         return m_transformer.forward_transform(m_grid, order);
     }
 

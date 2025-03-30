@@ -62,6 +62,9 @@ enum class RotationType
     };
 }
 
+namespace detail
+{
+
 [[nodiscard]] constexpr std::array<double, 3> convert(
     std::array<double, 3> euler_angles, RotationType convention) noexcept
 {
@@ -83,6 +86,8 @@ enum class RotationType
     const double sign = (convention == RotationType::object) ? 1.0 : -1.0;
     return angle*sign;
 }
+
+} // namespace detail
 
 /**
     @brief Rotations of spherical harmonic and Zernike coefficients.
@@ -111,6 +116,9 @@ public:
         @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
     */
     template <st::real_sh_expansion ExpansionType>
+        requires std::same_as<
+            typename std::remove_cvref_t<ExpansionType>::value_type, 
+            std::array<double, 2>>
     void rotate(
         ExpansionType&& expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
@@ -123,14 +131,14 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        st::RealSHExpansionSpan<std::complex<double>, sh_norm, sh_phase>
+        st::RealSHSpan<std::complex<double>, sh_norm, sh_phase>
         complex_expansion = to_complex_expansion<sh_norm, sh_phase>(expansion);
 
         set_up_euler_rotations(euler_angles, type, order);
 
-        for (std::size_t l = 1; l < order; ++l)
+        for (auto l : expansion.indices(1))
             zest::rotate_l(
-                complex_expansion[l], wigner_d_pi2(l),
+                complex_expansion[l], wigner_d_pi2[l],
                 m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
 
         to_real_expansion<sh_norm, sh_phase>(complex_expansion);
@@ -148,7 +156,10 @@ public:
 
         @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
     */
-    template <st::even_odd_real_sh_expansion ExpansionType>
+    template <st::row_skipping_real_sh_expansion ExpansionType>
+        requires std::same_as<
+            typename std::remove_cvref_t<ExpansionType>::value_type, 
+            std::array<double, 2>>
     void rotate(
         ExpansionType&& expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
@@ -167,9 +178,9 @@ public:
 
         set_up_euler_rotations(euler_angles, type, order);
 
-        for (std::size_t l = std::size_t(expansion.parity()); l < order; l += 2)
+        for (auto l : expansion.indices(1))
             zest::rotate_l(
-                complex_expansion[l], wigner_d_pi2(l),
+                complex_expansion[l], wigner_d_pi2[l],
                 m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
 
         to_real_expansion<sh_norm, sh_phase>(complex_expansion);
@@ -188,6 +199,9 @@ public:
         @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
     */
     template <zt::zernike_expansion ExpansionType>
+        requires std::same_as<
+            typename std::remove_cvref_t<ExpansionType>::value_type, 
+            std::array<double, 2>>
     void rotate(
         ExpansionType&& expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
@@ -202,17 +216,17 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        zt::ZernikeExpansionSpan<std::complex<double>, zernike_norm, sh_norm, sh_phase> 
+        zt::RealZernikeSpan<std::complex<double>, zernike_norm, sh_norm, sh_phase> 
         complex_expansion = to_complex_expansion<zernike_norm, sh_norm, sh_phase>(expansion);
 
         set_up_euler_rotations(euler_angles, type, order);
 
-        for (std::size_t n = 1; n < order; ++n)
+        for (auto n : expansion.indices(1))
         {
             auto expansion_n = complex_expansion[n];
-            for (std::size_t l = n & 1; l <= n; l += 2)
+            for (auto l : expansion_n.indices(1))
                 zest::rotate_l(
-                        expansion_n[l], wigner_d_pi2(l),
+                        expansion_n[l], wigner_d_pi2[l],
                         m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
         }
 
@@ -232,6 +246,9 @@ public:
         @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
     */
     template <st::real_sh_expansion ExpansionType>
+        requires std::same_as<
+            typename std::remove_cvref_t<ExpansionType>::value_type, 
+            std::array<double, 2>>
     void rotate(
         ExpansionType&& expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
@@ -255,6 +272,9 @@ public:
         @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
     */
     template <zt::zernike_expansion ExpansionType>
+        requires std::same_as<
+            typename std::remove_cvref_t<ExpansionType>::value_type, 
+            std::array<double, 2>>
     void rotate(
         ExpansionType&& expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
@@ -275,6 +295,9 @@ public:
         @param type transformation type
     */
     template <st::real_sh_expansion ExpansionType>
+        requires std::same_as<
+            typename std::remove_cvref_t<ExpansionType>::value_type, 
+            std::array<double, 2>>
     void polar_rotate(
         ExpansionType&& expansion, double angle, RotationType type)
     {
@@ -284,13 +307,13 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        st::RealSHExpansionSpan<std::complex<double>, sh_norm, sh_phase> complex_expansion = to_complex_expansion<sh_norm, sh_phase>(expansion);
+        st::RealSHSpan<std::complex<double>, sh_norm, sh_phase> complex_expansion = to_complex_expansion<sh_norm, sh_phase>(expansion);
         
-        const double angle_rot = convert(angle, type);
+        const double angle_rot = detail::convert(angle, type);
         for (std::size_t l = 0; l < order; ++l)
             m_exp_alpha[l] = std::polar(1.0, -double(l)*angle_rot);
         
-        for (std::size_t l = 1; l < order; ++l)
+        for (auto l : expansion.indices(1))
             zest::polar_rotate_l(complex_expansion[l], m_exp_alpha);
 
         to_real_expansion<sh_norm, sh_phase>(complex_expansion);
@@ -306,6 +329,9 @@ public:
         @param type transformation type
     */
     template <zt::zernike_expansion ExpansionType>
+        requires std::same_as<
+            typename std::remove_cvref_t<ExpansionType>::value_type, 
+            std::array<double, 2>>
     void polar_rotate(
         ExpansionType&& expansion, double angle, RotationType type)
     {
@@ -319,17 +345,17 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        zt::ZernikeExpansionSpan<std::complex<double>, zernike_norm, sh_norm, sh_phase> 
+        zt::RealZernikeSpan<std::complex<double>, zernike_norm, sh_norm, sh_phase> 
         complex_expansion = to_complex_expansion<zernike_norm, sh_norm, sh_phase>(expansion);
         
-        const double angle_rot = convert(angle, type);
+        const double angle_rot = detail::convert(angle, type);
         for (std::size_t l = 0; l < order; ++l)
             m_exp_alpha[l] = std::polar(1.0, -double(l)*angle_rot);
         
-        for (std::size_t n = 1; n < order; ++n)
+        for (auto n : expansion.indices(1))
         {
             auto expansion_n = complex_expansion[n];
-            for (std::size_t l = n & 1; l <= n; l += 2)
+            for (auto l : expansion_n.indices(1))
                 zest::polar_rotate_l(expansion_n[l], m_exp_alpha);
         }
 
@@ -341,7 +367,7 @@ private:
         const std::array<double, 3>& euler_angles, RotationType convention, std::size_t order)
     {
         const auto& [alpha_rot, beta_rot, gamma_rot]
-                = convert(euler_angles, convention);
+                = detail::convert(euler_angles, convention);
 
         for (std::size_t m = 0; m < order; ++m)
             m_exp_alpha[m] = std::polar(1.0, -double(m)*alpha_rot);

@@ -28,7 +28,8 @@ SOFTWARE.
 #include <concepts>
 #include <type_traits>
 
-#include "triangle_layout.hpp"
+#include "layout.hpp"
+#include "packing.hpp"
 #include "sh_conventions.hpp"
 #include "array_complex_view.hpp"
 
@@ -104,45 +105,48 @@ private:
     friend SHLMVecSpan<std::remove_const_t<ElementType>, LayoutType, sh_norm_param, sh_phase_param>;
 };
 
-template <typename T>
-concept real_plane_vector
-    = std::same_as<T, std::complex<typename T::value_type>>
-    || (std::floating_point<typename T::value_type>
-        && (std::tuple_size<T>::value == 2));
+/**
+    @brief A non-owning view of data modeling spherical harmonic data.
+
+    @tparam PackingType type of packing for the elements
+    @tparam sh_norm_param normalization convention of the spherical harmonics
+    @tparam sh_phase_param phase convention of the spherical harmonics
+*/
+template <sh_packing PackingType, SHNorm sh_norm_param, SHPhase sh_phase_param>
+using PackedSHSpan = SHLMSpan<
+    typename PackingType::element_type, typename PackingType::Layout, 
+    sh_norm_param, sh_phase_param>;
 
 /**
-    @brief A non-owning view of data modeling coefficients of a spherical harmonic expansion of a real function.
+    @brief A non-owning view of data modeling purely real spherical harmonic data.
 
     @tparam ElementType type of elements
-    @tparam NORM normalization convention of the spherical harmonics
+    @tparam sh_norm_param normalization convention of the spherical harmonics
     @tparam sh_phase_param phase convention of the spherical harmonics
 */
 template <typename ElementType, SHNorm sh_norm_param, SHPhase sh_phase_param>
-    requires real_plane_vector<std::remove_const_t<ElementType>>
-using RealSHExpansionSpan = SHLMSpan<ElementType, TriangleLayout, sh_norm_param, sh_phase_param>;
+using RealSHSpan = PackedSHSpan<
+    RealSHPacking<ElementType>, sh_norm_param, sh_phase_param>;
 
 /**
-    @brief Convenient alias for `RealSHExpansionSpan` with orthonormal spherical harmonics and no Condon-Shortley phase.
+    @brief Convenient alias for `RealSHSpan` with orthonormal spherical harmonics and no Condon-Shortley phase.
 */
 template <typename ElementType>
-using RealSHExpansionSpanAcoustics
-    = RealSHExpansionSpan<ElementType, SHNorm::qm, SHPhase::none>;
+using RealSHSpanAcoustics = RealSHSpan<ElementType, SHNorm::qm, SHPhase::none>;
 /**
-    @brief Convenient alias for `RealSHExpansionSpan` with orthonormal spherical harmonics with Condon-Shortley phase.
+    @brief Convenient alias for `RealSHSpan` with orthonormal spherical harmonics with Condon-Shortley phase.
 */
 template <typename ElementType>
-using RealSHExpansionSpanQM
-    = RealSHExpansionSpan<ElementType, SHNorm::qm, SHPhase::cs>;
+using RealSHSpanQM = RealSHSpan<ElementType, SHNorm::qm, SHPhase::cs>;
 
 /**
-    @brief Convenient alias for `RealSHExpansionSpan` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+    @brief Convenient alias for `RealSHSpan` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
 */
 template <typename ElementType>
-using RealSHExpansionSpanGeo
-    = RealSHExpansionSpan<ElementType, SHNorm::geo, SHPhase::none>;
+using RealSHSpanGeo = RealSHSpan<ElementType, SHNorm::geo, SHPhase::none>;
 
 /**
-    @brief A container for spherical harmonic expansion of a real function.
+    @brief A container for purely real spherical harmonic data.
 
     @tparam NORM normalization convention of the spherical harmonics
     @tparam sh_phase_param phase convention of the spherical harmonics
@@ -154,19 +158,26 @@ template <
 class RealSHExpansion
 {
 public:
-    using Layout = TriangleLayout;
+    using Packing = RealSHPacking<std::remove_cv_t<ElementType>>;
+    using Layout = Packing::Layout;
+    using IndexRange = typename Layout::IndexRange;
     using element_type = ElementType;
     using value_type = std::remove_cvref_t<element_type>;
     using index_type = Layout::index_type;
     using size_type = std::size_t;
-    using View = RealSHExpansionSpan<element_type, sh_norm_param, sh_phase_param>;
-    using ConstView = RealSHExpansionSpan<const element_type, sh_norm_param, sh_phase_param>;
-    using SubSpan = std::span<element_type>;
-    using ConstSubSpan = std::span<element_type>;
+    using View = RealSHSpan<element_type, sh_norm_param, sh_phase_param>;
+    using ConstView = RealSHSpan<const element_type, sh_norm_param, sh_phase_param>;
+    using SubSpan = typename View::SubSpan;
+    using ConstSubSpan = typename ConstView::SubSpan;
 
     static constexpr SHNorm norm = sh_norm_param;
     static constexpr SHPhase phase = sh_phase_param;
 
+    /**
+        @brief Number of data elements for size parameter `order`.
+
+        @param order parameter presenting the size of the expansion
+    */
     [[nodiscard]] static constexpr size_type size(size_type order) noexcept
     {
         return Layout::size(order);
@@ -175,6 +186,23 @@ public:
     RealSHExpansion() = default;
     explicit RealSHExpansion(size_type order):
         m_data(Layout::size(order)), m_order(order) {}
+
+    /**
+        @brief Order of the expansion.
+    */
+    [[nodiscard]] size_type order() const noexcept { return m_order; }
+
+    [[nodiscard]] constexpr IndexRange indices()
+    {
+        return IndexRange{
+            index_type(m_order + (IndexRange::iterator::stride - 1))};
+    }
+
+    [[nodiscard]] constexpr IndexRange indices(index_type begin)
+    {
+        return IndexRange{
+            begin, index_type(m_order + (IndexRange::iterator::stride - 1))};
+    }
 
     [[nodiscard]] operator View()
     {
@@ -186,11 +214,15 @@ public:
         return ConstView(m_data, m_order);
     };
 
-    [[nodiscard]] size_type order() const noexcept { return m_order; }
-
+    /**
+        @brief Flattened view of the underlying buffer.
+    */
     [[nodiscard]] std::span<element_type>
     flatten() noexcept { return m_data; }
 
+    /**
+        @brief Flattened view of the underlying buffer.
+    */
     [[nodiscard]] std::span<const element_type>
     flatten() const noexcept { return m_data; }
     
@@ -209,30 +241,30 @@ public:
     operator()(index_type l) noexcept
     {
         return SubSpan(
-                m_data.data() + Layout::idx(l,0), Layout::line_length(l));
+                m_data.data() + Layout::idx(l, 0), l + 1);
     }
 
     [[nodiscard]] ConstSubSpan
     operator()(index_type l) const noexcept
     {
-        return ConstSubSpan(
-                m_data.data() + Layout::idx(l,0), Layout::line_length(l));
+        return ConstSubSpan(m_data.data() + Layout::idx(l, 0), l + 1);
     }
 
     [[nodiscard]] SubSpan
     operator[](index_type l) noexcept
     {
-        return SubSpan(
-                m_data.data() + Layout::idx(l,0), Layout::line_length(l));
+        return SubSpan(m_data.data() + Layout::idx(l,0), l + 1);
     }
 
     [[nodiscard]] ConstSubSpan
     operator[](index_type l) const noexcept
     {
-        return ConstSubSpan(
-                m_data.data() + Layout::idx(l,0), Layout::line_length(l));
+        return ConstSubSpan(m_data.data() + Layout::idx(l,0), l + 1);
     }
 
+    /**
+        @brief Change the size of the expansion.
+    */
     void resize(size_type order)
     {
         m_data.resize(Layout::size(order));
@@ -260,42 +292,30 @@ using RealSHExpansionQM = RealSHExpansion<SHNorm::qm, SHPhase::cs>;
 using RealSHExpansionGeo = RealSHExpansion<SHNorm::geo, SHPhase::none>;
 
 template <typename T>
-concept two_dimensional_range
-    = requires (T range, typename T::index_type i, typename T::index_type j)
-    {
-        requires std::convertible_to<
-                decltype(range(i,j)), typename T::element_type>;
-        requires std::convertible_to<
-                decltype(range(i)),
-                std::span<const typename T::element_type>>;
-        requires std::convertible_to<
-                decltype(range[i]),
-                std::span<const typename T::element_type>>;
-    };
-
-template <typename T>
-concept even_odd_sh_layout = std::same_as<T, TriangleLayout>
-        || std::same_as<T, EvenOddPrimaryTriangleLayout>;
-
-template <typename T>
-concept even_odd_real_sh_expansion
-    = even_odd_sh_layout<typename std::remove_cvref_t<T>::Layout>
-    && std::same_as<
+concept has_sh_conventions = std::same_as<
         std::remove_const_t<decltype(std::remove_cvref_t<T>::norm)>, SHNorm>
     && std::same_as<
-        std::remove_const_t<decltype(std::remove_cvref_t<T>::phase)>, SHPhase>
-    && real_plane_vector<typename std::remove_cvref_t<T>::value_type>
-    && two_dimensional_range<std::remove_cvref_t<T>>;
+        std::remove_const_t<decltype(std::remove_cvref_t<T>::phase)>, SHPhase>;
+
+template <typename T>
+concept row_skipping_real_sh_expansion
+    = row_skipping_sh_layout<typename std::remove_cvref_t<T>::Layout>
+    && real_sh_compatible<
+        typename std::remove_cvref_t<T>::value_type,
+        typename std::remove_cvref_t<T>::Layout>
+    && has_sh_conventions<std::remove_cvref_t<T>>
+    && two_dimensional_span<std::remove_cvref_t<T>>
+    && two_dimensional_subspannable<std::remove_cvref_t<T>>;
 
 template <typename T>
 concept real_sh_expansion
-    = std::same_as<typename std::remove_cvref_t<T>::Layout, TriangleLayout>
-    && std::same_as<
-        std::remove_const_t<decltype(std::remove_cvref_t<T>::norm)>, SHNorm>
-    && std::same_as<
-        std::remove_const_t<decltype(std::remove_cvref_t<T>::phase)>, SHPhase>
-    && real_plane_vector<typename std::remove_cvref_t<T>::value_type>
-    && two_dimensional_range<std::remove_cvref_t<T>>;
+    = sh_layout<typename std::remove_cvref_t<T>::Layout>
+    && real_sh_compatible<
+        typename std::remove_cvref_t<T>::value_type,
+        typename std::remove_cvref_t<T>::Layout>
+    && has_sh_conventions<std::remove_cvref_t<T>>
+    && two_dimensional_span<std::remove_cvref_t<T>>
+    && two_dimensional_subspannable<std::remove_cvref_t<T>>;
 
 /**
     @brief Convert real spherical harmonic expansion of a real function to a complex spherical harmonic expansion.
@@ -307,10 +327,10 @@ concept real_sh_expansion
 
     @return view of the expansion transformed to a complex expansion
 
-    @note This function modifies the input data and merely produces a new view over the same data.
+    @note IMPORTANT: This function modifies the input data! The output is just a new view over the same data.
 */
 template <SHNorm dest_sh_norm, SHPhase dest_sh_phase, real_sh_expansion ExpansionType>
-RealSHExpansionSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>
+RealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>
 to_complex_expansion(ExpansionType&& expansion) noexcept
 {
     constexpr double shnorm
@@ -318,15 +338,15 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
     constexpr double cnorm = 1.0/std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
-    for (std::size_t l = 0; l < expansion.order(); ++l)
+    for (auto l : expansion.indices())
     {
-        std::span<std::array<double, 2>> expansion_l = expansion[l];
+        auto expansion_l = expansion[l];
         expansion_l[0][0] *= shnorm;
         expansion_l[0][1] *= shnorm;
 
         if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::phase)
         {
-            for (std::size_t m = 1; m <= l; ++m)
+            for (auto m : expansion_l.indices(1))
             {
                 expansion_l[m][0] *= norm;
                 expansion_l[m][1] *= -norm;
@@ -335,7 +355,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
         else
         {
             double prefactor = norm;
-            for (std::size_t m = 1; m <= l; ++m)
+            for (auto m : expansion_l.indices(1))
             {
                 prefactor *= -1.0;
                 expansion_l[m][0] *= prefactor;
@@ -344,7 +364,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
         }
     }
 
-    return RealSHExpansionSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>(
+    return RealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>(
             as_complex_span(expansion.flatten()), expansion.order());
 }
 
@@ -358,10 +378,10 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
 
     @return view of the expansion transformed to a complex expansion
 
-    @note This function modifies the input data and merely produces a new view over the same data.
+    @note IMPORTANT: This function modifies the input data! The output is just a new view over the same data.
 */
 template <SHNorm dest_sh_norm, SHPhase dest_sh_phase, real_sh_expansion ExpansionType>
-RealSHExpansionSpan<std::array<double, 2>, dest_sh_norm, dest_sh_phase>
+RealSHSpan<std::array<double, 2>, dest_sh_norm, dest_sh_phase>
 to_real_expansion(ExpansionType&& expansion) noexcept
 {
     constexpr double shnorm
@@ -369,18 +389,18 @@ to_real_expansion(ExpansionType&& expansion) noexcept
     constexpr double cnorm = std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
-    RealSHExpansionSpan<std::array<double, 2>, dest_sh_norm, dest_sh_phase> res(
+    RealSHSpan<std::array<double, 2>, dest_sh_norm, dest_sh_phase> res(
             as_array_span(expansion.flatten()), expansion.order());
 
-    for (std::size_t l = 0; l < expansion.order(); ++l)
+    for (auto l : res.indices())
     {
-        std::span<std::array<double, 2>> res_l = res[l];
+        auto res_l = res[l];
         res_l[0][0] *= shnorm;
         res_l[0][1] *= shnorm;
 
         if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::phase)
         {
-            for (std::size_t m = 1; m <= l; ++m)
+            for (auto m : res_l.indices(1))
             {
                 res_l[m][0] *= norm;
                 res_l[m][1] *= -norm;
@@ -389,7 +409,7 @@ to_real_expansion(ExpansionType&& expansion) noexcept
         else
         {
             double prefactor = norm;
-            for (std::size_t m = 1; m <= l; ++m)
+            for (auto m : res_l.indices(1))
             {
                 prefactor *= -1.0;
                 res_l[m][0] *= prefactor;

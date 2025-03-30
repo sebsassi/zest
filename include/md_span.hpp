@@ -51,8 +51,10 @@ auto prod(T a) noexcept
 
 } // namespace detail
 
+// A future version of this library using C++23 may do away with this class.
+
 /**
-    @brief Poor man's mdspan for modeling dynamic multidimensional arrays.
+    @brief Poor man's mdspan for a non-owning multidimensional array view.
 
     @tparam ElementType type of array elements
     @tparam ndim number of array dimensions
@@ -68,6 +70,9 @@ public:
     using data_handle_type = element_type*;
     using ConstView = MDSpan<const element_type, ndim>;
 
+    /**
+        @brief Rank of the array.
+    */
     static constexpr std::size_t rank() { return ndim; }
 
     constexpr MDSpan() noexcept = default;
@@ -85,27 +90,42 @@ public:
         return std::span<element_type>(m_data, m_size);
     }
     
+    /**
+        @brief Pointer to underlying buffer.
+    */
     [[nodiscard]] constexpr data_handle_type data() const noexcept
     {
         return m_data;
     }
     
+    /**
+        @brief Size of the underlying buffer.
+    */
     [[nodiscard]] constexpr size_type size() const noexcept
     {
         return m_size;
     }
 
+    /**
+        @brief Check if the size is zero.
+    */
     [[nodiscard]] constexpr bool empty() const noexcept
     {
         return m_size == 0;
     }
 
+    /**
+        @brief Dimensions of the array.
+    */
     [[nodiscard]] constexpr const std::array<std::size_t, ndim>&
     extents() const noexcept
     {
         return m_extents;
     }
 
+    /**
+        @brief Dimension of the array along an axis.
+    */
     [[nodiscard]] constexpr std::size_t
     extent(std::size_t i) const noexcept
     {

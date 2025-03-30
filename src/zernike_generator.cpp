@@ -19,25 +19,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 SOFTWARE.
 */
-#include "real_ylm.hpp"
+
+#include "zernike_generator.hpp"
 
 namespace zest
 {
-namespace st
+namespace zt
 {
 
-RealYlmGenerator::RealYlmGenerator(std::size_t max_order):
-    m_recursion(max_order), m_ass_leg_poly(TriangleLayout::size(max_order)),
-    m_cossin(max_order) {}
+ZernikeGenerator::ZernikeGenerator(std::size_t max_order):
+    m_plm_recursion(max_order), m_zernike_recursion(max_order), 
+    m_radial_zernike(RadialZernikeLayout::size(max_order)),
+    m_ass_leg_poly(TriangleLayout<IndexingMode::nonnegative>::size(max_order)), m_cossin(max_order) {}
 
-void RealYlmGenerator::expand(std::size_t max_order)
+void ZernikeGenerator::expand(std::size_t max_order)
 {
     if (max_order <= this->max_order()) return;
 
-    m_recursion.expand(max_order);
-    m_ass_leg_poly.resize(TriangleLayout::size(max_order));
+    m_plm_recursion.expand(max_order);
+    m_zernike_recursion.expand(max_order);
+    m_radial_zernike.resize(RadialZernikeLayout::size(max_order));
+    m_ass_leg_poly.resize(TriangleLayout<IndexingMode::nonnegative>::size(max_order));
     m_cossin.resize(max_order);
 }
 
-} // namespace st
+} // namespace zt
 } // namespace zest

@@ -36,15 +36,16 @@ int main()
     constexpr std::size_t order = 20;
     constexpr double radius = 1.0;
     zest::zt::ZernikeTransformerOrthoQM transformer{};
-    zest::zt::ZernikeExpansion expansion
+    zest::zt::RealZernikeExpansion expansion
         = transformer.transform(function, radius, order);
 
     std::vector<double> spectrum_data = zest::zt::power_spectrum(expansion);
     zest::zt::RadialZernikeSpan<decltype(expansion)::zernike_norm, double> spectrum(spectrum_data, expansion.order());
 
-    for (std::size_t n = 0; n < order; ++n)
+    for (auto n : spectrum.indices())
     {
-        for (std::size_t l = n % 2; l <= n; ++l)
-            std::printf("f[%lu, %lu] = %f", n, l, spectrum(n, l));
+        auto spectrum_n = spectrum[n];
+        for (auto l : spectrum_n.indices())
+            std::printf("f[%lu, %lu] = %f", n, l, spectrum_n[l]);
     }
 }

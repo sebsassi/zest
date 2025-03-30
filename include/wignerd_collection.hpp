@@ -61,7 +61,7 @@ private:
 };
 
 /**
-    @brief Collection of Wigner (small) d-matrces at pi/2
+    @brief Collection of Wigner (small) d-matrices at pi/2
 */
 class WignerdPiHalfCollection
 {
@@ -84,6 +84,13 @@ public:
 
     [[nodiscard]] WignerdSpan<const double>
     operator()(std::size_t l) const noexcept
+    {
+        return WignerdSpan<const double>(
+                m_matrices.data() + (l*(l + 1)*(2*l + 1))/6, l + 1);
+    }
+
+    [[nodiscard]] WignerdSpan<const double>
+    operator[](std::size_t l) const noexcept
     {
         return WignerdSpan<const double>(
                 m_matrices.data() + (l*(l + 1)*(2*l + 1))/6, l + 1);
