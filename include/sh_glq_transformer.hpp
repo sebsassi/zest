@@ -688,7 +688,7 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
         
-        typename Expansion::ConstView truncated_expansion(
+        typename std::remove_cvref_t<Expansion>::ConstView truncated_expansion(
                 expansion.data(), min_order);
         
         sum_l(truncated_expansion);

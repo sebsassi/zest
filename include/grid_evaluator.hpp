@@ -224,7 +224,7 @@ public:
 
         @return `std::vector` containing values of the expansion on the grid. The values are ordered as a 3D array with shape `{longitudes.size(), colatitudes.size(), radii.size()}` in row-major order.
     */
-    template <zernike_expansion ExpansionType>
+    template <real_zernike_expansion ExpansionType>
     [[nodiscard]] std::vector<double> evaluate(
         ExpansionType&& expansion, std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
     {
@@ -265,7 +265,7 @@ public:
     }
 
 private:
-    template <zernike_expansion ExpansionType>
+    template <real_zernike_expansion ExpansionType>
     void sum_n(ExpansionType&& expansion) noexcept
     {
         constexpr ZernikeNorm zernike_norm

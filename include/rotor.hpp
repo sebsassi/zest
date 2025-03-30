@@ -198,7 +198,7 @@ public:
 
         @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
     */
-    template <zt::zernike_expansion ExpansionType>
+    template <zt::real_zernike_expansion ExpansionType>
         requires std::same_as<
             typename std::remove_cvref_t<ExpansionType>::value_type, 
             std::array<double, 2>>
@@ -271,7 +271,7 @@ public:
 
         @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
     */
-    template <zt::zernike_expansion ExpansionType>
+    template <zt::real_zernike_expansion ExpansionType>
         requires std::same_as<
             typename std::remove_cvref_t<ExpansionType>::value_type, 
             std::array<double, 2>>
@@ -328,7 +328,7 @@ public:
         @param angle polar rotation angle
         @param type transformation type
     */
-    template <zt::zernike_expansion ExpansionType>
+    template <zt::real_zernike_expansion ExpansionType>
         requires std::same_as<
             typename std::remove_cvref_t<ExpansionType>::value_type, 
             std::array<double, 2>>

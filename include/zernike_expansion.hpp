@@ -151,15 +151,21 @@ private:
     @tparam sh_phase_param phase convention of the spherical harmonics
 */
 template <
-    typename ElementType, typename LayoutType, ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
+    typename ElementType, typename LayoutType, ZernikeNorm zernike_norm_param, 
+    st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
 class ZernikeNLMSpan : public TetrahedronSpan<ElementType, LayoutType>
 {
 public:
+    using index_type = TetrahedronSpan<ElementType, LayoutType>::index_type;
+    using Layout = TetrahedronSpan<ElementType, LayoutType>::Layout;
     using TetrahedronSpan<ElementType, LayoutType>::TetrahedronSpan;
     using TetrahedronSpan<ElementType, LayoutType>::data;
     using TetrahedronSpan<ElementType, LayoutType>::size;
     using TetrahedronSpan<ElementType, LayoutType>::order;
 
+    using SubSpan = ZernikeSHSpan<
+        ElementType, typename LayoutType::SubLayout, zernike_norm_param, 
+        sh_norm_param, sh_phase_param>;
     using ConstView = ZernikeNLMSpan<
         const ElementType, LayoutType, zernike_norm_param, sh_norm_param, 
         sh_phase_param>;
@@ -171,6 +177,18 @@ public:
     [[nodiscard]] constexpr operator ConstView() const noexcept
     {
         return ConstView(data(), size(), order());
+    }
+
+    [[nodiscard]] ConstView::SubSpan
+    operator[](index_type n) const noexcept
+    {
+        return ConstSubSpan(data() + Layout::idx(n, 0, 0), n + 1);
+    }
+
+    [[nodiscard]] SubSpan
+    operator[](index_type n) noexcept
+    {
+        return SubSpan(data() + Layout::idx(n, 0, 0), n + 1);
     }
 
 private:
@@ -222,7 +240,7 @@ using RealZernikeSpanAcoustics
     @tparam ElementType type of elements in the view
 */
 template <typename ElementType>
-using RealZernikeSpanOrthoAcoustics
+using RealZernikeSpanNormalAcoustics
     = RealZernikeSpan<ElementType, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none>;
 
 /**
@@ -239,7 +257,7 @@ using RealZernikeSpanQM = RealZernikeSpan<ElementType, ZernikeNorm::unnormed, st
     @tparam ElementType type of elements in the view
 */
 template <typename ElementType>
-using RealZernikeSpanOrthoQM = RealZernikeSpan<ElementType, ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs>;
+using RealZernikeSpanNormalQM = RealZernikeSpan<ElementType, ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs>;
 
 /**
     @brief Convenient alias for `RealZernikeSpan` with unnormalized Zernike functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
@@ -256,7 +274,7 @@ using RealZernikeSpanGeo
     @tparam ElementType type of elements in the view
 */
 template <typename ElementType>
-using RealZernikeSpanOrthoGeo
+using RealZernikeSpanNormalGeo
     = RealZernikeSpan<ElementType, ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none>;
 
 /**
@@ -397,39 +415,39 @@ private:
 /**
     @brief Convenient alias for `RealZernikeExpansion` with unnormalized Zernike functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
 */
-using ZernikeExpansionAcoustics
+using RealZernikeExpansionAcoustics
     = RealZernikeExpansion<ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none>;
 
 /**
     @brief Convenient alias for `RealZernikeExpansion` with orthnormal Zernike functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
 */
-using ZernikeExpansionOrthoAcoustics
+using RealZernikeExpansionNormalAcoustics
     = RealZernikeExpansion<ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none>;
 
 /**
     @brief Convenient alias for `RealZernikeExpansion` with unnormalized Zernike functions, orthonormal spherical harmonics, and Condon-Shortley phase.
 */
-using ZernikeExpansionQM = RealZernikeExpansion<ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs>;
+using RealZernikeExpansionQM = RealZernikeExpansion<ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs>;
 
 /**
     @brief Convenient alias for `RealZernikeExpansion` with orthonormal Zernike functions, orthonormal spherical harmonics, and Condon-Shortley phase.
 */
-using ZernikeExpansionOrthoQM = RealZernikeExpansion<ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs>;
+using RealZernikeExpansionNormalQM = RealZernikeExpansion<ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs>;
 
 /**
     @brief Convenient alias for `RealZernikeExpansion` with unnormalized Zernike functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
 */
-using ZernikeExpansionGeo
+using RealZernikeExpansionGeo
     = RealZernikeExpansion<ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none>;
 
 /**
     @brief Convenient alias for `RealZernikeExpansion` with orthonormal Zernike functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
 */
-using ZernikeExpansionOrthoGeo
+using RealZernikeExpansionNormalGeo
     = RealZernikeExpansion<ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none>;
 
 template <typename T>
-concept zernike_expansion
+concept real_zernike_expansion
     = std::same_as<
         std::remove_cvref_t<T>,
         RealZernikeExpansion<
@@ -457,7 +475,7 @@ concept zernike_expansion
 */
 template <
     ZernikeNorm dest_zernike_norm, st::SHNorm dest_sh_norm,
-    st::SHPhase dest_sh_phase, zernike_expansion ExpansionType>
+    st::SHPhase dest_sh_phase, real_zernike_expansion ExpansionType>
 RealZernikeSpan<
     std::complex<double>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>
 to_complex_expansion(ExpansionType&& expansion) noexcept
@@ -550,7 +568,7 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
 */
 template <
     ZernikeNorm dest_zernike_norm, st::SHNorm dest_sh_norm,
-    st::SHPhase dest_sh_phase, zernike_expansion ExpansionType>
+    st::SHPhase dest_sh_phase, real_zernike_expansion ExpansionType>
 RealZernikeSpan<
     std::array<double, 2>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>
 to_real_expansion(ExpansionType&& expansion) noexcept
