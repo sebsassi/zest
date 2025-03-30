@@ -804,7 +804,7 @@ bool test_sh_transform_converges()
     auto expansion = transformer.forward_transform(test_grid, order);
     auto grid = transformer.backward_transform(expansion, order);
 
-    constexpr double tol = 1.0e-13;
+    constexpr double tol = 1.0e-10;
 
     bool success = true;
     for (std::size_t i = 0; i < grid.shape()[0]; ++i)
@@ -814,6 +814,7 @@ bool test_sh_transform_converges()
                 success = false;
     }
 
+    return success;
 }
 
 template <

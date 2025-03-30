@@ -89,12 +89,28 @@ concept two_dimensional_subspannable
 template <IndexingMode indexing_mode_param>
 struct StandardLinearLayout
 {
+private:
+    /*
+    Ugly hack to select appropriate index range. There is probably a cleaner 
+    way.
+    */
+    template <std::integral type_param, IndexingMode mode>
+    struct SelectIndexRange;
+
+    template <std::signed_integral type_param, IndexingMode mode>
+        requires (mode == IndexingMode::negative)
+    struct SelectIndexRange<type_param, mode> 
+    { using type = SymmetricIndexRange<type_param>; };
+
+    template <std::integral type_param, IndexingMode mode>
+        requires (mode == IndexingMode::nonnegative)
+    struct SelectIndexRange<type_param, mode> 
+    { using type = StandardIndexRange<type_param>; };
+public:
     using index_type = std::conditional_t<
         indexing_mode_param == IndexingMode::negative, int, std::size_t>;
     using size_type = std::size_t;
-    using IndexRange = std::conditional_t<
-        indexing_mode_param == IndexingMode::negative,
-        SymmetricIndexRange<index_type>, StandardIndexRange<index_type>>;
+    using IndexRange = SelectIndexRange<index_type, indexing_mode_param>::type;
     
     static constexpr LayoutTag layout_tag = LayoutTag::linear;
 

@@ -40,6 +40,7 @@ class MatrixSpan: public MDSpan<T, 2>
 public:
     using MDSpan<T, 2>::MDSpan;
     using MDSpan<T, 2>::extents;
+    using MDSpan<T, 2>::extent;
 
     constexpr MatrixSpan(
         T* data, std::size_t nrows, std::size_t ncols) noexcept:
