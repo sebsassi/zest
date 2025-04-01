@@ -439,7 +439,7 @@ concept triangular_layout = layout_2d<T>
     @tparam LayoutType type identifying the data layout
 */
 template <typename ElementType, typename LayoutType>
-struct LinearSpan
+class LinearSpan
 {
 public:
     using Layout = LayoutType;
@@ -540,7 +540,7 @@ private:
     @tparam LayoutType type identifying the data layout
 */
 template <typename ElementType, typename LayoutType>
-struct LinearVecSpan
+class LinearVecSpan
 {
 public:
     using Layout = LayoutType;

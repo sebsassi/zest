@@ -291,29 +291,40 @@ using RealSHExpansionQM = RealSHExpansion<SHNorm::qm, SHPhase::cs>;
 */
 using RealSHExpansionGeo = RealSHExpansion<SHNorm::geo, SHPhase::none>;
 
+namespace detail
+{
+
 template <typename T>
 concept has_sh_conventions = std::same_as<
         std::remove_const_t<decltype(std::remove_cvref_t<T>::norm)>, SHNorm>
     && std::same_as<
         std::remove_const_t<decltype(std::remove_cvref_t<T>::phase)>, SHPhase>;
 
+} // namespace detail
+
+/**
+    @brief Concept describing a spherical harmonic expansion where every other row is skipped.
+*/
 template <typename T>
 concept row_skipping_real_sh_expansion
     = row_skipping_sh_layout<typename std::remove_cvref_t<T>::Layout>
     && real_sh_compatible<
         typename std::remove_cvref_t<T>::value_type,
         typename std::remove_cvref_t<T>::Layout>
-    && has_sh_conventions<std::remove_cvref_t<T>>
+    && detail::has_sh_conventions<std::remove_cvref_t<T>>
     && two_dimensional_span<std::remove_cvref_t<T>>
     && two_dimensional_subspannable<std::remove_cvref_t<T>>;
 
+/**
+    @brief Concept describing a conventional spherical harmonic expansion
+*/
 template <typename T>
 concept real_sh_expansion
     = sh_layout<typename std::remove_cvref_t<T>::Layout>
     && real_sh_compatible<
         typename std::remove_cvref_t<T>::value_type,
         typename std::remove_cvref_t<T>::Layout>
-    && has_sh_conventions<std::remove_cvref_t<T>>
+    && detail::has_sh_conventions<std::remove_cvref_t<T>>
     && two_dimensional_span<std::remove_cvref_t<T>>
     && two_dimensional_subspannable<std::remove_cvref_t<T>>;
 

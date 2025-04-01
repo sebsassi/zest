@@ -63,7 +63,7 @@ template <std::size_t power_of_two>
 } // namespace detail
 
 /**
-    @brief Descriptor corresponding to no alignment.
+    @brief Alignmnet descriptor which doesn't specify any alignment.
 */
 struct NoAlignment
 {
@@ -80,7 +80,7 @@ struct NoAlignment
 };
 
 /**
-    @brief Descriptor for SIMD vector alignment.
+    @brief Alignmnet descriptor for SIMD vector alignment.
 
     @tparam byte_alignment number of bytes to align to
 
@@ -104,22 +104,22 @@ struct VectorAlignment
 };
 
 /**
-    @brief Descriptor for SSE (16 byte) alignment.
+    @brief Alias for SSE (16 byte) alignment descriptor.
 */
 using SSEAlignment = VectorAlignment<16>;
 
 /**
-    @brief Descriptor for AVX (32 byte) alignment.
+    @brief Alias for AVX (32 byte) alignment descriptor.
 */
 using AVXAlignment = VectorAlignment<32>;
 
 /**
-    @brief Descriptor for AVX512 (64 byte) alignment.
+    @brief Alias for AVX512 (64 byte) alignment descriptor.
 */
 using AVX512Alignment = VectorAlignment<64>;
 
 /**
-    @brief Descriptor for cache line (64 byte) alignment.
+    @brief Alias for cache line (64 byte) alignment descriptor.
 */
 using CacheLineAlignment = VectorAlignment<64>;
 
@@ -148,7 +148,7 @@ template<typename T, valid_simd_alignment Alignment>
 }
 
 /**
-    @brief Allocator class for allocating aligned memory.
+    @brief Aligned memory allocator class.
 
     @tparam T type of allocated object
     @tparam BYTE_ALIGNMENT number of bytes to align to

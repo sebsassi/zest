@@ -428,6 +428,9 @@ using ZernikeExpansionGeo
 using ZernikeExpansionOrthoGeo
     = RealZernikeExpansion<ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none>;
 
+/**
+    @brief Concept enforcing a type to be either `RealZernikeExpansion` or `RealZernikeSpan`.
+*/
 template <typename T>
 concept zernike_expansion
     = std::same_as<

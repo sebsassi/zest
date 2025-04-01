@@ -360,6 +360,9 @@ private:
     std::size_t m_order{};
 };
 
+/**
+    @brief Concept enforcing a type to be either `SphereGLQGrid` or `SphereGLQGridSpan`.
+*/
 template <typename T>
 concept sphere_glq_grid
     = std::same_as<
