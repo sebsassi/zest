@@ -60,7 +60,7 @@ public:
     /**
         @brief Generate Zernike functions at radial, longitude and colatitude values `r`, `lon`, `colat`.
     */
-    template <zernike_expansion ExpansionType>
+    template <real_zernike_expansion ExpansionType>
     void generate(double r, double lon, double colat, ExpansionType&& znlm)
     {
         constexpr zt::ZernikeNorm zernike_norm

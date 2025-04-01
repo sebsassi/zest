@@ -124,7 +124,7 @@ namespace zt
     @param expansion Zernike expansion.
     @param out place to store the power spectrum.
 */
-template <zt::zernike_expansion ExpansionType>
+template <zt::real_zernike_expansion ExpansionType>
 void power_spectrum(
     ExpansionType&& expansion,
     RadialZernikeSpan<double, ExpansionType::zernike_norm> out) noexcept
@@ -152,7 +152,7 @@ void power_spectrum(
 
     @return `std::vector` storing the power spectrum.
 */
-template <zt::zernike_expansion ExpansionType>
+template <zt::real_zernike_expansion ExpansionType>
 [[nodiscard]] std::vector<double> power_spectrum(ExpansionType&& expansion)
 {
     using SpectrumSpan = RadialZernikeSpan<double, ExpansionType::zernike_norm>;

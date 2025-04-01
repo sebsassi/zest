@@ -36,7 +36,7 @@ void benchmark_zernike_backward_transform(
 
     zest::zt::BallGLQGrid<double> grid(order);
 
-    zest::zt::ZernikeExpansionGeo expansion(order);
+    zest::zt::RealZernikeExpansionGeo expansion(order);
     for (auto& value : expansion.flatten())
         value = {dist(gen), dist(gen)};
 
@@ -54,7 +54,7 @@ int main()
     bench.minEpochTime(std::chrono::nanoseconds(1000000000));
 
     std::vector<std::size_t> order_vec = {
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 200, 250, 300, 400
+        2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 25, 30, 35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 240, 280, 320, 400, 480
     };
 
     bench.title("zt::GLQTransformer::backward_transform");
