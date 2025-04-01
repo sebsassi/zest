@@ -4,11 +4,17 @@ Library reference
 Spherical harmonic expansions
 -----------------------------
 
+Concepts
+^^^^^^^^
+
 .. doxygenconcept:: zest::st::real_sh_expansion
     :project: zest
 
 .. doxygenconcept:: zest::st::row_skipping_real_sh_expansion
     :project: zest
+
+Types
+^^^^^
 
 .. doxygenclass:: zest::st::RealSHExpansion
     :project: zest
@@ -21,6 +27,9 @@ Spherical harmonic expansions
 .. doxygenclass:: zest::st::SHLMVecSpan
     :project: zest
     :members:
+
+Type aliases
+^^^^^^^^^^^^
 
 .. doxygentypedef:: zest::st::RealSHExpansionAcoustics
     :project: zest
@@ -48,6 +57,9 @@ Spherical harmonic expansions
 
 Spherical harmonic transforms
 -----------------------------
+
+Concepts
+^^^^^^^^
 
 .. doxygenconcept:: zest::st::sphere_glq_grid
     :project: zest
@@ -80,6 +92,9 @@ Spherical harmonic transforms
     :project: zest
     :members:
 
+Type aliases
+^^^^^^^^^^^^
+
 .. doxygentypedef:: zest::st::DefaultLayout
     :project: zest
 
@@ -101,28 +116,19 @@ Spherical harmonic transforms
 .. doxygentypedef:: zest::st::SHTransformerGeo
     :project: zest
 
-Spherical harmonic conventions
-------------------------------
-
-.. doxygenenum:: zest::st::SHPhase
-    :project: zest
-
-.. doxygenenum:: zest::st::SHNorm
-    :project: zest
-
-.. doxygenfunction:: zest::st::normalization
-    :project: zest
-
-.. doxygenfunction:: zest::st::conversion_const
-    :project: zest
-
 Zernike expansions
 ------------------
 
-.. doxygenconcept:: zest::zt::zernike_expansion
+Concepts
+^^^^^^^^
+
+.. doxygenconcept:: zest::zt::real_zernike_expansion
     :project: zest
 
-.. doxygenclass:: zest::zt::ZernikeExpansion
+Types
+^^^^^
+
+.. doxygenclass:: zest::zt::RealZernikeExpansion
     :project: zest
     :members:
 
@@ -134,22 +140,25 @@ Zernike expansions
     :project: zest
     :members:
 
-.. doxygentypedef:: zest::zt::ZernikeExpansionAcoustics
+Type aliases
+^^^^^^^^^^^^
+
+.. doxygentypedef:: zest::zt::RealZernikeExpansionAcoustics
     :project: zest
 
-.. doxygentypedef:: zest::zt::ZernikeExpansionOrthoAcoustics
+.. doxygentypedef:: zest::zt::RealZernikeExpansionNormalAcoustics
     :project: zest
 
-.. doxygentypedef:: zest::zt::ZernikeExpansionQM
+.. doxygentypedef:: zest::zt::RealZernikeExpansionQM
     :project: zest
 
-.. doxygentypedef:: zest::zt::ZernikeExpansionOrthoQM
+.. doxygentypedef:: zest::zt::RealZernikeExpansionNormalQM
     :project: zest
 
-.. doxygentypedef:: zest::zt::ZernikeExpansionGeo
+.. doxygentypedef:: zest::zt::RealZernikeExpansionGeo
     :project: zest
 
-.. doxygentypedef:: zest::zt::ZernikeExpansionOrthoGeo
+.. doxygentypedef:: zest::zt::RealZernikeExpansionNormalGeo
     :project: zest
 
 .. doxygentypedef:: zest::zt::PackedZernikeSpan
@@ -179,6 +188,9 @@ Zernike expansions
 Zernike transforms
 ------------------
 
+Types
+^^^^^
+
 .. doxygenstruct:: zest::zt::LonLatRadLayout
     :project: zest
     :members:
@@ -202,6 +214,9 @@ Zernike transforms
 .. doxygenclass:: zest::zt::ZernikeTransformer
     :project: zest
     :members:
+
+Type aliases
+^^^^^^^^^^^^
 
 .. doxygentypedef:: zest::zt::DefaultLayout
     :project: zest
@@ -242,23 +257,32 @@ Zernike transforms
 .. doxygentypedef:: zest::zt::ZernikeTransformerOrthoGeo
     :project: zest
 
-Zernike conventions
--------------------
+Spherical harmonic and Zernike conventions
+------------------------------------------
+
+Enums
+^^^^^
+
+.. doxygenenum:: zest::st::SHPhase
+    :project: zest
+
+.. doxygenenum:: zest::st::SHNorm
+    :project: zest
 
 .. doxygenenum:: zest::zt::ZernikeNorm
-    :project: zest
-
-.. doxygenfunction:: zest::zt::normalization
-    :project: zest
-
-.. doxygenfunction:: zest::zt::conversion_const
     :project: zest
 
 Rotations
 ---------
 
+Enums
+^^^^^
+
 .. doxygenenum:: zest::RotationType
     :project: zest
+
+Types
+^^^^^
 
 .. doxygenclass:: zest::Rotor
     :project: zest
@@ -272,11 +296,17 @@ Rotations
     :project: zest
     :members:
 
+Functions
+^^^^^^^^^
+
 .. doxygenfunction:: zest::euler_angles_from_rotation_matrix
     :project: zest
 
 Uniform grids
 -------------
+
+Types
+^^^^^
 
 .. doxygenclass:: zest::st::GridEvaluator
     :project: zest
@@ -289,13 +319,10 @@ Uniform grids
 Power spectra
 -------------
 
-.. doxygenfunction:: zest::st::cross_power_spectrum
-    :project: zest
+Functions
+^^^^^^^^^
 
-.. doxygenfunction:: zest::st::power_spectrum
-    :project: zest
-
-.. doxygenfunction:: zest::zt::power_spectrum
+.. doxygenfile:: power_spectra.hpp
     :project: zest
 
 Layouts
@@ -309,6 +336,9 @@ Layouts
 
 .. doxygenenum:: zest::LayoutTag
     :project: zest
+
+Concepts
+^^^^^^^^
 
 .. doxygenconcept:: zest::one_dimensional_span
     :project: zest
@@ -324,6 +354,9 @@ Layouts
 
 .. doxygenconcept:: zest::triangular_layout
     :project: zest
+
+Types
+^^^^^
 
 .. doxygenstruct:: zest::StandardLinearLayout
     :project: zest
@@ -380,6 +413,9 @@ Layouts
 Indexing
 --------
 
+Types
+^^^^^
+
 .. doxygenclass:: zest::IndexIterator
     :project: zest
     :members:
@@ -399,11 +435,20 @@ Indexing
 Gauss--Legendre quadrature
 --------------------------
 
+Enums
+^^^^^
+
 .. doxygenenum:: zest::gl::GLNodeStyle
     :project: zest
 
+Concepts
+^^^^^^^^
+
 .. doxygenconcept:: zest::gl::gl_layout
     :project: zest
+
+Types
+^^^^^
 
 .. doxygenstruct:: zest::gl::PackedLayout
     :project: zest
@@ -412,6 +457,9 @@ Gauss--Legendre quadrature
 .. doxygenstruct:: zest::gl::UnpackedLayout
     :project: zest
     :members:
+
+Functions
+^^^^^^^^^
 
 .. doxygenfunction:: zest::gl::gl_nodes
     :project: zest
@@ -425,8 +473,14 @@ Gauss--Legendre quadrature
 Memory
 ------
 
+Concepts
+^^^^^^^^
+
 .. doxygenconcept:: zest::valid_simd_alignment
     :project: zest
+
+Types
+^^^^^
 
 .. doxygenstruct:: zest::AlignedAllocator
     :project: zest
@@ -440,6 +494,9 @@ Memory
     :project: zest
     :members:
 
+Type aliases
+^^^^^^^^^^^^
+
 .. doxygentypedef:: zest::SSEAlignment
     :project: zest
 
@@ -451,6 +508,9 @@ Memory
 
 .. doxygentypedef:: zest::CacheLineAlignment
     :project: zest
+
+Functions
+^^^^^^^^^
 
 .. doxygenfunction:: zest::aligned_size
     :project: zest

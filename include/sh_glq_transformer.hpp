@@ -698,30 +698,6 @@ public:
         symm_asymm_to_fft();
         sum_m(values);
     }
-
-    /**
-        @brief Backward transform from even/odd coefficients of a spherical harmonic expansion to Gauss-Legendre quadrature grid.
-
-        @param values values on the spherical quadrature grid
-        @param expansion coefficients of the expansion
-        @param parity parity of the coefficients
-
-        @note The parity of a spherical harmonic coefficient is determined by the parity of the first index of the coefficient.
-    *//*
-    void backward_transform(
-        RealSHSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion,
-        SphereGLQGridSpan<double, GridLayout> values, Parity parity)
-    {
-        resize(values.order());
-
-        std::size_t min_order = std::min(expansion.order(), values.order());
-        
-        RealSHSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> truncated_expansion(expansion.data(), min_order);
-
-        sum_l(truncated_expansion, min_order, parity);
-        symm_asymm_to_fft();
-        sum_m(values);
-    }*/
     
     /**
         @brief Forward transform from Gauss-Legendre quadrature grid to spherical harmonic coefficients.
@@ -776,23 +752,6 @@ public:
         backward_transform(expansion, grid);
         return grid;
     }
-
-    /**
-        @brief Backward transform from even/odd coefficients of a spherical harmonic expansion to Gauss-Legendre quadrature grid.
-
-        @param values values on the spherical quadrature grid
-        @param expansion coefficients of the expansion
-        @param parity parity of the coefficients
-
-        @note The parity of a spherical harmonic coefficient is determined by the parity of the first index of the coefficient.
-    *//*
-    [[nodiscard]] SphereGLQGrid<double, GridLayout> backward_transform(
-        RealSHSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion, std::size_t order, Parity parity)
-    {
-        SphereGLQGrid<double, GridLayout> grid(order);
-        backward_transform(expansion, grid, parity);
-        return grid;
-    }*/
 
 private:
     void integrate_longitudinal(

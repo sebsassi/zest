@@ -62,39 +62,15 @@ Containers and views
 
 For handling expansion coefficients and quadrature grids, zest presents a number of containers and views. Containers are objects which own the underlying buffer they refer to, i.e., they are responsible for allocation and deallocation of the buffer. Views are objects which do not own the buffer they refer to; they simply give a *view* to a buffer owned by some other object.
 
-The library comes with a number of containers for easy storage and manipulation of different types of data. For storing spherical harmonic and Zernike expansions of real functions, there are the classes 
-
-.. doxygenclass:: zest::st::RealSHExpansion
-    :no-link:
-    :outline:
-
-and
-
-.. doxygenclass:: zest::zt::ZernikeExpansion
-    :no-link:
-    :outline:
-
-respectively.
+The library comes with a number of containers for easy storage and manipulation of different types of data. For storing spherical harmonic and Zernike expansions of real functions, there are the classes :cpp:type:`zest::st::RealSHExpansion` and :cpp:type:`zest::zt::RealZernikeExpansion` respectively.
 
 The template parameters of these containers primarily control the various normalization conventions. The parameter ``ElementType`` is the type of elements in the underlying buffer. There are two main choices here: if ``ElementType`` is a floating point type (e.g., ``double``), this implies that the elements are stored sequentially with :math:`m` going from :math:`-l` to :math:`l`. On the other hand, if ``ElementType`` is an array-like type of length two, e.g., ``std::array<double, 2>``, then the elements are stored in pairs :math:`\{|m|,-|m|\}` with :math:`|m|` running from zero to :math:`l`. The latter option is the default and recommended option when dealing with the quadrature-based transforms, but the former is mandatory for fitting an expansion to data.
 
-For these classes, the library provides a number of convenient aliases for various common combinations of normalization and phase conventions. For spherical harmonics these aliases are :cpp:type:`zest::st::RealSHExpansionAcoustics`, :cpp:type:`zest::st::RealSHExpansionQM`, and :cpp:type:`zest::st::RealSHExpansionGeo`. For Zernike functions there are corresponding aliases for the unnormalized radial functions: :cpp:type:`zest::zt::ZernikeExpansionAcoustics`, :cpp:type:`zest::zt::ZernikeExpansionQM`, and :cpp:type:`zest::zt::ZernikeExpansionGeo`; and furthermore for the orthonormal Zernike functions: :cpp:type:`zest::zt::ZernikeExpansionOrthoAcoustics`, :cpp:type:`zest::zt::ZernikeExpansionOrthoQM`, and :cpp:type:`zest::zt::ZernikeExpansionOrthoGeo`.
+For these classes, the library provides a number of convenient aliases for various common combinations of normalization and phase conventions. For spherical harmonics these aliases are :cpp:type:`zest::st::RealSHExpansionAcoustics`, :cpp:type:`zest::st::RealSHExpansionQM`, and :cpp:type:`zest::st::RealSHExpansionGeo`. For Zernike functions there are corresponding aliases for the unnormalized radial functions: :cpp:type:`zest::zt::RealZernikeExpansionAcoustics`, :cpp:type:`zest::zt::RealZernikeExpansionQM`, and :cpp:type:`zest::zt::RealZernikeExpansionGeo`; and furthermore for the normalized radial Zernike polynomials: :cpp:type:`zest::zt::RealZernikeExpansionNormalAcoustics`, :cpp:type:`zest::zt::RealZernikeExpansionNormalQM`, and :cpp:type:`zest::zt::RealZernikeExpansionNormalGeo`.
 
-For storage of function values on Gauss--Legendre quadrature grids there are the classes
+For storage of function values on Gauss--Legendre quadrature grids there are the classes :cpp:type:`zest::st::SphereGLQGrid` and :cpp:type:`zest::zt::BallGLQGrid` for the sphere and ball, respectively. The ``ElementType`` parameter here is simply a floating point type. The parameter ``LayoutType``, in turn, describes how the multidimensional grid is laid out in memory. This is not something a user of the library generally needs to worry about, because the default layout is the layout that should be used for performing the transforms to expansion coefficients.
 
-.. doxygenclass:: zest::st::SphereGLQGrid
-    :no-link:
-    :outline:
-
-and
-
-.. doxygenclass:: zest::zt::BallGLQGrid
-    :no-link:
-    :outline:
-
-for the sphere and ball, respectively. The ``ElementType`` parameter here is simply a floating point type. The parameter ``LayoutType``, in turn, describes how the multidimensional grid is laid out in memory. This is not something a user of the library generally needs to worry about, because the default layout is the layout that should be used for performing the transforms to expansion coefficients.
-
-Mirroring the convention of the C++ standard library, views to buffers in zest are referred with the word "span". Each of the above containers has a corresponding view. Thus we have :cpp:type:`zest::st::RealSHExpansionSpan` and :cpp:class:`zest::zt::ZernikeExpansionSpan` with the corresponding aliases for different normalization/phase conventions, and :cpp:class:`zest::st::SphereGLQGridSpan` and :cpp:class:`zest::zt::BallGLQGridSpan` for the quadrature grids.
+Mirroring the convention of the C++ standard library, views to buffers in zest are referred with the word "span". Each of the above containers has a corresponding view. Thus we have :cpp:type:`zest::st::RealSHSpan` and :cpp:type:`zest::zt::RealZernikeSpan` with the corresponding aliases for different normalization/phase conventions, and :cpp:class:`zest::st::SphereGLQGridSpan` and :cpp:class:`zest::zt::BallGLQGridSpan` for the quadrature grids.
 
 In additon, for completeness it is worth mentioning the :cpp:class:`zest::MDSpan`, which is a general multidimensional array view, and is the base of both :cpp:class:`zest::st::SphereGLQGridSpan` and :cpp:class:`zest::zt::BallGLQGridSpan`. It is a poor man's alternative to C++23's ``std::mdspan``, replicating the part of its interface, which is necessary for this library. 
 
@@ -152,19 +128,7 @@ This example also demonstrates the use of the index ranges discussed in the prev
 Gauss--Legendre quadrature transformers
 ---------------------------------------
 
-At the heart of zest are the Gauss--Legendre quadrature grid based transforms of spherical harmonic and Zernike expansions. These transforms are implemented by the classes
-
-.. doxygenclass:: zest::st::GLQTransformer
-    :no-link:
-    :outline:
-
-and
-
-.. doxygenclass:: zest::zt::GLQTransformer
-    :no-link:
-    :outline:
-
-for spherical harmonic and Zernike transforms respectively. The normalization and phase convention parameters are the same as those to the respective expansion containers discussed above. To that end, both transformer classes have a set of aliases for some commond combinations of normalization and phase conventions. These are :cpp:type:`zest::st::GLQTransformerAcoustics`, :cpp:type:`zest::st::GLQTransformerQM`, and :cpp:type:`zest::st::GLQTransformerGeo` for the spherical harmonic transformer as well as :cpp:type:`zest::zt::GLQTransformerAcoustics`, :cpp:type:`zest::zt::GLQTransformerQM`, :cpp:type:`zest::zt::GLQTransformerGeo`, :cpp:type:`zest::zt::GLQTransformerOrthoAcoustics`, :cpp:type:`zest::zt::GLQTransformerOrthoQM`, :cpp:type:`zest::zt::GLQTransformerOrthoGeo` for the Zernike transformer. The final parameter ``GridLayoutType`` in turn is the same as for the corresponding grid containers.
+At the heart of zest are the Gauss--Legendre quadrature grid based transforms of spherical harmonic and Zernike expansions. These transforms are implemented by the classes :cpp:type:`zest::st::GLQTransformer` and :cpp:type:`zest::zt::GLQTransformer` for spherical harmonic and Zernike transforms respectively. The normalization and phase convention parameters are the same as those to the respective expansion containers discussed above. To that end, both transformer classes have a set of aliases for some commond combinations of normalization and phase conventions. These are :cpp:type:`zest::st::GLQTransformerAcoustics`, :cpp:type:`zest::st::GLQTransformerQM`, and :cpp:type:`zest::st::GLQTransformerGeo` for the spherical harmonic transformer as well as :cpp:type:`zest::zt::GLQTransformerAcoustics`, :cpp:type:`zest::zt::GLQTransformerQM`, :cpp:type:`zest::zt::GLQTransformerGeo`, :cpp:type:`zest::zt::GLQTransformerOrthoAcoustics`, :cpp:type:`zest::zt::GLQTransformerOrthoQM`, :cpp:type:`zest::zt::GLQTransformerOrthoGeo` for the Zernike transformer. The final parameter ``GridLayoutType`` in turn is the same as for the corresponding grid containers.
 
 It goes without saying that the transformer must have the same values for these template parameters as the expansion and grid. This is one  of the ways zest protects consistency of conventions in transformations.
 
@@ -203,8 +167,5 @@ With this brief review of the essential facts, zest has a single class :cpp:clas
     rotor.rotate(
         expansion, wigner_d_pi2, euler_angles, zest::RotationType::coordinate);
 
-All rotations take as their last argument an enum of type :cpp:enum-class:`zest::RotationType`, which has two values :cpp:enumerator:`zest::RotationType::object` and :cpp:enumerator:`zest::RotationType::coordinate`. These express whether the rotation represents a rotation of an object in space (active rotation) or a rotation of the coordinate system (passive rotation). The polar rotation naturally takes as its argument a single angle, whereas the general rotation takes three Euler angles, given as a standard library array with three elements. Finally, the general rotation takes as its second argument an object of type :cpp:class:`zest::WignerdPiHalfCollection`. This object contains the values of the d-matrix for a 90 degree angle, i.e., :math:`\pi/2`, up to some specified order.
-
-Power spectra
--------------
+All rotations take as their last argument an enum of type :cpp:enum:`zest::RotationType`, which has two values :cpp:enumerator:`zest::RotationType::object` and :cpp:enumerator:`zest::RotationType::coordinate`. These express whether the rotation represents a rotation of an object in space (active rotation) or a rotation of the coordinate system (passive rotation). The polar rotation naturally takes as its argument a single angle, whereas the general rotation takes three Euler angles, given as a standard library array with three elements. Finally, the general rotation takes as its second argument an object of type :cpp:class:`zest::WignerdPiHalfCollection`. This object contains the values of the d-matrix for a 90 degree angle, i.e., :math:`\pi/2`, up to some specified order.
 

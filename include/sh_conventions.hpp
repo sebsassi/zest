@@ -70,21 +70,6 @@ template <SHNorm sh_norm_param>
     @return conversion constant
 */
 template <SHNorm from, SHNorm to>
-    requires (from == to)
-[[nodiscard]] constexpr double conversion_const() noexcept
-{
-    return 1.0;
-}
-
-/**
-    @brief Constant for converting between spherical harmonics conventions.
-
-    @tparam from source normalization convention
-    @tparam to destination normalization convention
-
-    @return conversion constant
-*/
-template <SHNorm from, SHNorm to>
 [[nodiscard]] constexpr double conversion_const() noexcept
 {
     constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
@@ -101,6 +86,13 @@ template <SHNorm from, SHNorm to>
         norm *= inv_sqrt_4pi;
 
     return norm;
+}
+
+template <SHNorm from, SHNorm to>
+    requires (from == to)
+[[nodiscard]] constexpr double conversion_const() noexcept
+{
+    return 1.0;
 }
 
 } // namespace st

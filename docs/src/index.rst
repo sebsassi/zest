@@ -14,9 +14,3 @@ zest -- **Ze**\ rnike and **s**\ pherical **t**\ ransforms
    introduction
    anatomy
    reference
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`
