@@ -122,7 +122,7 @@ public:
 
         MDSpan<std::array<double, 2>, 2> cossin_lon(
             m_cossin_lon_grid.data(), {order, m_lon_size});
-        detail::recursive_trig(cossin_lon, longitudes);
+        zest::detail::recursive_trig(cossin_lon, longitudes);
 
         sum_l(std::forward<ExpansionType>(expansion));
 
@@ -252,7 +252,7 @@ public:
 
         MDSpan<std::array<double, 2>, 2> cossin_lon(
                 m_cossin_lon_grid.data(), {order, m_lon_size});
-        detail::recursive_trig(cossin_lon, longitudes);
+        zest::detail::recursive_trig(cossin_lon, longitudes);
 
         sum_n(std::forward<ExpansionType>(expansion));
         sum_l(order);
