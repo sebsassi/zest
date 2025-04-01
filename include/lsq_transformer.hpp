@@ -97,7 +97,7 @@ private:
     RealSHGenerator m_sh_gen;
     Matrix<double> m_sh_values;
     std::vector<double> m_coeffs;
-    detail::LinearMultifit m_fitter;
+    zest::detail::LinearMultifit m_fitter;
 };
 
 } // namespace st
