@@ -110,7 +110,7 @@ struct LatLonLayout
         if constexpr (std::is_same_v<Alignment, NoAlignment>)
             return min_size;
         else
-            return detail::next_divisible<vector_size>(min_size);
+            return zest::detail::next_divisible<vector_size>(min_size);
     }
 
     static constexpr std::size_t lat_axis = 0UL;
@@ -178,7 +178,7 @@ struct LonLatLayout
         if constexpr (std::is_same_v<Alignment, NoAlignment>)
             return min_size;
         else
-            return detail::next_divisible<vector_size>(min_size);
+            return zest::detail::next_divisible<vector_size>(min_size);
     }
 
     /**
