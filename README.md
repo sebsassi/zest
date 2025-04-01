@@ -14,18 +14,11 @@ zest aims to be fast, nonintrusive, and hard to use incorrectly:
 
 ## Build and installation
 
-zest uses CMake, and therefore follows the standard CMake build/install process. So, once you have obtained the source code, and have navigated to the source directory, set up the build directory and navigate to it
+zest uses CMake, and therefore follows the standard CMake build/install process. In short, the following three commands configure, build, and install the project to your preferred install directory
 ```bash
-cmake -S . -B build
-cd build
-```
-then build the library
-```bash
-cmake --build .
-```
-and finally install it to your preferred directory
-```bash
-cmake --install . --prefix <install directory>
+cmake --preset=default
+cmake --build build
+cmake --install build --prefix <install directory>
 ```
 Note: this library aims to use the C++20 standard. Therefore, a sufficiently modern compiler is required. At least GGC 13 or Clang 17 is recommended. The library may compile at any point with compilers down to GCC 11 and Clang 14, but no guarantees are made about this.
 

@@ -15,7 +15,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 # SOFTWARE.
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.19)
 project(zest 
     VERSION 0.1.0
     LANGUAGES CXX
@@ -40,12 +40,6 @@ target_include_directories(zest
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     PRIVATE
         ${PROJECT_SOURCE_DIR}/src
-)
-
-target_compile_options(zest
-    PRIVATE
-        $<$<CONFIG:Debug>:-Wall;-Wextra;-Wpedantic;-Wconversion;-Werror;-g;-O0>
-        $<$<CONFIG:Release>:-Wall;-Wextra;-Wpedantic;-Wconversion;-g;-O3;-mavx2;-mfma>
 )
 
 target_compile_features(zest PUBLIC cxx_std_20)

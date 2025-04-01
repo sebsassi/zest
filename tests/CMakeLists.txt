@@ -20,10 +20,6 @@ macro(create_test TESTNAME)
     target_include_directories(${TESTNAME}.test
         PRIVATE ${PROJECT_SOURCE_DIR}/include
     )
-    target_compile_options(${TESTNAME}.test
-        PRIVATE
-            $<$<CONFIG:Debug>:-Wall;-Wextra;-Wpedantic;-Wconversion;-Werror;-g;-O0;-fconcepts-diagnostics-depth=2>
-    )
     find_package(lapack CONFIG REQUIRED)
     target_link_libraries(${TESTNAME}.test zest lapack gfortran)
     add_test(NAME ${TESTNAME} COMMAND ${TESTNAME}.test)
