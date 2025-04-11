@@ -35,7 +35,7 @@ int main()
 
     constexpr std::size_t order = 20;
     constexpr double radius = 1.0;
-    zest::zt::ZernikeTransformerOrthoQM transformer{};
+    zest::zt::ZernikeTransformerNormalQM transformer{};
     zest::zt::RealZernikeExpansion expansion
         = transformer.transform(function, radius, order);
 
