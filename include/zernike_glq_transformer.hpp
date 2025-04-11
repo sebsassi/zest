@@ -980,7 +980,7 @@ using GLQTransformerAcoustics
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerOrthoAcoustics
+using GLQTransformerNormalAcoustics
     = GLQTransformer<
         ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none, GridLayout>;
 
@@ -1000,7 +1000,7 @@ using GLQTransformerQM
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerOrthoQM
+using GLQTransformerNormalQM
     = GLQTransformer<
         ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs, GridLayout>;
 
@@ -1020,7 +1020,7 @@ using GLQTransformerGeo
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerOrthoGeo
+using GLQTransformerNormalGeo
     = GLQTransformer<
         ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
 
@@ -1193,7 +1193,7 @@ using ZernikeTransformerAcoustics
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerOrthoAcoustics
+using ZernikeTransformerNormalAcoustics
     = ZernikeTransformer<
         ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none, GridLayout>;
 
@@ -1213,7 +1213,7 @@ using ZernikeTransformerQM
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerOrthoQM
+using ZernikeTransformerNormalQM
     = ZernikeTransformer<
         ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs, GridLayout>;
 
@@ -1233,7 +1233,7 @@ using ZernikeTransformerGeo
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerOrthoGeo
+using ZernikeTransformerNormalGeo
     = ZernikeTransformer<
         ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
 
