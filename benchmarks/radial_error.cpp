@@ -48,7 +48,7 @@ std::vector<double> make_radial(
     DistributionSpherical function, std::size_t order, std::span<const double> radii)
 {
     zest::zt::BallGLQGridPoints points{};
-    zest::zt::GLQTransformerOrthoGeo transformer(order);
+    zest::zt::GLQTransformerNormalGeo transformer(order);
     zest::zt::RadialZernikeRecursion radial_recursion(order);
 
     using RadialSpan
