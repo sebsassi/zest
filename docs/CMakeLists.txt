@@ -34,17 +34,19 @@ find_package(Sphinx REQUIRED)
 
 set(SPHINX_CONFIG_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(SPHINX_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-set(SPHINX_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/sphinx)
-set(SPHINX_INDEX_FILE ${SPHINX_BUILD_DIR}/index.html)
+set(SPHINX_HTML_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/sphinx/html)
+set(SPHINX_INDEX_FILE ${SPHINX_HTML_BUILD_DIR}/index.html)
+set(SPHINX_LATEX_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/sphinx/latex)
+set(SPHINX_LATEX_FILE ${SPHINX_LATEX_BUILD_DIR}/zest_doc.tex)
 
 add_custom_command(
     OUTPUT ${SPHINX_INDEX_FILE}
     COMMAND
         ${SPHINX_EXECUTABLE}
         -b html
+        ${SPHINX_SOURCE_DIR} ${SPHINX_HTML_BUILD_DIR}
         -c ${SPHINX_CONFIG_DIR}
         -Dbreathe_projects.zest=${DOXYGEN_OUTPUT_DIR}/xml
-        ${SPHINX_SOURCE_DIR} ${SPHINX_BUILD_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
         ${SPHINX_SOURCE_DIR}/index.rst
@@ -53,7 +55,26 @@ add_custom_command(
         ${SPHINX_SOURCE_DIR}/reference.rst
         ${DOXYGEN_INDEX_FILE}
     MAIN_DEPENDENCY ${SPHINX_CONFIG_DIR}/conf.py
-    COMMENT "Generating documentation with Sphinx: ${SPHINX_EXECUTABLE}"
+    COMMENT "Generating HTML documentation with Sphinx: ${SPHINX_EXECUTABLE}"
 )
 
-add_custom_target(Sphinx ALL DEPENDS ${SPHINX_INDEX_FILE})
+add_custom_command(
+    OUTPUT ${SPHINX_LATEX_FILE}
+    COMMAND
+        ${SPHINX_EXECUTABLE}
+        -M latexpdf
+        ${SPHINX_SOURCE_DIR} ${SPHINX_LATEX_BUILD_DIR}
+        -c ${SPHINX_CONFIG_DIR}
+        -Dbreathe_projects.zest=${DOXYGEN_OUTPUT_DIR}/xml
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS
+        ${SPHINX_SOURCE_DIR}/index.rst
+        ${SPHINX_SOURCE_DIR}/getting_started.rst
+        ${SPHINX_SOURCE_DIR}/introduction.rst
+        ${SPHINX_SOURCE_DIR}/reference.rst
+        ${DOXYGEN_INDEX_FILE}
+    MAIN_DEPENDENCY ${SPHINX_CONFIG_DIR}/conf.py
+    COMMENT "Generating LaTeX documentation with Sphinx: ${SPHINX_EXECUTABLE}"
+)
+
+add_custom_target(Sphinx ALL DEPENDS ${SPHINX_INDEX_FILE} ${SPHINX_LATEX_FILE})

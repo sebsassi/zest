@@ -224,37 +224,37 @@ Type aliases
 .. doxygentypedef:: zest::zt::GLQTransformerAcoustics
     :project: zest
 
-.. doxygentypedef:: zest::zt::GLQTransformerOrthoAcoustics
+.. doxygentypedef:: zest::zt::GLQTransformerNormalAcoustics
     :project: zest
 
 .. doxygentypedef:: zest::zt::GLQTransformerQM
     :project: zest
 
-.. doxygentypedef:: zest::zt::GLQTransformerOrthoQM
+.. doxygentypedef:: zest::zt::GLQTransformerNormalQM
     :project: zest
 
 .. doxygentypedef:: zest::zt::GLQTransformerGeo
     :project: zest
 
-.. doxygentypedef:: zest::zt::GLQTransformerOrthoGeo
+.. doxygentypedef:: zest::zt::GLQTransformerNormalGeo
     :project: zest
 
 .. doxygentypedef:: zest::zt::ZernikeTransformerAcoustics
     :project: zest
 
-.. doxygentypedef:: zest::zt::ZernikeTransformerOrthoAcoustics
+.. doxygentypedef:: zest::zt::ZernikeTransformerNormalAcoustics
     :project: zest
 
 .. doxygentypedef:: zest::zt::ZernikeTransformerQM
     :project: zest
 
-.. doxygentypedef:: zest::zt::ZernikeTransformerOrthoQM
+.. doxygentypedef:: zest::zt::ZernikeTransformerNormalQM
     :project: zest
 
 .. doxygentypedef:: zest::zt::ZernikeTransformerGeo
     :project: zest
 
-.. doxygentypedef:: zest::zt::ZernikeTransformerOrthoGeo
+.. doxygentypedef:: zest::zt::ZernikeTransformerNormalGeo
     :project: zest
 
 Spherical harmonic and Zernike conventions
