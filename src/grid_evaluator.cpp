@@ -140,8 +140,7 @@ namespace zt
 {
 
 GridEvaluator::GridEvaluator(std::size_t max_order):
-    m_zernike_recursion(max_order), m_plm_recursion(max_order), m_lon_size{}, 
-    m_lat_size{}, m_rad_size{}, m_max_order(max_order) {}
+    m_zernike_recursion(max_order), m_plm_recursion(max_order), m_max_order(max_order) {}
 
 
 GridEvaluator::GridEvaluator(

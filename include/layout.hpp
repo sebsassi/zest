@@ -662,10 +662,10 @@ public:
     constexpr ParitySpan() noexcept = default;
     constexpr ParitySpan(
         element_type* data, std::size_t size) noexcept:
-        m_data(data), m_size(size), m_size(size) {}
+        m_data(data), m_size(size) {}
     constexpr ParitySpan(
         std::span<element_type> buffer, std::size_t size) noexcept:
-        m_data(buffer.begin()), m_size(size), m_size(size) {}
+        m_data(buffer.begin()), m_size(size) {}
 
     /**
         @brief Order of data layout.

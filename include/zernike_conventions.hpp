@@ -60,7 +60,7 @@ template <ZernikeNorm zernike_norm_param>
 */
 template <ZernikeNorm from, ZernikeNorm to>
     requires (from == to)
-[[nodiscard]] inline double conversion_factor(std::size_t n) noexcept
+[[nodiscard]] inline double conversion_factor([[maybe_unused]] std::size_t n) noexcept
 {
     return 1.0;
 }

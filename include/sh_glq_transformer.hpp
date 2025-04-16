@@ -496,8 +496,8 @@ private:
         }
     }
 
-    std::vector<double> m_longitudes{};
-    std::vector<double> m_glq_nodes{};
+    std::vector<double> m_longitudes;
+    std::vector<double> m_glq_nodes;
 };
 
 /**
@@ -1238,15 +1238,15 @@ private:
             m_pocketfft_shape_grid, m_pocketfft_stride_fft, m_pocketfft_stride_grid, lon_axis, pocketfft::BACKWARD, m_ffts.data(), values.flatten().data(), prefactor);
     }
 
-    PlmRecursion m_recursion{};
-    std::vector<double> m_glq_nodes{};
-    std::vector<double> m_glq_weights{};
-    std::vector<double> m_plm_grid{};
-    std::vector<std::complex<double>> m_ffts{};
-    std::vector<std::complex<double>> m_symm_asymm{};
-    std::vector<std::size_t> m_pocketfft_shape_grid{};
-    std::vector<std::ptrdiff_t> m_pocketfft_stride_grid{};
-    std::vector<std::ptrdiff_t> m_pocketfft_stride_fft{};
+    PlmRecursion m_recursion;
+    std::vector<double> m_glq_nodes;
+    std::vector<double> m_glq_weights;
+    std::vector<double> m_plm_grid;
+    std::vector<std::complex<double>> m_ffts;
+    std::vector<std::complex<double>> m_symm_asymm;
+    std::vector<std::size_t> m_pocketfft_shape_grid;
+    std::vector<std::ptrdiff_t> m_pocketfft_stride_grid;
+    std::vector<std::ptrdiff_t> m_pocketfft_stride_fft;
     std::size_t m_order{};
 };
 

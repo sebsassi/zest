@@ -22,8 +22,6 @@ SOFTWARE.
 #pragma once
 
 #include <vector>
-#include <span>
-#include <concepts>
 
 #include "plm_recursion.hpp"
 #include "layout.hpp"

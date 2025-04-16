@@ -129,7 +129,7 @@ public:
     static constexpr st::SHNorm norm = sh_norm_param;
     static constexpr st::SHPhase phase = sh_phase_param;
 
-    Parity parity() const noexcept { return Parity((order() & 1) ^ 1); }
+    [[nodiscard]] Parity parity() const noexcept { return Parity((order() & 1) ^ 1); }
 
     [[nodiscard]] constexpr operator ConstView() const noexcept
     {
@@ -408,7 +408,7 @@ public:
     }
 
 private:
-    std::vector<std::array<double, 2>> m_data{};
+    std::vector<std::array<double, 2>> m_data;
     size_type m_order{};
 };
 
