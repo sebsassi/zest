@@ -192,6 +192,9 @@ protected:
     template <typename T, std::size_t dimension>
     friend class MDSpan;
 
+    template <typename T, std::size_t dimension>
+    friend class MDArray;
+
     constexpr MDSpan(
         data_handle_type data, size_type size, const std::array<std::size_t, rank_param>& extents) noexcept:
         m_data(data), m_size(size), m_extents(extents) {}
