@@ -106,14 +106,17 @@ public:
     /**
         @brief General rotation of a real spherical harmonic expansion via Wigner's D-matrix.
 
-        @tparam ExpansionType
+        @tparam ExpansionType type of expansion to rotate
 
         @param expansion real spherical harmonic expansion
         @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
-        @param type transformation type
+        @param type type of rotation
 
-        @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
+        The rotation uses an intrinsic ZYZ convention, where the first Euler angle
+        rotates about the Z-axis, the second Euler angle rotates about the new Y-axis,
+        and the third angle rotates about the new Z-axis again. In summary, the
+        convention is: right-handed, intrinsic, ZYZ.
     */
     template <st::real_sh_expansion ExpansionType>
         requires std::same_as<
@@ -147,14 +150,17 @@ public:
     /**
         @brief General rotation of an even/odd real spherical harmonic expansion via Wigner's D-matrix.
 
-        @tparam ExpansionType
+        @tparam ExpansionType type of expansion to rotate
 
         @param expansion real spherical harmonic expansion
         @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
-        @param type transformation type
+        @param type type of rotation
 
-        @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
+        The rotation uses an intrinsic ZYZ convention, where the first Euler angle
+        rotates about the Z-axis, the second Euler angle rotates about the new Y-axis,
+        and the third angle rotates about the new Z-axis again. In summary, the
+        convention is: right-handed, intrinsic, ZYZ.
     */
     template <st::row_skipping_real_sh_expansion ExpansionType>
         requires std::same_as<
@@ -189,14 +195,17 @@ public:
     /**
         @brief General rotation of a real Zernike expansion via Wigner's D-matrix.
 
-        @tparam ExpansionType
+        @tparam ExpansionType type of expansion to rotate
 
         @param expansion real Zernike expansion
         @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
-        @param type transformation type
+        @param type type of rotation
 
-        @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
+        The rotation uses an intrinsic ZYZ convention, where the first Euler angle
+        rotates about the Z-axis, the second Euler angle rotates about the new Y-axis,
+        and the third angle rotates about the new Z-axis again. In summary, the
+        convention is: right-handed, intrinsic, ZYZ.
     */
     template <zt::real_zernike_expansion ExpansionType>
         requires std::same_as<
@@ -236,14 +245,17 @@ public:
     /**
         @brief General rotation of a real spherical harmonic expansion via Wigner's D-matrix.
 
-        @tparam ExpansionType
+        @tparam ExpansionType type of expansion to rotate
 
         @param expansion real spherical harmonic expansion
         @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
-        @param type transformation type
+        @param type type of rotation
 
-        @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
+        The rotation uses an intrinsic ZYZ convention, where the first Euler angle
+        rotates about the Z-axis, the second Euler angle rotates about the new Y-axis,
+        and the third angle rotates about the new Z-axis again. In summary, the
+        convention is: right-handed, intrinsic, ZYZ.
     */
     template <st::real_sh_expansion ExpansionType>
         requires std::same_as<
@@ -262,14 +274,17 @@ public:
     /**
         @brief General rotation of a real Zernike expansion via Wigner's D-matrix.
 
-        @tparam ExpansionType
+        @tparam ExpansionType type of expansion to rotate
 
         @param expansion real Zernike expansion
         @param wigner_d_pi2 Wigner d-matrices at pi/2
         @param euler_angles Euler angles defining the rotation
-        @param type transformation type
+        @param type type of rotation
 
-        @note The rotation uses an intrinsic ZYZ convention, where the first Euler angle rotates about the Z-axis, the second Euler angle rotates about the new Y-axis, and the third angle rotates about the new Z-axis again. In summary, the convention is: right-handed, intrinsic, ZYZ
+        The rotation uses an intrinsic ZYZ convention, where the first Euler angle
+        rotates about the Z-axis, the second Euler angle rotates about the new Y-axis,
+        and the third angle rotates about the new Z-axis again. In summary, the
+        convention is: right-handed, intrinsic, ZYZ.
     */
     template <zt::real_zernike_expansion ExpansionType>
         requires std::same_as<
@@ -288,11 +303,11 @@ public:
     /**
         @brief Rotation about the Z-axis of a real spherical harmonic expansion.
 
-        @tparam ExpansionType
+        @tparam ExpansionType type of expansion to rotate
 
         @param expansion real spherical harmonic expansion
         @param angle polar rotation angle
-        @param type transformation type
+        @param type type of rotation
     */
     template <st::real_sh_expansion ExpansionType>
         requires std::same_as<
@@ -322,11 +337,11 @@ public:
     /**
         @brief Rotation about the Z-axis of a real Zernike expansion
 
-        @tparam ExpansionType
+        @tparam ExpansionType type of expansion to rotate
 
         @param expansion real spherical harmonic expansion
         @param angle polar rotation angle
-        @param type transformation type
+        @param type type of rotation
     */
     template <zt::real_zernike_expansion ExpansionType>
         requires std::same_as<

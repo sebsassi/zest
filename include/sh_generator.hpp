@@ -36,7 +36,10 @@ namespace st
 {
 
 /**
-     @brief Generation of real spherical harmonics based on recursion of associated Legendre polynomials.
+     @brief Generator of real spherical harmonics. 
+
+    This class enables generation of collections of real spherical harmonics evaluated at
+    a point using recursion formulae.
 */
 class RealSHGenerator
 {
@@ -44,28 +47,42 @@ public:
     RealSHGenerator() = default;
     explicit RealSHGenerator(std::size_t max_order);
 
+    /**
+        @brief Maximum order with cached recursion coefficients.
+    */
     [[nodiscard]] std::size_t max_order() const noexcept
     {
         return m_recursion.max_order();
     }
 
+    /**
+        @brief Increase the maximum order for which recursion coefficients are cached.
+
+        @param max_order new maximum order
+    */
     void expand(std::size_t max_order);
 
     /**
-        @brief Generate spherical harmonics at longitude and latitude values `lon`, `lat`.
+        @brief Generate spherical harmonics at coordinates `lon`, `colat`.
+
+        @tparam SHType type of spherical harmonic buffer
+
+        @param lon longitude coordinate
+        @param colat colatitude coordinate
+        @param ylm buffer for spherical harmonic values
     */
-    template <real_sh_expansion ExpansionType>
-    void generate(double lon, double lat, ExpansionType&& ylm)
+    template <real_sh_expansion SHType>
+    void generate(double lon, double colat, SHType&& ylm)
     {
-        constexpr SHNorm norm = std::remove_cvref_t<ExpansionType>::norm;
-        constexpr SHPhase phase = std::remove_cvref_t<ExpansionType>::phase;
+        constexpr SHNorm norm = std::remove_cvref_t<SHType>::norm;
+        constexpr SHPhase phase = std::remove_cvref_t<SHType>::phase;
         using SHSpan = RealSHSpan<
-                typename std::remove_cvref_t<ExpansionType>::element_type, 
+                typename std::remove_cvref_t<SHType>::element_type, 
                 norm, phase>;
         using index_type = SHSpan::index_type;
         expand(ylm.order());
 
-        const double z = std::sin(lat);
+        const double z = std::sin(colat);
         auto ass_leg = PlmSpan<double, norm, phase>(
                 m_ass_leg_poly, ylm.order());
         m_recursion.plm_real(z, ass_leg);
@@ -107,9 +124,9 @@ public:
     }
 
 private:
-    PlmRecursion m_recursion{};
-    std::vector<double> m_ass_leg_poly{};
-    std::vector<std::array<double, 2>> m_cossin{};
+    PlmRecursion m_recursion;
+    std::vector<double> m_ass_leg_poly;
+    std::vector<std::array<double, 2>> m_cossin;
 };
 
 } // namespace st

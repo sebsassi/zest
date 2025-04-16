@@ -42,7 +42,10 @@ using ZernikeSpan = RealZernikeSpan<
     std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param>;
 
 /**
-     @brief Generation of real spherical harmonics based on recursion of associated Legendre polynomials.
+     @brief Generator of real Zernike functions.
+
+    This class enables generation of collections of real Zernike functions evaluated at
+    a point using recursion formulae.
 */
 class ZernikeGenerator
 {
@@ -50,27 +53,42 @@ public:
     ZernikeGenerator() = default;
     explicit ZernikeGenerator(std::size_t max_order);
 
+    /**
+        @brief Maximum order with cached recursion coefficients.
+    */
     [[nodiscard]] std::size_t max_order() const noexcept
     {
         return m_plm_recursion.max_order();
     }
 
+    /**
+        @brief Increase the maximum order for which recursion coefficients are cached.
+
+        @param max_order new maximum order
+    */
     void expand(std::size_t max_order);
 
     /**
-        @brief Generate Zernike functions at radial, longitude and colatitude values `r`, `lon`, `colat`.
+        @brief Generate Zernike functions at coordinates `lon`, `colat`, `r`.
+
+        @tparam ZernikeType type of Zernike function buffer
+
+        @param lon longitude coordinate
+        @param colat colatitude coordinate
+        @param r radial coordinate
+        @param znlm buffer for Zernike function values
     */
-    template <real_zernike_expansion ExpansionType>
-    void generate(double r, double lon, double colat, ExpansionType&& znlm)
+    template <real_zernike_expansion ZernikeType>
+    void generate(double lon, double colat, double r, ZernikeType&& znlm)
     {
         constexpr zt::ZernikeNorm zernike_norm
-            = std::remove_cvref_t<ExpansionType>::zernike_norm;
+            = std::remove_cvref_t<ZernikeType>::zernike_norm;
         constexpr st::SHNorm sh_norm
-            = std::remove_cvref_t<ExpansionType>::sh_norm;
+            = std::remove_cvref_t<ZernikeType>::sh_norm;
         constexpr st::SHPhase sh_phase
-            = std::remove_cvref_t<ExpansionType>::sh_phase;
+            = std::remove_cvref_t<ZernikeType>::sh_phase;
         using ZernikeSpan = RealZernikeSpan<
-                typename ExpansionType::element_type, 
+                typename ZernikeType::element_type, 
                 zernike_norm, sh_norm, sh_phase>;
         using index_type = typename ZernikeSpan::index_type;
         expand(znlm.order());
@@ -128,11 +146,11 @@ public:
     }
 
 private:
-    st::PlmRecursion m_plm_recursion{};
-    RadialZernikeRecursion m_zernike_recursion{};
-    std::vector<double> m_radial_zernike{};
-    std::vector<double> m_ass_leg_poly{};
-    std::vector<std::array<double, 2>> m_cossin{};
+    st::PlmRecursion m_plm_recursion;
+    RadialZernikeRecursion m_zernike_recursion;
+    std::vector<double> m_radial_zernike;
+    std::vector<double> m_ass_leg_poly;
+    std::vector<std::array<double, 2>> m_cossin;
 };
 
 } // namespace zt

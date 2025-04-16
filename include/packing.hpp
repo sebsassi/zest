@@ -39,18 +39,31 @@ concept real_plane_vector
 namespace st
 {
 
+/**
+    @brief Spherical harmonic layout concept skipping even or odd rows.
+*/
 template <typename T>
 concept row_skipping_sh_layout = std::same_as<T, RowSkippingTriangleLayout<T::indexing_mode>>;
 
+/**
+    @brief Standard spherical harmonic layout concept.
+*/
 template <typename T>
 concept sh_layout = std::same_as<T, TriangleLayout<T::indexing_mode>>;
 
+/**
+    @brief Concept defining a spherical harmonic packing type.
+*/
 template <typename T>
 concept sh_packing = requires {
         typename T::Layout;
         typename T::element_type; }
     && sh_layout<typename T::Layout>;
 
+/**
+    @brief Concept checking if `ElementType` and `LayoutType` can be used for a spherical
+    harmonic buffer.
+*/
 template <typename ElementType, typename LayoutType>
 concept real_sh_compatible
     = (real_plane_vector<ElementType>
@@ -61,9 +74,11 @@ concept real_sh_compatible
 /**
     @brief Packing of real spherical harmonics or real spherical harmonic coefficients.
 
-    @tparam ElementType type of elements to pack. Must be one of `double`, `std::complex<double>`, or `std::array<double, 2>`
+    @tparam ElementType type of elements to pack. One of: `double`, `std::complex<double>`, `std::array<double, 2>`
 
-    @note Elements of type `double` correspond to sequential packing with `-l <= m <= l`. Otherwise the elements are packed in pairs `(m, -m)` with `0 <= m <= l`. Packing real coefficients as `std::complex<double>` is useful for dealing with rotations.
+    Elements of type `double` correspond to sequential packing with `-l <= m <= l`.
+    Otherwise the elements are packed in pairs `(m, -m)` with `0 <= m <= l`. Packing real
+    coefficients as `std::complex<double>` is useful for dealing with rotations.
 */
 template <typename ElementType>
     requires std::same_as<std::remove_cv_t<ElementType>, double>
@@ -82,25 +97,36 @@ struct RealSHPacking
 namespace zt
 {
 
+/**
+    @brief Zernike layout concept.
+*/
 template <typename T>
 concept zernike_layout = std::same_as<
         T, ZernikeTetrahedralLayout<T::indexing_mode>>;
 
+/**
+    @brief Concept defining a Zernike packing type.
+*/
 template <typename T>
 concept zernike_packing = requires {
         typename T::Layout;
         typename T::element_type; }
     && zernike_layout<typename T::Layout>;
 
+/**
+    @brief Concept for checking if type is a complex number.
+*/
 template <typename T>
 concept complex_number = std::same_as<T, std::complex<typename T::value_type>>;
 
 /**
     @brief Packing of real Zernike functions or real Zernike expansion coefficients.
 
-    @tparam ElementType type of elements to pack. Must be one of `double`, `std::complex<double>`, or `std::array<double, 2>`
+    @tparam ElementType type of elements to pack. One of: `double`, `std::complex<double>`, `std::array<double, 2>`
 
-    @note Elements of type `double` correspond to sequential packing with `-l <= m <= l`. Otherwise the elements are packed in pairs `(m, -m)` with `0 <= m <= l`. Packing real coefficients as `std::complex<double>` is useful for dealing with rotations.
+    Elements of type `double` correspond to sequential packing with `-l <= m <= l`.
+    Otherwise the elements are packed in pairs `(m, -m)` with `0 <= m <= l`. Packing real
+    coefficients as `std::complex<double>` is useful for dealing with rotations.
 */
 template <typename ElementType>
     requires std::is_arithmetic_v<ElementType> || real_plane_vector<ElementType>
