@@ -65,14 +65,6 @@ template <ZernikeNorm from, ZernikeNorm to>
     return 1.0;
 }
 
-/**
-    @brief Constant for converting between Zernike polynomial conventions.
-
-    @tparam from source normalization convention
-    @tparam to destination normalization convention
-
-    @return conversion constant
-*/
 template <ZernikeNorm from, ZernikeNorm to>
     requires (from != to)
 [[nodiscard]] inline double conversion_factor(std::size_t n) noexcept
