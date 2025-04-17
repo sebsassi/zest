@@ -11,7 +11,9 @@ First, download the source code by cloning the git repository and navigate to it
     git clone https://github.com/sebsassi/zest.git
     cd zest
 
-If you are familiar with CMake, zest follows a conventional CMake build/install procedure. Even if not, the process is simple: first, create a directory where the library is built, say ``build``, and then build the sources in that directory, e.g.,
+If you are familiar with CMake, zest follows a conventional CMake build/install procedure. Even if
+not, the process is simple: first, create a directory where the library is built, say ``build``,
+and then build the sources in that directory, e.g.,
 
 .. code:: console
 
@@ -29,7 +31,9 @@ Here ``install directory`` denotes your preferred installation location.
 Basic Usage
 -----------
 
-To test the installation and take our first steps in using the library, we can create a short program that evaluates the spherical harmonic expansion of a function, rotates it, and prints out the rotated coefficients. Make a file ``rotate_sh.cpp`` with the following contents
+To test the installation and take our first steps in using the library, we can create a short
+program that evaluates the spherical harmonic expansion of a function, rotates it, and prints out
+the rotated coefficients. Make a file ``rotate_sh.cpp`` with the following contents
 
 .. code:: cpp
 
@@ -82,6 +86,14 @@ Now, to compile the code, we use GCC in this example and link our code with zest
 
     g++ -std=c++20 -O3 -mfma -mavx2 -o rotate_sh rotate_sh.cpp -lzest
     
-There are few things of note here. First, zest is built on the C++20 standard, and therefore requires a sufficiently modern compiler, which implements the necessary C++20 features. To tell GCC we are using C++20, we give the flag ``std=c++20``.
+There are few things of note here. First, zest is built on the C++20 standard, and therefore
+requires a sufficiently modern compiler, which implements the necessary C++20 features. To tell GCC
+we are using C++20, we give the flag ``std=c++20``.
 
-Secondly, the performance of the library is sensitive to compiler optimizations. As a baseline, we use the optimization level ``-O3`` to enable all architecture-independent optimizations in GCC. On top of that, this example assumes that we are building for an x86 CPU, which supports floating point fused multiply-add operations (``-mfma``) and AVX2 SIMD operations (``-mavx2``). These options form a good performant baseline that should work for all modern x86 CPUs. In general, if you will be running your code on the system you compile it on ``-march=native`` should be a decent alternative to these options.
+Secondly, the performance of the library is sensitive to compiler optimizations. As a baseline, we
+use the optimization level ``-O3`` to enable all architecture-independent optimizations in GCC. On
+top of that, this example assumes that we are building for an x86 CPU, which supports floating
+point fused multiply-add operations (``-mfma``) and AVX2 SIMD operations (``-mavx2``). These
+options form a good performant baseline that should work for all modern x86 CPUs. In general, if
+you will be running your code on the system you compile it on ``-march=native`` should be a decent
+alternative to these options.
