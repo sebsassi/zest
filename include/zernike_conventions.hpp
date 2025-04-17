@@ -59,13 +59,6 @@ template <ZernikeNorm zernike_norm_param>
     @return conversion constant
 */
 template <ZernikeNorm from, ZernikeNorm to>
-    requires (from == to)
-[[nodiscard]] inline double conversion_factor([[maybe_unused]] std::size_t n) noexcept
-{
-    return 1.0;
-}
-
-template <ZernikeNorm from, ZernikeNorm to>
     requires (from != to)
 [[nodiscard]] inline double conversion_factor(std::size_t n) noexcept
 {
@@ -73,6 +66,13 @@ template <ZernikeNorm from, ZernikeNorm to>
         return 1.0/std::sqrt(double(2*n + 3));
     else
         return std::sqrt(double(2*n + 3));
+}
+
+template <ZernikeNorm from, ZernikeNorm to>
+    requires (from == to)
+[[nodiscard]] inline double conversion_factor([[maybe_unused]] std::size_t n) noexcept
+{
+    return 1.0;
 }
 
 } // namespace zt
