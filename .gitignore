@@ -29,5 +29,5 @@ release
 # LSP
 compile_commands.json
 
-# cache
+# Caches
 .cache

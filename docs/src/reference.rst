@@ -432,6 +432,18 @@ Types
     :project: zest
     :members:
 
+Multidimensional arrays
+-----------------------
+
+Types
+^^^^^
+
+.. doxygenclass:: zest::MDArray
+    :project: zest
+
+.. doxygenclass:: zest::MDSpan
+    :project: zest
+
 Gauss--Legendre quadrature
 --------------------------
 
