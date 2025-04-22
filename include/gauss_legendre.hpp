@@ -38,7 +38,7 @@ namespace gl
 /**
     @brief Packed layout of Gauss-Legendre nodes.
 
-    @note Gauss-Legendre nodes on the interval [-1,1] are distributed symmetrically about 0, such that for any node `x` the point `-x` is also a node with the same weight. Therefore the nodes and weights only need to be produced for nonnegative `x`. For the negative portion of the interval the nodes are `-x`, and the weights are given by the corresponding weights.
+    note Gauss-Legendre nodes on the interval [-1,1] are distributed symmetrically about 0, such that for any node `x` the point `-x` is also a node with the same weight. Therefore the nodes and weights only need to be produced for nonnegative `x`. For the negative portion of the interval the nodes are `-x`, and the weights are given by the corresponding weights.
 */
 struct PackedLayout
 {
@@ -59,7 +59,7 @@ struct PackedLayout
 /**
     @brief Unpacked layout of Gauss-Legendre nodes.
 
-    @note Gauss-Legendre nodes on the interval [-1,1] are distributed symmetrically about 0, such that for any node `x` the point `-x` is also a node with the same weight. Therefore the nodes and weights only need to be produced for nonnegative `x`. For the negative portion of the interval the nodes are `-x`, and the weights are given by the corresponding weights.
+    note Gauss-Legendre nodes on the interval [-1,1] are distributed symmetrically about 0, such that for any node `x` the point `-x` is also a node with the same weight. Therefore the nodes and weights only need to be produced for nonnegative `x`. For the negative portion of the interval the nodes are `-x`, and the weights are given by the corresponding weights.
 */
 struct UnpackedLayout
 {
@@ -1486,12 +1486,11 @@ constexpr void gl_nodes_and_weights_table(
     @param nodes range for storing the nodes
     @param parity parity of the total number of nodes
 
-    @note For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
-    I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
+    For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of
+    nodes Bogaert's iteration-free method is used: I. Bogaert, Iteration-free computation of
+    Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
 
-    @note The nodes returned are accurate to double macine epsilon.
-
-    @note The implementation is based on the reference implementation by Bogaert.
+    The nodes returned are accurate to double macine epsilon.
 */
 template <gl_layout Layout, GLNodeStyle node_style_param, std::ranges::random_access_range R>requires std::floating_point<
         typename std::remove_reference_t<R>::value_type>
@@ -1513,12 +1512,11 @@ constexpr void gl_nodes(R&& nodes, std::size_t parity) noexcept
     @param weights range for storing the weights
     @param parity parity of the total number of nodes
 
-    @note For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
-    I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
+    For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes
+    Bogaert's iteration-free method is used: I. Bogaert, Iteration-free computation of
+    Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
 
-    @note The weights returned are accurate to double macine epsilon.
-
-    @note The implementation is based on the reference implementation by Bogaert.
+    The weights returned are accurate to double macine epsilon.
 */
 template <gl_layout Layout, std::ranges::random_access_range R>
     requires std::floating_point<
@@ -1542,12 +1540,11 @@ constexpr void gl_weights(R&& weights, std::size_t parity) noexcept
     @param weights range for storing the weights
     @param parity parity of the total number of nodes
 
-    @note For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes Bogaert's iteration-free method is used:
-    I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
+    For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of
+    nodes Bogaert's iteration-free method is used: I. Bogaert, Iteration-free computation of
+    Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
 
-    @note The nodes and weights returned are accurate to double macine epsilon.
-
-    @note The implementation is based on the reference implementation by Bogaert.
+    The nodes and weights returned are accurate to double macine epsilon.
 */
 template <gl_layout Layout, GLNodeStyle node_style_param, std::ranges::random_access_range R>
     requires std::floating_point<

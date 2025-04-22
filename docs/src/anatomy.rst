@@ -122,21 +122,21 @@ quadrature-based transforms, but the former is mandatory for fitting an expansio
 For these classes, the library provides a number of convenient aliases for various common
 combinations of normalization and phase conventions. For spherical harmonics these aliases are
 
-*:cpp:type:`zest::st::RealSHExpansionAcoustics`
-*:cpp:type:`zest::st::RealSHExpansionQM`
-*:cpp:type:`zest::st::RealSHExpansionGeo`
+* :cpp:type:`zest::st::RealSHExpansionAcoustics`
+* :cpp:type:`zest::st::RealSHExpansionQM`
+* :cpp:type:`zest::st::RealSHExpansionGeo`
 
 For Zernike functions there are corresponding aliases for the unnormalized radial functions:
 
-*:cpp:type:`zest::zt::RealZernikeExpansionAcoustics`
-*:cpp:type:`zest::zt::RealZernikeExpansionQM`
-*:cpp:type:`zest::zt::RealZernikeExpansionGeo`
+* :cpp:type:`zest::zt::RealZernikeExpansionAcoustics`
+* :cpp:type:`zest::zt::RealZernikeExpansionQM`
+* :cpp:type:`zest::zt::RealZernikeExpansionGeo`
 
 and furthermore for the normalized radial Zernike polynomials:
 
-*:cpp:type:`zest::zt::RealZernikeExpansionNormalAcoustics`
-*:cpp:type:`zest::zt::RealZernikeExpansionNormalQM`
-*:cpp:type:`zest::zt::RealZernikeExpansionNormalGeo`
+* :cpp:type:`zest::zt::RealZernikeExpansionNormalAcoustics`
+* :cpp:type:`zest::zt::RealZernikeExpansionNormalQM`
+* :cpp:type:`zest::zt::RealZernikeExpansionNormalGeo`
 
 For storage of function values on Gauss--Legendre quadrature grids there are the classes
 :cpp:type:`zest::st::SphereGLQGrid` and :cpp:type:`zest::zt::BallGLQGrid` for the sphere and ball,
@@ -230,18 +230,18 @@ The normalization and phase convention parameters are the same as those to the r
 containers discussed above. To that end, both transformer classes have a set of aliases for some commond
 combinations of normalization and phase conventions. These are
 
-*:cpp:type:`zest::st::GLQTransformerAcoustics`
-*:cpp:type:`zest::st::GLQTransformerQM`
-*:cpp:type:`zest::st::GLQTransformerGeo`
+* :cpp:type:`zest::st::GLQTransformerAcoustics`
+* :cpp:type:`zest::st::GLQTransformerQM`
+* :cpp:type:`zest::st::GLQTransformerGeo`
 
 for the spherical harmonic transformer as well as
 
-*:cpp:type:`zest::zt::GLQTransformerAcoustics`
-*:cpp:type:`zest::zt::GLQTransformerQM`
-*:cpp:type:`zest::zt::GLQTransformerGeo`
-*:cpp:type:`zest::zt::GLQTransformerNormalAcoustics`
-*:cpp:type:`zest::zt::GLQTransformerNormalQM`
-*:cpp:type:`zest::zt::GLQTransformerNormalGeo`
+* :cpp:type:`zest::zt::GLQTransformerAcoustics`
+* :cpp:type:`zest::zt::GLQTransformerQM`
+* :cpp:type:`zest::zt::GLQTransformerGeo`
+* :cpp:type:`zest::zt::GLQTransformerNormalAcoustics`
+* :cpp:type:`zest::zt::GLQTransformerNormalQM`
+* :cpp:type:`zest::zt::GLQTransformerNormalGeo`
 
 for the Zernike transformer. The final parameter ``GridLayoutType`` in turn is the same as for the
 corresponding grid containers.

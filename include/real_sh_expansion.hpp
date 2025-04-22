@@ -76,7 +76,7 @@ private:
 
     @tparam ElementType type of elements
     @tparam LayoutType layout of the elements
-    @tparam NORM normalization convention of the spherical harmonics
+    @tparam sh_norm_param normalization convention of the spherical harmonics
     @tparam sh_phase_param phase convention of the spherical harmonics
 */
 template <
@@ -148,7 +148,7 @@ using RealSHSpanGeo = RealSHSpan<ElementType, SHNorm::geo, SHPhase::none>;
 /**
     @brief A container for purely real spherical harmonic data.
 
-    @tparam NORM normalization convention of the spherical harmonics
+    @tparam sh_norm_param normalization convention of the spherical harmonics
     @tparam sh_phase_param phase convention of the spherical harmonics
     @tparam ElementType type of elements
 */

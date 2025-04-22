@@ -148,7 +148,7 @@ public:
     1 3 5 7 9...
     ```
 
-    @note This indexing implies that adjacent even and odd indices map to the same memory slot. Indexing data with this layout mixing even and odd indices is an error.
+    @warning This indexing implies that adjacent even and odd indices map to the same memory slot. Indexing data with this layout mixing even and odd indices is an error.
 */
 struct ParityLinearLayout
 {
@@ -249,7 +249,7 @@ struct TriangleLayout
     ...
     ```
 
-    @note This indexing implies that some index combinations are simply not valid. It is erroneous to access data using this layout with indices whose sum is an odd number.
+    @warning This indexing implies that some index combinations are simply not valid. It is erroneous to access data using this layout with indices whose sum is an odd number.
 */
 struct OddDiagonalSkippingTriangleLayout
 {
