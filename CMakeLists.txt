@@ -84,7 +84,7 @@ find_package(lapack)
 if(lapack_FOUND)
     target_link_libraries(zest PUBLIC lapack)
 else()
-    message(NOTICE "LAPACK not found: linear least squares fits will work without LAPACK")
+    message(NOTICE "LAPACK not found: linear least squares fits will not work without LAPACK")
 endif()
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
