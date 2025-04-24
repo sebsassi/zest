@@ -14,13 +14,15 @@ zest aims to be fast, nonintrusive, and hard to use incorrectly:
 
 ## Build and installation
 
+Note: use of zest mostly requires no other libraries. However, performing least squares fits with spherical harmonics and Zernike expansions requires linking with LAPACK
+
 zest uses CMake, and therefore follows the standard CMake build/install process. In short, the following three commands configure, build, and install the project to your preferred install directory
 ```bash
 cmake --preset=default
 cmake --build build
 cmake --install build --prefix <install directory>
 ```
-Note: this library aims to use the C++20 standard. Therefore, a sufficiently modern compiler is required. At least GGC 13 or Clang 17 is recommended. The library may compile at any point with compilers down to GCC 11 and Clang 14, but no guarantees are made about this.
+Note: zest aims to use the C++20 standard. Therefore, a sufficiently modern compiler is required. At least GGC 13 or Clang 17 is recommended. The library may compile at any point with compilers down to GCC 11 and Clang 14, but no guarantees are made about this.
 
 ## Usage
 

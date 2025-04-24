@@ -4,7 +4,12 @@ Getting started
 Installation
 ------------
 
-First, download the source code by cloning the git repository and navigate to its sources
+Before proceeding to installation, it is worth noting that zest mostly does not depend on libraries
+other than standard lbrary. However, an exception to this is that performing least squares fits of
+spherical harmonic and Zernike expansions requires linking with LAPACK. 
+
+For the installation you need to obtain the source code, e.g., by cloning the git repository. Then,
+navigate to the source directory
 
 .. code:: console
 
@@ -17,10 +22,11 @@ and then build the sources in that directory, e.g.,
 
 .. code:: console
 
-    cmake -S . -B build
+    cmake --preset=default
     cmake --build build
 
-After that we can install the built library from the build directory to our desired location
+The default configuration here should be adequate. After that you can install the built library
+from the build directory to our desired location
 
 .. code:: console
 
