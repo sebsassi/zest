@@ -24,6 +24,8 @@ SOFTWARE.
 #include <span>
 #include <vector>
 
+#include "md_span.hpp"
+#include "md_array.hpp"
 #include "linearfit.hpp"
 #include "real_sh_expansion.hpp"
 #include "sh_generator.hpp"
@@ -48,30 +50,31 @@ public:
         return m_sh_gen.max_order();
     }
 
-    [[nodiscard]] const Matrix<double>& sh_values() const noexcept
+    [[nodiscard]] MDSpan<const double, 2> sh_values() const noexcept
     {
         return m_sh_values;
     }
 
     template <SHNorm sh_norm_param, SHPhase sh_phase_param>
     void transform(
-        std::span<const double> data, std::span<const double> lat, std::span<const double> lon, RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
+        std::span<const double> data, std::span<const double> lat, std::span<const double> lon,
+        RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
     {
         using FitExpansion = RealSHSpan<double, sh_norm_param, sh_phase_param>;
 
         m_sh_gen.expand(expansion.order());
 
-        m_sh_values.resize(
-                data.size(), FitExpansion::Layout::size(expansion.order()));
+        m_sh_values.reshape(
+                {data.size(), FitExpansion::Layout::size(expansion.order())});
 
         for (size_t i = 0; i < data.size(); ++i)
         {
-            FitExpansion ylm(m_sh_values.row(i), expansion.order());
+            FitExpansion ylm(m_sh_values[i], expansion.order());
             m_sh_gen.generate(lon[i], lat[i], ylm);
         }
 
-        m_coeffs.resize(m_sh_values.ncols());
-        m_fitter.fit_parameters(m_sh_values, m_coeffs, data);
+        m_coeffs.resize(m_sh_values.extent(1));
+        m_fitter(m_sh_values, m_coeffs, data);
 
         FitExpansion coeffs(m_coeffs.data(), expansion.order());
         for (auto l : expansion.indices())
@@ -86,7 +89,8 @@ public:
     
     template <SHNorm sh_norm_param, SHPhase sh_phase_param>
     [[nodiscard]] auto transform(
-        std::span<const double> data, std::span<const double> lat, std::span<const double> lon, std::size_t order)
+        std::span<const double> data, std::span<const double> lat, std::span<const double> lon,
+        std::size_t order)
     {
         RealSHExpansion<sh_norm_param, sh_phase_param> expansion(order);
         transform<sh_norm_param, sh_phase_param>(data, lat, lon, expansion);
@@ -95,7 +99,7 @@ public:
 
 private:
     RealSHGenerator m_sh_gen;
-    Matrix<double> m_sh_values;
+    MDArray<double, 2> m_sh_values;
     std::vector<double> m_coeffs;
     zest::detail::LinearMultifit m_fitter;
 };
@@ -119,32 +123,34 @@ public:
         return m_zernike_gen.max_order();
     }
 
-    [[nodiscard]] const Matrix<double>& sh_values() const noexcept
+    [[nodiscard]] MDSpan<const double, 2> zernike_values() const noexcept
     {
-        return m_sh_values;
+        return m_zernike_values;
     }
 
     template <
         ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
     void transform(
-        std::span<const double> data, std::span<const double> r, std::span<const double> lon, std::span<const double> colat, RealZernikeSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
+        std::span<const double> data, std::span<const double> r, std::span<const double> lon,
+        std::span<const double> colat,
+        RealZernikeSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
     {
         using FitExpansion = RealZernikeSpan<
                 double, zernike_norm_param, sh_norm_param, sh_phase_param>;
 
         m_zernike_gen.expand(expansion.order());
 
-        m_sh_values.resize(
-                data.size(), FitExpansion::Layout::size(expansion.order()));
+        m_zernike_values.reshape(
+                {data.size(), FitExpansion::Layout::size(expansion.order())});
 
         for (size_t i = 0; i < data.size(); ++i)
         {
-            FitExpansion znlm(m_sh_values.row(i), expansion.order());
+            FitExpansion znlm(m_zernike_values[i], expansion.order());
             m_zernike_gen.generate(r[i], lon[i], colat[i], znlm);
         }
 
-        m_coeffs.resize(m_sh_values.ncols());
-        m_fitter.fit_parameters(m_sh_values, m_coeffs, data);
+        m_coeffs.resize(m_zernike_values.extent(1));
+        m_fitter(m_zernike_values, m_coeffs, data);
 
         FitExpansion coeffs(m_coeffs.data(), expansion.order());
         for (auto n : expansion.indices())
@@ -166,7 +172,8 @@ public:
         ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param,
         st::SHPhase sh_phase_param>
     [[nodiscard]] auto transform(
-        std::span<const double> data, std::span<const double> lat, std::span<const double> lon, std::size_t order)
+        std::span<const double> data, std::span<const double> lat, std::span<const double> lon,
+        std::size_t order)
     {
         RealZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> 
         expansion(order);
@@ -176,7 +183,7 @@ public:
 
 private:
     ZernikeGenerator m_zernike_gen;
-    Matrix<double> m_sh_values;
+    MDArray<double, 2> m_zernike_values;
     std::vector<double> m_coeffs;
     detail::LinearMultifit m_fitter;
 };

@@ -50,13 +50,13 @@ public:
         @brief Number of rows in the matrix
     */
     [[nodiscard]] constexpr std::size_t
-    nrows() const noexcept { return extent(0); }
+    extent() const noexcept { return extent(0); }
 
     /**
         @brief Number of columns in the matrix
     */
     [[nodiscard]] constexpr std::size_t
-    ncols() const noexcept { return extent(1); }
+    extent() const noexcept { return extent(1); }
 };
 
 /*

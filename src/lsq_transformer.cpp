@@ -27,7 +27,16 @@ namespace st
 {
 
 LSQTransformer::LSQTransformer(std::size_t order):
-    m_sh_gen(order), m_sh_values(), m_fitter() {}
+    m_sh_gen(order) {}
 
 } // namespace st
+
+namespace zt
+{
+
+LSQTransformer::LSQTransformer(std::size_t order):
+    m_zernike_gen(order) {}
+
+}
+
 } // namespace zest

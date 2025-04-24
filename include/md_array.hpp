@@ -120,6 +120,18 @@ public:
         return m_extents[i];
     }
 
+    /**
+        @brief Change the shape of the array.
+        
+        @param extents shape of the new array
+    */
+    void reshape(const std::array<size_type, rank_param>& extents)
+    {
+        m_size = detail::prod(extents);
+        m_data.resize(m_size);
+        m_extents = extents;
+    }
+
     template <typename... Ts>
         requires (sizeof...(Ts) == rank_param)
     [[nodiscard]] element_type& operator()(Ts... inds) noexcept

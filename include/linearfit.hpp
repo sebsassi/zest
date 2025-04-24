@@ -24,7 +24,7 @@ SOFTWARE.
 #include <vector>
 #include <span>
 
-#include "matrix.hpp"
+#include "md_span.hpp"
 
 namespace zest
 {
@@ -40,25 +40,25 @@ public:
     LinearMultifit() = default;
 
     /**
-        @brief Fit parameters to data.
+        @brief Fit parameters to data
 
         @param model model matrix
         @param data data set to fit
 
         @returns `std::vector<double>` containing the fitted parameters
     */
-    [[nodiscard]] std::vector<double> fit_parameters(
-        MatrixSpan<const double> model, std::span<const double> data);
+    [[nodiscard]] std::vector<double> operator()(
+        MDSpan<const double, 2> model, std::span<const double> data);
 
     /**
-        @brief Fit parameters to data.
+        @brief Fit parameters to data
 
         @param model model matrix
         @param parameters fitted parameters
         @param data data set to fit
     */
-    void fit_parameters(
-        MatrixSpan<const double> model, std::span<double> parameters, std::span<const double> data);
+    void operator()(
+        MDSpan<const double, 2> model, std::span<double> parameters, std::span<const double> data);
 
 private:
     std::vector<double> m_model_data;

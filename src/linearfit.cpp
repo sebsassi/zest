@@ -21,6 +21,7 @@ SOFTWARE.
 */
 #include "linearfit.hpp"
 
+#include <cassert>
 #include <algorithm>
 
 namespace zest
@@ -37,22 +38,24 @@ int dgels_(
 namespace detail
 {
 
-[[nodiscard]] std::vector<double> LinearMultifit::fit_parameters(
-    MatrixSpan<const double> model, std::span<const double> data)
+[[nodiscard]] std::vector<double> LinearMultifit::operator()(
+    MDSpan<const double, 2> model, std::span<const double> data)
 {
-    std::vector<double> parameters = std::vector<double>(model.ncols());
-    fit_parameters(model, parameters, data);
+    std::vector<double> parameters = std::vector<double>(model.extent(1));
+    operator()(model, parameters, data);
     return parameters;
 }
 
-void LinearMultifit::fit_parameters(
-    MatrixSpan<const double> model, std::span<double> parameters, std::span<const double> data)
+void LinearMultifit::operator()(
+    MDSpan<const double, 2> model, std::span<double> parameters, std::span<const double> data)
 {
-    m_model_data.resize(model.nrows()*model.ncols());
-    m_data.resize(std::max(model.nrows(), model.ncols()));
+    assert(model.extent(0) <= data.size());
+    assert(model.extent(1) <= parameters.size());
+    m_model_data.resize(model.extent(0)*model.extent(1));
+    m_data.resize(std::max(model.extent(0), model.extent(1)));
 
-    std::span<double> parameters_view(parameters.begin(), model.ncols());
-    std::span<const double> data_view(data.begin(), model.nrows());
+    std::span<const double> data_view(data.begin(), model.extent(0));
+    std::span<double> parameters_view(parameters.begin(), model.extent(1));
 
     // Copy because dgels_ will modify data
     std::span<const double> mat_data = std::span(model.data(), model.size()); 
@@ -60,8 +63,8 @@ void LinearMultifit::fit_parameters(
     std::copy_n(data_view.begin(), data_view.size(), m_data.begin());
     
     // Have to interpret as transpose of Fortran order
-    long int nrows_f = (long int)(model.ncols());
-    long int ncols_f = (long int)(model.nrows());
+    long int nrows_f = (long int)(model.extent(0));
+    long int ncols_f = (long int)(model.extent(1));
     char trans = 'T';
 
     long int lda = nrows_f;
