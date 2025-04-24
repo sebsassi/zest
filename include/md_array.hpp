@@ -114,8 +114,7 @@ public:
     /**
         @brief Dimension of the array along an axis.
     */
-    [[nodiscard]] std::size_t
-    extent(std::size_t i) const noexcept
+    [[nodiscard]] std::size_t extent(std::size_t i) const noexcept
     {
         return m_extents[i];
     }

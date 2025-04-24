@@ -24,6 +24,8 @@ SOFTWARE.
 #include <cassert>
 #include <algorithm>
 
+#include "md_span.hpp"
+
 namespace zest
 {
 
@@ -58,13 +60,12 @@ void LinearMultifit::operator()(
     std::span<double> parameters_view(parameters.begin(), model.extent(1));
 
     // Copy because dgels_ will modify data
-    std::span<const double> mat_data = std::span(model.data(), model.size()); 
-    std::ranges::copy(mat_data, m_model_data.begin());
-    std::copy_n(data_view.begin(), data_view.size(), m_data.begin());
+    std::ranges::copy(std::span<const double>(model), m_model_data.begin());
+    std::ranges::copy(data_view, m_data.begin());
     
     // Have to interpret as transpose of Fortran order
-    long int nrows_f = (long int)(model.extent(0));
-    long int ncols_f = (long int)(model.extent(1));
+    long int nrows_f = (long int)(model.extent(1));
+    long int ncols_f = (long int)(model.extent(0));
     char trans = 'T';
 
     long int lda = nrows_f;
