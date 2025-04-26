@@ -79,3 +79,7 @@ g++ -O3 -std=c++20 -o zernike_example zernike_example.cpp -lzest
 Note the `-std=c++20` needed to enable the C++20 features required by the library, unless your compiler defaults to C++20.
 
 More examples of using this library can be found in the `examples` directory.
+
+## Documentation
+
+HTML and PDF documentation are available in the `docs` directory.
