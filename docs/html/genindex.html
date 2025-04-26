@@ -1,0 +1,837 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
+
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 --><title>Index - zest 0.1.0 documentation</title>
+<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">zest 0.1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">zest 0.1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Theoretical background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="anatomy.html">Anatomy of zest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Library reference</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          
+<section class="genindex-section">
+  <h1 id="index">Index</h1>
+  <div class="genindex-jumpbox"><a href="#Z"><strong>Z</strong></a></div>
+</section>
+<section id="Z" class="genindex-section">
+  <h2>Z</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference.html#_CPPv44zest">zest (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0_20valid_simd_alignmentEN4zest12aligned_sizeENSt6size_tENSt6size_tE">zest::aligned_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0_20valid_simd_alignmentEN4zest16AlignedAllocatorE">zest::AlignedAllocator (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest16AlignedAllocator8allocateENSt6size_tE">zest::AlignedAllocator::allocate (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest16AlignedAllocator10deallocateEP1TNSt6size_tE">zest::AlignedAllocator::deallocate (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest16AlignedAllocator6rebindE">zest::AlignedAllocator::rebind (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest15AVX512AlignmentE">zest::AVX512Alignment (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest12AVXAlignmentE">zest::AVXAlignment (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest18CacheLineAlignmentE">zest::CacheLineAlignment (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest33euler_angles_from_rotation_matrixERKNSt5arrayINSt5arrayIdXL3EEEEXL3EEEE">zest::euler_angles_from_rotation_matrix (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2gl9gl_layoutE">zest::gl::gl_layout (C++ concept)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_9gl_layout_11GLNodeStyle_NSt6ranges19random_access_rangeEEN4zest2gl8gl_nodesEvRR1RNSt6size_tE">zest::gl::gl_nodes (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_9gl_layout_11GLNodeStyle_NSt6ranges19random_access_rangeEEN4zest2gl20gl_nodes_and_weightsEvRR1RRR1RNSt6size_tE">zest::gl::gl_nodes_and_weights (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_9gl_layout_NSt6ranges19random_access_rangeEEN4zest2gl10gl_weightsEvRR1RNSt6size_tE">zest::gl::gl_weights (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2gl11GLNodeStyleE">zest::gl::GLNodeStyle (C++ enum)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2gl11GLNodeStyle5angleE">zest::gl::GLNodeStyle::angle (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2gl11GLNodeStyle3cosE">zest::gl::GLNodeStyle::cos (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2gl12PackedLayoutE">zest::gl::PackedLayout (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2gl14UnpackedLayoutE">zest::gl::UnpackedLayout (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest12IndexingModeE">zest::IndexingMode (C++ enum)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest12IndexingMode8negativeE">zest::IndexingMode::negative (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest12IndexingMode11nonnegativeE">zest::IndexingMode::nonnegative (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_NSt8integralE_9IndexTypeEN4zest13IndexIteratorE">zest::IndexIterator (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest13IndexIterator5indexEv">zest::IndexIterator::index (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest13IndexIteratormlEv">zest::IndexIterator::operator* (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest13IndexIteratorplE15difference_type">zest::IndexIterator::operator+ (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest13IndexIteratorppEi">zest::IndexIterator::operator++ (C++ function)</a>, <a href="reference.html#_CPPv4N4zest13IndexIteratorppEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest13IndexIteratorpLE10index_type">zest::IndexIterator::operator+= (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest13IndexIteratormiE15difference_type">zest::IndexIterator::operator- (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest13IndexIteratormmEi">zest::IndexIterator::operator-- (C++ function)</a>, <a href="reference.html#_CPPv4N4zest13IndexIteratormmEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest13IndexIteratormIE10index_type">zest::IndexIterator::operator-= (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest13IndexIteratorixE10index_type">zest::IndexIterator::operator[] (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest9layout_2dE">zest::layout_2d (C++ concept)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest9LayoutTagE">zest::LayoutTag (C++ enum)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest9LayoutTag6linearE">zest::LayoutTag::linear (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest9LayoutTag11tetrahedralE">zest::LayoutTag::tetrahedral (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest9LayoutTag10triangularE">zest::LayoutTag::triangular (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I00EN4zest10LinearSpanE">zest::LinearSpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest10LinearSpan4dataEv">zest::LinearSpan::data (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest10LinearSpan5orderEv">zest::LinearSpan::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest10LinearSpan4sizeENSt6size_tE">zest::LinearSpan::size (C++ function)</a>, <a href="reference.html#_CPPv4NK4zest10LinearSpan4sizeEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4I00EN4zest13LinearVecSpanE">zest::LinearVecSpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest13LinearVecSpan4dataEv">zest::LinearVecSpan::data (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest13LinearVecSpan5orderEv">zest::LinearVecSpan::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest13LinearVecSpan4sizeENSt6size_tENSt6size_tE">zest::LinearVecSpan::size (C++ function)</a>, <a href="reference.html#_CPPv4NK4zest13LinearVecSpan4sizeEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest13LinearVecSpan8vec_sizeEv">zest::LinearVecSpan::vec_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0_NSt6size_tEEN4zest7MDArrayE">zest::MDArray (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0_NSt6size_tEEN4zest6MDSpanE">zest::MDSpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest11NoAlignmentE">zest::NoAlignment (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest11NoAlignment11vector_sizeENSt6size_tEv">zest::NoAlignment::vector_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest33OddDiagonalSkippingTriangleLayoutE">zest::OddDiagonalSkippingTriangleLayout (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest33OddDiagonalSkippingTriangleLayout3idxENSt6size_tENSt6size_tE">zest::OddDiagonalSkippingTriangleLayout::idx (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest33OddDiagonalSkippingTriangleLayout4sizeENSt6size_tE">zest::OddDiagonalSkippingTriangleLayout::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest20one_dimensional_spanE">zest::one_dimensional_span (C++ concept)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest6ParityE">zest::Parity (C++ enum)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest6Parity4evenE">zest::Parity::even (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest6Parity3oddE">zest::Parity::odd (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_NSt8integralEEN4zest16ParityIndexRangeE">zest::ParityIndexRange (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest16ParityIndexRange5beginEv">zest::ParityIndexRange::begin (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest16ParityIndexRange3endEv">zest::ParityIndexRange::end (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest16ParityIndexRange16ParityIndexRangeE10index_type">zest::ParityIndexRange::ParityIndexRange (C++ function)</a>, <a href="reference.html#_CPPv4N4zest16ParityIndexRange16ParityIndexRangeE10index_type10index_type">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest18ParityLinearLayoutE">zest::ParityLinearLayout (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest18ParityLinearLayout3idxE10index_type">zest::ParityLinearLayout::idx (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest18ParityLinearLayout4sizeENSt6size_tE">zest::ParityLinearLayout::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest10ParitySpanE">zest::ParitySpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest10ParitySpan4dataEv">zest::ParitySpan::data (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest10ParitySpan5orderEv">zest::ParitySpan::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest10ParitySpan4sizeEv">zest::ParitySpan::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest12RotationTypeE">zest::RotationType (C++ enum)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest12RotationType10coordinateE">zest::RotationType::coordinate (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest12RotationType6objectE">zest::RotationType::object (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest5RotorE">zest::Rotor (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_N2st17real_sh_expansionEEN4zest5Rotor12polar_rotateEvRR13ExpansionTyped12RotationType">zest::Rotor::polar_rotate (C++ function)</a>, <a href="reference.html#_CPPv4I_N2zt22real_zernike_expansionEEN4zest5Rotor12polar_rotateEvRR13ExpansionTyped12RotationType">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_N2st17real_sh_expansionEEN4zest5Rotor6rotateEvRR13ExpansionTypeRKN4zest23WignerdPiHalfCollectionERKNSt5arrayINSt5arrayIdXL3EEEEXL3EEEE12RotationType">zest::Rotor::rotate (C++ function)</a>, <a href="reference.html#_CPPv4I_N2st17real_sh_expansionEEN4zest5Rotor6rotateEvRR13ExpansionTypeRKN4zest23WignerdPiHalfCollectionERKNSt5arrayIdXL3EEEE12RotationType">[1]</a>, <a href="reference.html#_CPPv4I_N2st30row_skipping_real_sh_expansionEEN4zest5Rotor6rotateEvRR13ExpansionTypeRKN4zest23WignerdPiHalfCollectionERKNSt5arrayIdXL3EEEE12RotationType">[2]</a>, <a href="reference.html#_CPPv4I_N2zt22real_zernike_expansionEEN4zest5Rotor6rotateEvRR13ExpansionTypeRKN4zest23WignerdPiHalfCollectionERKNSt5arrayINSt5arrayIdXL3EEEEXL3EEEE12RotationType">[3]</a>, <a href="reference.html#_CPPv4I_N2zt22real_zernike_expansionEEN4zest5Rotor6rotateEvRR13ExpansionTypeRKN4zest23WignerdPiHalfCollectionERKNSt5arrayIdXL3EEEE12RotationType">[4]</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_12IndexingModeEN4zest25RowSkippingTriangleLayoutE">zest::RowSkippingTriangleLayout (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest25RowSkippingTriangleLayout3idxE10index_type10index_type">zest::RowSkippingTriangleLayout::idx (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest25RowSkippingTriangleLayout4sizeENSt6size_tE">zest::RowSkippingTriangleLayout::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest12SSEAlignmentE">zest::SSEAlignment (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2stE">zest::st (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_N2st17real_sh_expansionEEN4zest2st20cross_power_spectrumENSt6vectorIdEERR13ExpansionTypeRR13ExpansionType">zest::st::cross_power_spectrum (C++ function)</a>, <a href="reference.html#_CPPv4I_N2st17real_sh_expansionEEN4zest2st20cross_power_spectrumEvRR13ExpansionTypeRR13ExpansionTypeNSt4spanIdEE">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st13DefaultLayoutE">zest::st::DefaultLayout (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_6SHNorm_7SHPhase0EN4zest2st14GLQTransformerE">zest::st::GLQTransformer (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_30row_skipping_real_sh_expansionEN4zest2st14GLQTransformer18backward_transformE13SphereGLQGridId10GridLayoutERR9ExpansionNSt6size_tE">zest::st::GLQTransformer::backward_transform (C++ function)</a>, <a href="reference.html#_CPPv4I_30row_skipping_real_sh_expansionEN4zest2st14GLQTransformer18backward_transformEvRR9Expansion17SphereGLQGridSpanId10GridLayoutE">[1]</a>, <a href="reference.html#_CPPv4N4zest2st14GLQTransformer18backward_transformE10RealSHSpanIKNSt5arrayIdXL2EEEE13sh_norm_param14sh_phase_paramE17SphereGLQGridSpanId10GridLayoutE">[2]</a>, <a href="reference.html#_CPPv4N4zest2st14GLQTransformer18backward_transformE10RealSHSpanIKNSt5arrayIdXL2EEEE13sh_norm_param14sh_phase_paramENSt6size_tE">[3]</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st14GLQTransformer17forward_transformE17SphereGLQGridSpanIKd10GridLayoutE10RealSHSpanINSt5arrayIdXL2EEEE13sh_norm_param14sh_phase_paramE">zest::st::GLQTransformer::forward_transform (C++ function)</a>, <a href="reference.html#_CPPv4N4zest2st14GLQTransformer17forward_transformE17SphereGLQGridSpanIKd10GridLayoutENSt6size_tE">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2st14GLQTransformer5orderEv">zest::st::GLQTransformer::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st14GLQTransformer6resizeENSt6size_tE">zest::st::GLQTransformer::resize (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st23GLQTransformerAcousticsE">zest::st::GLQTransformerAcoustics (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st17GLQTransformerGeoE">zest::st::GLQTransformerGeo (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st16GLQTransformerQME">zest::st::GLQTransformerQM (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st13GridEvaluatorE">zest::st::GridEvaluator (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_17real_sh_expansionEN4zest2st13GridEvaluator8evaluateENSt6vectorIdEERR13ExpansionTypeNSt4spanIKdEENSt4spanIKdEE">zest::st::GridEvaluator::evaluate (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st13GridEvaluator13GridEvaluatorENSt6size_tE">zest::st::GridEvaluator::GridEvaluator (C++ function)</a>, <a href="reference.html#_CPPv4N4zest2st13GridEvaluator13GridEvaluatorENSt6size_tENSt6size_tENSt6size_tE">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st13GridEvaluator6resizeENSt6size_tENSt6size_tENSt6size_tE">zest::st::GridEvaluator::resize (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st12LatLonLayoutE">zest::st::LatLonLayout (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st12LatLonLayout8fft_sizeENSt6size_tE">zest::st::LatLonLayout::fft_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st12LatLonLayout10fft_strideENSt6size_tE">zest::st::LatLonLayout::fft_stride (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st12LatLonLayout8lat_sizeENSt6size_tE">zest::st::LatLonLayout::lat_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st12LatLonLayout8lon_sizeENSt6size_tE">zest::st::LatLonLayout::lon_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st12LatLonLayout5shapeENSt6size_tE">zest::st::LatLonLayout::shape (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st12LatLonLayout4sizeENSt6size_tE">zest::st::LatLonLayout::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st12LonLatLayoutE">zest::st::LonLatLayout (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st12LonLatLayout8fft_sizeENSt6size_tE">zest::st::LonLatLayout::fft_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st12LonLatLayout10fft_strideENSt6size_tE">zest::st::LonLatLayout::fft_stride (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st12LonLatLayout8lat_sizeENSt6size_tE">zest::st::LonLatLayout::lat_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st12LonLatLayout8lon_sizeENSt6size_tE">zest::st::LonLatLayout::lon_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st12LonLatLayout5shapeENSt6size_tE">zest::st::LonLatLayout::shape (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st12LonLatLayout4sizeENSt6size_tE">zest::st::LonLatLayout::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_10sh_packing_6SHNorm_7SHPhaseEN4zest2st12PackedSHSpanE">zest::st::PackedSHSpan (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_N2st17real_sh_expansionEEN4zest2st14power_spectrumENSt6vectorIdEERR13ExpansionType">zest::st::power_spectrum (C++ function)</a>, <a href="reference.html#_CPPv4I_N2st17real_sh_expansionEEN4zest2st14power_spectrumEvRR13ExpansionTypeNSt4spanIdEE">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st17real_sh_expansionE">zest::st::real_sh_expansion (C++ concept)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_6SHNorm_7SHPhase0EN4zest2st15RealSHExpansionE">zest::st::RealSHExpansion (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st15RealSHExpansion7flattenEv">zest::st::RealSHExpansion::flatten (C++ function)</a>, <a href="reference.html#_CPPv4NK4zest2st15RealSHExpansion7flattenEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2st15RealSHExpansion5orderEv">zest::st::RealSHExpansion::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st15RealSHExpansion6resizeE9size_type">zest::st::RealSHExpansion::resize (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st15RealSHExpansion4sizeE9size_type">zest::st::RealSHExpansion::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st24RealSHExpansionAcousticsE">zest::st::RealSHExpansionAcoustics (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st18RealSHExpansionGeoE">zest::st::RealSHExpansionGeo (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st17RealSHExpansionQME">zest::st::RealSHExpansionQM (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0_6SHNorm_7SHPhaseEN4zest2st10RealSHSpanE">zest::st::RealSHSpan (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st19RealSHSpanAcousticsE">zest::st::RealSHSpanAcoustics (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st13RealSHSpanGeoE">zest::st::RealSHSpanGeo (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st12RealSHSpanQME">zest::st::RealSHSpanQM (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st30row_skipping_real_sh_expansionE">zest::st::row_skipping_real_sh_expansion (C++ concept)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I00_6SHNorm_7SHPhaseEN4zest2st8SHLMSpanE">zest::st::SHLMSpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I00_6SHNorm_7SHPhaseEN4zest2st11SHLMVecSpanE">zest::st::SHLMVecSpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st6SHNormE">zest::st::SHNorm (C++ enum)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st6SHNorm3geoE">zest::st::SHNorm::geo (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st6SHNorm2qmE">zest::st::SHNorm::qm (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st7SHPhaseE">zest::st::SHPhase (C++ enum)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st7SHPhase2csE">zest::st::SHPhase::cs (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st7SHPhase4noneE">zest::st::SHPhase::none (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_N2st6SHNormE_N2st7SHPhaseE0EN4zest2st13SHTransformerE">zest::st::SHTransformer (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st13SHTransformer6resizeENSt6size_tE">zest::st::SHTransformer::resize (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_18cartesian_functionEN4zest2st13SHTransformer9transformE15RealSHExpansionI13sh_norm_param14sh_phase_paramERR8FuncTypeNSt6size_tE">zest::st::SHTransformer::transform (C++ function)</a>, <a href="reference.html#_CPPv4I_18cartesian_functionEN4zest2st13SHTransformer9transformEvRR8FuncType10RealSHSpanINSt5arrayIdXL2EEEE13sh_norm_param14sh_phase_paramE">[1]</a>, <a href="reference.html#_CPPv4I_18spherical_functionEN4zest2st13SHTransformer9transformE15RealSHExpansionI13sh_norm_param14sh_phase_paramERR8FuncTypeNSt6size_tE">[2]</a>, <a href="reference.html#_CPPv4I_18spherical_functionEN4zest2st13SHTransformer9transformEvRR8FuncType10RealSHSpanINSt5arrayIdXL2EEEE13sh_norm_param14sh_phase_paramE">[3]</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st22SHTransformerAcousticsE">zest::st::SHTransformerAcoustics (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st16SHTransformerGeoE">zest::st::SHTransformerGeo (C++ type)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st15SHTransformerQME">zest::st::SHTransformerQM (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st15sphere_glq_gridE">zest::st::sphere_glq_grid (C++ concept)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I00EN4zest2st13SphereGLQGridE">zest::st::SphereGLQGrid (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st13SphereGLQGrid7flattenEv">zest::st::SphereGLQGrid::flatten (C++ function)</a>, <a href="reference.html#_CPPv4NK4zest2st13SphereGLQGrid7flattenEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2st13SphereGLQGrid5orderEv">zest::st::SphereGLQGrid::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st13SphereGLQGrid6resizeENSt6size_tE">zest::st::SphereGLQGrid::resize (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2st13SphereGLQGrid5shapeEv">zest::st::SphereGLQGrid::shape (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st19SphereGLQGridPointsE">zest::st::SphereGLQGridPoints (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2st19SphereGLQGridPoints15generate_valuesEDaRR8FuncTypeNSt6size_tE">zest::st::SphereGLQGridPoints::generate_values (C++ function)</a>, <a href="reference.html#_CPPv4I_15sphere_glq_grid0EN4zest2st19SphereGLQGridPoints15generate_valuesEvRR8GridTypeRR8FuncType">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2st19SphereGLQGridPoints9glq_nodesEv">zest::st::SphereGLQGridPoints::glq_nodes (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2st19SphereGLQGridPoints10longitudesEv">zest::st::SphereGLQGridPoints::longitudes (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st19SphereGLQGridPoints6resizeENSt6size_tE">zest::st::SphereGLQGridPoints::resize (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st19SphereGLQGridPoints5shapeEv">zest::st::SphereGLQGridPoints::shape (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I00EN4zest2st17SphereGLQGridSpanE">zest::st::SphereGLQGridSpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2st17SphereGLQGridSpan7flattenEv">zest::st::SphereGLQGridSpan::flatten (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2st17SphereGLQGridSpan5orderEv">zest::st::SphereGLQGridSpan::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st17SphereGLQGridSpan5shapeENSt6size_tE">zest::st::SphereGLQGridSpan::shape (C++ function)</a>, <a href="reference.html#_CPPv4NK4zest2st17SphereGLQGridSpan5shapeEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2st17SphereGLQGridSpan4sizeENSt6size_tE">zest::st::SphereGLQGridSpan::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_NSt8integralEEN4zest18StandardIndexRangeE">zest::StandardIndexRange (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest18StandardIndexRange5beginEv">zest::StandardIndexRange::begin (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest18StandardIndexRange3endEv">zest::StandardIndexRange::end (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest18StandardIndexRange18StandardIndexRangeE10index_type">zest::StandardIndexRange::StandardIndexRange (C++ function)</a>, <a href="reference.html#_CPPv4N4zest18StandardIndexRange18StandardIndexRangeE10index_type10index_type">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_12IndexingModeEN4zest20StandardLinearLayoutE">zest::StandardLinearLayout (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest20StandardLinearLayout3idxE10index_type">zest::StandardLinearLayout::idx (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest20StandardLinearLayout4sizeENSt6size_tE">zest::StandardLinearLayout::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_NSt15signed_integralEEN4zest19SymmetricIndexRangeE">zest::SymmetricIndexRange (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest19SymmetricIndexRange5beginEv">zest::SymmetricIndexRange::begin (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest19SymmetricIndexRange3endEv">zest::SymmetricIndexRange::end (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest19SymmetricIndexRange19SymmetricIndexRangeE10index_type">zest::SymmetricIndexRange::SymmetricIndexRange (C++ function)</a>, <a href="reference.html#_CPPv4N4zest19SymmetricIndexRange19SymmetricIndexRangeE10index_type10index_type">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4I00EN4zest15TetrahedronSpanE">zest::TetrahedronSpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest15TetrahedronSpan4dataEv">zest::TetrahedronSpan::data (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest15TetrahedronSpan5orderEv">zest::TetrahedronSpan::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest15TetrahedronSpan4sizeENSt6size_tE">zest::TetrahedronSpan::size (C++ function)</a>, <a href="reference.html#_CPPv4NK4zest15TetrahedronSpan4sizeEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4I00EN4zest18TetrahedronVecSpanE">zest::TetrahedronVecSpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest18TetrahedronVecSpan4dataEv">zest::TetrahedronVecSpan::data (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest18TetrahedronVecSpan5orderEv">zest::TetrahedronVecSpan::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest18TetrahedronVecSpan4sizeENSt6size_tENSt6size_tE">zest::TetrahedronVecSpan::size (C++ function)</a>, <a href="reference.html#_CPPv4NK4zest18TetrahedronVecSpan4sizeEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_12IndexingModeEN4zest14TriangleLayoutE">zest::TriangleLayout (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest14TriangleLayout3idxE10index_type10index_type">zest::TriangleLayout::idx (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest14TriangleLayout4sizeENSt6size_tE">zest::TriangleLayout::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I00EN4zest12TriangleSpanE">zest::TriangleSpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest12TriangleSpan4dataEv">zest::TriangleSpan::data (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest12TriangleSpan5orderEv">zest::TriangleSpan::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest12TriangleSpan4sizeENSt6size_tE">zest::TriangleSpan::size (C++ function)</a>, <a href="reference.html#_CPPv4NK4zest12TriangleSpan4sizeEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4I00EN4zest15TriangleVecSpanE">zest::TriangleVecSpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest15TriangleVecSpan4dataEv">zest::TriangleVecSpan::data (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest15TriangleVecSpan5orderEv">zest::TriangleVecSpan::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest15TriangleVecSpan4sizeENSt6size_tENSt6size_tE">zest::TriangleVecSpan::size (C++ function)</a>, <a href="reference.html#_CPPv4NK4zest15TriangleVecSpan4sizeEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest15TriangleVecSpan8vec_sizeEv">zest::TriangleVecSpan::vec_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest17triangular_layoutE">zest::triangular_layout (C++ concept)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest20two_dimensional_spanE">zest::two_dimensional_span (C++ concept)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest28two_dimensional_subspannableE">zest::two_dimensional_subspannable (C++ concept)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest20valid_simd_alignmentE">zest::valid_simd_alignment (C++ concept)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_NSt6size_tEEN4zest15VectorAlignmentE">zest::VectorAlignment (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest15VectorAlignment11vector_sizeENSt6size_tEv">zest::VectorAlignment::vector_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest23WignerdPiHalfCollectionE">zest::WignerdPiHalfCollection (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest11WignerdSpanE">zest::WignerdSpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_12IndexingModeEN4zest24ZernikeTetrahedralLayoutE">zest::ZernikeTetrahedralLayout (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest24ZernikeTetrahedralLayout3idxE10index_type10index_type10index_type">zest::ZernikeTetrahedralLayout::idx (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest24ZernikeTetrahedralLayout4sizeENSt6size_tE">zest::ZernikeTetrahedralLayout::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2ztE">zest::zt (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I00EN4zest2zt11BallGLQGridE">zest::zt::BallGLQGrid (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt11BallGLQGrid7flattenEv">zest::zt::BallGLQGrid::flatten (C++ function)</a>, <a href="reference.html#_CPPv4NK4zest2zt11BallGLQGrid7flattenEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2zt11BallGLQGrid5orderEv">zest::zt::BallGLQGrid::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt11BallGLQGrid6resizeENSt6size_tE">zest::zt::BallGLQGrid::resize (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt11BallGLQGrid5shapeENSt6size_tE">zest::zt::BallGLQGrid::shape (C++ function)</a>, <a href="reference.html#_CPPv4N4zest2zt11BallGLQGrid5shapeEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt11BallGLQGrid4sizeENSt6size_tE">zest::zt::BallGLQGrid::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt17BallGLQGridPointsE">zest::zt::BallGLQGridPoints (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt17BallGLQGridPoints15generate_valuesEDaRR8FuncTypeNSt6size_tE">zest::zt::BallGLQGridPoints::generate_values (C++ function)</a>, <a href="reference.html#_CPPv4I_13ball_glq_grid0EN4zest2zt17BallGLQGridPoints15generate_valuesEvRR8GridTypeRR8FuncType">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2zt17BallGLQGridPoints13lat_glq_nodesEv">zest::zt::BallGLQGridPoints::lat_glq_nodes (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2zt17BallGLQGridPoints10longitudesEv">zest::zt::BallGLQGridPoints::longitudes (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2zt17BallGLQGridPoints13rad_glq_nodesEv">zest::zt::BallGLQGridPoints::rad_glq_nodes (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt17BallGLQGridPoints6resizeENSt6size_tE">zest::zt::BallGLQGridPoints::resize (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I00EN4zest2zt15BallGLQGridSpanE">zest::zt::BallGLQGridSpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2zt15BallGLQGridSpan7flattenEv">zest::zt::BallGLQGridSpan::flatten (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2zt15BallGLQGridSpan5orderEv">zest::zt::BallGLQGridSpan::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt15BallGLQGridSpan5shapeENSt6size_tE">zest::zt::BallGLQGridSpan::shape (C++ function)</a>, <a href="reference.html#_CPPv4NK4zest2zt15BallGLQGridSpan5shapeEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt15BallGLQGridSpan4sizeENSt6size_tE">zest::zt::BallGLQGridSpan::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt13DefaultLayoutE">zest::zt::DefaultLayout (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_11ZernikeNorm_N2st6SHNormE_N2st7SHPhaseE0EN4zest2zt14GLQTransformerE">zest::zt::GLQTransformer (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt14GLQTransformer18backward_transformE15RealZernikeSpanIKNSt5arrayIdXL2EEEE18zernike_norm_param13sh_norm_param14sh_phase_paramE15BallGLQGridSpanId10GridLayoutE">zest::zt::GLQTransformer::backward_transform (C++ function)</a>, <a href="reference.html#_CPPv4N4zest2zt14GLQTransformer18backward_transformE15RealZernikeSpanIKNSt5arrayIdXL2EEEE18zernike_norm_param13sh_norm_param14sh_phase_paramENSt6size_tE">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt14GLQTransformer17forward_transformE15BallGLQGridSpanIKd10GridLayoutE15RealZernikeSpanINSt5arrayIdXL2EEEE18zernike_norm_param13sh_norm_param14sh_phase_paramE">zest::zt::GLQTransformer::forward_transform (C++ function)</a>, <a href="reference.html#_CPPv4N4zest2zt14GLQTransformer17forward_transformE15BallGLQGridSpanIKd10GridLayoutENSt6size_tE">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2zt14GLQTransformer5orderEv">zest::zt::GLQTransformer::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt14GLQTransformer6resizeENSt6size_tE">zest::zt::GLQTransformer::resize (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt23GLQTransformerAcousticsE">zest::zt::GLQTransformerAcoustics (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt17GLQTransformerGeoE">zest::zt::GLQTransformerGeo (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt29GLQTransformerNormalAcousticsE">zest::zt::GLQTransformerNormalAcoustics (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt23GLQTransformerNormalGeoE">zest::zt::GLQTransformerNormalGeo (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt22GLQTransformerNormalQME">zest::zt::GLQTransformerNormalQM (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt16GLQTransformerQME">zest::zt::GLQTransformerQM (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt13GridEvaluatorE">zest::zt::GridEvaluator (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_22real_zernike_expansionEN4zest2zt13GridEvaluator8evaluateENSt6vectorIdEERR13ExpansionTypeNSt4spanIKdEENSt4spanIKdEENSt4spanIKdEE">zest::zt::GridEvaluator::evaluate (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt13GridEvaluator13GridEvaluatorENSt6size_tE">zest::zt::GridEvaluator::GridEvaluator (C++ function)</a>, <a href="reference.html#_CPPv4N4zest2zt13GridEvaluator13GridEvaluatorENSt6size_tENSt6size_tENSt6size_tENSt6size_tE">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt13GridEvaluator6resizeENSt6size_tENSt6size_tENSt6size_tENSt6size_tE">zest::zt::GridEvaluator::resize (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt15LonLatRadLayoutE">zest::zt::LonLatRadLayout (C++ struct)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt15LonLatRadLayout8fft_sizeENSt6size_tE">zest::zt::LonLatRadLayout::fft_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt15LonLatRadLayout10fft_strideENSt6size_tE">zest::zt::LonLatRadLayout::fft_stride (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt15LonLatRadLayout8lat_sizeENSt6size_tE">zest::zt::LonLatRadLayout::lat_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt15LonLatRadLayout8lon_sizeENSt6size_tE">zest::zt::LonLatRadLayout::lon_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt15LonLatRadLayout8rad_sizeENSt6size_tE">zest::zt::LonLatRadLayout::rad_size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt15LonLatRadLayout5shapeENSt6size_tE">zest::zt::LonLatRadLayout::shape (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt15LonLatRadLayout4sizeENSt6size_tE">zest::zt::LonLatRadLayout::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_15zernike_packing_11ZernikeNorm_N2st6SHNormE_N2st7SHPhaseEEN4zest2zt17PackedZernikeSpanE">zest::zt::PackedZernikeSpan (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_N2zt22real_zernike_expansionEEN4zest2zt14power_spectrumENSt6vectorIdEERR13ExpansionType">zest::zt::power_spectrum (C++ function)</a>, <a href="reference.html#_CPPv4I_N2zt22real_zernike_expansionEEN4zest2zt14power_spectrumEvRR13ExpansionType17RadialZernikeSpanIdN13ExpansionType12zernike_normEE">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt22real_zernike_expansionE">zest::zt::real_zernike_expansion (C++ concept)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_11ZernikeNorm_N2st6SHNormE_N2st7SHPhaseE0EN4zest2zt20RealZernikeExpansionE">zest::zt::RealZernikeExpansion (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt20RealZernikeExpansion7flattenEv">zest::zt::RealZernikeExpansion::flatten (C++ function)</a>, <a href="reference.html#_CPPv4NK4zest2zt20RealZernikeExpansion7flattenEv">[1]</a>
+</li>
+        <li><a href="reference.html#_CPPv4NK4zest2zt20RealZernikeExpansion5orderEv">zest::zt::RealZernikeExpansion::order (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt20RealZernikeExpansion6resizeE9size_type">zest::zt::RealZernikeExpansion::resize (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt20RealZernikeExpansion4sizeE9size_type">zest::zt::RealZernikeExpansion::size (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt29RealZernikeExpansionAcousticsE">zest::zt::RealZernikeExpansionAcoustics (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt23RealZernikeExpansionGeoE">zest::zt::RealZernikeExpansionGeo (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt35RealZernikeExpansionNormalAcousticsE">zest::zt::RealZernikeExpansionNormalAcoustics (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt29RealZernikeExpansionNormalGeoE">zest::zt::RealZernikeExpansionNormalGeo (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt28RealZernikeExpansionNormalQME">zest::zt::RealZernikeExpansionNormalQM (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt22RealZernikeExpansionQME">zest::zt::RealZernikeExpansionQM (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0_11ZernikeNorm_N2st6SHNormE_N2st7SHPhaseEEN4zest2zt15RealZernikeSpanE">zest::zt::RealZernikeSpan (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt24RealZernikeSpanAcousticsE">zest::zt::RealZernikeSpanAcoustics (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt18RealZernikeSpanGeoE">zest::zt::RealZernikeSpanGeo (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt30RealZernikeSpanNormalAcousticsE">zest::zt::RealZernikeSpanNormalAcoustics (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt24RealZernikeSpanNormalGeoE">zest::zt::RealZernikeSpanNormalGeo (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt23RealZernikeSpanNormalQME">zest::zt::RealZernikeSpanNormalQM (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt17RealZernikeSpanQME">zest::zt::RealZernikeSpanQM (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I00_11ZernikeNorm_N2st6SHNormE_N2st7SHPhaseEEN4zest2zt14ZernikeNLMSpanE">zest::zt::ZernikeNLMSpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt11ZernikeNormE">zest::zt::ZernikeNorm (C++ enum)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt11ZernikeNorm6normedE">zest::zt::ZernikeNorm::normed (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt11ZernikeNorm8unnormedE">zest::zt::ZernikeNorm::unnormed (C++ enumerator)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I00_11ZernikeNorm_N2st6SHNormE_N2st7SHPhaseEEN4zest2zt13ZernikeSHSpanE">zest::zt::ZernikeSHSpan (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_11ZernikeNorm_N2st6SHNormE_N2st7SHPhaseE0EN4zest2zt18ZernikeTransformerE">zest::zt::ZernikeTransformer (C++ class)</a>
+</li>
+        <li><a href="reference.html#_CPPv4N4zest2zt18ZernikeTransformer6resizeENSt6size_tE">zest::zt::ZernikeTransformer::resize (C++ function)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I_18cartesian_functionEN4zest2zt18ZernikeTransformer9transformE20RealZernikeExpansionI18zernike_norm_param13sh_norm_param14sh_phase_paramERR8FuncTypedNSt6size_tE">zest::zt::ZernikeTransformer::transform (C++ function)</a>, <a href="reference.html#_CPPv4I_18cartesian_functionEN4zest2zt18ZernikeTransformer9transformEvRR8FuncTyped15RealZernikeSpanINSt5arrayIdXL2EEEE18zernike_norm_param13sh_norm_param14sh_phase_paramE">[1]</a>, <a href="reference.html#_CPPv4I_18spherical_functionEN4zest2zt18ZernikeTransformer9transformE20RealZernikeExpansionI18zernike_norm_param13sh_norm_param14sh_phase_paramERR8FuncTypedNSt6size_tE">[2]</a>, <a href="reference.html#_CPPv4I_18spherical_functionEN4zest2zt18ZernikeTransformer9transformEvRR8FuncTyped15RealZernikeSpanINSt5arrayIdXL2EEEE18zernike_norm_param13sh_norm_param14sh_phase_paramE">[3]</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt27ZernikeTransformerAcousticsE">zest::zt::ZernikeTransformerAcoustics (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt21ZernikeTransformerGeoE">zest::zt::ZernikeTransformerGeo (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt33ZernikeTransformerNormalAcousticsE">zest::zt::ZernikeTransformerNormalAcoustics (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt27ZernikeTransformerNormalGeoE">zest::zt::ZernikeTransformerNormalGeo (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt26ZernikeTransformerNormalQME">zest::zt::ZernikeTransformerNormalQM (C++ type)</a>
+</li>
+        <li><a href="reference.html#_CPPv4I0EN4zest2zt20ZernikeTransformerQME">zest::zt::ZernikeTransformerQM (C++ type)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Sebastian Sassi
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    </body>
+</html>
