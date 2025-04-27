@@ -81,9 +81,7 @@ install(
 )
 
 find_package(lapack)
-if(lapack_FOUND)
-    target_link_libraries(zest PUBLIC lapack)
-else()
+if(NOT lapack_FOUND)
     message(NOTICE "LAPACK not found: linear least squares fits will not work without LAPACK")
 endif()
 

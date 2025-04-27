@@ -150,10 +150,17 @@ public:
     /**
         @brief Dimension of the array along an axis.
     */
-    [[nodiscard]] constexpr std::size_t
-    extent(std::size_t i) const noexcept
+    [[nodiscard]] constexpr std::size_t extent(std::size_t i) const noexcept
     {
         return m_extents[i];
+    }
+
+    /**
+        @brief Get flattened view of the array.
+    */
+    [[nodiscard]] constexpr std::span<element_type> flatten() const noexcept
+    {
+        return std::span<element_type>(m_data, m_size);
     }
 
     template <typename... Ts>

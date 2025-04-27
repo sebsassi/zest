@@ -58,7 +58,7 @@ public:
     MDArray(const std::array<std::size_t, rank_param>& extents):
         m_data(detail::prod(extents)), m_size(detail::prod(extents)), m_extents(extents) {}
 
-    [[nodiscard]] operator View() const noexcept
+    [[nodiscard]] operator View() noexcept
     {
         return View(m_data.data(), m_size, m_extents);
     }
@@ -117,6 +117,22 @@ public:
     [[nodiscard]] std::size_t extent(std::size_t i) const noexcept
     {
         return m_extents[i];
+    }
+
+    /**
+        @brief Get a flattened view of the array.
+    */
+    [[nodiscard]] std::span<element_type> flatten() noexcept
+    {
+        return std::span<element_type>(m_data.data(), m_size);
+    }
+
+    /**
+        @brief Get a flattened view of the array.
+    */
+    [[nodiscard]] std::span<const element_type> flatten() const noexcept
+    {
+        return std::span<const element_type>(m_data.data(), m_size);
     }
 
     /**
