@@ -27,6 +27,10 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+endif()
+
 add_library(zest 
     src/lsq_transformer.cpp src/plm_recursion.cpp
     src/power_spectra.cpp src/sh_generator.cpp src/zernike_generator.cpp src/wignerd_collection.cpp

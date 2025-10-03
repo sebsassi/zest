@@ -37,6 +37,17 @@
             }
         },
         {
+            "name": "default-docs",
+            "displayName": "Default config with docs",
+            "description": "Default, but also builds docs",
+            "binaryDir": "${sourceDir}/build",
+            "inherits": "make-native",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "BUILD_DOCS": "ON"
+            }
+        },
+        {
             "name": "release",
             "displayName": "Release config",
             "description": "Same as default but with different binaryDir name",
@@ -44,6 +55,17 @@
             "inherits": "make-native",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "release-docs",
+            "displayName": "Release config with docs",
+            "description": "Release, but also builds documentation",
+            "binaryDir": "${sourceDir}/release",
+            "inherits": "make-native",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "BUILD_DOCS": "ON"
             }
         },
         {
