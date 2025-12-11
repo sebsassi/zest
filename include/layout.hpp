@@ -110,7 +110,7 @@ public:
     using index_type = std::conditional_t<
         indexing_mode_param == IndexingMode::negative, int, std::size_t>;
     using size_type = std::size_t;
-    using IndexRange = SelectIndexRange<index_type, indexing_mode_param>::type;
+    using index_range = SelectIndexRange<index_type, indexing_mode_param>::type;
     
     static constexpr LayoutTag layout_tag = LayoutTag::linear;
 
@@ -154,7 +154,7 @@ struct ParityLinearLayout
 {
     using index_type = std::size_t;
     using size_type = std::size_t;
-    using IndexRange = ParityIndexRange<index_type>;
+    using index_range = ParityIndexRange<index_type>;
     
     static constexpr LayoutTag layout_tag = LayoutTag::linear;
 
@@ -206,7 +206,7 @@ struct TriangleLayout
     using index_type = std::conditional_t<
         indexing_mode_param == IndexingMode::negative, int, std::size_t>;
     using size_type = std::size_t;
-    using IndexRange = StandardIndexRange<index_type>;
+    using index_range = StandardIndexRange<index_type>;
     
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
@@ -256,7 +256,7 @@ struct OddDiagonalSkippingTriangleLayout
     using SubLayout = ParityLinearLayout;
     using index_type = std::size_t;
     using size_type = std::size_t;
-    using IndexRange = StandardIndexRange<index_type>;
+    using index_range = StandardIndexRange<index_type>;
 
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
 
@@ -337,7 +337,7 @@ struct RowSkippingTriangleLayout
     using index_type = std::conditional_t<
         indexing_mode_param == IndexingMode::negative, int, std::size_t>;
     using size_type = std::size_t;
-    using IndexRange = ParityIndexRange<index_type>;
+    using index_range = ParityIndexRange<index_type>;
 
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
@@ -388,7 +388,7 @@ struct ZernikeTetrahedralLayout
     using index_type = std::conditional_t<
         indexing_mode_param == IndexingMode::negative, int, std::size_t>;
     using size_type = std::size_t;
-    using IndexRange = StandardIndexRange<index_type>;
+    using index_range = StandardIndexRange<index_type>;
     
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
@@ -443,7 +443,7 @@ class LinearSpan
 {
 public:
     using Layout = LayoutType;
-    using IndexRange = typename Layout::IndexRange;
+    using IndexRange = typename Layout::index_range;
     using index_type = typename Layout::index_type;
     using element_type = ElementType;
     using value_type = std::remove_cv_t<ElementType>;
@@ -544,7 +544,7 @@ class LinearVecSpan
 {
 public:
     using Layout = LayoutType;
-    using IndexRange = typename Layout::IndexRange;
+    using IndexRange = typename Layout::index_range;
     using index_type = typename Layout::index_type;
     using element_type = ElementType;
     using value_type = std::remove_cv_t<ElementType>;
@@ -718,7 +718,7 @@ class TriangleSpan
 {
 public:
     using Layout = LayoutType;
-    using IndexRange = typename Layout::IndexRange;
+    using IndexRange = typename Layout::index_range;
     using index_type = typename Layout::index_type;
     using element_type = ElementType;
     using value_type = std::remove_cv_t<ElementType>;
@@ -829,7 +829,7 @@ class TriangleVecSpan
 {
 public:
     using Layout = LayoutType;
-    using IndexRange = typename Layout::IndexRange;
+    using IndexRange = typename Layout::index_range;
     using index_type = Layout::index_type;
     using element_type = ElementType;
     using value_type = std::remove_cv_t<element_type>;
@@ -964,7 +964,7 @@ class TetrahedronSpan
 {
 public:
     using Layout = LayoutType;
-    using IndexRange = typename Layout::IndexRange;
+    using IndexRange = typename Layout::index_range;
     using index_type = typename Layout::index_type;
     using element_type = ElementType;
     using value_type = std::remove_cv_t<ElementType>;
@@ -1074,7 +1074,7 @@ class TetrahedronVecSpan
 {
 public:
     using Layout = LayoutType;
-    using IndexRange = typename Layout::IndexRange;
+    using IndexRange = typename Layout::index_range;
     using index_type = typename Layout::index_type;
     using element_type = ElementType;
     using value_type = std::remove_cv_t<ElementType>;

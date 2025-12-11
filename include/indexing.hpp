@@ -161,6 +161,17 @@ private:
     index_type m_index{};
 };
 
+template <std::integral IndexType>
+class SingleIndexRange
+{
+public:
+    using index_type = IndexType;
+    using iterator = IndexIterator<index_type, 1UL>;
+
+    [[nodiscard]] constexpr iterator begin() const noexcept { return iterator{0}; }
+    [[nodiscard]] constexpr iterator end() const noexcept { return iterator{1}; }
+};
+
 /**
     @brief Range of integer indices.
 
@@ -178,8 +189,7 @@ public:
 
         @param end end of index range
     */
-    explicit constexpr StandardIndexRange(index_type end):
-        m_begin(0), m_end(end) {}
+    explicit constexpr StandardIndexRange(index_type end): m_begin(0), m_end(end) {}
 
     /**
         @brief Constructs a range of indices `[begin, end)`.
@@ -187,20 +197,17 @@ public:
         @param begin start of index range
         @param end end of index range
     */
-    constexpr StandardIndexRange(index_type begin, index_type end):
-        m_begin(begin), m_end(end) {}
+    constexpr StandardIndexRange(index_type begin, index_type end): m_begin(begin), m_end(end) {}
 
     /**
         @brief Iterator to the beginning of the range.
     */
-    [[nodiscard]] constexpr iterator begin() const noexcept
-    { return iterator{m_begin}; }
+    [[nodiscard]] constexpr iterator begin() const noexcept { return iterator{m_begin}; }
 
     /**
         @brief Iterator to the end of the range.
     */
-    [[nodiscard]] constexpr iterator end() const noexcept
-    { return iterator{m_end}; }
+    [[nodiscard]] constexpr iterator end() const noexcept { return iterator{m_end}; }
 private:
     index_type m_begin{};
     index_type m_end{};
@@ -223,8 +230,7 @@ public:
 
         @param end end of index range
     */
-    explicit constexpr ParityIndexRange(index_type end):
-        m_begin(end & 1), m_end(end) {}
+    explicit constexpr ParityIndexRange(index_type end): m_begin(end & 1), m_end(end) {}
     
     /**
         @brief Constructs a range of indices `[2*floor(begin/2) + end % 2, end)`.
@@ -238,14 +244,12 @@ public:
     /**
         @brief Iterator to the beginning of the range.
     */
-    [[nodiscard]] constexpr iterator begin() const noexcept
-    { return iterator{m_begin}; }
+    [[nodiscard]] constexpr iterator begin() const noexcept { return iterator{m_begin}; }
 
     /**
         @brief Iterator to the end of the range.
     */
-    [[nodiscard]] constexpr iterator end() const noexcept
-    { return iterator{m_end}; }
+    [[nodiscard]] constexpr iterator end() const noexcept { return iterator{m_end}; }
 private:
     index_type m_begin;
     index_type m_end;
@@ -268,8 +272,7 @@ public:
 
         @param end end of index range
     */
-    explicit constexpr SymmetricIndexRange(index_type end):
-        m_begin(1 - end), m_end(end) {}
+    explicit constexpr SymmetricIndexRange(index_type end): m_begin(1 - end), m_end(end) {}
 
     /**
         @brief Constructs a range of indices `[begin, end)`.
@@ -277,20 +280,17 @@ public:
         @param begin start of index range
         @param end end of index range
     */
-    constexpr SymmetricIndexRange(index_type begin, index_type end):
-        m_begin(begin), m_end(end) {}
+    constexpr SymmetricIndexRange(index_type begin, index_type end): m_begin(begin), m_end(end) {}
 
     /**
         @brief Iterator to the beginning of the range.
     */
-    [[nodiscard]] constexpr iterator begin() const noexcept
-    { return iterator{m_begin}; }
+    [[nodiscard]] constexpr iterator begin() const noexcept { return iterator{m_begin}; }
     
     /**
         @brief Iterator to the end of the range.
     */
-    [[nodiscard]] constexpr iterator end() const noexcept
-    { return iterator{m_end}; }
+    [[nodiscard]] constexpr iterator end() const noexcept { return iterator{m_end}; }
 private:
     index_type m_begin{};
     index_type m_end{};
