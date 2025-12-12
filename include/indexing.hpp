@@ -21,11 +21,43 @@ SOFTWARE.
 */
 #pragma once
 
-#include <cstddef>
+#include <array>
 #include <concepts>
+#include <cstddef>
 
 namespace zest
 {
+
+namespace array::detail
+{
+
+template <typename SizeType, std::size_t N, std::size_t I, typename IndexType>
+[[nodiscard]] constexpr IndexType
+index_impl([[maybe_unused]] const std::array<SizeType, N>& extents, IndexType ind) noexcept
+{
+    return ind;
+}
+
+template <typename SizeType, std::size_t N, std::size_t I, typename IndexType, typename... IndexTypes>
+    requires (sizeof...(IndexTypes) + 2 <= N)
+[[nodiscard]] constexpr IndexType
+index_impl(const std::array<SizeType, N>& extents, IndexType ind, IndexType next, IndexTypes... inds) noexcept
+{
+    if constexpr (I < N)
+        return index_impl<SizeType, N, I + 1UL>(extents, ind*extents[I] + next, inds...);
+    else
+        return ind;
+}
+
+template <typename SizeType, std::size_t N, typename... IndexTypes>
+    requires (sizeof...(IndexTypes) <= N)
+[[nodiscard]] constexpr auto
+index(const std::array<SizeType, N>& extents, IndexTypes... inds) noexcept
+{
+    return index_impl<SizeType, N, 1UL>(extents, inds...);
+}
+
+} // namespace array::detail
 
 /**
     @brief Iterator presenting an infinite arithmetic sequence of integer indices with arbitrary stride.

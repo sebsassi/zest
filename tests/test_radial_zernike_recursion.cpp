@@ -62,7 +62,7 @@ bool test_radial_zernike_layout_indices_are_contiguous(std::size_t order)
     {
         for (std::size_t l = n & 1; l <= n; l += 2)
         {
-            const std::size_t ind = zest::zt::RadialZernikeLayout::idx(n, l);
+            const std::size_t ind = zest::zt::RadialZernikeLayout::index(n, l);
             if (ind != i)
             {
                 std::printf("(%lu, %lu) ind = %lu i = %lu\n", n, l, ind, i);
@@ -117,7 +117,7 @@ bool test_zernike_layout_indices_are_contiguous(std::size_t order)
                     0 : -int(l);
             for (int m = mmin; m <= int(l); ++m)
             {
-                const std::size_t ind = ZernikeLayout<indexing_mode_param>::idx(index_type(n), index_type(l), index_type(m));
+                const std::size_t ind = ZernikeLayout<indexing_mode_param>::index(index_type(n), index_type(l), index_type(m));
                 if (ind != i)
                 {
                     std::printf(

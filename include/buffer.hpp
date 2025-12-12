@@ -8,10 +8,9 @@ namespace zest
 {
 
 template <typename T>
-concept shape = requires (T s, typename T::extent_type p, typename T::index_type i) {
+concept shape = requires (T s, typename T::extent_type p) {
     { T::size(p) } -> std::same_as<typename T::size_type>;
     { s.size(p) } -> std::same_as<typename T::size_type>;
-    { s.subshape(i) } -> std::same_as<typename T::subshape>;
     { s.indices() } -> std::same_as<typename T::index_range>;
     { s.extents() } -> std::same_as<typename T::extent_type>;
 };
@@ -30,10 +29,8 @@ public:
     using index_type = shape_type::index_type;
     using index_range = ShapeType::index_range;
     using const_view = View<const value_type, ShapeType>;
-    using subview = View<value_type, typename shape_type::subshape_type>;
-    using const_subview = View<const value_type, typename shape_type::subshape_type>;
 
-    constexpr View(pointer data, const shape_type::extent_type& shape_parameter): m_data(data), m_shape(shape_parameter) {}
+    constexpr View(pointer data, const shape_type::extent_type& extents): m_data(data), m_shape(extents) {}
     constexpr View(pointer data, const shape_type& shape): m_data(data), m_shape(shape) {}
 
     [[nodiscard]] constexpr operator const_view() const noexcept { return const_view(m_data, m_shape); }
@@ -58,16 +55,16 @@ public:
         requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] constexpr reference operator[](Inds... indices) const noexcept { return m_data[m_shape(indices...)]; }
 
-    [[nodiscard]] constexpr subview operator()(index_type index) const noexcept requires (shape_type::rank > 1)
+    [[nodiscard]] constexpr auto operator()(index_type index) const noexcept requires (shape_type::rank > 1)
     {
         const auto subshape = m_shape.subshape(index);
-        return subview(m_data + m_shape(index), m_shape.subshape(index));
+        return View<value_type, decltype(subshape)>(m_data + m_shape(index), m_shape.subshape(index));
     }
 
-    [[nodiscard]] constexpr subview operator[](index_type index) const noexcept requires (shape_type::rank > 1)
+    [[nodiscard]] constexpr auto operator[](index_type index) const noexcept requires (shape_type::rank > 1)
     {
         const auto subshape = m_shape.subshape(index);
-        return subview(m_data + m_shape(index), m_shape.subshape(index));
+        return View<value_type, decltype(subshape)>(m_data + m_shape(index), m_shape.subshape(index));
     }
 
 private:
@@ -128,28 +125,36 @@ public:
         requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] reference operator[](Inds... indices) noexcept { return m_data[m_shape(indices...)]; }
 
-    [[nodiscard]] const_subview operator()(index_type index) const noexcept
+    template <typename... Inds>
+        requires (sizeof...(Inds) < shape_type::rank)
+    [[nodiscard]] auto operator()(Inds... indices) const noexcept
     {
-        const auto subshape = m_shape.subshape(index);
-        return const_subview(m_data.data() + m_shape(index), m_shape.subshape(index));
+        const auto subshape = m_shape.subshape(indices...);
+        return View<const value_type, decltype(subshape)>(m_data.data() + m_shape(indices...), subshape);
     }
 
-    [[nodiscard]] subview operator()(index_type index) noexcept
+    template <typename... Inds>
+        requires (sizeof...(Inds) < shape_type::rank)
+    [[nodiscard]] auto operator()(Inds... indices) noexcept
     {
-        const auto subshape = m_shape.subshape(index);
-        return subview(m_data.data() + m_shape(index), m_shape.subshape(index));
+        const auto subshape = m_shape.subshape(indices...);
+        return View<value_type, decltype(subshape)>(m_data.data() + m_shape(indices...), subshape);
     }
 
-    [[nodiscard]] const_subview operator[](index_type index) const noexcept
+    template <typename... Inds>
+        requires (sizeof...(Inds) < shape_type::rank)
+    [[nodiscard]] const_subview operator[](Inds... indices) const noexcept
     {
-        const auto subshape = m_shape.subshape(index);
-        return const_subview(m_data.data() + m_shape(index), m_shape.subshape(index));
+        const auto subshape = m_shape.subshape(indices...);
+        return View<const value_type, decltype(subshape)>(m_data.data() + m_shape(indices...), subshape);
     }
 
-    [[nodiscard]] subview operator[](index_type index) noexcept
+    template <typename... Inds>
+        requires (sizeof...(Inds) < shape_type::rank)
+    [[nodiscard]] subview operator[](Inds... indices) noexcept
     {
-        const auto subshape = m_shape.subshape(index);
-        return subview(m_data.data() + m_shape(index), m_shape.subshape(index));
+        const auto subshape = m_shape.subshape(indices...);
+        return View<value_type, decltype(subshape)>(m_data.data() + m_shape(indices...), subshape);
     }
 
 private:

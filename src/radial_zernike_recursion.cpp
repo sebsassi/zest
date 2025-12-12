@@ -47,7 +47,7 @@ RadialZernikeRecursion::RadialZernikeRecursion(std::size_t max_order):
             const double k3 = -(dn - dl - 2.0)*(dn + dl - 1.0)*(2.0*dn + 1);
             
             const double k0_inv = 1.0/k0;
-            const std::size_t idx = RadialZernikeLayout::idx(n,l);
+            const std::size_t idx = RadialZernikeLayout::index(n,l);
             m_k1[idx] = k1*k0_inv;
             m_k2[idx] = k2*k0_inv;
             m_k3[idx] = k3*k0_inv;
@@ -77,7 +77,7 @@ void RadialZernikeRecursion::expand(std::size_t max_order)
             const double k3 = -(dn - dl - 2.0)*(dn + dl - 1.0)*(2.0*dn + 1);
             
             const double k0_inv = 1.0/k0;
-            const std::size_t idx = RadialZernikeLayout::idx(n,l);
+            const std::size_t idx = RadialZernikeLayout::index(n,l);
             m_k1[idx] = k1*k0_inv;
             m_k2[idx] = k2*k0_inv;
             m_k3[idx] = k3*k0_inv;

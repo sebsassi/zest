@@ -132,7 +132,7 @@ public:
         @brief Linear index of an element in layout.
     */
     [[nodiscard]] static constexpr
-    std::size_t idx(index_type l) noexcept
+    std::size_t index(index_type l) noexcept
     {
         return l;
     }
@@ -173,7 +173,7 @@ struct ParityLinearLayout
         @brief Linear index of an element in layout.
     */
     [[nodiscard]] static constexpr
-    std::size_t idx(index_type l) noexcept
+    std::size_t index(index_type l) noexcept
     {
         return l >> 1;
     }
@@ -202,7 +202,6 @@ struct ParityLinearLayout
 template <IndexingMode indexing_mode_param>
 struct TriangleLayout
 {
-    using SubLayout = StandardLinearLayout<indexing_mode_param>;
     using index_type = std::conditional_t<
         indexing_mode_param == IndexingMode::negative, int, std::size_t>;
     using size_type = std::size_t;
@@ -210,6 +209,15 @@ struct TriangleLayout
     
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
+
+    template<std::size_t N> struct sublayout;
+    template<> struct sublayout<1>
+    {
+        using type = StandardLinearLayout<indexing_mode_param>;
+    };
+
+    template <std::size_t N>
+    using sublayout_t = sublayout<N>::type;
 
     /**
         @brief Number of elements in layout for size parameter `order`.
@@ -229,12 +237,23 @@ struct TriangleLayout
         @brief Linear index of an element in layout.
     */
     [[nodiscard]] static constexpr
-    std::size_t idx(index_type l, index_type m) noexcept
+    std::size_t index(index_type l, index_type m) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::nonnegative)
             return ((l*(l + 1)) >> 1) + m;
         else
             return std::size_t(l*(l + 1) + m);
+    }
+    /**
+        @brief Linear index of an element in layout.
+    */
+    [[nodiscard]] static constexpr
+    std::size_t index(index_type l) noexcept
+    {
+        if constexpr (indexing_mode == IndexingMode::nonnegative)
+            return ((l*(l + 1)) >> 1);
+        else
+            return std::size_t(l*(l + 1));
     }
 };
 
@@ -253,12 +272,20 @@ struct TriangleLayout
 */
 struct OddDiagonalSkippingTriangleLayout
 {
-    using SubLayout = ParityLinearLayout;
     using index_type = std::size_t;
     using size_type = std::size_t;
     using index_range = StandardIndexRange<index_type>;
 
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
+
+    template<std::size_t N> struct sublayout;
+    template<> struct sublayout<1>
+    {
+        using type = ParityLinearLayout;
+    };
+
+    template <std::size_t N>
+    using sublayout_t = sublayout<N>::type;
 
     /**
         @brief Number of elements in layout for size parameter `order`.
@@ -271,14 +298,23 @@ struct OddDiagonalSkippingTriangleLayout
         // OEIS A002620
         return ((order + 1)*(order + 1)) >> 2; 
     }
-    
+
     /**
         @brief Linear index of an element in layout.
     */
     [[nodiscard]] static constexpr std::size_t
-    idx(std::size_t n, std::size_t l) noexcept
+    index(std::size_t n, std::size_t l) noexcept
     {
          return (((n + 1)*(n + 1)) >> 2) + (l >> 1);
+    }
+
+    /**
+        @brief Linear index of an element in layout.
+    */
+    [[nodiscard]] static constexpr std::size_t
+    index(std::size_t n) noexcept
+    {
+         return (((n + 1)*(n + 1)) >> 2);
     }
 
     [[nodiscard]] static constexpr
@@ -342,6 +378,15 @@ struct RowSkippingTriangleLayout
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
 
+    template<std::size_t N> struct sublayout;
+    template<> struct sublayout<1>
+    {
+        using type = StandardLinearLayout<indexing_mode_param>;
+    };
+
+    template <std::size_t N>
+    using sublayout_t = sublayout<N>::type;
+
     /**
         @brief Number of elements in layout for size parameter `order`.
 
@@ -358,12 +403,23 @@ struct RowSkippingTriangleLayout
     /**
         @brief Linear index of an element in layout.
     */
-    static constexpr std::size_t idx(index_type l, index_type m) noexcept
+    static constexpr std::size_t index(index_type l, index_type m) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::nonnegative)
             return ((l*l) >> 2) + m;
         else
             return std::size_t(((l*(l + 1)) >> 1) + m);
+    }
+
+    /**
+        @brief Linear index of an element in layout.
+    */
+    static constexpr std::size_t index(index_type l) noexcept
+    {
+        if constexpr (indexing_mode == IndexingMode::nonnegative)
+            return ((l*l) >> 2);
+        else
+            return std::size_t(((l*(l + 1)) >> 1));
     }
 };
 
@@ -393,6 +449,19 @@ struct ZernikeTetrahedralLayout
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
 
+    template<std::size_t N> struct sublayout;
+    template<> struct sublayout<1>
+    {
+        using type = RowSkippingTriangleLayout<indexing_mode_param>;
+    };
+    template<> struct sublayout<2>
+    {
+        using type = StandardLinearLayout<indexing_mode_param>;
+    };
+
+    template <std::size_t N>
+    using sublayout_t = sublayout<N>::type;
+
     /**
         @brief Number of elements in layout for size parameter `order`.
 
@@ -411,12 +480,36 @@ struct ZernikeTetrahedralLayout
         @brief Linear index of an element in layout.
     */
     [[nodiscard]] static constexpr std::size_t
-    idx(index_type n, index_type l, index_type m) noexcept
+    index(index_type n, index_type l, index_type m) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::nonnegative)
             return (n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2) + m;
         else
             return std::size_t(n*(n + 1)*(n + 2)/6 + ((l*(l + 1)) >> 1) + m);
+    }
+
+    /**
+        @brief Linear index of an element in layout.
+    */
+    [[nodiscard]] static constexpr std::size_t
+    index(index_type n, index_type l) noexcept
+    {
+        if constexpr (indexing_mode == IndexingMode::nonnegative)
+            return (n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2);
+        else
+            return std::size_t(n*(n + 1)*(n + 2)/6 + ((l*(l + 1)) >> 1));
+    }
+
+    /**
+        @brief Linear index of an element in layout.
+    */
+    [[nodiscard]] static constexpr std::size_t
+    index(index_type n) noexcept
+    {
+        if constexpr (indexing_mode == IndexingMode::nonnegative)
+            return (n + 1)*(n + 3)*(2*n + 1)/24;
+        else
+            return std::size_t(n*(n + 1)*(n + 2)/6);
     }
 };
 

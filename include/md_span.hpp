@@ -21,9 +21,9 @@ SOFTWARE.
 */
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <span>
-#include <array>
 
 namespace zest
 {
