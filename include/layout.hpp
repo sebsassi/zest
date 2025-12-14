@@ -31,7 +31,8 @@ namespace zest
 {
 
 /**
-    @brief Enum for tagging the `m` indexing style for spherical harmonics related things.
+    @brief Enum for tagging the `m` indexing style for spherical harmonics
+    related things.
 */
 enum class IndexingMode
 {
@@ -87,7 +88,7 @@ concept two_dimensional_subspannable
     @tparam indexing_mode_param determines whether indexing may be negative
 */
 template <IndexingMode indexing_mode_param>
-struct StandardLinearLayout
+struct StandardLinearSequence
 {
 private:
     /*
@@ -148,9 +149,11 @@ public:
     1 3 5 7 9...
     ```
 
-    @warning This indexing implies that adjacent even and odd indices map to the same memory slot. Indexing data with this layout mixing even and odd indices is an error.
+    @warning This indexing implies that adjacent even and odd indices map to
+    the same memory slot. Indexing data with this layout mixing even and odd
+    indices is an error.
 */
-struct ParityLinearLayout
+struct ParityLinearSequence
 {
     using index_type = std::size_t;
     using size_type = std::size_t;
@@ -200,7 +203,7 @@ struct ParityLinearLayout
     @tparam indexing_mode_param determines whether indexing may be negative
 */
 template <IndexingMode indexing_mode_param>
-struct TriangleLayout
+struct TriangleSequence
 {
     using index_type = std::conditional_t<
         indexing_mode_param == IndexingMode::negative, int, std::size_t>;
@@ -210,10 +213,10 @@ struct TriangleLayout
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
 
-    template<std::size_t N> struct sublayout;
+    template<std::size_t N> requires (N == 1) struct sublayout;
     template<> struct sublayout<1>
     {
-        using type = StandardLinearLayout<indexing_mode_param>;
+        using type = StandardLinearSequence<indexing_mode_param>;
     };
 
     template <std::size_t N>
@@ -255,6 +258,9 @@ struct TriangleLayout
         else
             return std::size_t(l*(l + 1));
     }
+
+    [[nodiscard]] static constexpr
+    std::size_t subextent(index_type l) noexcept { return l + 1; }
 };
 
 /**
@@ -268,9 +274,11 @@ struct TriangleLayout
     ...
     ```
 
-    @warning This indexing implies that some index combinations are simply not valid. It is erroneous to access data using this layout with indices whose sum is an odd number.
+    @warning This indexing implies that some index combinations are simply not
+    valid. It is erroneous to access data using this layout with indices whose
+    sum is an odd number.
 */
-struct OddDiagonalSkippingTriangleLayout
+struct EvenTriangleSequence
 {
     using index_type = std::size_t;
     using size_type = std::size_t;
@@ -278,10 +286,10 @@ struct OddDiagonalSkippingTriangleLayout
 
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
 
-    template<std::size_t N> struct sublayout;
+    template<std::size_t N> requires (N == 1) struct sublayout;
     template<> struct sublayout<1>
     {
-        using type = ParityLinearLayout;
+        using type = ParityLinearSequence;
     };
 
     template <std::size_t N>
@@ -318,10 +326,7 @@ struct OddDiagonalSkippingTriangleLayout
     }
 
     [[nodiscard]] static constexpr
-    std::size_t line_length(std::size_t l) noexcept
-    {
-        return (l >> 1) + 1;
-    }
+    std::size_t subextent(index_type n) noexcept { return n + 1; }
 };
 
 /**
@@ -364,12 +369,14 @@ struct OddDiagonalSkippingTriangleLayout
 
     @tparam indexing_mode_param determines whether indexing may be negative
 
-    @note In this layout the index obtained from a pair `(l,m)` is unique only for `l` of the same parity. Otherwise the index is not unique, e.g., `(0,0)` and `(1,0)` fall on the same index.
+    @note In this layout the index obtained from a pair `(l,m)` is unique only
+    for `l` of the same parity. Otherwise the index is not unique, e.g., `(0,0)`
+    and `(1,0)` fall on the same index.
 */
 template <IndexingMode indexing_mode_param>
-struct RowSkippingTriangleLayout
+struct EvenRowTriangleSequence
 {
-    using SubLayout = StandardLinearLayout<indexing_mode_param>;
+    using SubLayout = StandardLinearSequence<indexing_mode_param>;
     using index_type = std::conditional_t<
         indexing_mode_param == IndexingMode::negative, int, std::size_t>;
     using size_type = std::size_t;
@@ -378,10 +385,10 @@ struct RowSkippingTriangleLayout
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
 
-    template<std::size_t N> struct sublayout;
+    template<std::size_t N> requires (N == 1) struct sublayout;
     template<> struct sublayout<1>
     {
-        using type = StandardLinearLayout<indexing_mode_param>;
+        using type = StandardLinearSequence<indexing_mode_param>;
     };
 
     template <std::size_t N>
@@ -421,6 +428,9 @@ struct RowSkippingTriangleLayout
         else
             return std::size_t(((l*(l + 1)) >> 1));
     }
+
+    [[nodiscard]] static constexpr
+    std::size_t subextent(index_type l) noexcept { return l + 1; }
 };
 
 /**
@@ -438,9 +448,9 @@ struct RowSkippingTriangleLayout
     @tparam indexing_mode_param determines whether indexing may be negative
 */
 template <IndexingMode indexing_mode_param>
-struct ZernikeTetrahedralLayout
+struct ZernikeTetrahedralSequence
 {
-    using SubLayout = RowSkippingTriangleLayout<indexing_mode_param>;
+    using SubLayout = EvenRowTriangleSequence<indexing_mode_param>;
     using index_type = std::conditional_t<
         indexing_mode_param == IndexingMode::negative, int, std::size_t>;
     using size_type = std::size_t;
@@ -449,14 +459,14 @@ struct ZernikeTetrahedralLayout
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
 
-    template<std::size_t N> struct sublayout;
+    template<std::size_t N> requires (N == 1 || N == 2) struct sublayout;
     template<> struct sublayout<1>
     {
-        using type = RowSkippingTriangleLayout<indexing_mode_param>;
+        using type = EvenRowTriangleSequence<indexing_mode_param>;
     };
     template<> struct sublayout<2>
     {
-        using type = StandardLinearLayout<indexing_mode_param>;
+        using type = StandardLinearSequence<indexing_mode_param>;
     };
 
     template <std::size_t N>
@@ -511,6 +521,12 @@ struct ZernikeTetrahedralLayout
         else
             return std::size_t(n*(n + 1)*(n + 2)/6);
     }
+
+    [[nodiscard]] static constexpr
+    std::size_t subextent(index_type n) noexcept { return n + 1; }
+
+    [[nodiscard]] static constexpr
+    std::size_t subextent([[maybe_unused]] index_type n, index_type l) noexcept { return l + 1; }
 };
 
 template <typename T>
@@ -742,7 +758,9 @@ private:
 };
 
 /**
-    @brief A non-owning view where adjacent even and odd indices refer to the same value. Given index `i`, the corresponding offset in the underlying buffer is given by `i/2`.
+    @brief A non-owning view where adjacent even and odd indices refer to the
+    same value. Given index `i`, the corresponding offset in the underlying
+    buffer is given by `i/2`.
 */
 template <typename ElementType>
 class ParitySpan
@@ -765,7 +783,7 @@ public:
     */
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
-    
+
     /**
         @brief Size of the underlying buffer.
     */
@@ -841,7 +859,7 @@ public:
     */
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
-    
+
     /**
         @brief Size of the underlying buffer.
     */
@@ -930,7 +948,7 @@ public:
     using SubSpan = LinearVecSpan<element_type, typename Layout::SubLayout>;
     using ConstView = TriangleVecSpan<const element_type, LayoutType>;
     using LinearView = LinearVecSpan<
-        element_type, StandardLinearLayout<IndexingMode::nonnegative>>;
+        element_type, StandardLinearSequence<IndexingMode::nonnegative>>;
 
     /**
         @brief Number of data elements for size parameter `order`.
@@ -966,7 +984,7 @@ public:
     */
     [[nodiscard]] constexpr std::size_t
     vec_size() const noexcept { return m_vec_size; }
-    
+
     /**
         @brief Size of the underlying buffer.
     */
@@ -1087,7 +1105,7 @@ public:
     */
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
-    
+
     /**
         @brief Size of the underlying buffer.
     */
@@ -1175,7 +1193,7 @@ public:
     using SubSpan = TriangleVecSpan<element_type, typename Layout::SubLayout>;
     using ConstView = TetrahedronVecSpan<const element_type, LayoutType>;
     using LinearView = LinearVecSpan<
-        element_type, StandardLinearLayout<IndexingMode::nonnegative>>;
+        element_type, StandardLinearSequence<IndexingMode::nonnegative>>;
 
     /**
         @brief Number of data elements for size parameter `order`.
@@ -1205,7 +1223,7 @@ public:
     */
     [[nodiscard]] constexpr std::size_t
     order() const noexcept { return m_order; }
-    
+
     /**
         @brief Size of the underlying buffer.
     */

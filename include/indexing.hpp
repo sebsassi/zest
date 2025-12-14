@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -193,43 +193,14 @@ private:
     index_type m_index{};
 };
 
-template <std::integral IndexType>
-class SingleIndexRange
+template <std::integral IndexType, IndexType stride_param>
+class BasicIndexRange
 {
 public:
     using index_type = IndexType;
-    using iterator = IndexIterator<index_type, 1UL>;
+    using iterator = IndexIterator<index_type, stride_param>;
 
-    [[nodiscard]] constexpr iterator begin() const noexcept { return iterator{0}; }
-    [[nodiscard]] constexpr iterator end() const noexcept { return iterator{1}; }
-};
-
-/**
-    @brief Range of integer indices.
-
-    @tparam IndexType type of the index
-*/
-template <std::integral IndexType>
-class StandardIndexRange
-{
-public:
-    using index_type = IndexType;
-    using iterator = IndexIterator<index_type, 1UL>;
-
-    /**
-        @brief Constructs a range of indices `[0, end)`.
-
-        @param end end of index range
-    */
-    explicit constexpr StandardIndexRange(index_type end): m_begin(0), m_end(end) {}
-
-    /**
-        @brief Constructs a range of indices `[begin, end)`.
-
-        @param begin start of index range
-        @param end end of index range
-    */
-    constexpr StandardIndexRange(index_type begin, index_type end): m_begin(begin), m_end(end) {}
+    explicit constexpr BasicIndexRange(index_type begin, index_type end): m_begin(begin), m_end(end) {}
 
     /**
         @brief Iterator to the beginning of the range.
@@ -240,9 +211,55 @@ public:
         @brief Iterator to the end of the range.
     */
     [[nodiscard]] constexpr iterator end() const noexcept { return iterator{m_end}; }
+
 private:
     index_type m_begin{};
     index_type m_end{};
+};
+
+template <std::integral IndexType, IndexType begin_param, IndexType end_param, IndexType stride_param>
+class StaticBasicIndexRange
+{
+public:
+    using index_type = IndexType;
+    using iterator = IndexIterator<index_type, stride_param>;
+
+    [[nodiscard]] constexpr iterator begin() const noexcept { return iterator{begin_param}; }
+    [[nodiscard]] constexpr iterator end() const noexcept { return iterator{end_param}; }
+};
+
+template <std::integral IndexType, IndexType begin_param, IndexType end_param>
+using StaticStandardIndexRange = StaticBasicIndexRange<IndexType, begin_param, end_param, IndexType{1}>;
+
+template <std::integral IndexType>
+using SingleIndexRange = StaticBasicIndexRange<IndexType, IndexType{0}, IndexType{1}, IndexType{1}>;
+
+/**
+    @brief Range of integer indices.
+
+    @tparam IndexType type of the index
+*/
+template <std::integral IndexType>
+class StandardIndexRange: public BasicIndexRange<IndexType, IndexType{1}>
+{
+public:
+    using index_type = BasicIndexRange<IndexType, IndexType{1}>::index_type;
+    using iterator = BasicIndexRange<IndexType, IndexType{1}>::iterator;
+
+    /**
+        @brief Constructs a range of indices `[0, end)`.
+
+        @param end end of index range
+    */
+    StandardIndexRange(index_type end): BasicIndexRange<index_type, index_type{1}>(end) {};
+
+    /**
+        @brief Constructs a range of indices `[begin, end)`.
+
+        @param begin start of index range
+        @param end end of index range
+    */
+    StandardIndexRange(index_type begin, index_type end): BasicIndexRange<index_type, index_type{1}>(begin, end) {};
 };
 
 /**
@@ -251,40 +268,28 @@ private:
     @tparam IndexType type of the index
 */
 template <std::integral IndexType>
-class ParityIndexRange
+class ParityIndexRange: public BasicIndexRange<IndexType, IndexType{2}>
 {
 public:
-    using index_type = IndexType;
-    using iterator = IndexIterator<index_type, 2UL>;
+    using index_type = BasicIndexRange<IndexType, IndexType{2}>::index_type;
+    using iterator = BasicIndexRange<IndexType, IndexType{2}>::iterator;
 
     /**
         @brief Constructs a range of indices `[end % 2, end)`.
 
         @param end end of index range
     */
-    explicit constexpr ParityIndexRange(index_type end): m_begin(end & 1), m_end(end) {}
-    
+    explicit constexpr ParityIndexRange(index_type end):
+        BasicIndexRange<index_type, index_type{1}>(end & 1, end) {}
+
     /**
         @brief Constructs a range of indices `[2*floor(begin/2) + end % 2, end)`.
 
         @param begin start of index range
         @param end end of index range
     */
-    constexpr ParityIndexRange(index_type begin, index_type end):
-        m_begin((begin & ~1UL) + (end & 1)), m_end(end) {}
-
-    /**
-        @brief Iterator to the beginning of the range.
-    */
-    [[nodiscard]] constexpr iterator begin() const noexcept { return iterator{m_begin}; }
-
-    /**
-        @brief Iterator to the end of the range.
-    */
-    [[nodiscard]] constexpr iterator end() const noexcept { return iterator{m_end}; }
-private:
-    index_type m_begin;
-    index_type m_end;
+    explicit constexpr ParityIndexRange(index_type begin, index_type end):
+        BasicIndexRange<index_type, index_type{1}>((begin & ~1UL) + (end & 1), end) {}
 };
 
 /**
@@ -293,18 +298,18 @@ private:
     @tparam IndexType type of the index
 */
 template <std::signed_integral IndexType>
-class SymmetricIndexRange
+class SymmetricIndexRange: public BasicIndexRange<IndexType, IndexType{1}>
 {
 public:
-    using index_type = IndexType;
-    using iterator = IndexIterator<int, 1UL>;
+    using index_type = BasicIndexRange<IndexType, IndexType{1}>::index_type;
+    using iterator = BasicIndexRange<IndexType, IndexType{1}>::iterator;
 
     /**
         @brief Constructs a range of indices `(-end, end)`.
 
         @param end end of index range
     */
-    explicit constexpr SymmetricIndexRange(index_type end): m_begin(1 - end), m_end(end) {}
+    explicit constexpr SymmetricIndexRange(index_type end): BasicIndexRange<index_type, index_type{1}>(1 - end, end) {}
 
     /**
         @brief Constructs a range of indices `[begin, end)`.
@@ -312,20 +317,7 @@ public:
         @param begin start of index range
         @param end end of index range
     */
-    constexpr SymmetricIndexRange(index_type begin, index_type end): m_begin(begin), m_end(end) {}
-
-    /**
-        @brief Iterator to the beginning of the range.
-    */
-    [[nodiscard]] constexpr iterator begin() const noexcept { return iterator{m_begin}; }
-    
-    /**
-        @brief Iterator to the end of the range.
-    */
-    [[nodiscard]] constexpr iterator end() const noexcept { return iterator{m_end}; }
-private:
-    index_type m_begin{};
-    index_type m_end{};
+    constexpr SymmetricIndexRange(index_type begin, index_type end): BasicIndexRange<index_type, index_type{1}>(begin, end) {}
 };
 
 } // namespace zest
