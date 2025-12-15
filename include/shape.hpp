@@ -192,22 +192,22 @@ private:
     size_type m_size{};
 };
 
-template <std::size_t N, std::size_t... Ns>
+template <std::size_t... Ns>
 class StaticTensorShape
 {
 public:
     using size_type = std::size_t;
     using index_type = size_type;
     using index_range = StandardIndexRange<size_type>;
-    using extent_type = std::array<size_type, 1 + sizeof...(Ns)>;
+    using extent_type = std::array<size_type, sizeof...(Ns)>;
 
-    static constexpr size_type rank = sizeof...(Ns) + 1;
+    static constexpr size_type rank = sizeof...(Ns);
 
 private:
-    static constexpr extent_type s_extents = std::array<size_type, rank>{N, Ns...};
+    static constexpr extent_type s_extents = std::array<size_type, rank>{Ns...};
 
 public:
-    static constexpr std::size_t linear_extent = product(std::array<size_type, rank>{N, Ns...});
+    static constexpr std::size_t linear_extent = product(std::array<size_type, rank>{Ns...});
 
     constexpr StaticTensorShape() = default;
     explicit constexpr StaticTensorShape([[maybe_unused]] extent_type extents) {}
