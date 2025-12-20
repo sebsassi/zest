@@ -88,6 +88,8 @@ public:
     using index_type = size_type;
     using index_range = SingleIndexRange<index_type>;
     using extent_type = size_type;
+
+    template <std::size_t N>
     using subshape_type = NullShape;
 
     static constexpr size_type rank = 0;
@@ -112,8 +114,13 @@ public:
     static constexpr size_type rank = sequence::rank;
     static constexpr std::size_t linear_extent = std::dynamic_extent;
 
+    template <std::size_t N>
+    using subshape_type = std::conditional_t<(N < rank),
+        SequencedShape<typename sequence::template sublayout_t<N>>,
+        NullShape>;
+
     constexpr SequencedShape() = default;
-    explicit constexpr SequencedShape(extent_type extent): m_extent(extent), m_size(sequence::size(extent)) {}
+    explicit constexpr SequencedShape(extent_type extent): m_extent(extent), m_size(size(extent)) {}
 
     [[nodiscard]] static constexpr size_type size(extent_type extent) noexcept { return sequence::size(extent); }
     [[nodiscard]] constexpr size_type size() const noexcept { return m_size; }
@@ -123,7 +130,7 @@ public:
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < rank)
     [[nodiscard]] constexpr auto subshape(Inds... indices) const noexcept
     {
-        return SequencedShape<typename sequence::template sublayout_t<sizeof...(Inds)>>(sequence::subextent(indices...));
+        return subshape_type<sizeof...(Inds)>(sequence::subextent(indices...));
     }
 
     template <typename... Inds>
@@ -144,21 +151,40 @@ private:
     size_type m_size{};
 };
 
-template <std::size_t N>
+template <std::size_t... Ns>
 class TensorShape
 {
 public:
     using size_type = std::size_t;
     using index_type = size_type;
     using index_range = StandardIndexRange<size_type>;
-    using extent_type = std::array<size_type, N>;
+    using extent_type = std::array<size_type, sizeof...(Ns)>;
 
-    static constexpr size_type rank = N;
+    static constexpr size_type rank = sizeof...(Ns);
     static constexpr std::size_t linear_extent = std::dynamic_extent;
 
-    constexpr TensorShape() = default;
-    explicit constexpr TensorShape(extent_type extents): m_extents(extents), m_size(product(extents)) {}
+private:
+    static constexpr std::array<std::size_t, sizeof...(Ns)> static_extents = {Ns...};
 
+    template <typename T>
+    struct subshape_helper;
+
+    template <std::size_t... Inds>
+    struct subshape_helper<std::index_sequence<Inds...>>
+    {
+        using type = TensorShape<std::get<Inds>(static_extents)...>;
+    };
+
+public:
+    template <std::size_t N>
+    using subshape_type = std::conditional_t<(N < rank),
+        typename subshape_helper<std::make_index_sequence<N>>::type,
+        NullShape>;
+
+    constexpr TensorShape() = default;
+    explicit constexpr TensorShape(extent_type extents): m_extents(extents), m_size(size(extents)) {}
+
+    [[nodiscard]] static constexpr size_type size(extent_type extents) noexcept { return product(extents); }
     [[nodiscard]] constexpr size_type size() const noexcept { return m_size; }
     [[nodiscard]] constexpr extent_type extents() const noexcept { return m_extents; }
 
@@ -167,7 +193,7 @@ public:
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] Inds... inds) const noexcept
     {
-        return TensorShape<rank - sizeof...(Inds)>(take_last<rank - sizeof...(Inds)>(m_extents));
+        return subshape_type<sizeof...(Inds)>(take_last<rank - sizeof...(Inds)>(m_extents));
     }
 
     template <typename... Inds>
@@ -192,8 +218,26 @@ private:
     size_type m_size{};
 };
 
+namespace detail
+{
+
+template <typename T>
+struct DynamicTensorShapeHelper;
+
 template <std::size_t... Ns>
-class StaticTensorShape
+struct DynamicTensorShapeHelper<std::index_sequence<Ns...>>
+{
+    using type = TensorShape<(std::dynamic_extent + 0*Ns)...>;
+};
+
+} // namespace detail
+
+template <std::size_t N>
+using DynamicTensorShape = detail::DynamicTensorShapeHelper<std::make_index_sequence<N>>::type;
+
+template <std::size_t... Ns>
+    requires ((Ns != std::dynamic_extent) && ...)
+class TensorShape<Ns...>
 {
 public:
     using size_type = std::size_t;
@@ -203,15 +247,19 @@ public:
 
     static constexpr size_type rank = sizeof...(Ns);
 
+    template <std::size_t N>
+    using subshape_type = std::conditional_t<(N < rank), TensorShape</* IMPLEMENTATION */>, NullShape>;
+
 private:
     static constexpr extent_type s_extents = std::array<size_type, rank>{Ns...};
 
 public:
     static constexpr std::size_t linear_extent = product(std::array<size_type, rank>{Ns...});
 
-    constexpr StaticTensorShape() = default;
-    explicit constexpr StaticTensorShape([[maybe_unused]] extent_type extents) {}
+    constexpr TensorShape() = default;
+    explicit constexpr TensorShape([[maybe_unused]] extent_type extents) {}
 
+    [[nodiscard]] static constexpr size_type size([[maybe_unused]] extent_type extents) noexcept { return linear_extent; }
     [[nodiscard]] constexpr size_type size() const noexcept { return linear_extent; }
     [[nodiscard]] constexpr extent_type extents() const noexcept { return s_extents; }
 
@@ -233,48 +281,50 @@ private:
     template <std::size_t... I>
     [[nodiscard]] static consteval auto subshape_impl(std::index_sequence<I...>) noexcept
     {
-        return StaticTensorShape<std::get<rank - sizeof...(I) + I>(s_extents)...>{};
+        return TensorShape<std::get<rank - sizeof...(I) + I>(s_extents)...>{};
     }
 };
 
-template <typename SequenceType, std::size_t N>
-class TensorSequenceShape
+template <typename S1, typename S2>
+class Combine
 {
 public:
-    using sequence = SequenceType;
-    using size_type = typename sequence::size_type;
-    using index_type = typename sequence::index_type;
-    using index_range = typename sequence::index_range;
-    using extent_type = typename std::pair<size_type, std::array<size_type, N>>;
+    using size_type = typename S1::size_type;
+    using index_type = typename S1::index_type;
+    using index_range = typename S1::index_range;
+    using extent_type = typename std::tuple<typename S1::extent_type, typename S2::extent_type>;
 
-    static constexpr size_type rank = sequence::rank + N;
-    static constexpr std::size_t linear_extent = std::dynamic_extent;
+    static constexpr size_type rank = S1::rank + S2::rank;
+    static constexpr std::size_t linear_extent = (S1::linear_extent == std::dynamic_extent || S2::linear_extent == std::dynamic_extent) ?
+        std::dynamic_extent : S1::linear_extent*S2::linear_extent;
 
-    constexpr TensorSequenceShape() = default;
-    constexpr TensorSequenceShape(size_type layout_extent, std::array<size_type, N> array_extents): m_extents(layout_extent, array_extents), m_size() {}
+    constexpr Combine() = default;
+    constexpr Combine(S1::extent_type first_extents, S2::extent_type second_extents): m_shapes(first_extents, second_extents), m_size(size(first_extents, second_extents)) {}
 
+    [[nodiscard]] static constexpr size_type size(S1::extent_type first_extents, S2::extent_type second_extents) noexcept { return S1::size(first_extents)*S2::size(second_extents); }
     [[nodiscard]] constexpr size_type size() const noexcept { return m_size; }
-    [[nodiscard]] constexpr extent_type extents() const noexcept { return m_extents; }
+    [[nodiscard]] constexpr extent_type extents() const noexcept { return {m_shapes.extents(), m_shapes.extents()}; }
 
     template <typename... Inds>
-        requires (1 <= sizeof...(Inds) && sizeof...(Inds) < sequence::rank)
+        requires (1 <= sizeof...(Inds) && sizeof...(Inds) < S1::rank)
     [[nodiscard]] constexpr auto subshape(Inds... indices) const noexcept
     {
-        return TensorSequenceShape<typename sequence::template sublayout_t<sizeof...(Inds)>, N>(sequence::subextent(indices...), m_extents.second);
+        Combine<typename S1::template subshape_t<sizeof...(Inds)>, S2>(m_shapes.first.subextents(indices...), m_shapes.second.extents());
     }
 
     template <typename... Inds>
-        requires (sequence::rank == sizeof...(Inds))
-    [[nodiscard]] constexpr auto subshape([[maybe_unused]] Inds... indices)
+        requires (sizeof...(Inds) == S1::rank)
+    [[nodiscard]] constexpr auto subshape(Inds... indices) const noexcept
     {
-        return TensorShape<N>(m_extents.second);
+        return S2(m_shapes.second.extents());
     }
 
     template <typename... Inds>
-        requires (sequence::rank <= sizeof...(Inds) && sizeof...(Inds) <= rank)
-    [[nodiscard]] constexpr auto subshape([[maybe_unused]] Inds... indices)
+        requires (S1::rank <= sizeof...(Inds) && sizeof...(Inds) == rank)
+    [[nodiscard]] constexpr auto subshape(Inds... indices) const noexcept
     {
-        return TensorShape<rank - sizeof...(Inds)>(take_last<rank - sizeof...(Inds)>());
+        using subshape_type = typename S2::template subshape_t<sizeof...(Inds) - S1::rank>;
+        return subshape_type(m_shapes.second.subextents(indices...));
     }
 
     template <typename... Inds>
@@ -288,32 +338,34 @@ public:
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= rank)
     [[nodiscard]] constexpr size_type operator()(Inds... indices) const noexcept { return index(indices...); }
     [[nodiscard]] constexpr size_type operator()() const noexcept { return 0; }
-    [[nodiscard]] constexpr index_range indices() const noexcept { return index_range(m_extents[0]); }
+    [[nodiscard]] constexpr index_range indices() const noexcept { return m_shapes.first.indices(); }
 
 private:
     template <typename... Inds>
-        requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= sequence::rank)
+        requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= S1::rank)
     [[nodiscard]] constexpr size_type index(Inds... indices)
     {
-        return sequence::index(indices...)*m_array_size;
+        return m_shapes.first.index(indices...)*m_shapes.second.size();
     }
 
     template <typename... Inds>
-        requires (sequence::rank < sizeof...(Inds) && sizeof...(Inds) <= rank)
+        requires (S1::rank < sizeof...(Inds) && sizeof...(Inds) <= rank)
     [[nodiscard]] constexpr size_type index(Inds... indices)
     {
-        return split_index(std::make_index_sequence<sequence::rank>{}, std::make_index_sequence<sizeof...(Inds) - sequence::rank>{}, std::make_tuple(indices...));
+        return split_index(std::make_index_sequence<S1::rank>{}, std::make_index_sequence<sizeof...(Inds) - S1::rank>{}, std::make_tuple(indices...));
     }
 
     template <std::size_t... I, std::size_t... J, typename T>
     [[nodiscard]] constexpr size_type split_index(std::index_sequence<I...>, std::index_sequence<J...>, T indices)
     {
-        return sequence::index(std::get<I>(indices)...)*m_array_size + array::detail::index(std::get<sequence::rank + J>(indices)...);
+        return S1::index(std::get<I>(indices)...)*m_shapes.second.size() + array::detail::index(std::get<S1::rank + J>(indices)...);
     }
 
-    extent_type m_extents;
-    size_type m_array_size;
-    size_type m_size;
+    std::pair<S1, S2> m_shapes{};
+    size_type m_size{};
 };
+
+template <typename SequenceType, std::size_t... Ns>
+using TensorSequenceShape = Combine<SequencedShape<SequenceType>, TensorShape<Ns...>>;
 
 } // namespace zest
