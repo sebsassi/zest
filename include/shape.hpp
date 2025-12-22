@@ -96,7 +96,7 @@ public:
 
     [[nodiscard]] static constexpr size_type size([[maybe_unused]] extent_type p) noexcept { return 0; }
     [[nodiscard]] constexpr size_type size() const noexcept { return 0; }
-    [[nodiscard]] constexpr subshape_type subshape([[maybe_unused]] index_type i) const noexcept { return subshape_type{}; }
+    [[nodiscard]] constexpr auto subshape([[maybe_unused]] index_type i) const noexcept { return NullShape{}; }
     [[nodiscard]] constexpr size_type operator()() const noexcept { return 0; }
     [[nodiscard]] constexpr index_range indices() const noexcept { return index_range{}; }
 };
@@ -286,7 +286,7 @@ private:
 };
 
 template <typename S1, typename S2>
-class Combine
+class CompositeShape
 {
 public:
     using size_type = typename S1::size_type;
@@ -298,8 +298,8 @@ public:
     static constexpr std::size_t linear_extent = (S1::linear_extent == std::dynamic_extent || S2::linear_extent == std::dynamic_extent) ?
         std::dynamic_extent : S1::linear_extent*S2::linear_extent;
 
-    constexpr Combine() = default;
-    constexpr Combine(S1::extent_type first_extents, S2::extent_type second_extents): m_shapes(first_extents, second_extents), m_size(size(first_extents, second_extents)) {}
+    constexpr CompositeShape() = default;
+    constexpr CompositeShape(S1::extent_type first_extents, S2::extent_type second_extents): m_shapes(first_extents, second_extents), m_size(size(first_extents, second_extents)) {}
 
     [[nodiscard]] static constexpr size_type size(S1::extent_type first_extents, S2::extent_type second_extents) noexcept { return S1::size(first_extents)*S2::size(second_extents); }
     [[nodiscard]] constexpr size_type size() const noexcept { return m_size; }
@@ -309,7 +309,7 @@ public:
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < S1::rank)
     [[nodiscard]] constexpr auto subshape(Inds... indices) const noexcept
     {
-        Combine<typename S1::template subshape_t<sizeof...(Inds)>, S2>(m_shapes.first.subextents(indices...), m_shapes.second.extents());
+        CompositeShape<typename S1::template subshape_t<sizeof...(Inds)>, S2>(m_shapes.first.subextents(indices...), m_shapes.second.extents());
     }
 
     template <typename... Inds>
@@ -366,6 +366,22 @@ private:
 };
 
 template <typename SequenceType, std::size_t... Ns>
-using TensorSequenceShape = Combine<SequencedShape<SequenceType>, TensorShape<Ns...>>;
+using TensorSequenceShape = std::conditional_t<(sizeof...(Ns) > 0),
+    CompositeShape<SequencedShape<SequenceType>, TensorShape<Ns...>>,
+    SequencedShape<SequenceType>>;
+
+template <typename SequenceType, std::size_t... Ns>
+using SequenceTensorShape = std::conditional_t<(sizeof...(Ns) > 0),
+    CompositeShape<TensorShape<Ns...>, SequencedShape<SequenceType>>,
+    SequencedShape<SequenceType>>;
+
+// NOTE: Maybe?
+template <typename ShapeType, typename TagType>
+struct TaggedShape: public ShapeType
+{
+    using tag = TagType;
+
+    // TODO: ???
+}
 
 } // namespace zest
