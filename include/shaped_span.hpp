@@ -42,9 +42,19 @@ public:
     using index_range = ShapeType::index_range;
     using const_view = ShapedSpan<const value_type, ShapeType>;
 
+    template <std::size_t N>
+    using subspan_type = ShapedSpan<value_type, typename shape_type::template subshape_type<1>>;
+
+    template <std::size_t N>
+    using const_subspan_type = ShapedSpan<const value_type, typename shape_type::template subshape_type<1>>;
+
     constexpr ShapedSpan() = default;
     constexpr ShapedSpan(pointer data, const shape_type::extent_type& extents): m_data(data), m_shape(extents) {}
     constexpr ShapedSpan(pointer data, const shape_type& shape): m_data(data), m_shape(shape) {}
+    constexpr ShapedSpan(std::span<value_type> data, const shape_type::extent_type& extents):
+        m_data(data.data()), m_shape(extents) { assert(data.size() == m_shape.size()); }
+    constexpr ShapedSpan(std::span<value_type> data, const shape_type& shape):
+        m_data(data), m_shape(shape) { assert(data.size() == m_shape.size()); }
 
     [[nodiscard]] constexpr operator const_view() const noexcept { return const_view(m_data, m_shape); }
 
@@ -74,16 +84,18 @@ public:
         requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] constexpr reference operator[](Inds... indices) const noexcept { return m_data[m_shape(indices...)]; }
 
-    [[nodiscard]] constexpr auto operator()(index_type index) const noexcept requires (shape_type::rank > 1)
+    template <typename... Inds>
+        requires (sizeof...(Inds) < shape_type::rank)
+    [[nodiscard]] constexpr auto operator()(Inds... indices) const noexcept
     {
-        const auto subshape = m_shape.subshape(index);
-        return ShapedSpan<value_type, decltype(subshape)>(m_data + m_shape(index), m_shape.subshape(index));
+        return subspan_type<sizeof...(Inds)>(m_data + m_shape(indices...), m_shape.subshape(indices...));
     }
 
-    [[nodiscard]] constexpr auto operator[](index_type index) const noexcept requires (shape_type::rank > 1)
+    template <typename... Inds>
+        requires (sizeof...(Inds) < shape_type::rank)
+    [[nodiscard]] constexpr auto operator[](Inds... indices) const noexcept
     {
-        const auto subshape = m_shape.subshape(index);
-        return ShapedSpan<value_type, decltype(subshape)>(m_data + m_shape(index), m_shape.subshape(index));
+        return subspan_type<sizeof...(Inds)>(m_data + m_shape(indices...), m_shape.subshape(indices...));
     }
 
 private:

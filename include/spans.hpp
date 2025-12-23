@@ -22,9 +22,9 @@ SOFTWARE.
 #pragma once
 
 #include "sh_conventions.hpp"
-#include "shaped_span.hpp"
 #include "sequence.hpp"
 #include "shape.hpp"
+#include "shaped_span.hpp"
 #include "zernike_conventions.hpp"
 
 namespace zest
@@ -33,131 +33,56 @@ namespace zest
 template <IndexingMode indexing_mode_param, std::size_t... Ns>
 using TriangleShape = TensorSequenceShape<TriangleSequence<indexing_mode_param>, Ns...>;
 
-template <std::size_t... Ns>
-using AssociatedLegendreShape = TriangleShape<IndexingMode::nonnegative, Ns...>;
-
-template <IndexingMode indexing_mode_param, std::size_t... Ns>
-using SHShape = std::conditional_t<(indexing_mode_param == IndexingMode::negative),
-    TriangleShape<indexing_mode_param, Ns...>,
-    TriangleShape<indexing_mode_param, 2, Ns...>>;
-
-template <std::size_t... Ns>
-using RadialZernikeShape = TensorSequenceShape<EvenTriangleSequence, Ns...>;
-
-template <IndexingMode indexing_mode_param, std::size_t... Ns>
-using ZernikeShape = std::conditional_t<(indexing_mode_param == IndexingMode::negative), 
-    TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode_param>, Ns...>,
-    TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode_param>, 2, Ns...>>;
-
 template <typename ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
 using TriangleSpan = ShapedSpan<ElementType, TriangleShape<indexing_mode_param, Ns...>>;
 
-namespace st
-{
-
-// TODO: Preserve tags
-template <
-    typename ElementType, IndexingMode indexing_mode_param, SHNorm sh_norm_param,
-    SHPhase sh_phase_param, std::size_t... Ns>
-class SHLMSpan: public ShapedSpan<ElementType, SHShape<indexing_mode_param, Ns...>>
-{
-private:
-    using Base = ShapedSpan<ElementType, SHShape<indexing_mode_param, Ns...>>;
-
-public:
-    using Base::ShapedSpan;
-    using Base::data;
-    using Base::shape;
-
-    using ConstView = SHLMSpan<const ElementType, indexing_mode_param, sh_norm_param, sh_phase_param, Ns...>;
-
-    static constexpr SHNorm norm = sh_norm_param;
-    static constexpr SHPhase phase = sh_phase_param;
-
-    [[nodiscard]] constexpr operator ConstView() const noexcept
-    {
-        return ConstView(data(), shape());
-    }
-};
-
-// TODO: Preserve tags
-template <typename ElementType, SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns>
-class AssociatedLegendreSpan: public TriangleSpan<ElementType, IndexingMode::nonnegative, Ns...>
-{
-private:
-    using Base = TriangleSpan<ElementType, IndexingMode::nonnegative, Ns...>;
-
-public:
-    using Base::ShapedSpan;
-    using Base::data;
-    using Base::shape;
-
-    using ConstView = AssociatedLegendreSpan<const ElementType, sh_norm_param, sh_phase_param, Ns...>;
-
-    static constexpr SHNorm norm = sh_norm_param;
-    static constexpr SHPhase phase = sh_phase_param;
-
-    [[nodiscard]] constexpr operator ConstView() const noexcept
-    {
-        return ConstView(data(), shape());
-    }
-};
-
-} // namespace st
-
-namespace zt
-{
-
-// TODO: Preserve tags
-template <typename ElementType, ZernikeNorm zernike_norm_param, std::size_t... Ns>
-class RadialZernikeSpan : public ShapedSpan<ElementType, RadialZernikeShape<Ns...>>
-{
-private:
-    using Base = ShapedSpan<ElementType, RadialZernikeShape<Ns...>>;
-
-public:
-    using Base::ShapedSpan;
-    using Base::data;
-    using Base::shape;
-
-    using ConstView = RadialZernikeSpan<const ElementType, zernike_norm_param, Ns...>;
-
-    static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
-
-    [[nodiscard]] constexpr operator ConstView() const noexcept
-    {
-        return ConstView(data(), shape());
-    }
-};
-
-// TODO: Preserve tags
-template <
-    typename ElementType, typename LayoutType, IndexingMode indexing_mode_param,
-    ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param,
-    std::size_t... Ns>
-class ZernikeNLMSpan : public ShapedSpan<ElementType, ZernikeShape<indexing_mode_param, Ns...>>
-{
-private:
-    using Base = ShapedSpan<ElementType, ZernikeShape<indexing_mode_param, Ns...>>;
-
-public:
-    using Base::ShapedSpan;
-    using Base::data;
-    using Base::shape;
-
-    using ConstView = ZernikeNLMSpan<
-        const ElementType, LayoutType, indexing_mode_param, zernike_norm_param, sh_norm_param, sh_phase_param>;
-
-    static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
-    static constexpr st::SHNorm sh_norm = sh_norm_param;
-    static constexpr st::SHPhase sh_phase = sh_phase_param;
-
-    [[nodiscard]] constexpr operator ConstView() const noexcept
-    {
-        return ConstView(data(), shape());
-    }
-};
-
-} // namespace zt
+// namespace st
+// {
+//
+// template <SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns>
+// using AssociatedLegendreShape = TaggedShape<TriangleShape<IndexingMode::nonnegative, Ns...>, SHTag<sh_norm_param, sh_phase_param>>;
+//
+// template <IndexingMode indexing_mode_param, SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns>
+// using SHShape = TaggedShape<
+//     std::conditional_t<(indexing_mode_param == IndexingMode::negative),
+//         TriangleShape<indexing_mode_param, Ns...>,
+//         TriangleShape<indexing_mode_param, 2, Ns...>>,
+//     SHTag<sh_norm_param, sh_phase_param>>;
+//
+// template <
+//     typename ElementType, IndexingMode indexing_mode_param, SHNorm sh_norm_param,
+//     SHPhase sh_phase_param, std::size_t... Ns>
+// using SHLMSpan = ShapedSpan<ElementType, SHShape<indexing_mode_param, sh_norm_param, sh_phase_param, Ns...>>;
+//
+// template <typename ElementType, SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns>
+// using AssociatedLegendreSpan = ShapedSpan<ElementType, AssociatedLegendreShape<sh_norm_param, sh_phase_param, Ns...>>;
+//
+// } // namespace st
+//
+// namespace zt
+// {
+//
+// template <ZernikeNorm zernike_norm_param, std::size_t... Ns>
+// using RadialZernikeShape = TaggedShape<TensorSequenceShape<EvenTriangleSequence, Ns...>, ZernikeTag<zernike_norm_param>>;
+//
+// template <
+//     IndexingMode indexing_mode_param, ZernikeNorm zernike_norm_param,
+//     st::SHNorm sh_norm_param, st::SHPhase sh_phase_param, std::size_t... Ns>
+// using ZernikeShape = TaggedShape<
+//     std::conditional_t<(indexing_mode_param == IndexingMode::negative), 
+//         TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode_param>, Ns...>,
+//         TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode_param>, 2, Ns...>>,
+//     ZernikeTag<zernike_norm_param>, st::SHTag<sh_norm_param, sh_phase_param>>;
+//
+// template <typename ElementType, ZernikeNorm zernike_norm_param, std::size_t... Ns>
+// using RadialZernikeSpan = ShapedSpan<ElementType, RadialZernikeShape<zernike_norm_param, Ns...>>;
+//
+// template <
+//     typename ElementType, typename LayoutType, IndexingMode indexing_mode_param,
+//     ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param,
+//     std::size_t... Ns>
+// using ZernikeNLMSpan = ShapedSpan<ElementType, ZernikeShape<indexing_mode_param, zernike_norm_param, sh_norm_param, sh_phase_param, Ns...>>;
+//
+// } // namespace zt
 
 } // namespace zest

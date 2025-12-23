@@ -22,311 +22,161 @@ SOFTWARE.
 #pragma once
 
 #include <complex>
-#include <vector>
-#include <array>
-#include <span>
 #include <concepts>
 #include <type_traits>
 
-#include "layout.hpp"
-#include "packing.hpp"
 #include "sh_conventions.hpp"
 #include "array_complex_view.hpp"
+#include "shaped_array.hpp"
+#include "shaped_span.hpp"
+#include "spans.hpp"
 
-namespace zest
-{
-namespace st
+
+namespace zest::st
 {
 
 /**
-    @brief A non-owning view for storing 2D data related to spherical harmonics.
+    @brief Tagged shape represnting layout and conventions of associated
+    Legendre function values.
 
-    @tparam ElementType type of elements
-    @tparam LayoutType layout of the elements
     @tparam sh_norm_param normalization convention of the spherical harmonics
     @tparam sh_phase_param phase convention of the spherical harmonics
+    @tparam Ns extents representing inner multidimensional array structure
+*/
+template <SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns>
+using AssociatedLegendreShape = TaggedShape<TriangleShape<IndexingMode::nonnegative, Ns...>, SHTag<sh_norm_param, sh_phase_param>>;
+
+/**
+    @brief Tagged shape representing layout and conventions of spherical
+    harmonic data.
+
+    @tparam IndexingMode determines azimuthal index order
+    @tparam sh_norm_param normalization convention of the spherical harmonics
+    @tparam sh_phase_param phase convention of the spherical harmonics
+    @tparam Ns extents representing inner multidimensional array structure
+*/
+template <IndexingMode indexing_mode_param, SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns>
+using SHShape = TaggedShape<
+    std::conditional_t<(indexing_mode_param == IndexingMode::negative),
+        TriangleShape<indexing_mode_param, Ns...>,
+        TriangleShape<indexing_mode_param, 2, Ns...>>,
+    SHTag<sh_norm_param, sh_phase_param>>;
+
+/**
+    @brief A non-owning view for storing spherical harmonic data.
+
+    @tparam ElementType type of elements
+    @tparam IndexingMode determines azimuthal index order
+    @tparam sh_norm_param normalization convention of the spherical harmonics
+    @tparam sh_phase_param phase convention of the spherical harmonics
+    @tparam Ns extents representing inner multidimensional array structure
 */
 template <
-    typename ElementType, typename LayoutType, SHNorm sh_norm_param,
-    SHPhase sh_phase_param>
-class SHLMSpan: public TriangleSpan<ElementType, LayoutType>
-{
-public:
-    using TriangleSpan<ElementType, LayoutType>::TriangleSpan;
-    using TriangleSpan<ElementType, LayoutType>::data;
-    using TriangleSpan<ElementType, LayoutType>::size;
-    using TriangleSpan<ElementType, LayoutType>::order;
-
-    using ConstView = SHLMSpan<const ElementType, LayoutType, sh_norm_param, sh_phase_param>;
-
-    static constexpr SHNorm norm = sh_norm_param;
-    static constexpr SHPhase phase = sh_phase_param;
-
-    [[nodiscard]] constexpr operator ConstView() const noexcept
-    {
-        return ConstView(data(), size(), order());
-    }
-
-private:
-    friend SHLMSpan<std::remove_const_t<ElementType>, LayoutType, sh_norm_param, sh_phase_param>;
-};
+    complex_or_real_float ElementType, IndexingMode indexing_mode_param, SHNorm sh_norm_param,
+    SHPhase sh_phase_param, std::size_t... Ns>
+using SHSpan = ShapedSpan<ElementType, SHShape<indexing_mode_param, sh_norm_param, sh_phase_param, Ns...>>;
 
 /**
-    @brief A non-owning view for storing 3D data related to spherical harmonics.
+    @brief A non-owning view for storing real spherical harmonic data encoded
+    as complex numbers.
 
     @tparam ElementType type of elements
-    @tparam LayoutType layout of the elements
     @tparam sh_norm_param normalization convention of the spherical harmonics
     @tparam sh_phase_param phase convention of the spherical harmonics
+    @tparam Ns extents representing inner multidimensional array structure
+*/
+template <complex_float ElementType, SHNorm sh_norm_param, SHPhase sh_phase_param>
+using ComplexEncodedRealSHSpan = ShapedSpan<ElementType, AssociatedLegendreShape<sh_norm_param, sh_phase_param>>;
+
+template <complex_or_real_float ElementType, SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns>
+using AssociatedLegendreSpan = ShapedSpan<ElementType, AssociatedLegendreShape<sh_norm_param, sh_phase_param, Ns...>>;
+
+/**
+    @brief Convenient alias for `RealSHSpan` with orthonormal spherical
+    harmonics and no Condon-Shortley phase.
+
+    @tparam ElementType type of elements
+    @tparam IndexingMode determines azimuthal index order
+    @tparam Ns extents representing inner multidimensional array structure
+*/
+template <complex_or_real_float ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+using SHSpanAcoustics = SHSpan<ElementType, indexing_mode_param, SHNorm::qm, SHPhase::none, Ns...>;
+/**
+    @brief Convenient alias for `RealSHSpan` with orthonormal spherical
+    harmonics with Condon-Shortley phase.
+
+    @tparam ElementType type of elements
+    @tparam IndexingMode determines azimuthal index order
+    @tparam Ns extents representing inner multidimensional array structure
+*/
+template <complex_or_real_float ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+using SHSpanQM = SHSpan<ElementType, indexing_mode_param, SHNorm::qm, SHPhase::cs, Ns...>;
+
+/**
+    @brief Convenient alias for `RealSHSpan` with 4-pi normal spherical
+    harmonics and no Condon-Shortley phase
+
+    @tparam ElementType type of elements
+    @tparam IndexingMode determines azimuthal index order
+    @tparam Ns extents representing inner multidimensional array structure
+*/
+template <complex_or_real_float ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+using SHSpanGeo = SHSpan<ElementType, indexing_mode_param, SHNorm::geo, SHPhase::none, Ns...>;
+
+/**
+    @brief A container for spherical harmonic data.
+
+    @tparam ElementType type of elements
+    @tparam IndexingMode determines azimuthal index order
+    @tparam sh_norm_param normalization convention of the spherical harmonics
+    @tparam sh_phase_param phase convention of the spherical harmonics
+    @tparam Ns extents representing inner multidimensional array structure
 */
 template <
-    typename ElementType, typename LayoutType, SHNorm sh_norm_param,
-    SHPhase sh_phase_param>
-class SHLMVecSpan: public TriangleVecSpan<ElementType, LayoutType>
-{
-public:
-    using TriangleVecSpan<ElementType, LayoutType>::TriangleVecSpan;
-    using TriangleVecSpan<ElementType, LayoutType>::data;
-    using TriangleVecSpan<ElementType, LayoutType>::size;
-    using TriangleVecSpan<ElementType, LayoutType>::order;
-    using TriangleVecSpan<ElementType, LayoutType>::vec_size;
-
-    using ConstView = SHLMVecSpan<const ElementType, LayoutType, sh_norm_param, sh_phase_param>;
-
-    static constexpr SHNorm norm = sh_norm_param;
-    static constexpr SHPhase phase = sh_phase_param;
-
-    [[nodiscard]] constexpr operator ConstView() const noexcept
-    {
-        return ConstView(data(), size(), order(), vec_size());
-    }
-
-private:
-    friend SHLMVecSpan<std::remove_const_t<ElementType>, LayoutType, sh_norm_param, sh_phase_param>;
-};
+    complex_or_real_float ElementType, IndexingMode indexing_mode_param, SHNorm sh_norm_param,
+    SHPhase sh_phase_param, std::size_t... Ns>
+using SHExpansion = ShapedArray<ElementType, SHShape<indexing_mode_param, sh_norm_param, sh_phase_param, Ns...>>;
 
 /**
-    @brief A non-owning view of data modeling spherical harmonic data.
-
-    @tparam PackingType type of packing for the elements
-    @tparam sh_norm_param normalization convention of the spherical harmonics
-    @tparam sh_phase_param phase convention of the spherical harmonics
-*/
-template <sh_packing PackingType, SHNorm sh_norm_param, SHPhase sh_phase_param>
-using PackedSHSpan = SHLMSpan<
-    typename PackingType::element_type, typename PackingType::Layout, 
-    sh_norm_param, sh_phase_param>;
-
-/**
-    @brief A non-owning view of data modeling purely real spherical harmonic data.
+    @brief Convenient alias for `SHExpansion` with orthonormal spherical
+    harmonics and no Condon-Shortley phase.
 
     @tparam ElementType type of elements
-    @tparam sh_norm_param normalization convention of the spherical harmonics
-    @tparam sh_phase_param phase convention of the spherical harmonics
+    @tparam IndexingMode determines azimuthal index order
+    @tparam Ns extents representing inner multidimensional array structure
 */
-template <typename ElementType, SHNorm sh_norm_param, SHPhase sh_phase_param>
-using RealSHSpan = PackedSHSpan<
-    RealSHPacking<ElementType>, sh_norm_param, sh_phase_param>;
+template <complex_or_real_float ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+using SHExpansionAcoustics = SHExpansion<ElementType, indexing_mode_param, SHNorm::qm, SHPhase::none, Ns...>;
 
 /**
-    @brief Convenient alias for `RealSHSpan` with orthonormal spherical harmonics and no Condon-Shortley phase.
-*/
-template <typename ElementType>
-using RealSHSpanAcoustics = RealSHSpan<ElementType, SHNorm::qm, SHPhase::none>;
-/**
-    @brief Convenient alias for `RealSHSpan` with orthonormal spherical harmonics with Condon-Shortley phase.
-*/
-template <typename ElementType>
-using RealSHSpanQM = RealSHSpan<ElementType, SHNorm::qm, SHPhase::cs>;
+    @brief Convenient alias for `SHExpansion` with orthonormal spherical
+    harmonics with Condon-Shortley phase.
 
-/**
-    @brief Convenient alias for `RealSHSpan` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
-*/
-template <typename ElementType>
-using RealSHSpanGeo = RealSHSpan<ElementType, SHNorm::geo, SHPhase::none>;
-
-/**
-    @brief A container for purely real spherical harmonic data.
-
-    @tparam sh_norm_param normalization convention of the spherical harmonics
-    @tparam sh_phase_param phase convention of the spherical harmonics
     @tparam ElementType type of elements
+    @tparam IndexingMode determines azimuthal index order
+    @tparam Ns extents representing inner multidimensional array structure
 */
-template <
-    SHNorm sh_norm_param, SHPhase sh_phase_param, typename ElementType = std::array<double, 2>>
-    requires real_plane_vector<std::remove_const_t<ElementType>>
-class RealSHExpansion
-{
-public:
-    using Packing = RealSHPacking<std::remove_cv_t<ElementType>>;
-    using Layout = Packing::Layout;
-    using IndexRange = typename Layout::IndexRange;
-    using element_type = ElementType;
-    using value_type = std::remove_cvref_t<element_type>;
-    using index_type = Layout::index_type;
-    using size_type = std::size_t;
-    using View = RealSHSpan<element_type, sh_norm_param, sh_phase_param>;
-    using ConstView = RealSHSpan<const element_type, sh_norm_param, sh_phase_param>;
-    using SubSpan = typename View::SubSpan;
-    using ConstSubSpan = typename ConstView::SubSpan;
-
-    static constexpr SHNorm norm = sh_norm_param;
-    static constexpr SHPhase phase = sh_phase_param;
-
-    /**
-        @brief Number of data elements for size parameter `order`.
-
-        @param order parameter presenting the size of the expansion
-    */
-    [[nodiscard]] static constexpr size_type size(size_type order) noexcept
-    {
-        return Layout::size(order);
-    }
-
-    RealSHExpansion() = default;
-    explicit RealSHExpansion(size_type order):
-        m_data(Layout::size(order)), m_order(order) {}
-
-    /**
-        @brief Order of the expansion.
-    */
-    [[nodiscard]] size_type order() const noexcept { return m_order; }
-
-    [[nodiscard]] constexpr IndexRange indices()
-    {
-        return IndexRange{
-            index_type(m_order + (IndexRange::iterator::stride - 1))};
-    }
-
-    [[nodiscard]] constexpr IndexRange indices(index_type begin)
-    {
-        return IndexRange{
-            begin, index_type(m_order + (IndexRange::iterator::stride - 1))};
-    }
-
-    [[nodiscard]] operator View()
-    {
-        return View(m_data, m_order);
-    };
-
-    [[nodiscard]] operator ConstView() const
-    {
-        return ConstView(m_data, m_order);
-    };
-
-    /**
-        @brief Flattened view of the underlying buffer.
-    */
-    [[nodiscard]] std::span<element_type>
-    flatten() noexcept { return m_data; }
-
-    /**
-        @brief Flattened view of the underlying buffer.
-    */
-    [[nodiscard]] std::span<const element_type>
-    flatten() const noexcept { return m_data; }
-    
-    [[nodiscard]] element_type
-    operator()(index_type l, index_type m) const noexcept
-    {
-        return m_data[Layout::idx(l,m)];
-    }
-
-    [[nodiscard]] element_type& operator()(index_type l, index_type m)
-    {
-        return m_data[Layout::idx(l,m)];
-    }
-
-    [[nodiscard]] SubSpan
-    operator()(index_type l) noexcept
-    {
-        return SubSpan(
-                m_data.data() + Layout::idx(l, 0), l + 1);
-    }
-
-    [[nodiscard]] ConstSubSpan
-    operator()(index_type l) const noexcept
-    {
-        return ConstSubSpan(m_data.data() + Layout::idx(l, 0), l + 1);
-    }
-
-    [[nodiscard]] SubSpan
-    operator[](index_type l) noexcept
-    {
-        return SubSpan(m_data.data() + Layout::idx(l,0), l + 1);
-    }
-
-    [[nodiscard]] ConstSubSpan
-    operator[](index_type l) const noexcept
-    {
-        return ConstSubSpan(m_data.data() + Layout::idx(l,0), l + 1);
-    }
-
-    /**
-        @brief Change the size of the expansion.
-    */
-    void resize(size_type order)
-    {
-        m_data.resize(Layout::size(order));
-        m_order = order;
-    }
-
-private:
-    std::vector<element_type> m_data{};
-    size_type m_order{};
-};
+template <complex_or_real_float ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+using SHExpansionQM = SHExpansion<ElementType, indexing_mode_param, SHNorm::qm, SHPhase::cs, Ns...>;
 
 /**
-    @brief Convenient alias for `RealSHExpansion` with orthonormal spherical harmonics and no Condon-Shortley phase.
-*/
-using RealSHExpansionAcoustics = RealSHExpansion<SHNorm::qm, SHPhase::none>;
+    @brief Convenient alias for `SHExpansion` with 4-pi normal spherical
+    harmonics and no Condon-Shortley phase.
 
-/**
-    @brief Convenient alias for `RealSHExpansion` with orthonormal spherical harmonics with Condon-Shortley phase.
+    @tparam ElementType type of elements
+    @tparam IndexingMode determines azimuthal index order
+    @tparam Ns extents representing inner multidimensional array structure
 */
-using RealSHExpansionQM = RealSHExpansion<SHNorm::qm, SHPhase::cs>;
-
-/**
-    @brief Convenient alias for `RealSHExpansion` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
-*/
-using RealSHExpansionGeo = RealSHExpansion<SHNorm::geo, SHPhase::none>;
+template <complex_or_real_float ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+using SHExpansionGeo = SHExpansion<ElementType, indexing_mode_param, SHNorm::geo, SHPhase::none, Ns...>;
 
 namespace detail
 {
 
 template <typename T>
-concept has_sh_conventions = std::same_as<
-        std::remove_const_t<decltype(std::remove_cvref_t<T>::norm)>, SHNorm>
-    && std::same_as<
-        std::remove_const_t<decltype(std::remove_cvref_t<T>::phase)>, SHPhase>;
+concept has_sh_conventions = std::derived_from<T, SHTag<T::sh_norm, T::sh_phase>>;
 
 } // namespace detail
-
-/**
-    @brief Concept describing a spherical harmonic expansion where every other row is skipped.
-*/
-template <typename T>
-concept row_skipping_real_sh_expansion
-    = row_skipping_sh_layout<typename std::remove_cvref_t<T>::Layout>
-    && real_sh_compatible<
-        typename std::remove_cvref_t<T>::value_type,
-        typename std::remove_cvref_t<T>::Layout>
-    && detail::has_sh_conventions<std::remove_cvref_t<T>>
-    && two_dimensional_span<std::remove_cvref_t<T>>
-    && two_dimensional_subspannable<std::remove_cvref_t<T>>;
-
-/**
-    @brief Concept describing a conventional spherical harmonic expansion
-*/
-template <typename T>
-concept real_sh_expansion
-    = sh_layout<typename std::remove_cvref_t<T>::Layout>
-    && real_sh_compatible<
-        typename std::remove_cvref_t<T>::value_type,
-        typename std::remove_cvref_t<T>::Layout>
-    && detail::has_sh_conventions<std::remove_cvref_t<T>>
-    && two_dimensional_span<std::remove_cvref_t<T>>
-    && two_dimensional_subspannable<std::remove_cvref_t<T>>;
 
 /**
     @brief Convert real spherical harmonic expansion of a real function to a complex spherical harmonic expansion.
@@ -340,27 +190,28 @@ concept real_sh_expansion
 
     @note IMPORTANT: This function modifies the input data! The output is just a new view over the same data.
 */
-template <SHNorm dest_sh_norm, SHPhase dest_sh_phase, real_sh_expansion ExpansionType>
-RealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>
-to_complex_expansion(ExpansionType&& expansion) noexcept
+template <SHNorm dest_sh_norm, SHPhase dest_sh_phase, SHNorm source_sh_norm, SHPhase source_sh_phase>
+ComplexEncodedRealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>
+to_complex_expansion(SHSpan<double, IndexingMode::nonnegative, source_sh_norm, source_sh_phase>& expansion) noexcept
 {
-    constexpr double shnorm
-        = conversion_const<std::remove_cvref_t<ExpansionType>::norm, dest_sh_norm>();
+    using ExpansionType = SHSpan<double, IndexingMode::nonnegative, source_sh_norm, source_sh_phase>;
+    constexpr double sh_norm
+        = conversion_const<std::remove_cvref_t<ExpansionType>::shape::sh_norm, dest_sh_norm>();
     constexpr double cnorm = 1.0/std::numbers::sqrt2;
-    constexpr double norm = shnorm*cnorm;
+    constexpr double norm = sh_norm*cnorm;
 
     for (auto l : expansion.indices())
     {
         auto expansion_l = expansion[l];
-        expansion_l[0][0] *= shnorm;
-        expansion_l[0][1] *= shnorm;
+        expansion_l[0, 0] *= sh_norm;
+        expansion_l[0, 1] *= sh_norm;
 
-        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::phase)
+        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::shape::sh_phase)
         {
             for (auto m : expansion_l.indices(1))
             {
-                expansion_l[m][0] *= norm;
-                expansion_l[m][1] *= -norm;
+                expansion_l[m, 0] *= norm;
+                expansion_l[m, 1] *= -norm;
             }
         }
         else
@@ -369,13 +220,13 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
             for (auto m : expansion_l.indices(1))
             {
                 prefactor *= -1.0;
-                expansion_l[m][0] *= prefactor;
-                expansion_l[m][1] *= -prefactor;
+                expansion_l[m, 0] *= prefactor;
+                expansion_l[m, 1] *= -prefactor;
             }
         }
     }
 
-    return RealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>(
+    return ComplexEncodedRealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>(
             as_complex_span(expansion.flatten()), expansion.order());
 }
 
@@ -391,30 +242,31 @@ to_complex_expansion(ExpansionType&& expansion) noexcept
 
     @note IMPORTANT: This function modifies the input data! The output is just a new view over the same data.
 */
-template <SHNorm dest_sh_norm, SHPhase dest_sh_phase, real_sh_expansion ExpansionType>
-RealSHSpan<std::array<double, 2>, dest_sh_norm, dest_sh_phase>
-to_real_expansion(ExpansionType&& expansion) noexcept
+template <SHNorm dest_sh_norm, SHPhase dest_sh_phase, SHNorm source_sh_norm, SHPhase source_sh_phase>
+SHSpan<double, IndexingMode::nonnegative, dest_sh_norm, dest_sh_phase>
+to_real_expansion(ComplexEncodedRealSHSpan<std::complex<double>, source_sh_norm, source_sh_phase>& expansion) noexcept
 {
-    constexpr double shnorm
-        = conversion_const<std::remove_cvref_t<ExpansionType>::norm, dest_sh_norm>();
+    using ExpansionType = ComplexEncodedRealSHSpan<std::complex<double>, source_sh_norm, source_sh_phase>;
+    constexpr double sh_norm
+        = conversion_const<std::remove_cvref_t<ExpansionType>::shape::sh_norm, dest_sh_norm>();
     constexpr double cnorm = std::numbers::sqrt2;
-    constexpr double norm = shnorm*cnorm;
+    constexpr double norm = sh_norm*cnorm;
 
-    RealSHSpan<std::array<double, 2>, dest_sh_norm, dest_sh_phase> res(
-            as_array_span(expansion.flatten()), expansion.order());
+    SHSpan<double, IndexingMode::nonnegative, dest_sh_norm, dest_sh_phase> res(
+            as_float_span(expansion.flatten()), expansion.order());
 
     for (auto l : res.indices())
     {
         auto res_l = res[l];
-        res_l[0][0] *= shnorm;
-        res_l[0][1] *= shnorm;
+        res_l[0, 0] *= sh_norm;
+        res_l[0, 1] *= sh_norm;
 
-        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::phase)
+        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::shape::phase)
         {
             for (auto m : res_l.indices(1))
             {
-                res_l[m][0] *= norm;
-                res_l[m][1] *= -norm;
+                res_l[m, 0] *= norm;
+                res_l[m, 1] *= -norm;
             }
         }
         else
@@ -423,8 +275,8 @@ to_real_expansion(ExpansionType&& expansion) noexcept
             for (auto m : res_l.indices(1))
             {
                 prefactor *= -1.0;
-                res_l[m][0] *= prefactor;
-                res_l[m][1] *= -prefactor;
+                res_l[m, 0] *= prefactor;
+                res_l[m, 1] *= -prefactor;
             }
         }
     }
@@ -432,5 +284,5 @@ to_real_expansion(ExpansionType&& expansion) noexcept
     return res;
 }
 
-} // namespace st
-} // namespace zest
+} // namespace zest::st
+

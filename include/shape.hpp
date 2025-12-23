@@ -27,6 +27,7 @@ SOFTWARE.
 #include <tuple>
 #include <utility>
 
+#include "utility.hpp"
 #include "indexing.hpp"
 
 namespace zest
@@ -375,13 +376,13 @@ using SequenceTensorShape = std::conditional_t<(sizeof...(Ns) > 0),
     CompositeShape<TensorShape<Ns...>, SequencedShape<SequenceType>>,
     SequencedShape<SequenceType>>;
 
-// NOTE: Maybe?
-template <typename ShapeType, typename TagType>
-struct TaggedShape: public ShapeType
+template <typename ShapeType, tag_type... Tags>
+struct TaggedShape: public ShapeType, public Tags...
 {
-    using tag = TagType;
+    template <std::size_t N>
+    using subshape = TaggedShape<typename ShapeType::template subshape<N>, Tags...>;
 
-    // TODO: ???
-}
+    using ShapeType::ShapeType;
+};
 
 } // namespace zest

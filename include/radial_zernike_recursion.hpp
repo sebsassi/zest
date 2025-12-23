@@ -148,12 +148,12 @@ public:
         @param zernike storage for the evaluated polynomials
         @param r points at which the polynomials are evaluated
     */
-    template <ZernikeNorm zernike_norm_param>
+    template <ZernikeNorm zernike_norm_param, std::size_t N>
     void zernike(
         std::span<const double> r,
-        RadialZernikeVecSpan<double, zernike_norm_param> zernike)
+        RadialZernikeSpan<double, zernike_norm_param, N> zernike)
     {
-        using ZernikeVecSpan = RadialZernikeVecSpan<double, zernike_norm_param>;
+        using ZernikeVecSpan = RadialZernikeSpan<double, zernike_norm_param, std::dynamic_extent>;
         constexpr double sqrt5 = 2.2360679774997896964091737;
         constexpr double sqrt7 = 2.6457513110645905905016158;
 
@@ -161,9 +161,9 @@ public:
         if (order == 0) return;
 
         assert(r.size() == zernike.vec_size());
-        
+
         expand(order);
-        
+
         auto z_00 = zernike(0, 0);
         for (std::size_t i = 0; i < zernike.vec_size(); ++i)
             z_00[i] = 1.0;
@@ -186,7 +186,7 @@ public:
             {
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
                     z_00[i] *= std::numbers::sqrt3;
-                
+
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
                     z_11[i] *= sqrt5;
             }
@@ -209,10 +209,10 @@ public:
 
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
                     z_11[i] *= sqrt5;
-                
+
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
                     z_20[i] *= sqrt7;
-                
+
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
                     z_22[i] *= sqrt7;
             }
@@ -256,7 +256,7 @@ public:
             auto z_nm1nm1 = zernike(n - 1, n - 1);
             for (std::size_t i = 0; i < zernike.vec_size(); ++i)
                 z_nn[i] = r[i]*z_nm1nm1[i];
-            
+
             auto z_nm2nm2 = zernike_nm2[n - 2];
             auto z_nnm2 = zernike_n[n - 2];
 
@@ -273,7 +273,7 @@ public:
                 for (std::size_t i = 0; i < zernike.vec_size(); ++i)
                     z_22[i] *= sqrt7;
             }
-            
+
             for (std::size_t n = order - 4; n < order; ++n)
             {
                 auto zernike_n = zernike[n];

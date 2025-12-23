@@ -45,6 +45,13 @@ enum class SHNorm
     qm
 };
 
+template <SHNorm norm_param, SHPhase phase_param>
+struct SHTag
+{
+    static constexpr SHNorm sh_norm = norm_param;
+    static constexpr SHPhase sh_phase = phase_param;
+};
+
 /**
     @brief Normalization constant of spherical harmonics coefficients.
 

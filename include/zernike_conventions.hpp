@@ -34,6 +34,12 @@ namespace zt
 */
 enum class ZernikeNorm { normed, unnormed };
 
+template <ZernikeNorm norm_param>
+struct ZernikeTag
+{
+    static constexpr ZernikeNorm zernike_norm = norm_param;
+};
+
 /**
     @brief Normalization of Zernike polynomials.
 

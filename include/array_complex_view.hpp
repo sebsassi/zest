@@ -21,9 +21,10 @@ SOFTWARE.
 */
 #pragma once
 
-#include <span>
 #include <array>
+#include <cassert>
 #include <complex>
+#include <span>
 
 namespace zest
 {
@@ -45,6 +46,15 @@ as_complex_span(std::span<std::array<T, 2>> x) noexcept
             reinterpret_cast<std::complex<T>*>(x.data()), x.size());
 }
 
+template <std::floating_point T>
+[[nodiscard]] constexpr std::span<std::complex<T>>
+as_complex_span(std::span<T> x) noexcept
+{
+    assert(x.size() % 2 == 0);
+    return std::span<std::complex<T>>(
+            reinterpret_cast<std::complex<T>*>(x.data()), x.size() >> 1);
+}
+
 /**
     @brief Convenience function for viewing a contiguous sequence of `std::complex<T>` as contiguous sequence of `std::array<T, 2>`. for floating point type `T`.
 
@@ -60,6 +70,14 @@ as_array_span(std::span<std::complex<T>> x) noexcept
 {
     return std::span<std::array<T, 2>>(
             reinterpret_cast<std::array<T, 2>*>(x.data()), x.size());
+}
+
+template <std::floating_point T>
+[[nodiscard]] constexpr std::span<T>
+as_float_span(std::span<std::complex<T>> x) noexcept
+{
+    return std::span<T>(
+            reinterpret_cast<T*>(x.data()), 2*x.size());
 }
 
 } // namespace zest

@@ -145,7 +145,7 @@ constexpr void rotate_l(
             coeff.real()*rot.imag() + coeff.imag()*rot.real()
         };
     }
-    
+
     // 90 degree rotation
     if (l_is_odd)
     {
@@ -221,7 +221,7 @@ constexpr void rotate_l(
             element.real()*rot.imag() + element.imag()*rot.real()
         };
     }
-    
+
     // -90 degree rotation
     if (l_is_odd)
     {
