@@ -21,21 +21,18 @@ SOFTWARE.
 */
 #pragma once
 
-#include <vector>
-#include <array>
-#include <complex>
-#include <cmath>
-#include <utility>
-#include <ranges>
 #include <algorithm>
-#include <span>
+#include <array>
 #include <cassert>
+#include <cmath>
+#include <span>
+#include <vector>
 
 #include "real_sh_expansion.hpp"
-#include "plm_recursion.hpp"
-#include "zernike_expansion.hpp"
-#include "radial_zernike_recursion.hpp"
 #include "md_span.hpp"
+#include "plm_recursion.hpp"
+#include "radial_zernike_recursion.hpp"
+#include "zernike_expansion.hpp"
 
 namespace zest
 {
@@ -99,14 +96,15 @@ public:
         @param longitudes longitude values defining the grid points.
         @param colatitudes colatitude values defining the grid points.
 
-        @return `std::vector` containing values of the expansion on the grid. The values are ordered as a 2D array with shape `{longitudes.size(), colatitudes.size()}` in row-major order.
+        @return `std::vector` containing values of the expansion on the grid.
+        The values are ordered as a 2D array with shape `{longitudes.size(),
+        colatitudes.size()}` in row-major order.
     */
-    template <real_sh_expansion ExpansionType>
+    template <SHNorm sh_norm, SHPhase sh_phase>
     [[nodiscard]] std::vector<double> evaluate(
-        ExpansionType&& expansion, std::span<const double> longitudes, std::span<const double> colatitudes)
+        SHSpan<const double, IndexingMode::nonnegative, sh_norm, sh_phase> expansion,
+        std::span<const double> longitudes, std::span<const double> colatitudes)
     {
-        constexpr SHNorm sh_norm = std::remove_cvref_t<ExpansionType>::norm;
-        constexpr SHPhase sh_phase = std::remove_cvref_t<ExpansionType>::phase;
         if (longitudes.size() == 0 || colatitudes.size() == 0)
             return std::vector<double>{};
 
@@ -116,15 +114,16 @@ public:
         for (std::size_t i = 0; i < m_lat_size; ++i)
             m_cos_colat[i] = std::cos(colatitudes[i]);
 
-        st::PlmVecSpan<double, sh_norm, sh_phase> plm(
-                m_plm_grid, order, m_lat_size);
-        m_plm_recursion.plm_real(m_cos_colat, plm);
+        AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>
+        ass_leg(m_plm_grid, order, m_lat_size);
+
+        m_plm_recursion.plm_real(m_cos_colat, ass_leg);
 
         MDSpan<std::array<double, 2>, 2> cossin_lon(
             m_cossin_lon_grid.data(), {order, m_lon_size});
         zest::detail::recursive_trig(cossin_lon, longitudes);
 
-        sum_l(std::forward<ExpansionType>(expansion));
+        sum_l(expansion);
 
         std::vector<double> res(m_lon_size*m_lat_size);
         sum_m(MDSpan<double, 2>(res.data(), {m_lon_size, m_lat_size}), order);
@@ -132,27 +131,27 @@ public:
         return res;
     }
 private:
-    template <real_sh_expansion ExpansionType>
-    void sum_l(ExpansionType&& expansion) noexcept
+    template <SHNorm sh_norm, SHPhase sh_phase>
+    void sum_l(SHSpan<const double, IndexingMode::nonnegative, sh_norm, sh_phase> expansion) noexcept
     {
-        TriangleVecSpan<const double, PlmLayout> ass_leg(
-                m_plm_grid, expansion.order(), m_lat_size);
+        AssociatedLegendreSpan<const double, sh_norm, sh_phase, std::dynamic_extent>
+        ass_leg(m_plm_grid, expansion.order(), m_lat_size);
         for (auto l : expansion.indices())
         {
             auto expansion_l = expansion[l];
             auto ass_leg_l = ass_leg[l];
             for (auto m : expansion_l.indices())
             {
-                const std::array<double, 2> coeff = expansion_l[m];
-                std::span<const double> ass_leg_lm = ass_leg_l[m];
-                
+                auto expansion_lm = expansion_l[m];
+                auto ass_leg_lm = ass_leg_l[m];
+
                 std::span<std::array<double, 2>> f_m(
                         m_fm_grid.begin() + m*m_lat_size, m_lat_size);
                 for (std::size_t i = 0; i < m_lat_size; ++i)
                 {
                     const double weight = ass_leg_lm[i];
-                    f_m[i][0] += weight*coeff[0];
-                    f_m[i][1] += weight*coeff[1];
+                    f_m[i][0] += weight*expansion_lm[0];
+                    f_m[i][1] += weight*expansion_lm[1];
                 }
             }
         }
@@ -160,11 +159,11 @@ private:
 
     void sum_m(MDSpan<double, 2> values, std::size_t order) noexcept;
 
-    st::PlmRecursion m_plm_recursion{};
-    std::vector<double> m_plm_grid{};
-    std::vector<double> m_cos_colat{};
-    std::vector<std::array<double, 2>> m_cossin_lon_grid{};
-    std::vector<std::array<double, 2>> m_fm_grid{};
+    st::PlmRecursion m_plm_recursion;
+    std::vector<double> m_plm_grid;
+    std::vector<double> m_cos_colat;
+    std::vector<std::array<double, 2>> m_cossin_lon_grid;
+    std::vector<std::array<double, 2>> m_fm_grid;
     std::size_t m_lon_size{};
     std::size_t m_lat_size{};
     std::size_t m_max_order{};
@@ -222,39 +221,40 @@ public:
         @param colatitudes colatitude values defining the grid points.
         @param radii radius values defining the grid points.
 
-        @return `std::vector` containing values of the expansion on the grid. The values are ordered as a 3D array with shape `{longitudes.size(), colatitudes.size(), radii.size()}` in row-major order.
+        @return `std::vector` containing values of the expansion on the grid.
+        The values are ordered as a 3D array with shape `{longitudes.size(),
+        colatitudes.size(), radii.size()}` in row-major order.
     */
-    template <real_zernike_expansion ExpansionType>
+    template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     [[nodiscard]] std::vector<double> evaluate(
-        ExpansionType&& expansion, std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
+        ZernikeSpan<const double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase> expansion,
+        std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
     {
-        constexpr ZernikeNorm zernike_norm
-            = std::remove_cvref_t<ExpansionType>::zernike_norm;
-        constexpr st::SHNorm sh_norm
-            = std::remove_cvref_t<ExpansionType>::sh_norm;
-        constexpr st::SHPhase sh_phase = std::remove_cvref_t<ExpansionType>::sh_phase;
         if (longitudes.size() == 0 || colatitudes.size() == 0 || radii.size() == 0)
             return std::vector<double>{};
-        
+
         const std::size_t order = expansion.order();
         resize(order, longitudes.size(), colatitudes.size(), radii.size());
 
 
-        RadialZernikeVecSpan<double, zernike_norm> zernike(
-                m_zernike_grid, order, m_rad_size);
+        RadialZernikeSpan<double, zernike_norm, std::dynamic_extent>
+        zernike(m_zernike_grid, order, m_rad_size);
+
         m_zernike_recursion.zernike<zernike_norm>(radii, zernike);
 
         for (std::size_t i = 0; i < m_lat_size; ++i)
             m_cos_colat[i] = std::cos(colatitudes[i]);
-        
-        st::PlmVecSpan<double, sh_norm, sh_phase> plm(m_plm_grid, order, m_lat_size);
-        m_plm_recursion.plm_real(m_cos_colat, plm);
+
+        st::AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>
+        ass_leg(m_plm_grid, order, m_lat_size);
+
+        m_plm_recursion.plm_real(m_cos_colat, ass_leg);
 
         MDSpan<std::array<double, 2>, 2> cossin_lon(
                 m_cossin_lon_grid.data(), {order, m_lon_size});
         zest::detail::recursive_trig(cossin_lon, longitudes);
 
-        sum_n(std::forward<ExpansionType>(expansion));
+        sum_n(expansion);
         sum_l(order);
 
         std::vector<double> res(m_lon_size*m_lat_size*m_rad_size);
@@ -265,20 +265,17 @@ public:
     }
 
 private:
-    template <real_zernike_expansion ExpansionType>
-    void sum_n(ExpansionType&& expansion) noexcept
+    template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+    void sum_n(ZernikeSpan<const double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase> expansion) noexcept
     {
-        constexpr ZernikeNorm zernike_norm
-            = std::remove_cvref_t<ExpansionType>::zernike_norm;
         const std::size_t order = expansion.order();
-        RadialZernikeVecSpan<const double, zernike_norm> zernike(
-                m_zernike_grid, order, m_rad_size);
+        RadialZernikeSpan<const double, zernike_norm, std::dynamic_extent>
+        zernike(m_zernike_grid, order, m_rad_size);
 
-        std::ranges::fill(m_flm_grid, std::array<double, 2>{});
+        std::ranges::fill(m_flm_grid, 0.0);
 
-        TriangleVecSpan<
-            std::array<double, 2>, TriangleLayout<IndexingMode::nonnegative>>
-        flm(m_flm_grid, order, m_rad_size);
+        TriangleSpan<double, IndexingMode::nonnegative, 2, std::dynamic_extent>
+        flm(m_flm_grid, order, std::array<std::size_t, 2>{2, m_rad_size});
 
         for (auto n : expansion.indices())
         {
@@ -295,8 +292,8 @@ private:
                     const std::array<double, 2> coeff = expansion_nl[m];
                     for (std::size_t i = 0; i < m_rad_size; ++i)
                     {
-                        flm_lm[i][0] += zernike_nl[i]*coeff[0];
-                        flm_lm[i][1] += zernike_nl[i]*coeff[1];
+                        flm_lm[i, 0] += zernike_nl[i]*coeff[0];
+                        flm_lm[i, 1] += zernike_nl[i]*coeff[1];
                     }
                 }
             }
@@ -307,14 +304,14 @@ private:
 
     void sum_m(MDSpan<double, 3> values, std::size_t order) noexcept;
 
-    RadialZernikeRecursion m_zernike_recursion{};
-    st::PlmRecursion m_plm_recursion{};
-    std::vector<double> m_zernike_grid{};
-    std::vector<double> m_plm_grid{};
-    std::vector<double> m_cos_colat{};
-    std::vector<std::array<double, 2>> m_cossin_lon_grid{};
-    std::vector<std::array<double, 2>> m_flm_grid{};
-    std::vector<std::array<double, 2>> m_fm_grid{};
+    RadialZernikeRecursion m_zernike_recursion;
+    st::PlmRecursion m_plm_recursion;
+    std::vector<double> m_zernike_grid;
+    std::vector<double> m_plm_grid;
+    std::vector<double> m_cos_colat;
+    std::vector<std::array<double, 2>> m_cossin_lon_grid;
+    std::vector<double> m_flm_grid;
+    std::vector<std::array<double, 2>> m_fm_grid;
     std::size_t m_lon_size{};
     std::size_t m_lat_size{};
     std::size_t m_rad_size{};

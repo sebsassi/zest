@@ -22,14 +22,13 @@ SOFTWARE.
 #pragma once
 
 #include <cassert>
-#include <vector>
 #include <span>
+#include <vector>
 
 #include "zernike_expansion.hpp"
 
-namespace zest
-{
-namespace zt
+
+namespace zest::zt
 {
 
 /**
@@ -71,41 +70,41 @@ public:
 
         const double r2 = r*r;
 
-        zernike(0, 0) = 1.0;
+        zernike[0, 0] = 1.0;
         if (order == 1)
         {
             if constexpr (zernike_norm_param == ZernikeNorm::normed)
-                zernike(0, 0) *= std::numbers::sqrt3;
+                zernike[0, 0] *= std::numbers::sqrt3;
             return;
         }
 
-        zernike(1, 1) = r;
+        zernike[1, 1] = r;
         if (order == 2)
         {
             if constexpr (zernike_norm_param == ZernikeNorm::normed)
             {
-                zernike(0, 0) *= std::numbers::sqrt3;
-                zernike(1, 1) *= sqrt5;
+                zernike[0, 0] *= std::numbers::sqrt3;
+                zernike[1, 1] *= sqrt5;
             }
             return;
         }
 
-        zernike(2, 0) = 2.5*r2 - 1.5;
-        zernike(2, 2) = r2;
+        zernike[2, 0] = 2.5*r2 - 1.5;
+        zernike[2, 2] = r2;
         if (order == 3)
         {
             if constexpr (zernike_norm_param == ZernikeNorm::normed)
             {
-                zernike(0, 0) *= std::numbers::sqrt3;
-                zernike(1, 1) *= sqrt5;
-                zernike(2, 0) *= sqrt7;
-                zernike(2, 2) *= sqrt7;
+                zernike[0, 0] *= std::numbers::sqrt3;
+                zernike[1, 1] *= sqrt5;
+                zernike[2, 0] *= sqrt7;
+                zernike[2, 2] *= sqrt7;
             }
             return;
         }
 
-        zernike(3, 1) = (3.5*r2 - 2.5)*r;
-        zernike(3, 3) = r2*r;
+        zernike[3, 1] = (3.5*r2 - 2.5)*r;
+        zernike[3, 3] = r2*r;
 
 
         for (auto n : zernike.indices(4))
@@ -148,10 +147,10 @@ public:
         @param zernike storage for the evaluated polynomials
         @param r points at which the polynomials are evaluated
     */
-    template <ZernikeNorm zernike_norm_param, std::size_t N>
+    template <ZernikeNorm zernike_norm_param>
     void zernike(
         std::span<const double> r,
-        RadialZernikeSpan<double, zernike_norm_param, N> zernike)
+        RadialZernikeSpan<double, zernike_norm_param, std::dynamic_extent> zernike)
     {
         using ZernikeVecSpan = RadialZernikeSpan<double, zernike_norm_param, std::dynamic_extent>;
         constexpr double sqrt5 = 2.2360679774997896964091737;
@@ -160,71 +159,71 @@ public:
         const std::size_t order = zernike.order();
         if (order == 0) return;
 
-        assert(r.size() == zernike.vec_size());
+        assert((r.size() == zernike[0, 0].size()));
 
         expand(order);
 
-        auto z_00 = zernike(0, 0);
-        for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+        auto z_00 = zernike[0, 0];
+        for (std::size_t i = 0; i < z_00.size(); ++i)
             z_00[i] = 1.0;
         if (order == 1)
         {
             if constexpr (zernike_norm_param == ZernikeNorm::normed)
             {
-                for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+                for (std::size_t i = 0; i < z_00.size(); ++i)
                     z_00[i] *= std::numbers::sqrt3;
             }
             return;
         }
 
-        auto z_11 = zernike(1, 1);
-        for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+        auto z_11 = zernike[1, 1];
+        for (std::size_t i = 0; i < z_11.size(); ++i)
             z_11[i] = r[i];
         if (order == 2)
         {
             if constexpr (zernike_norm_param == ZernikeNorm::normed)
             {
-                for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+                for (std::size_t i = 0; i < z_00.size(); ++i)
                     z_00[i] *= std::numbers::sqrt3;
 
-                for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+                for (std::size_t i = 0; i < z_11.size(); ++i)
                     z_11[i] *= sqrt5;
             }
             return;
         }
 
         auto z_22 = zernike(2, 2);
-        for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+        for (std::size_t i = 0; i < z_22.size(); ++i)
             z_22[i] = r[i]*r[i];
 
         auto z_20 = zernike(2, 0);
-        for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+        for (std::size_t i = 0; i < z_20.size(); ++i)
             z_20[i] = 2.5*z_22[i] - 1.5;
         if (order == 3)
         {
             if constexpr (zernike_norm_param == ZernikeNorm::normed)
             {
-                for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+                for (std::size_t i = 0; i < z_00.size(); ++i)
                     z_00[i] *= std::numbers::sqrt3;
 
-                for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+                for (std::size_t i = 0; i < z_11.size(); ++i)
                     z_11[i] *= sqrt5;
 
-                for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+                for (std::size_t i = 0; i < z_20.size(); ++i)
                     z_20[i] *= sqrt7;
 
-                for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+                for (std::size_t i = 0; i < z_22.size(); ++i)
                     z_22[i] *= sqrt7;
             }
             return;
         }
 
-        auto z_31 = zernike(3, 1);
-        for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+        auto z_31 = zernike[3, 1];
+        for (std::size_t i = 0; i < z_31.size(); ++i)
             z_31[i] = (3.5*z_22[i] - 2.5)*r[i];
 
-        auto z_33 = zernike(3, 3);
-        for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+        auto z_33 = zernike[3, 3];
+        for (std::size_t i = 0; i < z_33.size(); ++i)
             z_33[i] = z_22[i]*r[i];
 
         for (std::size_t n = 4; n < order; ++n)
@@ -234,11 +233,11 @@ public:
             auto zernike_nm4 = zernike[n - 4];
             for (std::size_t l = n & 1; l <= n - 4; l += 2)
             {
-                const std::size_t ind = ZernikeVecSpan::Layout::idx(n,l);
+                const std::size_t ind = zernike.shape(n, l);
                 auto z_nl = zernike_n[l];
                 auto z_nm2l = zernike_nm2[l];
                 auto z_nm4l = zernike_nm4[l];
-                for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+                for (std::size_t i = 0; i < z_nl.size(); ++i)
                     z_nl[i] = (m_k2[ind] + m_k1[ind]*z_22[i])*z_nm2l[i]
                         + m_k3[ind]*z_nm4l[i];
 
@@ -247,21 +246,21 @@ public:
                     // We do not norm R22 yet because we use R22 as the r^2 value in the recursion.
                     const double norm = (n == 6 && l == 2) ?
                         1.0 : m_norms[n - 4];
-                    for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+                    for (std::size_t i = 0; i < z_nm4l.size(); ++i)
                         z_nm4l[i] *= norm;
                 }
             }
 
             auto z_nn = zernike_n[n];
-            auto z_nm1nm1 = zernike(n - 1, n - 1);
-            for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+            auto z_nm1nm1 = zernike[n - 1, n - 1];
+            for (std::size_t i = 0; i < z_nn.size(); ++i)
                 z_nn[i] = r[i]*z_nm1nm1[i];
 
             auto z_nm2nm2 = zernike_nm2[n - 2];
             auto z_nnm2 = zernike_n[n - 2];
 
-            const double dn = double(n);
-            for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+            const auto dn = double(n);
+            for (std::size_t i = 0; i < z_nnm2.size(); ++i)
                 z_nnm2[i] = (dn + 0.5)*z_nn[i]
                     - (dn - 0.5)*z_nm2nm2[i];
         }
@@ -270,7 +269,7 @@ public:
         {
             if (order > 6)
             {
-                for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+                for (std::size_t i = 0; i < z_22.size(); ++i)
                     z_22[i] *= sqrt7;
             }
 
@@ -280,7 +279,7 @@ public:
                 for (std::size_t l = n & 1; l <= n; l += 2)
                 {
                     auto z_nl = zernike_n[l];
-                    for (std::size_t i = 0; i < zernike.vec_size(); ++i)
+                    for (std::size_t i = 0; i < z_nl.size(); ++i)
                         z_nl[i] *= m_norms[n];
                 }
             }
@@ -296,5 +295,5 @@ private:
     std::size_t m_max_order{};
 };
 
-} // namespace zt
-} // namespace zest
+} // namespace zest::zt
+

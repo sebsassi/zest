@@ -21,38 +21,18 @@ SOFTWARE.
 */
 #pragma once
 
-#include <cstddef>
 #include <cassert>
-#include <concepts>
+#include <cstddef>
+#include <numbers>
 #include <span>
 #include <vector>
-#include <numbers>
-#include <type_traits>
 
 #include "sh_conventions.hpp"
-#include "layout.hpp"
 #include "real_sh_expansion.hpp"
 
-namespace zest
+
+namespace zest::st
 {
-namespace st
-{
-
-using PlmLayout = TriangleLayout<IndexingMode::nonnegative>;
-
-/**
-    @brief Non-owfning view of associated Legendre polynomials.
-*/
-template <typename T, SHNorm sh_norm_param, SHPhase sh_phase_param>
-    requires std::same_as<std::remove_const_t<T>, double>
-using PlmSpan = SHLMSpan<T, PlmLayout, sh_norm_param, sh_phase_param>;
-
-/**
-    @brief Non-owfning view of vectors of associated Legendre polynomials.
-*/
-template <typename T, SHNorm sh_norm_param, SHPhase sh_phase_param>
-    requires std::same_as<std::remove_const_t<T>, double>
-using PlmVecSpan = SHLMVecSpan<T, PlmLayout, sh_norm_param, sh_phase_param>;
 
 /**
     @brief Recursion of associated Legendre polynomials.
@@ -94,7 +74,7 @@ public:
         @param plm output buffer for the evaluated polynomials
     */
     template <SHNorm sh_norm_param, SHPhase sh_phase_param>
-    void plm_real(double z, PlmSpan<double, sh_norm_param, sh_phase_param> plm)
+    void plm_real(double z, AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param> plm)
     {
         return plm_impl(z, std::numbers::sqrt2, plm);
     }
@@ -107,7 +87,8 @@ public:
     */
     template <SHNorm sh_norm_param, SHPhase sh_phase_param>
     void plm_real(
-        std::span<const double> z, PlmVecSpan<double, sh_norm_param, sh_phase_param> plm)
+        std::span<const double> z,
+        AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param, std::dynamic_extent> plm)
     {
         return plm_impl(z, std::numbers::sqrt2, plm);
     }
@@ -119,7 +100,7 @@ public:
         @param plm utput buffer for the evaluated polynomials
     */
     template <SHNorm sh_norm_param, SHPhase sh_phase_param>
-    void plm_complex(double z, PlmSpan<double, sh_norm_param, sh_phase_param> plm)
+    void plm_complex(double z, AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param> plm)
     {
         return plm_impl(z, 1.0, plm);
     }
@@ -132,7 +113,8 @@ public:
     */
     template <SHNorm sh_norm_param, SHPhase sh_phase_param>
     void plm_complex(
-        std::span<const double> z, PlmVecSpan<double, sh_norm_param, sh_phase_param> plm)
+        std::span<const double> z,
+        AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param, std::dynamic_extent> plm)
     {
         return plm_impl(z, 1.0, plm);
     }
@@ -140,38 +122,38 @@ public:
 private:
     template <SHNorm sh_norm_param, SHPhase sh_phase_param>
     void plm_impl(
-        double z, double complex_norm, PlmSpan<double, sh_norm_param, sh_phase_param> plm)
+        double z, double complex_norm,
+        AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param> plm)
     {
-        using PlmSpan_ = PlmSpan<double, sh_norm_param, sh_phase_param>;
         constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
 
-        const std::size_t order = plm.order();
+        const std::size_t order = plm.extents();
         if (order == 0) return;
 
         assert(std::fabs(z) <= 1.0);
 
         expand(order);
-        
+
         const double u = std::sqrt((1.0 - z)*(1.0 + z));
 
         if constexpr (sh_norm_param == SHNorm::geo)
-            plm(0, 0) = 1.0;
+            plm[0, 0] = 1.0;
         else if constexpr (sh_norm_param == SHNorm::qm)
-            plm(0, 0) = inv_sqrt_4pi;
+            plm[0, 0] = inv_sqrt_4pi;
 
         if (order == 1) return;
 
         if constexpr (sh_norm_param == SHNorm::geo)
-            plm(1, 0) = m_sqrl[3]*z;
+            plm[1, 0] = m_sqrl[3]*z;
         else if constexpr (sh_norm_param == SHNorm::qm)
-            plm(1, 0) = m_sqrl[3]*z*inv_sqrt_4pi;
+            plm[1, 0] = m_sqrl[3]*z*inv_sqrt_4pi;
 
         std::span<double> plm_flat = plm.flatten();
 
         // Calculate P(l,0)
         for (std::size_t l = 2; l < order; ++l)
         {
-            const std::size_t ind = PlmSpan_::Layout::idx(l,0);
+            const std::size_t ind = plm.shape(l);
             plm_flat[ind] = m_alm[ind]*z*plm_flat[ind - l] - m_blm[ind]*plm_flat[ind - 2*l + 1];
         }
 
@@ -195,17 +177,17 @@ private:
             // `P(m,m) = u*sqrt((2m + 1)/(2m))*P(m - 1,m - 1)`
             // NOTE: multiplication by `u` happens later
             pmm *= double(sh_phase_param)*m_sqrl[2*m + 1]/m_sqrl[2*m];
-            plm(m, m) = pmm;
+            plm[m, m] = pmm;
 
             // `P(m+1,m) = z*sqrt(2m + 3)*P(m,m)`
-            plm(m + 1, m) = z*m_sqrl[2*m + 3]*pmm;
+            plm[m + 1, m] = z*m_sqrl[2*m + 3]*pmm;
 
             for (std::size_t l = m + 2; l < order; ++l)
             {
                 // P(l,m) = z*a(l,m)*P(l - 1,m) - b(l,m)*P(l - 2,m)
-                const std::size_t ind = PlmSpan_::Layout::idx(l, m);
+                const std::size_t ind = plm.shape(l, m);
                 plm_flat[ind] = z*m_alm[ind]*plm_flat[ind - l] - m_blm[ind]*plm_flat[ind - 2*l + 1];
-                
+
                 // Multiplication by `u` for `m <= l <= lmax - 2`
                 plm_flat[ind - 2*l + 1] *= u_scaled;
             }
@@ -220,35 +202,33 @@ private:
         u_scaled *= u;
 
         // P(lmax,lmax)
-        plm(order - 1, order - 1)
-                = double(sh_phase_param)*pmm*u_scaled*m_sqrl[2*order - 1]
-                /m_sqrl[2*order - 2];
+        plm[order - 1, order - 1]
+                = double(sh_phase_param)*pmm*u_scaled*m_sqrl[2*order - 1]/m_sqrl[2*order - 2];
     }
-    
 
     template <SHNorm sh_norm_param, SHPhase sh_phase_param>
     void plm_impl(
         std::span<const double> z, double complex_norm,
-        PlmVecSpan<double, sh_norm_param, sh_phase_param> plm)
+        AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param, std::dynamic_extent> plm)
     {
-        using PlmVecSpan_ = PlmVecSpan<double, sh_norm_param, sh_phase_param>;
+        using PlmVecSpan = AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param, std::dynamic_extent>;
         constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
 
-        const std::size_t order = plm.order();
+        const std::size_t order = plm.extents().first;
         if (order == 0) return;
 
-        assert(z.size() == plm.vec_size());
+        assert((z.size() == plm[0, 0].vec_size()));
 
         for ([[maybe_unused]] auto zi : z)
             assert(std::fabs(zi) <= 1.0);
 
         expand(order);
         expand_vec(z.size());
-        
+
         for (std::size_t i = 0; i < z.size(); ++i)
             m_u[i] = std::sqrt((1.0 - z[i])*(1.0 + z[i]));
 
-        auto plm_00 = plm(0, 0);
+        auto plm_00 = plm[0, 0];
         for (std::size_t i = 0; i < z.size(); ++i)
         {
             if constexpr (sh_norm_param == SHNorm::geo)
@@ -259,7 +239,7 @@ private:
 
         if (order == 1) return;
 
-        auto plm_10 = plm(1, 0);
+        auto plm_10 = plm[1, 0];
         for (std::size_t i = 0; i < z.size(); ++i)
         {
             if constexpr (sh_norm_param == SHNorm::geo)
@@ -272,7 +252,7 @@ private:
         // Calculate P(l,0) for l >= 2
         for (auto l : plm.indices(2))
         {
-            const std::size_t ind = PlmVecSpan_::Layout::idx(l, 0);
+            const std::size_t ind = plm.shape(l);
             auto plm_l0 = plm_linear[ind];
             auto plm_lm10 = plm_linear[ind - l];
             auto plm_lm20 = plm_linear[ind - 2*l + 1];
@@ -317,7 +297,7 @@ private:
 
             for (std::size_t l = m + 2; l < order; ++l)
             {
-                const std::size_t ind = PlmVecSpan_::Layout::idx(l, m);
+                const std::size_t ind = PlmVecSpan::Layout::idx(l, m);
                 auto plm_lm = plm_linear[ind];
                 auto plm_lm1m = plm_linear[ind - l];
                 auto plm_lm2m = plm_linear[ind - 2*l + 1];
@@ -325,7 +305,7 @@ private:
                 for (std::size_t i = 0; i < z.size(); ++i)
                     plm_lm[i] = z[i]*m_alm[ind]*plm_lm1m[i]
                         - m_blm[ind]*plm_lm2m[i];
-                
+
                 // Multiplication by `u` for `m <= l <= lmax - 2`
                 for (std::size_t i = 0; i < z.size(); ++i)
                     plm_lm2m[i] *= m_u_scaled[i];
@@ -353,13 +333,13 @@ private:
                 /m_sqrl[2*order - 2]);
     }
 
-    std::vector<double> m_sqrl{};
-    std::vector<double> m_alm{};
-    std::vector<double> m_blm{};
-    std::vector<double> m_u_scaled{};
-    std::vector<double> m_u{};
+    std::vector<double> m_sqrl;
+    std::vector<double> m_alm;
+    std::vector<double> m_blm;
+    std::vector<double> m_u_scaled;
+    std::vector<double> m_u;
     std::size_t m_max_order{};
 };
 
-} // namespace st
-} // namespace zest
+} // namespace zest::st
+

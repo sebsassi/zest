@@ -21,12 +21,11 @@ SOFTWARE.
 */
 #pragma once
 
-#include <span>
 #include <vector>
 
 #include "real_sh_expansion.hpp"
-#include "zernike_expansion.hpp"
 #include "sh_conventions.hpp"
+#include "zernike_expansion.hpp"
 
 namespace zest
 {
@@ -40,20 +39,35 @@ namespace st
     @param b spherical harmonic expansion
     @param out output buffer for the cross power spectrum
 */
-template <st::real_sh_expansion ExpansionType>
-void cross_power_spectrum(
-    ExpansionType&& a, ExpansionType&& b, std::span<double> out) noexcept
+template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
+void
+cross_power_spectrum(
+    SHSpan<const double, indexing_mode, sh_norm, sh_phase> a,
+    SHSpan<const double, indexing_mode, sh_norm, sh_phase> b,
+    std::span<double> out) noexcept
 {
-    constexpr double norm = normalization<ExpansionType::sh_norm>();
+    constexpr double norm = normalization<sh_norm>();
     std::size_t min_order
-            = std::min(std::min(a.order(), b.order()), out.size() - 1);
-    
+            = std::min(std::min(a.order(), b.order()), out.size());
+
     for (std::size_t l = 0; l < min_order; ++l)
     {
-        out[l] = a(l, 0)[0]*b(l, 0)[0];
-        for (std::size_t m = 1; m <= l; ++m)
-            out[l] += a(l, m)[0]*b(l, m)[0] + a(l, m)[1]*b(l, m)[1];
-        out[l] *= norm;
+        auto a_l = a[l];
+        auto b_l = b[l];
+        auto& out_l = out[l];
+        if constexpr (indexing_mode == IndexingMode::negative)
+        {
+            out_l = 0.0;
+            for (auto m : a_l.indices())
+                out_l += a_l[m]*b_l[m];
+        }
+        else
+        {
+            out_l = a_l[0, 0]*b_l[0, 0];
+            for (auto m : a_l.indices(1))
+                out_l += a_l[m, 0]*b_l[m, 0] + a_l[m, 1]*b_l[m, 1];
+            out_l *= norm;
+        }
     }
 }
 
@@ -65,9 +79,11 @@ void cross_power_spectrum(
 
     @return `std::vector` storing the the cross power spectrum
 */
-template <st::real_sh_expansion ExpansionType>
-[[nodiscard]] std::vector<double> cross_power_spectrum(
-    ExpansionType&& a, ExpansionType&& b)
+template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
+[[nodiscard]] std::vector<double>
+cross_power_spectrum(
+    SHSpan<const double, indexing_mode, sh_norm, sh_phase> a,
+    SHSpan<const double, indexing_mode, sh_norm, sh_phase> b)
 {
     std::size_t min_order = std::min(a.order(), b.order());
     std::vector<double> out(min_order);
@@ -81,20 +97,34 @@ template <st::real_sh_expansion ExpansionType>
     @param expansion spherical harmonic expansion
     @param out output buffer for the power spectrum
 */
-template <st::real_sh_expansion ExpansionType>
-void power_spectrum(
-    ExpansionType&& expansion, std::span<double> out) noexcept
+template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
+void
+power_spectrum(
+    SHSpan<const double, indexing_mode, sh_norm, sh_phase> expansion,
+    std::span<double> out) noexcept
 {
-    constexpr double norm = normalization<ExpansionType::sh_norm>();
+    constexpr double norm = normalization<sh_norm>();
     std::size_t min_order = std::min(out.size(), expansion.order());
-    
-    for (std::size_t l = 0; l < expansion.order(); ++l)
+
+    for (std::size_t l = 0; l < min_order; ++l)
     {
-        out[l] = expansion(l, 0)[0]*expansion(l, 0)[0];
-        for (std::size_t m = 1; m <= l; ++m)
-            out[l] += expansion(l, m)[0]*expansion(l, m)[0]
-                    + expansion(l, m)[1]*expansion(l, m)[1];
-        out[l] *= norm;
+        auto expansion_l = expansion[l];
+        auto& out_l = out[l];
+        if constexpr (indexing_mode == IndexingMode::negative)
+        {
+            out_l = 0.0;
+            for (auto m : expansion_l.indices())
+                out_l += expansion_l[m]*expansion_l[m];
+        }
+        else
+        {
+            out_l = expansion_l[0, 0]*expansion_l[0, 0];
+            for (auto m : expansion_l.indices(1))
+            for (std::size_t m = 1; m <= l; ++m)
+                out_l += expansion_l[m, 0]*expansion_l[m, 0]
+                        + expansion_l[m, 1]*expansion_l[m, 1];
+            out_l *= norm;
+        }
     }
 }
 
@@ -105,8 +135,9 @@ void power_spectrum(
 
     @return `std::vector` storing the power spectrum
 */
-template <st::real_sh_expansion ExpansionType>
-[[nodiscard]] std::vector<double> power_spectrum(ExpansionType&& expansion)
+template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
+[[nodiscard]] std::vector<double>
+power_spectrum(SHSpan<const double, indexing_mode, sh_norm, sh_phase> expansion)
 {
     std::vector<double> out(expansion.order());
     power_spectrum(std::forward(expansion), out);
@@ -124,23 +155,37 @@ namespace zt
     @param expansion Zernike expansion.
     @param out place to store the power spectrum.
 */
-template <zt::real_zernike_expansion ExpansionType>
-void power_spectrum(
-    ExpansionType&& expansion,
-    RadialZernikeSpan<double, ExpansionType::zernike_norm> out) noexcept
+template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+void
+power_spectrum(
+    ZernikeSpan<const double, indexing_mode, zernike_norm, sh_norm, sh_phase> expansion,
+    RadialZernikeSpan<double, zernike_norm> out) noexcept
 {
-    constexpr double norm = st::normalization<ExpansionType::sh_norm>();
+    constexpr double norm = st::normalization<sh_norm>();
     std::size_t min_order = std::min(out.order(), expansion.order());
 
     for (std::size_t n = 0; n < min_order; ++n)
     {
-        for (std::size_t l = n & 1; l < n; l += 2)
+        auto expansion_n = expansion[n];
+        auto out_n = out[n];
+        for (auto l : expansion_n.indices())
         {
-            out(n, l) = expansion(n, l, 0)[0]*expansion(n, l, 0)[0];
-            for (std::size_t m = 1; m <= l; ++m)
-                out(n, l) += expansion(n, l, m)[0]*expansion(n, l, m)[0]
-                        + expansion(n, l, m)[1]*expansion(n, l, m)[1];
-            out(n, l) *= norm;
+            auto expansion_nl = expansion_n[l];
+            auto& out_nl = out_n[l];
+            if (indexing_mode == IndexingMode::negative)
+            {
+                out_nl = 0.0;
+                for (auto m : expansion_nl.indices())
+                    out_nl += expansion_nl[m]*expansion_nl[m];
+            }
+            else
+            {
+                out_nl = expansion_nl[0, 0]*expansion_nl[0, 0];
+                for (auto m : expansion_nl.indices())
+                    out_nl += expansion_nl[m, 0]*expansion_nl[m, 0]
+                            + expansion_nl[m, 1]*expansion_nl[m, 1];
+                out_nl *= norm;
+            }
         }
     }
 }
@@ -152,11 +197,13 @@ void power_spectrum(
 
     @return `std::vector` storing the power spectrum.
 */
-template <zt::real_zernike_expansion ExpansionType>
-[[nodiscard]] std::vector<double> power_spectrum(ExpansionType&& expansion)
+template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+[[nodiscard]] std::vector<double>
+power_spectrum(
+    ZernikeSpan<const double, indexing_mode, zernike_norm, sh_norm, sh_phase>& expansion)
 {
-    using SpectrumSpan = RadialZernikeSpan<double, ExpansionType::zernike_norm>;
-    std::vector<double> res(RadialZernikeLayout::size(expansion.order()));
+    using SpectrumSpan = RadialZernikeSpan<double, zernike_norm>;
+    std::vector<double> res(SpectrumSpan::shape_type::size(expansion.order()));
     power_spectrum(
         std::forward(expansion), SpectrumSpan(res, expansion.order()));
     return res;

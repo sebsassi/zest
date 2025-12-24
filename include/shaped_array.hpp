@@ -47,28 +47,48 @@ public:
     using const_view = ShapedSpan<const value_type, shape_type>;
 
     template <std::size_t N>
-    using subspan_type = ShapedSpan<value_type, typename shape_type::template subshape_type<1>>;
+    using subspan_type = ShapedSpan<
+        value_type, typename shape_type::template subshape_type<1>>;
 
     template <std::size_t N>
-    using const_subspan_type = ShapedSpan<const value_type, typename shape_type::template subshape_type<1>>;
+    using const_subspan_type = ShapedSpan<
+        const value_type, typename shape_type::template subshape_type<1>>;
 
     ShapedArray() = default;
-    explicit ShapedArray(shape_type::extent_type extents): m_data(shape_type::size(extents)), m_shape(extents) {}
 
-    [[nodiscard]] operator view() noexcept { return view(m_data.data(), m_data.size(), m_shape); }
-    [[nodiscard]] operator const_view() const noexcept { return view(m_data.data(), m_data.size(), m_shape); }
+    template <typename... ExtentTypes>
+    explicit ShapedArray(const ExtentTypes&... extents):
+        m_data(shape_type::size(extents...)), m_shape(extents...) {}
 
-    [[nodiscard]] operator std::span<value_type>() noexcept { return flatten(); }
-    [[nodiscard]] operator std::span<const value_type>() const noexcept { return flatten(); }
+    explicit ShapedArray(const shape_type& shape):
+        m_data(shape.size()), m_shape(shape) {}
 
-    [[nodiscard]] ShapeType shape() const noexcept { return m_shape; }
+    [[nodiscard]] operator
+    view() noexcept { return view(m_data.data(), m_shape); }
 
-    [[nodiscard]] ShapeType::extent_type extents() const noexcept { return m_shape.extents(); }
+    [[nodiscard]] operator
+    const_view() const noexcept { return const_view(m_data.data(), m_shape); }
 
-    [[nodiscard]] size_type size() const noexcept { return m_data.size(); }
+    [[nodiscard]] explicit operator
+    std::span<value_type>() noexcept { return flatten(); }
 
-    [[nodiscard]] const_pointer data() const noexcept { return m_data.data(); }
-    [[nodiscard]] pointer data() noexcept { return m_data.data(); }
+    [[nodiscard]] explicit operator
+    std::span<const value_type>() const noexcept { return flatten(); }
+
+    [[nodiscard]] const ShapeType&
+    shape() const noexcept { return m_shape; }
+
+    [[nodiscard]] const ShapeType::extent_type&
+    extents() const noexcept { return m_shape.extents(); }
+
+    [[nodiscard]] size_type
+    size() const noexcept { return m_data.size(); }
+
+    [[nodiscard]] const_pointer
+    data() const noexcept { return m_data.data(); }
+
+    [[nodiscard]] pointer
+    data() noexcept { return m_data.data(); }
 
     [[nodiscard]] std::span<const value_type, shape_type::linear_extent>
     flatten() const noexcept
@@ -82,50 +102,59 @@ public:
         return std::span<const value_type, shape_type::linear_extent>(m_data);
     }
 
-    [[nodiscard]] index_range indices() const noexcept { return m_shape.indices(); }
+    [[nodiscard]] index_range
+    indices() const noexcept { return m_shape.indices(); }
 
     template <typename... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
-    [[nodiscard]] const_reference operator()(Inds... indices) const noexcept { return m_data[m_shape(indices...)]; }
+    [[nodiscard]] const_reference
+    operator()(Inds... indices) const noexcept { return m_data[m_shape(indices...)]; }
 
     template <typename... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
-    [[nodiscard]] reference operator()(Inds... indices) noexcept { return m_data[m_shape(indices...)]; }
+    [[nodiscard]] reference
+    operator()(Inds... indices) noexcept { return m_data[m_shape(indices...)]; }
 
     template <typename... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
-    [[nodiscard]] const_reference operator[](Inds... indices) const noexcept { return m_data[m_shape(indices...)]; }
+    [[nodiscard]] const_reference
+    operator[](Inds... indices) const noexcept { return m_data[m_shape(indices...)]; }
 
     template <typename... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
-    [[nodiscard]] reference operator[](Inds... indices) noexcept { return m_data[m_shape(indices...)]; }
+    [[nodiscard]] reference
+    operator[](Inds... indices) noexcept { return m_data[m_shape(indices...)]; }
 
     template <typename... Inds>
         requires (sizeof...(Inds) < shape_type::rank)
     [[nodiscard]] auto operator()(Inds... indices) const noexcept
     {
-        return const_subspan_type<sizeof...(Inds)>(m_data.data() + m_shape(indices...), m_shape.subshape(indices...));
+        return const_subspan_type<sizeof...(Inds)>(
+            m_data.data() + m_shape(indices...), m_shape.subshape(indices...));
     }
 
     template <typename... Inds>
         requires (sizeof...(Inds) < shape_type::rank)
     [[nodiscard]] auto operator()(Inds... indices) noexcept
     {
-        return subspan_type<sizeof...(Inds)>(m_data.data() + m_shape(indices...), m_shape.subshape(indices...));
+        return subspan_type<sizeof...(Inds)>(
+            m_data.data() + m_shape(indices...), m_shape.subshape(indices...));
     }
 
     template <typename... Inds>
         requires (sizeof...(Inds) < shape_type::rank)
     [[nodiscard]] auto operator[](Inds... indices) const noexcept
     {
-        return const_subspan_type<sizeof...(Inds)>(m_data.data() + m_shape(indices...), m_shape.subshape(indices...));
+        return const_subspan_type<sizeof...(Inds)>(
+            m_data.data() + m_shape(indices...), m_shape.subshape(indices...));
     }
 
     template <typename... Inds>
         requires (sizeof...(Inds) < shape_type::rank)
     [[nodiscard]] auto operator[](Inds... indices) noexcept
     {
-        return subspan_type<sizeof...(Inds)>(m_data.data() + m_shape(indices...), m_shape.subshape(indices...));
+        return subspan_type<sizeof...(Inds)>(
+            m_data.data() + m_shape(indices...), m_shape.subshape(indices...));
     }
 
 private:

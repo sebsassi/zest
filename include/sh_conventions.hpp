@@ -21,12 +21,10 @@ SOFTWARE.
 */
 #pragma once
 
-#include <cmath>
 #include <numbers>
 
-namespace zest
-{
-namespace st
+
+namespace zest::st
 {
 
 /**
@@ -102,5 +100,5 @@ template <SHNorm from, SHNorm to>
     return 1.0;
 }
 
-} // namespace st
-} // namespace zest
+} // namespace zest::st
+

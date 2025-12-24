@@ -44,7 +44,8 @@ namespace zest::st
     @tparam Ns extents representing inner multidimensional array structure
 */
 template <SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns>
-using AssociatedLegendreShape = TaggedShape<TriangleShape<IndexingMode::nonnegative, Ns...>, SHTag<sh_norm_param, sh_phase_param>>;
+using AssociatedLegendreShape = TaggedShape<
+    TriangleShape<IndexingMode::nonnegative, Ns...>, SHTag<sh_norm_param, sh_phase_param>>;
 
 /**
     @brief Tagged shape representing layout and conventions of spherical
@@ -55,7 +56,10 @@ using AssociatedLegendreShape = TaggedShape<TriangleShape<IndexingMode::nonnegat
     @tparam sh_phase_param phase convention of the spherical harmonics
     @tparam Ns extents representing inner multidimensional array structure
 */
-template <IndexingMode indexing_mode_param, SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns>
+template <
+    IndexingMode indexing_mode_param, SHNorm sh_norm_param, SHPhase sh_phase_param,
+    std::size_t... Ns
+>
 using SHShape = TaggedShape<
     std::conditional_t<(indexing_mode_param == IndexingMode::negative),
         TriangleShape<indexing_mode_param, Ns...>,
@@ -72,9 +76,11 @@ using SHShape = TaggedShape<
     @tparam Ns extents representing inner multidimensional array structure
 */
 template <
-    complex_or_real_float ElementType, IndexingMode indexing_mode_param, SHNorm sh_norm_param,
-    SHPhase sh_phase_param, std::size_t... Ns>
-using SHSpan = ShapedSpan<ElementType, SHShape<indexing_mode_param, sh_norm_param, sh_phase_param, Ns...>>;
+    complex_or_real_float ElementType, IndexingMode indexing_mode_param,
+    SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns
+>
+using SHSpan = ShapedSpan<
+    ElementType, SHShape<indexing_mode_param, sh_norm_param, sh_phase_param, Ns...>>;
 
 /**
     @brief A non-owning view for storing real spherical harmonic data encoded
@@ -86,10 +92,15 @@ using SHSpan = ShapedSpan<ElementType, SHShape<indexing_mode_param, sh_norm_para
     @tparam Ns extents representing inner multidimensional array structure
 */
 template <complex_float ElementType, SHNorm sh_norm_param, SHPhase sh_phase_param>
-using ComplexEncodedRealSHSpan = ShapedSpan<ElementType, AssociatedLegendreShape<sh_norm_param, sh_phase_param>>;
+using ComplexEncodedRealSHSpan = ShapedSpan<
+    ElementType, AssociatedLegendreShape<sh_norm_param, sh_phase_param>>;
 
-template <complex_or_real_float ElementType, SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns>
-using AssociatedLegendreSpan = ShapedSpan<ElementType, AssociatedLegendreShape<sh_norm_param, sh_phase_param, Ns...>>;
+template <
+    complex_or_real_float ElementType, SHNorm sh_norm_param, SHPhase sh_phase_param,
+    std::size_t... Ns
+>
+using AssociatedLegendreSpan = ShapedSpan<
+    ElementType, AssociatedLegendreShape<sh_norm_param, sh_phase_param, Ns...>>;
 
 /**
     @brief Convenient alias for `RealSHSpan` with orthonormal spherical
@@ -99,8 +110,12 @@ using AssociatedLegendreSpan = ShapedSpan<ElementType, AssociatedLegendreShape<s
     @tparam IndexingMode determines azimuthal index order
     @tparam Ns extents representing inner multidimensional array structure
 */
-template <complex_or_real_float ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
-using SHSpanAcoustics = SHSpan<ElementType, indexing_mode_param, SHNorm::qm, SHPhase::none, Ns...>;
+template <
+    complex_or_real_float ElementType, IndexingMode indexing_mode_param,
+    std::size_t... Ns
+>
+using SHSpanAcoustics = SHSpan<
+    ElementType, indexing_mode_param, SHNorm::qm, SHPhase::none, Ns...>;
 /**
     @brief Convenient alias for `RealSHSpan` with orthonormal spherical
     harmonics with Condon-Shortley phase.
@@ -109,7 +124,10 @@ using SHSpanAcoustics = SHSpan<ElementType, indexing_mode_param, SHNorm::qm, SHP
     @tparam IndexingMode determines azimuthal index order
     @tparam Ns extents representing inner multidimensional array structure
 */
-template <complex_or_real_float ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+template <
+    complex_or_real_float ElementType, IndexingMode indexing_mode_param,
+    std::size_t... Ns
+>
 using SHSpanQM = SHSpan<ElementType, indexing_mode_param, SHNorm::qm, SHPhase::cs, Ns...>;
 
 /**
@@ -120,7 +138,10 @@ using SHSpanQM = SHSpan<ElementType, indexing_mode_param, SHNorm::qm, SHPhase::c
     @tparam IndexingMode determines azimuthal index order
     @tparam Ns extents representing inner multidimensional array structure
 */
-template <complex_or_real_float ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+template <
+    complex_or_real_float ElementType, IndexingMode indexing_mode_param,
+    std::size_t... Ns
+>
 using SHSpanGeo = SHSpan<ElementType, indexing_mode_param, SHNorm::geo, SHPhase::none, Ns...>;
 
 /**
@@ -133,9 +154,10 @@ using SHSpanGeo = SHSpan<ElementType, indexing_mode_param, SHNorm::geo, SHPhase:
     @tparam Ns extents representing inner multidimensional array structure
 */
 template <
-    complex_or_real_float ElementType, IndexingMode indexing_mode_param, SHNorm sh_norm_param,
-    SHPhase sh_phase_param, std::size_t... Ns>
-using SHExpansion = ShapedArray<ElementType, SHShape<indexing_mode_param, sh_norm_param, sh_phase_param, Ns...>>;
+    complex_or_real_float ElementType, IndexingMode indexing_mode_param,
+    SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns>
+using SHExpansion = ShapedArray<
+    ElementType, SHShape<indexing_mode_param, sh_norm_param, sh_phase_param, Ns...>>;
 
 /**
     @brief Convenient alias for `SHExpansion` with orthonormal spherical
@@ -145,8 +167,12 @@ using SHExpansion = ShapedArray<ElementType, SHShape<indexing_mode_param, sh_nor
     @tparam IndexingMode determines azimuthal index order
     @tparam Ns extents representing inner multidimensional array structure
 */
-template <complex_or_real_float ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
-using SHExpansionAcoustics = SHExpansion<ElementType, indexing_mode_param, SHNorm::qm, SHPhase::none, Ns...>;
+template <
+    complex_or_real_float ElementType, IndexingMode indexing_mode_param,
+    std::size_t... Ns
+>
+using SHExpansionAcoustics = SHExpansion<
+    ElementType, indexing_mode_param, SHNorm::qm, SHPhase::none, Ns...>;
 
 /**
     @brief Convenient alias for `SHExpansion` with orthonormal spherical
@@ -156,8 +182,12 @@ using SHExpansionAcoustics = SHExpansion<ElementType, indexing_mode_param, SHNor
     @tparam IndexingMode determines azimuthal index order
     @tparam Ns extents representing inner multidimensional array structure
 */
-template <complex_or_real_float ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
-using SHExpansionQM = SHExpansion<ElementType, indexing_mode_param, SHNorm::qm, SHPhase::cs, Ns...>;
+template <
+    complex_or_real_float ElementType, IndexingMode indexing_mode_param,
+    std::size_t... Ns
+>
+using SHExpansionQM = SHExpansion<
+    ElementType, indexing_mode_param, SHNorm::qm, SHPhase::cs, Ns...>;
 
 /**
     @brief Convenient alias for `SHExpansion` with 4-pi normal spherical
@@ -167,8 +197,12 @@ using SHExpansionQM = SHExpansion<ElementType, indexing_mode_param, SHNorm::qm, 
     @tparam IndexingMode determines azimuthal index order
     @tparam Ns extents representing inner multidimensional array structure
 */
-template <complex_or_real_float ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
-using SHExpansionGeo = SHExpansion<ElementType, indexing_mode_param, SHNorm::geo, SHPhase::none, Ns...>;
+template <
+    complex_or_real_float ElementType, IndexingMode indexing_mode_param,
+    std::size_t... Ns
+>
+using SHExpansionGeo = SHExpansion<
+    ElementType, indexing_mode_param, SHNorm::geo, SHPhase::none, Ns...>;
 
 namespace detail
 {
@@ -190,11 +224,18 @@ concept has_sh_conventions = std::derived_from<T, SHTag<T::sh_norm, T::sh_phase>
 
     @note IMPORTANT: This function modifies the input data! The output is just a new view over the same data.
 */
-template <SHNorm dest_sh_norm, SHPhase dest_sh_phase, SHNorm source_sh_norm, SHPhase source_sh_phase>
-ComplexEncodedRealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>
-to_complex_expansion(SHSpan<double, IndexingMode::nonnegative, source_sh_norm, source_sh_phase>& expansion) noexcept
+template <
+    SHNorm dest_sh_norm, SHPhase dest_sh_phase, SHNorm source_sh_norm, SHPhase source_sh_phase
+>
+constexpr ComplexEncodedRealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>
+to_complex_expansion(
+    SHSpan<double, IndexingMode::nonnegative, source_sh_norm, source_sh_phase>& expansion) noexcept
 {
-    using ExpansionType = SHSpan<double, IndexingMode::nonnegative, source_sh_norm, source_sh_phase>;
+    using ExpansionType = SHSpan<
+        double, IndexingMode::nonnegative, source_sh_norm, source_sh_phase>;
+    using ReturnType = ComplexEncodedRealSHSpan<
+        std::complex<double>, dest_sh_norm, dest_sh_phase>;
+
     constexpr double sh_norm
         = conversion_const<std::remove_cvref_t<ExpansionType>::shape::sh_norm, dest_sh_norm>();
     constexpr double cnorm = 1.0/std::numbers::sqrt2;
@@ -226,8 +267,7 @@ to_complex_expansion(SHSpan<double, IndexingMode::nonnegative, source_sh_norm, s
         }
     }
 
-    return ComplexEncodedRealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>(
-            as_complex_span(expansion.flatten()), expansion.order());
+    return ReturnType(as_complex_span(expansion.flatten()), expansion.order());
 }
 
 /**
@@ -242,18 +282,24 @@ to_complex_expansion(SHSpan<double, IndexingMode::nonnegative, source_sh_norm, s
 
     @note IMPORTANT: This function modifies the input data! The output is just a new view over the same data.
 */
-template <SHNorm dest_sh_norm, SHPhase dest_sh_phase, SHNorm source_sh_norm, SHPhase source_sh_phase>
-SHSpan<double, IndexingMode::nonnegative, dest_sh_norm, dest_sh_phase>
-to_real_expansion(ComplexEncodedRealSHSpan<std::complex<double>, source_sh_norm, source_sh_phase>& expansion) noexcept
+template <
+    SHNorm dest_sh_norm, SHPhase dest_sh_phase, SHNorm source_sh_norm, SHPhase source_sh_phase
+>
+constexpr SHSpan<double, IndexingMode::nonnegative, dest_sh_norm, dest_sh_phase>
+to_real_expansion(
+    ComplexEncodedRealSHSpan<std::complex<double>, source_sh_norm, source_sh_phase>& expansion) noexcept
 {
-    using ExpansionType = ComplexEncodedRealSHSpan<std::complex<double>, source_sh_norm, source_sh_phase>;
+    using ExpansionType = ComplexEncodedRealSHSpan<
+        std::complex<double>, source_sh_norm, source_sh_phase>;
+    using ReturnType = SHSpan<
+        double, IndexingMode::nonnegative, dest_sh_norm, dest_sh_phase>;
+
     constexpr double sh_norm
         = conversion_const<std::remove_cvref_t<ExpansionType>::shape::sh_norm, dest_sh_norm>();
     constexpr double cnorm = std::numbers::sqrt2;
     constexpr double norm = sh_norm*cnorm;
 
-    SHSpan<double, IndexingMode::nonnegative, dest_sh_norm, dest_sh_phase> res(
-            as_float_span(expansion.flatten()), expansion.order());
+    ReturnType res(as_float_span(expansion.flatten()), expansion.order());
 
     for (auto l : res.indices())
     {

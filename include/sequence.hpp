@@ -46,30 +46,6 @@ enum class Parity { even = 0, odd = 1 };
 template <typename T>
 concept has_parity = requires (T x) { { x.parity() } -> std::same_as<Parity>; };
 
-template <typename T>
-concept one_dimensional_span
-    = std::same_as<T, std::span<typename T::element_type>>
-    || requires (T span, typename T::index_type i)
-    {
-        requires std::convertible_to<
-                decltype(span[i]), typename T::element_type>;
-    };
-
-template <typename T>
-concept two_dimensional_span
-    = requires (T span, typename T::index_type i, typename T::index_type j)
-    {
-        requires std::convertible_to<
-                decltype(span(i,j)), typename T::element_type>;
-    };
-
-template <typename T>
-concept two_dimensional_subspannable
-    = requires (T span, typename T::index_type i)
-    {
-        requires one_dimensional_span<std::remove_cvref_t<decltype(span[i])>>;
-    };
-
 /**
     @brief Contiguous 1d layout, which is indexed exactly as you think it is
     ```
@@ -81,29 +57,12 @@ concept two_dimensional_subspannable
 template <IndexingMode indexing_mode_param>
 struct StandardLinearSequence
 {
-private:
-    /*
-    Ugly hack to select appropriate index range. There is probably a cleaner 
-    way.
-    */
-    template <std::integral type_param, IndexingMode mode>
-    struct SelectIndexRange;
-
-    template <std::signed_integral type_param, IndexingMode mode>
-        requires (mode == IndexingMode::negative)
-    struct SelectIndexRange<type_param, mode> 
-    { using type = SymmetricIndexRange<type_param>; };
-
-    template <std::integral type_param, IndexingMode mode>
-        requires (mode == IndexingMode::nonnegative)
-    struct SelectIndexRange<type_param, mode> 
-    { using type = StandardIndexRange<type_param>; };
-public:
     using index_type = std::conditional_t<
         indexing_mode_param == IndexingMode::negative, int, std::size_t>;
     using size_type = std::size_t;
-    using index_range = SelectIndexRange<index_type, indexing_mode_param>::type;
-    
+    using index_range = std::conditional_t<(indexing_mode_param == IndexingMode::negative),
+        SymmetricIndexRange<index_type>, StandardIndexRange<index_type>>;
+
     static constexpr size_type rank = 1;
 
     /**
@@ -149,7 +108,7 @@ struct ParityLinearSequence
     using index_type = std::size_t;
     using size_type = std::size_t;
     using index_range = ParityIndexRange<index_type>;
-    
+
     static constexpr size_type rank = 1;
 
     /**
@@ -196,21 +155,25 @@ struct ParityLinearSequence
 template <IndexingMode indexing_mode_param>
 struct TriangleSequence
 {
-    using index_type = std::conditional_t<
-        indexing_mode_param == IndexingMode::negative, int, std::size_t>;
+    using index_type = std::conditional_t<indexing_mode_param == IndexingMode::negative,
+        int, std::size_t>;
     using size_type = std::size_t;
     using index_range = StandardIndexRange<index_type>;
-    
+
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
     static constexpr size_type rank = 2;
 
-    template<std::size_t N> requires (N == 1) struct sublayout;
-    template<> struct sublayout<1>
+private:
+    template <std::size_t N> struct sublayout;
+
+    template <> struct sublayout<1>
     {
         using type = StandardLinearSequence<indexing_mode_param>;
     };
 
+public:
     template <std::size_t N>
+        requires (N == 1)
     using sublayout_t = sublayout<N>::type;
 
     /**
@@ -277,14 +240,18 @@ struct EvenTriangleSequence
 
     static constexpr size_type rank = 2;
 
-    template<std::size_t N> requires (N == 1) struct sublayout;
-    template<> struct sublayout<1>
+private:
+    template <std::size_t N> struct sublayout_helper;
+
+    template <> struct sublayout_helper<1>
     {
         using type = ParityLinearSequence;
     };
 
+public:
     template <std::size_t N>
-    using sublayout_t = sublayout<N>::type;
+        requires (N == 1)
+    using sublayout_t = sublayout_helper<N>::type;
 
     /**
         @brief Number of elements in layout for size parameter `order`.
@@ -368,29 +335,34 @@ template <IndexingMode indexing_mode_param>
 struct EvenRowTriangleSequence
 {
     using SubLayout = StandardLinearSequence<indexing_mode_param>;
-    using index_type = std::conditional_t<
-        indexing_mode_param == IndexingMode::negative, int, std::size_t>;
+    using index_type = std::conditional_t<indexing_mode_param == IndexingMode::negative,
+        int, std::size_t>;
     using size_type = std::size_t;
     using index_range = ParityIndexRange<index_type>;
 
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
     static constexpr size_type rank = 2;
 
-    template<std::size_t N> requires (N == 1) struct sublayout;
-    template<> struct sublayout<1>
+private:
+    template <std::size_t N> struct sublayout_helper;
+
+    template <> struct sublayout_helper<1>
     {
         using type = StandardLinearSequence<indexing_mode_param>;
     };
 
+public:
     template <std::size_t N>
-    using sublayout_t = sublayout<N>::type;
+        requires (N == 1)
+    using sublayout_type = sublayout_helper<N>::type;
 
     /**
         @brief Number of elements in layout for size parameter `order`.
 
         @param order parameter presenting the size of the layout
     */
-    static constexpr std::size_t size(std::size_t order) noexcept
+    static constexpr std::size_t 
+    size(std::size_t order) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::nonnegative)
             return ((order + 1)*(order + 1)) >> 2;
@@ -401,7 +373,8 @@ struct EvenRowTriangleSequence
     /**
         @brief Linear index of an element in layout.
     */
-    static constexpr std::size_t index(index_type l, index_type m) noexcept
+    static constexpr std::size_t 
+    index(index_type l, index_type m) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::nonnegative)
             return ((l*l) >> 2) + m;
@@ -420,8 +393,8 @@ struct EvenRowTriangleSequence
             return std::size_t(((l*(l + 1)) >> 1));
     }
 
-    [[nodiscard]] static constexpr
-    std::size_t subextent(index_type l) noexcept { return l + 1; }
+    [[nodiscard]] static constexpr std::size_t
+    subextent(index_type l) noexcept { return l + 1; }
 };
 
 /**
@@ -442,26 +415,30 @@ template <IndexingMode indexing_mode_param>
 struct ZernikeTetrahedralSequence
 {
     using SubLayout = EvenRowTriangleSequence<indexing_mode_param>;
-    using index_type = std::conditional_t<
-        indexing_mode_param == IndexingMode::negative, int, std::size_t>;
+    using index_type = std::conditional_t<indexing_mode_param == IndexingMode::negative,
+        int, std::size_t>;
     using size_type = std::size_t;
     using index_range = StandardIndexRange<index_type>;
-    
+
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
     static constexpr size_type rank = 2;
 
-    template<std::size_t N> requires (N == 1 || N == 2) struct sublayout;
-    template<> struct sublayout<1>
+private:
+    template <std::size_t N> struct sublayout_helpler;
+
+    template <> struct sublayout_helpler<1>
     {
         using type = EvenRowTriangleSequence<indexing_mode_param>;
     };
-    template<> struct sublayout<2>
+    template <> struct sublayout_helpler<2>
     {
         using type = StandardLinearSequence<indexing_mode_param>;
     };
 
+public:
     template <std::size_t N>
-    using sublayout_t = sublayout<N>::type;
+        requires (N == 1 || N == 2)
+    using sublayout_t = sublayout_helpler<N>::type;
 
     /**
         @brief Number of elements in layout for size parameter `order`.
@@ -513,11 +490,11 @@ struct ZernikeTetrahedralSequence
             return std::size_t(n*(n + 1)*(n + 2)/6);
     }
 
-    [[nodiscard]] static constexpr
-    std::size_t subextent(index_type n) noexcept { return n + 1; }
+    [[nodiscard]] static constexpr std::size_t
+    subextent(index_type n) noexcept { return n + 1; }
 
-    [[nodiscard]] static constexpr
-    std::size_t subextent([[maybe_unused]] index_type n, index_type l) noexcept { return l + 1; }
+    [[nodiscard]] static constexpr std::size_t
+    subextent([[maybe_unused]] index_type n, index_type l) noexcept { return l + 1; }
 };
 
 } // namespace zest

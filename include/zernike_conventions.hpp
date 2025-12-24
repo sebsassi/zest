@@ -21,12 +21,11 @@ SOFTWARE.
 */
 #pragma once
 
-#include <cstddef>
 #include <cmath>
+#include <cstddef>
 
-namespace zest
-{
-namespace zt
+
+namespace zest::zt
 {
 
 /**
@@ -48,7 +47,7 @@ struct ZernikeTag
     @return normalization constant
 */
 template <ZernikeNorm zernike_norm_param>
-[[nodiscard]] inline double normalization(std::size_t n) noexcept
+[[nodiscard]] constexpr double normalization(std::size_t n) noexcept
 {
     if constexpr (zernike_norm_param == ZernikeNorm::normed)
         return 1.0;
@@ -76,10 +75,10 @@ template <ZernikeNorm from, ZernikeNorm to>
 
 template <ZernikeNorm from, ZernikeNorm to>
     requires (from == to)
-[[nodiscard]] inline double conversion_factor([[maybe_unused]] std::size_t n) noexcept
+[[nodiscard]] constexpr double conversion_factor([[maybe_unused]] std::size_t n) noexcept
 {
     return 1.0;
 }
 
-} // namespace zt
-} // namespace zest
+} // namespace zest::zt
+

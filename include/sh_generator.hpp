@@ -24,13 +24,9 @@ SOFTWARE.
 #include <vector>
 
 #include "plm_recursion.hpp"
-#include "layout.hpp"
-#include "packing.hpp"
 #include "real_sh_expansion.hpp"
 
-namespace zest
-{
-namespace st
+namespace zest::st
 {
 
 /**
@@ -69,20 +65,14 @@ public:
         @param colat colatitude coordinate
         @param ylm buffer for spherical harmonic values
     */
-    template <real_sh_expansion SHType>
-    void generate(double lon, double colat, SHType&& ylm)
+    template <IndexingMode indexing_mode_param, SHNorm sh_norm, SHShape sh_phase>
+    void generate(double lon, double colat, SHSpan<double, indexing_mode_param, sh_norm, sh_phase> ylm)
     {
-        constexpr SHNorm norm = std::remove_cvref_t<SHType>::norm;
-        constexpr SHPhase phase = std::remove_cvref_t<SHType>::phase;
-        using SHSpan = RealSHSpan<
-                typename std::remove_cvref_t<SHType>::element_type, 
-                norm, phase>;
-        using index_type = SHSpan::index_type;
-        expand(ylm.order());
+        using SHSpanType = SHSpan<double, indexing_mode_param, sh_norm, sh_phase>;
+        expand(ylm.extents());
 
         const double z = std::sin(colat);
-        auto ass_leg = PlmSpan<double, norm, phase>(
-                m_ass_leg_poly, ylm.order());
+        AssociatedLegendreSpan<double, sh_norm, sh_phase> ass_leg(m_ass_leg_poly, ylm.order());
         m_recursion.plm_real(z, ass_leg);
 
         for (std::size_t m = 0; m < ylm.order(); ++m)
@@ -91,20 +81,20 @@ public:
             m_cossin[m] = {std::cos(angle), std::sin(angle)};
         }
 
-        constexpr IndexingMode indexing_mode = SHSpan::Layout::indexing_mode;
+        constexpr IndexingMode indexing_mode = SHSpanType::shape_type::sequence_type::indexing_mode;
         for (auto l : ass_leg.indices())
         {
-            auto ylm_l = ylm[index_type(l)];
+            auto ylm_l = ylm[l];
             auto ass_leg_l = ass_leg[l];
             if constexpr (indexing_mode == IndexingMode::negative)
                 ylm_l[0] = ass_leg_l[0];
             else if constexpr (indexing_mode == IndexingMode::nonnegative)
                 ylm_l[0] = {ass_leg_l[0], 0.0};
-            
+
             for (auto m : ass_leg_l.indices(1))
             {
                 const double ass_leg_lm = ass_leg_l[m];
-                
+
                 if constexpr (indexing_mode == IndexingMode::negative)
                 {
                     ylm_l[int(m)] = ass_leg_lm*m_cossin[m][0];
@@ -127,5 +117,5 @@ private:
     std::vector<std::array<double, 2>> m_cossin;
 };
 
-} // namespace st
-} // namespace zest
+} // namespace zest::st
+

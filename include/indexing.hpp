@@ -33,18 +33,24 @@ namespace array::detail
 
 template <typename SizeType, std::size_t N, std::size_t I, typename IndexType>
 [[nodiscard]] constexpr IndexType
-index_impl([[maybe_unused]] const std::array<SizeType, N>& extents, IndexType ind) noexcept
+index_impl(
+    [[maybe_unused]] const std::array<SizeType, N>& extents, IndexType ind) noexcept
 {
     return ind;
 }
 
-template <typename SizeType, std::size_t N, std::size_t I, typename IndexType, typename... IndexTypes>
+template <
+    typename SizeType, std::size_t N, std::size_t I, typename IndexType, typename... IndexTypes
+>
     requires (sizeof...(IndexTypes) + 2 <= N)
 [[nodiscard]] constexpr IndexType
-index_impl(const std::array<SizeType, N>& extents, IndexType ind, IndexType next, IndexTypes... inds) noexcept
+index_impl(
+    const std::array<SizeType, N>& extents, IndexType ind, IndexType next,
+    IndexTypes... inds) noexcept
 {
     if constexpr (I < N)
-        return index_impl<SizeType, N, I + 1UL>(extents, ind*extents[I] + next, inds...);
+        return index_impl<SizeType, N, I + 1UL>(
+            extents, ind*extents[I] + next, inds...);
     else
         return ind;
 }
@@ -159,35 +165,13 @@ public:
         return m_index + n*stride;
     }
 
-    [[nodiscard]] constexpr bool
-    operator==(const IndexIterator& b) const noexcept
-    { return m_index == b.index(); }
-
-    [[nodiscard]] constexpr bool
-    operator!=(const IndexIterator& b) const noexcept
-    { return m_index != b.index(); }
-
-    [[nodiscard]] constexpr bool
-    operator<=(const IndexIterator& b) const noexcept
-    { return m_index <= b.index(); }
-
-    [[nodiscard]] constexpr bool
-    operator>=(const IndexIterator& b) const noexcept
-    { return m_index >= b.index(); }
-
-    [[nodiscard]] constexpr bool
-    operator<(const IndexIterator& b) const noexcept
-    { return m_index < b.index(); }
-
-    [[nodiscard]] constexpr bool
-    operator>(const IndexIterator& b) const noexcept
-    { return m_index > b.index(); }
+    [[nodiscard]] constexpr bool operator==(const IndexIterator& other) const noexcept = default;
+    [[nodiscard]] constexpr auto operator<=>(const IndexIterator& other) const noexcept = default;
 
     /**
         @brief Get value of index.
     */
-    [[nodiscard]] constexpr index_type index() const noexcept
-    { return m_index; }
+    [[nodiscard]] constexpr index_type index() const noexcept { return m_index; }
 
 private:
     index_type m_index{};
@@ -200,7 +184,8 @@ public:
     using index_type = IndexType;
     using iterator = IndexIterator<index_type, stride_param>;
 
-    explicit constexpr BasicIndexRange(index_type begin, index_type end): m_begin(begin), m_end(end) {}
+    explicit constexpr BasicIndexRange(index_type begin, index_type end):
+        m_begin(begin), m_end(end) {}
 
     /**
         @brief Iterator to the beginning of the range.
@@ -217,22 +202,29 @@ private:
     index_type m_end{};
 };
 
-template <std::integral IndexType, IndexType begin_param, IndexType end_param, IndexType stride_param>
+template <
+    std::integral IndexType, IndexType begin_param, IndexType end_param,
+    IndexType stride_param>
 class StaticBasicIndexRange
 {
 public:
     using index_type = IndexType;
     using iterator = IndexIterator<index_type, stride_param>;
 
-    [[nodiscard]] constexpr iterator begin() const noexcept { return iterator{begin_param}; }
-    [[nodiscard]] constexpr iterator end() const noexcept { return iterator{end_param}; }
+    [[nodiscard]] constexpr iterator 
+    begin() const noexcept { return iterator{begin_param}; }
+
+    [[nodiscard]] constexpr iterator
+    end() const noexcept { return iterator{end_param}; }
 };
 
 template <std::integral IndexType, IndexType begin_param, IndexType end_param>
-using StaticStandardIndexRange = StaticBasicIndexRange<IndexType, begin_param, end_param, IndexType{1}>;
+using StaticStandardIndexRange = StaticBasicIndexRange<
+    IndexType, begin_param, end_param, IndexType{1}>;
 
 template <std::integral IndexType>
-using SingleIndexRange = StaticBasicIndexRange<IndexType, IndexType{0}, IndexType{1}, IndexType{1}>;
+using SingleIndexRange = StaticBasicIndexRange<
+    IndexType, IndexType{0}, IndexType{1}, IndexType{1}>;
 
 /**
     @brief Range of integer indices.
@@ -251,7 +243,8 @@ public:
 
         @param end end of index range
     */
-    StandardIndexRange(index_type end): BasicIndexRange<index_type, index_type{1}>(end) {};
+    StandardIndexRange(index_type end): 
+        BasicIndexRange<index_type, index_type{1}>(end) {};
 
     /**
         @brief Constructs a range of indices `[begin, end)`.
@@ -259,7 +252,8 @@ public:
         @param begin start of index range
         @param end end of index range
     */
-    StandardIndexRange(index_type begin, index_type end): BasicIndexRange<index_type, index_type{1}>(begin, end) {};
+    StandardIndexRange(index_type begin, index_type end): 
+        BasicIndexRange<index_type, index_type{1}>(begin, end) {};
 };
 
 /**
@@ -309,7 +303,8 @@ public:
 
         @param end end of index range
     */
-    explicit constexpr SymmetricIndexRange(index_type end): BasicIndexRange<index_type, index_type{1}>(1 - end, end) {}
+    explicit constexpr SymmetricIndexRange(index_type end):
+        BasicIndexRange<index_type, index_type{1}>(1 - end, end) {}
 
     /**
         @brief Constructs a range of indices `[begin, end)`.
@@ -317,7 +312,8 @@ public:
         @param begin start of index range
         @param end end of index range
     */
-    constexpr SymmetricIndexRange(index_type begin, index_type end): BasicIndexRange<index_type, index_type{1}>(begin, end) {}
+    constexpr SymmetricIndexRange(index_type begin, index_type end): 
+        BasicIndexRange<index_type, index_type{1}>(begin, end) {}
 };
 
 } // namespace zest

@@ -25,8 +25,8 @@ SOFTWARE.
 #include <vector>
 
 #include "md_span.hpp"
-#include "md_array.hpp"
 #include "linearfit.hpp"
+#include "md_array.hpp"
 #include "real_sh_expansion.hpp"
 #include "sh_generator.hpp"
 #include "zernike_generator.hpp"
@@ -37,7 +37,8 @@ namespace st
 {
 
 /**
-    @brief Least-squares real spherical harmonic expansion fit on arbitrary real valued data on the sphere.
+    @brief Least-squares real spherical harmonic expansion fit on arbitrary
+    real valued data on the sphere.
 */
 class LSQTransformer
 {
@@ -55,45 +56,55 @@ public:
         return m_sh_values;
     }
 
-    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
+    template <IndexingMode indexing_mode, SHNorm sh_norm_param, SHPhase sh_phase_param>
     void transform(
-        std::span<const double> data, std::span<const double> lat, std::span<const double> lon,
-        RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
+        std::span<const double> data, std::span<const double> lon, std::span<const double> colat,
+        SHSpan<double, indexing_mode, sh_norm_param, sh_phase_param> expansion)
     {
-        using FitExpansion = RealSHSpan<double, sh_norm_param, sh_phase_param>;
+        using FitExpansion = SHSpan<double, IndexingMode::negative, sh_norm_param, sh_phase_param>;
 
-        m_sh_gen.expand(expansion.order());
+        m_sh_gen.expand(expansion.extents());
 
         m_sh_values.reshape(
-                {data.size(), FitExpansion::Layout::size(expansion.order())});
+                {data.size(), FitExpansion::Layout::size(expansion.extents())});
 
         for (size_t i = 0; i < data.size(); ++i)
         {
-            FitExpansion ylm(m_sh_values[i], expansion.order());
-            m_sh_gen.generate(lon[i], lat[i], ylm);
+            FitExpansion ylm(m_sh_values[i], expansion.extents());
+            m_sh_gen.generate(lon[i], colat[i], ylm);
         }
 
         m_coeffs.resize(m_sh_values.extent(1));
         m_fitter(m_sh_values, m_coeffs, data);
 
-        FitExpansion coeffs(m_coeffs.data(), expansion.order());
-        for (auto l : expansion.indices())
+        if constexpr (indexing_mode == IndexingMode::negative)
         {
-            auto expansion_l = expansion[l];
-            auto coeffs_l = coeffs[int(l)];
-            expansion_l[0] = {coeffs_l[0], 0.0};
-            for (auto m : expansion_l.indices(1))
-                expansion_l[m] = {coeffs_l[int(m)], coeffs_l[-int(m)]};
+            std::ranges::copy(m_coeffs, expansion.flatten().begin());
+        }
+        else
+        {
+            FitExpansion coeffs(m_coeffs.data(), expansion.extents());
+            for (auto l : expansion.indices())
+            {
+                auto expansion_l = expansion[l];
+                auto coeffs_l = coeffs[int(l)];
+                expansion_l[0, 0] = coeffs_l[0];
+                for (auto m : expansion_l.indices(1))
+                {
+                    expansion_l[m, 0] = coeffs_l[int(m)];
+                    expansion_l[m, 1] = coeffs_l[-int(m)];
+                }
+            }
         }
     }
-    
-    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
+
+    template <IndexingMode indexing_mode, SHNorm sh_norm_param, SHPhase sh_phase_param>
     [[nodiscard]] auto transform(
-        std::span<const double> data, std::span<const double> lat, std::span<const double> lon,
+        std::span<const double> data, std::span<const double> lon, std::span<const double> colat,
         std::size_t order)
     {
-        RealSHExpansion<sh_norm_param, sh_phase_param> expansion(order);
-        transform<sh_norm_param, sh_phase_param>(data, lat, lon, expansion);
+        SHExpansion<double, indexing_mode, sh_norm_param, sh_phase_param> expansion(order);
+        transform<indexing_mode, indexing_mode, sh_norm_param, sh_phase_param>(data, lon, colat, expansion);
         return expansion;
     }
 
@@ -129,14 +140,15 @@ public:
     }
 
     template <
-        ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
+        IndexingMode indexing_mode, ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param
+    >
     void transform(
         std::span<const double> data, std::span<const double> r, std::span<const double> lon,
         std::span<const double> colat,
-        RealZernikeSpan<std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
+        ZernikeSpan<double, indexing_mode, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
     {
-        using FitExpansion = RealZernikeSpan<
-                double, zernike_norm_param, sh_norm_param, sh_phase_param>;
+        using FitExpansion = ZernikeSpan<
+                double, indexing_mode, zernike_norm_param, sh_norm_param, sh_phase_param>;
 
         m_zernike_gen.expand(expansion.order());
 
@@ -152,32 +164,41 @@ public:
         m_coeffs.resize(m_zernike_values.extent(1));
         m_fitter(m_zernike_values, m_coeffs, data);
 
-        FitExpansion coeffs(m_coeffs.data(), expansion.order());
-        for (auto n : expansion.indices())
+        if constexpr (indexing_mode == IndexingMode::negative)
         {
-            auto expansion_n = expansion[n];
-            auto coeffs_n = coeffs[int(n)];
-            for (auto l : expansion_n.indices())
+            std::ranges::copy(m_coeffs, expansion.flatten().begin());
+        }
+        else
+        {
+            FitExpansion coeffs(m_coeffs.data(), expansion.order());
+            for (auto n : expansion.indices())
             {
-                auto expansion_nl = expansion_n[l];
-                auto coeffs_nl = coeffs[int(l)];
-                expansion_nl[0] = {coeffs_nl[0], 0.0};
-                for (std::size_t m = 1; m <= l; ++m)
-                    expansion_nl[m] = {coeffs_nl[int(m)], coeffs_nl[-int(m)]};
+                auto expansion_n = expansion[n];
+                auto coeffs_n = coeffs[int(n)];
+                for (auto l : expansion_n.indices())
+                {
+                    auto expansion_nl = expansion_n[l];
+                    auto coeffs_nl = coeffs[int(l)];
+                    expansion_nl[0, 0] = coeffs_nl[0];
+                    for (std::size_t m = 1; m <= l; ++m)
+                    {
+                        expansion_nl[m, 0] = coeffs_nl[int(m)];
+                        expansion_nl[m, 1] = coeffs_nl[-int(m)];
+                    }
+                }
             }
         }
     }
-    
+
     template <
-        ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param,
-        st::SHPhase sh_phase_param>
+        IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     [[nodiscard]] auto transform(
-        std::span<const double> data, std::span<const double> lat, std::span<const double> lon,
-        std::size_t order)
+        std::span<const double> data, std::span<const double> r, std::span<const double> lon,
+        std::span<const double> colat, std::size_t order)
     {
-        RealZernikeExpansion<zernike_norm_param, sh_norm_param, sh_phase_param> 
+        ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase> 
         expansion(order);
-        transform<sh_norm_param, sh_phase_param>(data, lat, lon, expansion);
+        transform<indexing_mode, zernike_norm, sh_norm, sh_phase>(data, r, lon, colat, expansion);
         return expansion;
     }
 

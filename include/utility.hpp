@@ -29,10 +29,12 @@ namespace zest
 {
 
 template <typename T>
-concept complex_float = std::same_as<std::remove_const_t<T>, std::complex<typename std::remove_const_t<T>::value_type>>;
+concept complex_float
+    = std::same_as<std::remove_const_t<T>, std::complex<typename std::remove_const_t<T>::value_type>>;
 
 template <typename T>
-concept complex_or_real_float = std::floating_point<std::remove_const_t<T>> || complex_float<T>;
+concept complex_or_real_float
+    = std::floating_point<std::remove_const_t<T>> || complex_float<T>;
 
 template <typename T>
 concept tag_type = (std::is_empty_v<T> && std::is_aggregate_v<T>);
