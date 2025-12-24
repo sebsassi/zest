@@ -24,6 +24,7 @@ SOFTWARE.
 #include <complex>
 #include <concepts>
 #include <type_traits>
+#include <utility>
 
 namespace zest
 {
@@ -35,8 +36,8 @@ concept sequenced = requires (T x)
     };
 
 template <typename T>
-concept complex_float
-    = std::same_as<std::remove_const_t<T>, std::complex<typename std::remove_const_t<T>::value_type>>;
+concept complex_float = std::same_as<
+    std::remove_const_t<T>, std::complex<typename std::remove_const_t<T>::value_type>>;
 
 template <typename T>
 concept complex_or_real_float
@@ -82,6 +83,58 @@ take_first_impl(const T& tuple, std::index_sequence<I...> /*unused*/) noexcept
     return std::make_tuple(std::get<I>(tuple)...);
 }
 
+template <typename T, std::convertible_to<T> S, std::size_t... I>
+[[nodiscard]] constexpr std::array<T, sizeof...(I) + 1>
+append_impl(
+    const std::array<T, sizeof...(I)>& arr, const S& element,
+    std::index_sequence<I...> /*unused*/) noexcept
+{
+    return {std::get<I>(arr)..., element};
+}
+
+template <typename T, typename S, std::size_t... I>
+[[nodiscard]] constexpr auto
+append_impl(
+    const T& tuple, const S& element, std::index_sequence<I...> /*unused*/) noexcept
+{
+    return std::make_tuple(std::get<I>(tuple)..., element);
+}
+
+template <typename T, std::convertible_to<T> S, std::size_t... I>
+[[nodiscard]] constexpr std::array<T, sizeof...(I) + 1>
+prepend_impl(
+    const S& element, const std::array<T, sizeof...(I)>& arr,
+    std::index_sequence<I...> /*unused*/) noexcept
+{
+    return {element, std::get<I>(arr)...};
+}
+
+template <typename T, typename S, std::size_t... I>
+[[nodiscard]] constexpr auto
+prepend_impl(
+    const S& element, const T& tuple, std::index_sequence<I...> /*unused*/) noexcept
+{
+    return std::make_tuple(element, std::get<I>(tuple)...);
+}
+
+template <typename T, std::size_t... I, std::size_t... J>
+[[nodiscard]] constexpr std::array<T, sizeof...(I) + sizeof...(J)>
+concatenate_impl(
+    const std::array<T, sizeof...(I)>& arr_i, const std::array<T, sizeof...(J)>& arr_j,
+    std::index_sequence<I...> /*unused*/, std::index_sequence<J...> /*unused*/) noexcept
+{
+    return {std::get<I>(arr_i)..., std::get<J>(arr_j)...};
+}
+
+template <typename T, typename S, std::size_t... I, std::size_t... J>
+[[nodiscard]] constexpr auto
+concatenate_impl(
+    const T& tuple_t, const S& tuple_s,
+    std::index_sequence<I...> /*unused*/, std::index_sequence<J...> /*unused*/) noexcept
+{
+    return std::make_tuple(std::get<I>(tuple_t)..., std::get<J>(tuple_s)...);
+}
+
 } // namespace detail
 
 template <typename T, std::size_t N>
@@ -98,6 +151,32 @@ template <typename T, std::size_t N>
 take_first(const T& tuple_like) noexcept
 {
     return take_first_impl(tuple_like, std::make_index_sequence<N>());
+}
+
+template <typename T, typename S>
+[[nodiscard]] constexpr auto
+append(const T& tuple_like, const S& element) noexcept
+{
+    return append_impl(
+        tuple_like, element, std::make_index_sequence<std::tuple_size_v<T>>{});
+}
+
+template <typename T, typename S>
+[[nodiscard]] constexpr auto
+prepend(const S& element, const T& tuple_like) noexcept
+{
+    return prepend_impl(
+        element, tuple_like, std::make_index_sequence<std::tuple_size_v<T>>{});
+}
+
+template <typename T, typename S>
+[[nodiscard]] constexpr auto
+concatenate(const T& tuple_like_t, const S& tuple_like_s) noexcept
+{
+    return concatenate_impl(
+        tuple_like_t, tuple_like_s,
+        std::make_index_sequence<std::tuple_size_v<T>>{},
+        std::make_index_sequence<std::tuple_size_v<S>>{});
 }
 
 template <typename T, std::size_t N>
