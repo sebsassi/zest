@@ -25,6 +25,7 @@ SOFTWARE.
 #include <span>
 #include <vector>
 
+#include "utility.hpp"
 #include "shaped_span.hpp"
 
 namespace zest
@@ -77,6 +78,9 @@ public:
 
     [[nodiscard]] const ShapeType&
     shape() const noexcept { return m_shape; }
+
+    [[nodiscard]] size_type
+    order() const noexcept requires sequenced<shape_type> { return m_shape.order(); }
 
     [[nodiscard]] const ShapeType::extent_type&
     extents() const noexcept { return m_shape.extents(); }

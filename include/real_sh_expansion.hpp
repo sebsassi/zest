@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -213,7 +213,8 @@ concept has_sh_conventions = std::derived_from<T, SHTag<T::sh_norm, T::sh_phase>
 } // namespace detail
 
 /**
-    @brief Convert real spherical harmonic expansion of a real function to a complex spherical harmonic expansion.
+    @brief Convert real spherical harmonic expansion of a real function to a
+    complex spherical harmonic expansion.
 
     @tparam dest_sh_norm normalization convention of the output view
     @tparam dest_sh_phase phase convention of the output view
@@ -222,7 +223,8 @@ concept has_sh_conventions = std::derived_from<T, SHTag<T::sh_norm, T::sh_phase>
 
     @return view of the expansion transformed to a complex expansion
 
-    @note IMPORTANT: This function modifies the input data! The output is just a new view over the same data.
+    @note IMPORTANT: This function modifies the input data! The output is just
+    a new view over the same data.
 */
 template <
     SHNorm dest_sh_norm, SHPhase dest_sh_phase, SHNorm source_sh_norm, SHPhase source_sh_phase
@@ -271,7 +273,8 @@ to_complex_expansion(
 }
 
 /**
-    @brief Convert complex spherical harmonic expansion of a real function to a real spherical harmonic expansion.
+    @brief Convert complex spherical harmonic expansion of a real function to a
+    real spherical harmonic expansion.
 
     @tparam dest_sh_norm normalization convention of the output view
     @tparam dest_sh_phase phase convention of the output view
@@ -280,7 +283,8 @@ to_complex_expansion(
 
     @return view of the expansion transformed to a complex expansion
 
-    @note IMPORTANT: This function modifies the input data! The output is just a new view over the same data.
+    @note IMPORTANT: This function modifies the input data! The output is just
+    a new view over the same data.
 */
 template <
     SHNorm dest_sh_norm, SHPhase dest_sh_phase, SHNorm source_sh_norm, SHPhase source_sh_phase

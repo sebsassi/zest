@@ -29,6 +29,12 @@ namespace zest
 {
 
 template <typename T>
+concept sequenced = requires (T x)
+    {
+        { x.order() } -> std::same_as<typename T::size_type>;
+    };
+
+template <typename T>
 concept complex_float
     = std::same_as<std::remove_const_t<T>, std::complex<typename std::remove_const_t<T>::value_type>>;
 
@@ -44,5 +50,64 @@ struct Tag: public T, public Tags...
 {
     using T::T;
 };
+
+namespace detail
+{
+
+template <typename T, std::size_t N, std::size_t... I>
+[[nodiscard]] constexpr std::array<T, sizeof...(I)>
+take_last_impl(const std::array<T, N>& arr, std::index_sequence<I...> /*unused*/) noexcept
+{
+    return {std::get<N - sizeof...(I) + I>(arr)...};
+}
+
+template <typename T, std::size_t... I>
+[[nodiscard]] constexpr auto
+take_last_impl(const T& tuple, std::index_sequence<I...> /*unused*/) noexcept
+{
+    return std::make_tuple(std::get<std::tuple_size_v<T> - sizeof...(I) + I>(tuple)...);
+}
+
+template <typename T, std::size_t N, std::size_t... I>
+[[nodiscard]] constexpr std::array<T, sizeof...(I)>
+take_first_impl(const std::array<T, sizeof...(I)>& arr)
+{
+    return {std::get<I>(arr)...};
+}
+
+template <typename T, std::size_t... I>
+[[nodiscard]] constexpr auto
+take_first_impl(const T& tuple, std::index_sequence<I...> /*unused*/) noexcept
+{
+    return std::make_tuple(std::get<I>(tuple)...);
+}
+
+} // namespace detail
+
+template <typename T, std::size_t N>
+    requires (std::tuple_size_v<T> <= N)
+[[nodiscard]] constexpr auto
+take_last(const T& tuple_like) noexcept
+{
+    return take_last_impl(tuple_like, std::make_index_sequence<N>());
+}
+
+template <typename T, std::size_t N>
+    requires (std::tuple_size_v<T> <= N)
+[[nodiscard]] constexpr auto
+take_first(const T& tuple_like) noexcept
+{
+    return take_first_impl(tuple_like, std::make_index_sequence<N>());
+}
+
+template <typename T, std::size_t N>
+[[nodiscard]] constexpr T
+product(const std::array<T, N>& arr) noexcept
+{
+    T res = arr[0];
+    for (std::size_t i = 1; i < N; ++i)
+        res *= arr[i];
+    return res;
+}
 
 } // namespace zest

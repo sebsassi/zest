@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -21,11 +21,13 @@ SOFTWARE.
 */
 #pragma once
 
-#include <cstddef>
-#include <vector>
-#include <span>
 #include <array>
+#include <cstddef>
+#include <span>
+#include <vector>
 
+#include "utility.hpp"
+#include "indexing.hpp"
 #include "md_span.hpp"
 
 namespace zest
@@ -56,7 +58,7 @@ public:
 
     MDArray() = default;
     MDArray(const std::array<std::size_t, rank_param>& extents):
-        m_data(detail::prod(extents)), m_size(detail::prod(extents)), m_extents(extents) {}
+        m_data(product(extents)), m_size(product(extents)), m_extents(extents) {}
 
     [[nodiscard]] operator View() noexcept
     {
@@ -72,12 +74,12 @@ public:
     {
         return m_data;
     }
-    
+
     [[nodiscard]] operator std::span<const element_type>() const noexcept
     {
         return m_data;
     }
-    
+
     /**
         @brief Pointer to underlying buffer.
     */
@@ -85,7 +87,7 @@ public:
     {
         return m_data.data();
     }
-    
+
     /**
         @brief Size of the underlying buffer.
     */
@@ -137,12 +139,12 @@ public:
 
     /**
         @brief Change the shape of the array.
-        
+
         @param extents shape of the new array
     */
     void reshape(const std::array<size_type, rank_param>& extents)
     {
-        m_size = detail::prod(extents);
+        m_size = product(extents);
         m_data.resize(m_size);
         m_extents = extents;
     }
@@ -151,14 +153,14 @@ public:
         requires (sizeof...(Ts) == rank_param)
     [[nodiscard]] element_type& operator()(Ts... inds) noexcept
     {
-        return m_data[detail::index(m_extents, inds...)];
+        return m_data[array::detail::index(m_extents, inds...)];
     }
 
     template <typename... Ts>
         requires (sizeof...(Ts) == rank_param)
     [[nodiscard]] const element_type& operator()(Ts... inds) const noexcept
     {
-        return m_data[detail::index(m_extents, inds...)];
+        return m_data[array::detail::index(m_extents, inds...)];
     }
 
     template <typename... Ts>
@@ -166,9 +168,9 @@ public:
     [[nodiscard]] MDSpan<element_type, rank_param - sizeof...(Ts)>
     operator()(Ts... inds) noexcept
     {
-        const index_type ind = detail::index(m_extents, inds...);
-        const std::array<index_type, rank_param - sizeof...(Ts)> new_extents = detail::last<rank_param - sizeof...(Ts)>(m_extents);
-        const size_type new_size = detail::prod(new_extents);
+        const index_type ind = array::detail::index(m_extents, inds...);
+        const std::array<index_type, rank_param - sizeof...(Ts)> new_extents = take_last<rank_param - sizeof...(Ts)>(m_extents);
+        const size_type new_size = product(new_extents);
         return MDSpan<element_type, rank_param - sizeof...(Ts)>(m_data.data() + ind*new_size, new_size, new_extents);
     }
 
@@ -177,9 +179,9 @@ public:
     [[nodiscard]] MDSpan<const element_type, rank_param - sizeof...(Ts)>
     operator()(Ts... inds) const noexcept
     {
-        const index_type ind = detail::index(m_extents, inds...);
-        const std::array<index_type, rank_param - sizeof...(Ts)> new_extents = detail::last<rank_param - sizeof...(Ts)>(m_extents);
-        const size_type new_size = detail::prod(new_extents);
+        const index_type ind = array::detail::index(m_extents, inds...);
+        const std::array<index_type, rank_param - sizeof...(Ts)> new_extents = take_last<rank_param - sizeof...(Ts)>(m_extents);
+        const size_type new_size = product(new_extents);
         return MDSpan<element_type, rank_param - sizeof...(Ts)>(m_data.data() + ind*new_size, new_size, new_extents);
     }
 

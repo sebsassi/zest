@@ -33,65 +33,6 @@ SOFTWARE.
 namespace zest
 {
 
-namespace detail
-{
-
-template <typename T, std::size_t N, std::size_t... I>
-[[nodiscard]] constexpr std::array<T, sizeof...(I)>
-take_last_impl(const std::array<T, N>& arr, std::index_sequence<I...> /*unused*/) noexcept
-{
-    return {std::get<N - sizeof...(I) + I>(arr)...};
-}
-
-template <typename T, std::size_t... I>
-[[nodiscard]] constexpr auto
-take_last_impl(const T& tuple, std::index_sequence<I...> /*unused*/) noexcept
-{
-    return std::make_tuple(std::get<std::tuple_size_v<T> - sizeof...(I) + I>(tuple)...);
-}
-
-template <typename T, std::size_t N>
-    requires (std::tuple_size_v<T> <= N)
-[[nodiscard]] constexpr auto
-take_last(const T& tuple_like) noexcept
-{
-    return take_last_impl(tuple_like, std::make_index_sequence<N>());
-}
-
-template <typename T, std::size_t N, std::size_t... I>
-[[nodiscard]] constexpr std::array<T, sizeof...(I)>
-take_first_impl(const std::array<T, sizeof...(I)>& arr)
-{
-    return {std::get<I>(arr)...};
-}
-
-template <typename T, std::size_t... I>
-[[nodiscard]] constexpr auto
-take_first_impl(const T& tuple, std::index_sequence<I...> /*unused*/) noexcept
-{
-    return std::make_tuple(std::get<I>(tuple)...);
-}
-
-template <typename T, std::size_t N>
-    requires (std::tuple_size_v<T> <= N)
-[[nodiscard]] constexpr auto
-take_first(const T& tuple_like) noexcept
-{
-    return take_first_impl(tuple_like, std::make_index_sequence<N>());
-}
-
-template <typename T, std::size_t N>
-[[nodiscard]] constexpr T
-product(const std::array<T, N>& arr) noexcept
-{
-    T res = arr[0];
-    for (std::size_t i = 1; i < N; ++i)
-        res *= arr[i];
-    return res;
-}
-
-} // namespace detail
-
 class NullShape
 {
 public:
@@ -143,17 +84,20 @@ public:
         NullShape>;
 
     constexpr SequencedShape() = default;
-    explicit constexpr SequencedShape(extent_type extent):
-        m_extent(extent), m_size(size(extent)) {}
+    explicit constexpr SequencedShape(extent_type order):
+        m_order(order), m_size(size(order)) {}
 
     [[nodiscard]] static constexpr size_type
-    size(extent_type extent) noexcept { return sequence_type::size(extent); }
+    size(extent_type order) noexcept { return sequence_type::size(order); }
 
     [[nodiscard]] constexpr size_type
     size() const noexcept { return m_size; }
 
     [[nodiscard]] constexpr extent_type
-    extents() const noexcept { return m_extent; }
+    order() const noexcept { return m_order; }
+
+    [[nodiscard]] constexpr extent_type
+    extents() const noexcept { return m_order; }
 
     template <typename... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < rank)
@@ -177,10 +121,10 @@ public:
     operator()(Inds... indices) const noexcept { return sequence_type::index(indices...); }
 
     [[nodiscard]] constexpr index_range
-    indices() const noexcept { return sequence_type::indices(m_extent); }
+    indices() const noexcept { return sequence_type::indices(m_order); }
 
 private:
-    extent_type m_extent{};
+    extent_type m_order{};
     size_type m_size{};
 };
 
@@ -223,7 +167,7 @@ public:
         m_extents(extents), m_size(size(extents)) {}
 
     [[nodiscard]] static constexpr size_type
-    size(extent_type extents) noexcept { return detail::product(extents); }
+    size(extent_type extents) noexcept { return product(extents); }
 
     [[nodiscard]] constexpr size_type
     size() const noexcept { return m_size; }
@@ -289,7 +233,7 @@ public:
     using extent_type = std::array<size_type, sizeof...(Ns)>;
 
     static constexpr size_type rank = sizeof...(Ns);
-    static constexpr std::size_t linear_extent = detail::product(std::array{Ns...});
+    static constexpr std::size_t linear_extent = roduct(std::array{Ns...});
     static constexpr extent_type static_extents = std::array{Ns...};
 
 private:
@@ -409,8 +353,14 @@ public:
     [[nodiscard]] constexpr size_type
     size() const noexcept { return m_size; }
 
+    [[nodiscard]] constexpr S1::extent_type
+    order() const noexcept requires sequenced<S1>
+    {
+        return m_shapes.first.extents();
+    }
+
     [[nodiscard]] constexpr extent_type
-    extents() const noexcept { return {m_shapes.extents(), m_shapes.extents()}; }
+    extents() const noexcept { return {m_shapes.first.extents(), m_shapes.second.extents()}; }
 
     template <typename... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < S1::rank)
@@ -493,6 +443,8 @@ using SequenceTensorShape = std::conditional_t<(sizeof...(Ns) > 0),
 template <typename ShapeType, tag_type... Tags>
 struct TaggedShape: public ShapeType, public Tags...
 {
+    using untag = ShapeType;
+
     template <std::size_t N>
     using subshape = TaggedShape<typename ShapeType::template subshape<N>, Tags...>;
 

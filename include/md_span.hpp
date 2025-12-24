@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -25,55 +25,10 @@ SOFTWARE.
 #include <cstddef>
 #include <span>
 
+#include "indexing.hpp"
+
 namespace zest
 {
-
-namespace detail
-{
-
-template <std::size_t M, typename T>
-auto last(T a) noexcept
-{
-    std::array<typename std::remove_cvref<T>::type::value_type, M> res{};
-    for (std::size_t i = 0; i < M; ++i)
-        res[i] = a[(a.size() - M) + i];
-    return res;
-}
-
-template <typename T>
-auto prod(T a) noexcept
-{
-    auto res = a[0];
-    for (std::size_t i = 1; i < a.size(); ++i)
-        res *= a[i];
-    return res;
-}
-
-template <typename size_type, std::size_t N, std::size_t I, typename index_type>
-[[nodiscard]] constexpr index_type
-index_impl([[maybe_unused]] const std::array<size_type, N>& extents, index_type ind) noexcept
-{
-    return ind;
-}
-
-template <typename size_type, std::size_t N, std::size_t I, typename index_type, typename... Ts>
-[[nodiscard]] constexpr index_type
-index_impl(const std::array<size_type, N>& extents, index_type ind, index_type next, Ts... inds) noexcept
-{
-    if constexpr (I < N)
-        return index_impl<size_type, N, I + 1UL>(extents, ind*extents[I] + next, inds...);
-    else
-        return ind;
-}
-
-template <typename size_type, std::size_t N, typename... Ts>
-[[nodiscard]] constexpr auto
-index(const std::array<size_type, N>& extents, Ts... inds) noexcept
-{
-    return index_impl<size_type, N, 1UL>(extents, inds...);
-}
-
-} // namespace detail
 
 // A future version of this library using C++23 may do away with this class.
 
@@ -102,7 +57,7 @@ public:
     constexpr MDSpan() noexcept = default;
     constexpr MDSpan(
         data_handle_type data, const std::array<std::size_t, rank_param>& extents) noexcept:
-        m_data(data), m_size(detail::prod(extents)), m_extents(extents) {}
+        m_data(data), m_size(product(extents)), m_extents(extents) {}
 
     [[nodiscard]] constexpr operator ConstView() const noexcept
     {
@@ -167,7 +122,7 @@ public:
         requires (sizeof...(Ts) == rank_param)
     [[nodiscard]] constexpr element_type& operator()(Ts... inds) const noexcept
     {
-        return m_data[detail::index(m_extents, inds...)];
+        return m_data[array::detail::index(m_extents, inds...)];
     }
 
     template <typename... Ts>
@@ -175,9 +130,9 @@ public:
     [[nodiscard]] constexpr MDSpan<element_type, rank_param - sizeof...(Ts)>
     operator()(Ts... inds) const noexcept
     {
-        const index_type ind = detail::index(m_extents, inds...);
-        const std::array<index_type, rank_param - sizeof...(Ts)> new_extents = detail::last<rank_param - sizeof...(Ts)>(m_extents);
-        const size_type new_size = detail::prod(new_extents);
+        const index_type ind = array::detail::index(m_extents, inds...);
+        const std::array<index_type, rank_param - sizeof...(Ts)> new_extents = take_last<rank_param - sizeof...(Ts)>(m_extents);
+        const size_type new_size = product(new_extents);
         return MDSpan<element_type, rank_param - sizeof...(Ts)>(m_data + ind*new_size, new_size, new_extents);
     }
 

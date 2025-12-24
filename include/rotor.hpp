@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -129,7 +129,7 @@ public:
         constexpr st::SHNorm sh_norm = ExpansionType::norm;
         constexpr st::SHPhase sh_phase = ExpansionType::phase;
 
-        const std::size_t order = expansion.extents();
+        const std::size_t order = expansion.order();
         expand(order);
 
         auto complex_expansion = to_complex_expansion<sh_norm, sh_phase>(expansion);
@@ -320,7 +320,7 @@ public:
         constexpr st::SHNorm sh_norm = ExpansionType::sh_norm;
         constexpr st::SHPhase sh_phase = ExpansionType::sh_phase;
 
-        const std::size_t order = expansion.extents();
+        const std::size_t order = expansion.order();
         expand(order);
 
         auto complex_expansion = to_complex_expansion<sh_norm, sh_phase>(expansion);

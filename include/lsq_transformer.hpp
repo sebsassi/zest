@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -63,14 +63,14 @@ public:
     {
         using FitExpansion = SHSpan<double, IndexingMode::negative, sh_norm_param, sh_phase_param>;
 
-        m_sh_gen.expand(expansion.extents());
+        m_sh_gen.expand(expansion.order());
 
         m_sh_values.reshape(
-                {data.size(), FitExpansion::Layout::size(expansion.extents())});
+                {data.size(), FitExpansion::Layout::size(expansion.order())});
 
         for (size_t i = 0; i < data.size(); ++i)
         {
-            FitExpansion ylm(m_sh_values[i], expansion.extents());
+            FitExpansion ylm(m_sh_values[i], expansion.order());
             m_sh_gen.generate(lon[i], colat[i], ylm);
         }
 
@@ -83,7 +83,7 @@ public:
         }
         else
         {
-            FitExpansion coeffs(m_coeffs.data(), expansion.extents());
+            FitExpansion coeffs(m_coeffs.data(), expansion.order());
             for (auto l : expansion.indices())
             {
                 auto expansion_l = expansion[l];

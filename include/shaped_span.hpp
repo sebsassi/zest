@@ -24,6 +24,8 @@ SOFTWARE.
 #include <cstddef>
 #include <span>
 
+#include "utility.hpp"
+
 namespace zest
 {
 
@@ -72,6 +74,9 @@ public:
 
     [[nodiscard]] constexpr const ShapeType&
     shape() const noexcept { return m_shape; }
+
+    [[nodiscard]] constexpr size_type
+    order() const noexcept requires sequenced<shape_type> { return m_shape.order(); }
 
     [[nodiscard]] constexpr const ShapeType::extent_type&
     extents() const noexcept { return m_shape.extents(); }

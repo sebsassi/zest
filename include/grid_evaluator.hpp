@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -288,7 +288,7 @@ private:
                 auto flm_l = flm[l];
                 for (auto m : expansion_nl.indices())
                 {
-                    std::span<std::array<double, 2>> flm_lm = flm_l[m];
+                    auto flm_lm = flm_l[m];
                     const std::array<double, 2> coeff = expansion_nl[m];
                     for (std::size_t i = 0; i < m_rad_size; ++i)
                     {

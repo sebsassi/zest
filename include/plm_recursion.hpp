@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -127,7 +127,7 @@ private:
     {
         constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
 
-        const std::size_t order = plm.extents();
+        const std::size_t order = plm.order();
         if (order == 0) return;
 
         assert(std::fabs(z) <= 1.0);
@@ -214,7 +214,7 @@ private:
         using PlmVecSpan = AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param, std::dynamic_extent>;
         constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
 
-        const std::size_t order = plm.extents().first;
+        const std::size_t order = plm.order();
         if (order == 0) return;
 
         assert((z.size() == plm[0, 0].vec_size()));
