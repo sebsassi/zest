@@ -47,7 +47,7 @@ namespace detail
     @param angles array of input angles
 */
 void recursive_trig(
-    MDSpan<std::array<double, 2>, 2> trigs, std::span<const double> angles) noexcept;
+    MDSpan<double, std::dynamic_extent, std::dynamic_extent, 2> trigs, std::span<const double> angles) noexcept;
 
 } // namespace detail
 
@@ -119,14 +119,14 @@ public:
 
         m_plm_recursion.plm_real(m_cos_colat, ass_leg);
 
-        MDSpan<std::array<double, 2>, 2> cossin_lon(
-            m_cossin_lon_grid.data(), {order, m_lon_size});
+        MDSpan<double, std::dynamic_extent, std::dynamic_extent, 2> cossin_lon(
+            m_cossin_lon_grid.data(), std::array<std::size_t, 3>{order, m_lon_size, 2});
         zest::detail::recursive_trig(cossin_lon, longitudes);
 
         sum_l(expansion);
 
         std::vector<double> res(m_lon_size*m_lat_size);
-        sum_m(MDSpan<double, 2>(res.data(), {m_lon_size, m_lat_size}), order);
+        sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_extent>(res.data(), {m_lon_size, m_lat_size}), order);
 
         return res;
     }
@@ -157,12 +157,12 @@ private:
         }
     }
 
-    void sum_m(MDSpan<double, 2> values, std::size_t order) noexcept;
+    void sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_extent> values, std::size_t order) noexcept;
 
     st::PlmRecursion m_plm_recursion;
     std::vector<double> m_plm_grid;
     std::vector<double> m_cos_colat;
-    std::vector<std::array<double, 2>> m_cossin_lon_grid;
+    std::vector<double> m_cossin_lon_grid;
     std::vector<std::array<double, 2>> m_fm_grid;
     std::size_t m_lon_size{};
     std::size_t m_lat_size{};
@@ -250,15 +250,15 @@ public:
 
         m_plm_recursion.plm_real(m_cos_colat, ass_leg);
 
-        MDSpan<std::array<double, 2>, 2> cossin_lon(
-                m_cossin_lon_grid.data(), {order, m_lon_size});
+        MDSpan<double, std::dynamic_extent, std::dynamic_extent, 2> cossin_lon(
+                m_cossin_lon_grid.data(), {order, m_lon_size, 2});
         zest::detail::recursive_trig(cossin_lon, longitudes);
 
         sum_n(expansion);
         sum_l(order);
 
         std::vector<double> res(m_lon_size*m_lat_size*m_rad_size);
-        sum_m(MDSpan<double, 3>(
+        sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>(
                 res.data(), {m_lon_size, m_lat_size, m_rad_size}), order);
 
         return res;
@@ -302,14 +302,14 @@ private:
 
     void sum_l(std::size_t order) noexcept;
 
-    void sum_m(MDSpan<double, 3> values, std::size_t order) noexcept;
+    void sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent> values, std::size_t order) noexcept;
 
     RadialZernikeRecursion m_zernike_recursion;
     st::PlmRecursion m_plm_recursion;
     std::vector<double> m_zernike_grid;
     std::vector<double> m_plm_grid;
     std::vector<double> m_cos_colat;
-    std::vector<std::array<double, 2>> m_cossin_lon_grid;
+    std::vector<double> m_cossin_lon_grid;
     std::vector<double> m_flm_grid;
     std::vector<std::array<double, 2>> m_fm_grid;
     std::size_t m_lon_size{};

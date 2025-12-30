@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -22,9 +22,6 @@ SOFTWARE.
 #include "linearfit.hpp"
 
 #include <cassert>
-#include <algorithm>
-
-#include "md_span.hpp"
 
 namespace zest
 {
@@ -40,32 +37,11 @@ int dgels_(
 namespace detail
 {
 
-[[nodiscard]] std::vector<double> LinearMultifit::operator()(
-    MDSpan<const double, 2> model, std::span<const double> data)
+void LinearMultifit::dgels_wrapper(std::array<std::size_t, 2> extents)
 {
-    std::vector<double> parameters = std::vector<double>(model.extent(1));
-    operator()(model, parameters, data);
-    return parameters;
-}
-
-void LinearMultifit::operator()(
-    MDSpan<const double, 2> model, std::span<double> parameters, std::span<const double> data)
-{
-    assert(model.extent(0) <= data.size());
-    assert(model.extent(1) <= parameters.size());
-    m_model_data.resize(model.extent(0)*model.extent(1));
-    m_data.resize(std::max(model.extent(0), model.extent(1)));
-
-    std::span<const double> data_view(data.begin(), model.extent(0));
-    std::span<double> parameters_view(parameters.begin(), model.extent(1));
-
-    // Copy because dgels_ will modify data
-    std::ranges::copy(std::span<const double>(model), m_model_data.begin());
-    std::ranges::copy(data_view, m_data.begin());
-    
     // Have to interpret as transpose of Fortran order
-    long int nrows_f = (long int)(model.extent(1));
-    long int ncols_f = (long int)(model.extent(0));
+    auto nrows_f = (long int)(extents[1]);
+    auto ncols_f = (long int)(extents[0]);
     char trans = 'T';
 
     long int lda = nrows_f;
@@ -74,7 +50,7 @@ void LinearMultifit::operator()(
     long int lwork = -1;
     long int info = 0;
     long int nrhs = 1;
-    
+
     // Must be double because LAPACK is stupidly designed
     double work_size = -1.0; 
 
@@ -86,9 +62,7 @@ void LinearMultifit::operator()(
     lwork = (long int)(work_size);
     dgels_(&trans, &nrows_f, &ncols_f, &nrhs, m_model_data.data(), &lda, m_data.data(), &ldb, work.data(), &lwork, &info);
 
-    std::copy_n(m_data.begin(), parameters_view.size(), parameters_view.begin());
-
-    // Everything above hurts me physically but at least we're out
+    // Did I ever tell you how much I hate the interfaces of these old Fortran libraries?
 }
 
 } // namespace detail

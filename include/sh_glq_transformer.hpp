@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -21,27 +21,28 @@ SOFTWARE.
 */
 #pragma once
 
-#include <span>
-#include <vector>
 #include <array>
 #include <complex>
-#include <type_traits>
 #include <concepts>
+#include <span>
+#include <type_traits>
+#include <vector>
 
 #include "pocketfft_spec.hpp"
 
 #include "alignment.hpp"
-#include "plm_recursion.hpp"
 #include "gauss_legendre.hpp"
 #include "md_span.hpp"
+#include "plm_recursion.hpp"
+#include "zernike_expansion.hpp"
 
-namespace zest
-{
-namespace st
+
+namespace zest::st
 {
 
 /**
-    @brief Longitudinally contiguous layout for storing a Gauss-Legendre quadrature grid.
+    @brief Longitudinally contiguous layout for storing a Gauss-Legendre
+    quadrature grid.
 
     @tparam AlignmentType byte alignment of the grid
 */
@@ -118,7 +119,8 @@ struct LatLonLayout
 };
 
 /**
-    @brief Latitudinally contiguous layout for storing a Gauss-Legendre quadrature grid.
+    @brief Latitudinally contiguous layout for storing a Gauss-Legendre
+    quadrature grid.
 
     @tparam AlignmentType byte alignment of the grid
 */
@@ -197,7 +199,8 @@ struct LonLatLayout
 using DefaultLayout = LonLatLayout<>;
 
 /**
-    @brief A non-owning view on data modeling a Gauss-Legendre quadrature grid on the sphere.
+    @brief A non-owning view on data modeling a Gauss-Legendre quadrature grid
+    on the sphere.
 
     @tparam ElementType type of elements in the grid
     @tparam LayoutType grid layout
@@ -270,7 +273,8 @@ protected:
     friend SphereGLQGridSpan<std::remove_const_t<element_type>, Layout>;
 
     constexpr SphereGLQGridSpan(
-        element_type* data, std::size_t size, const std::array<std::size_t, 2>& extents, std::size_t order) noexcept:
+        element_type* data, std::size_t size, const std::array<std::size_t, 2>& extents,
+        std::size_t order) noexcept:
         MDSpan<ElementType, 2>(data, size, extents), m_order(order) {}
 
 private:
@@ -361,7 +365,8 @@ private:
 };
 
 /**
-    @brief Concept enforcing a type to be either `SphereGLQGrid` or `SphereGLQGridSpan`.
+    @brief Concept enforcing a type to be either `SphereGLQGrid` or
+    `SphereGLQGridSpan`.
 */
 template <typename T>
 concept sphere_glq_grid
@@ -436,7 +441,7 @@ public:
     template <sphere_glq_grid GridType, typename FuncType>
         requires std::same_as<
             typename std::remove_cvref_t<GridType>::Layout, GridLayout>
-    void generate_values(GridType&& grid, FuncType&& f)
+    void generate_values(GridType& grid, FuncType&& f)
     {
         resize(grid.order());
 
@@ -504,7 +509,8 @@ private:
 };
 
 /**
-    @brief Transformations between a Gauss-Legendre quadrature grid representation and spherical harmonic expansion representation of real data.
+    @brief Transformations between a Gauss-Legendre quadrature grid
+    representation and spherical harmonic expansion representation of real data.
 
     @tparam sh_norm_param normalization convention of spherical harmonics
     @tparam sh_phase_param phase convention of spherical harmonics
@@ -515,9 +521,20 @@ template <
     typename GridLayoutType = DefaultLayout>
 class GLQTransformer
 {
+private:
+    template <typename T, std::size_t... Ns>
+    using AssLegSpan = AssociatedLegendreSpan<T, sh_norm_param, sh_phase_param, Ns...>;
+
+    using AssLegShape = AssociatedLegendreShape<sh_norm_param, sh_phase_param>;
+
 public:
-    using GridLayout = GridLayoutType;
-    using SHLayout = TriangleLayout<IndexingMode::nonnegative>;
+    using grid_layout_type = GridLayoutType;
+
+    template <typename T>
+    using grid_span_type = SphereGLQGridSpan<T, grid_layout_type>;
+
+    template <typename T>
+    using sh_span_type = SHSpan<T, IndexingMode::nonnegative, sh_norm_param, sh_phase_param>;
 
     static constexpr SHNorm norm = sh_norm_param;
     static constexpr SHPhase phase = sh_phase_param;
@@ -528,43 +545,42 @@ public:
         m_pocketfft_stride_fft(2) {}
     explicit GLQTransformer(std::size_t order):
         m_recursion(order),
-        m_glq_nodes(gl::PackedLayout::size(GridLayout::lat_size(order))),
-        m_glq_weights(gl::PackedLayout::size(GridLayout::lat_size(order))),
-        m_plm_grid(GridLayout::lat_size(order)*SHLayout::size(order)),
-        m_ffts(GridLayout::lat_size(order)*GridLayout::fft_size(order)), m_symm_asymm(GridLayout::fft_size(order)*((GridLayout::lat_size(order) + 1) >> 1)*2),
+        m_glq_nodes(gl::PackedLayout::size(grid_layout_type::lat_size(order))),
+        m_glq_weights(gl::PackedLayout::size(grid_layout_type::lat_size(order))),
+        m_plm_grid(grid_layout_type::lat_size(order)*AssLegShape::size(order)),
+        m_ffts(grid_layout_type::lat_size(order)*grid_layout_type::fft_size(order)),
+        m_symm_asymm(grid_layout_type::fft_size(order)*((grid_layout_type::lat_size(order) + 1) >> 1)*2),
         m_pocketfft_shape_grid(2),
         m_pocketfft_stride_grid(2),
         m_pocketfft_stride_fft(2),
         m_order(order)
     {
         gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::cos>(
-                m_glq_nodes, m_glq_weights, GridLayout::lat_size(order) & 1);
-        
-        if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
+                m_glq_nodes, m_glq_weights, grid_layout_type::lat_size(order) & 1);
+
+        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
             {
                 const double z = m_glq_nodes[i];
-                PlmSpan<double, sh_norm_param, sh_phase_param> plm(
-                        m_plm_grid.data() + i*SHLayout::size(order), 
-                        order);
+                AssLegSpan<double> plm(m_plm_grid.data() + i*AssLegShape::size(order), order);
                 m_recursion.plm_real(z, plm);
             }
         }
-        else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
+        else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            PlmVecSpan<double, sh_norm_param, sh_phase_param> plm(m_plm_grid, order, m_glq_nodes.size());
+            AssLegSpan<double, std::dynamic_extent> plm(m_plm_grid, order, m_glq_nodes.size());
             m_recursion.plm_real(m_glq_nodes, plm);
         }
 
-        auto shape = GridLayout::shape(order);
+        auto shape = grid_layout_type::shape(order);
         m_pocketfft_shape_grid[0] = shape[0];
         m_pocketfft_shape_grid[1] = shape[1];
 
         m_pocketfft_stride_grid[0] = long(shape[1]*sizeof(double));
         m_pocketfft_stride_grid[1] = sizeof(double);
 
-        auto fft_stride = GridLayout::fft_stride(order);
+        auto fft_stride = grid_layout_type::fft_stride(order);
         m_pocketfft_stride_fft[0] = long(fft_stride[0]*sizeof(std::complex<double>));
         m_pocketfft_stride_fft[1] = fft_stride[1]*sizeof(std::complex<double>);
     }
@@ -583,40 +599,38 @@ public:
 
         m_recursion.expand(order);
 
-        m_glq_nodes.resize(gl::PackedLayout::size(GridLayout::lat_size(order)));
-        m_glq_weights.resize(gl::PackedLayout::size(GridLayout::lat_size(order)));
+        m_glq_nodes.resize(gl::PackedLayout::size(grid_layout_type::lat_size(order)));
+        m_glq_weights.resize(gl::PackedLayout::size(grid_layout_type::lat_size(order)));
         gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::cos>(
-                m_glq_nodes, m_glq_weights, GridLayout::lat_size(order) & 1);
-        m_plm_grid.resize(m_glq_weights.size()*SHLayout::size(order));
-        
-        if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
+                m_glq_nodes, m_glq_weights, grid_layout_type::lat_size(order) & 1);
+        m_plm_grid.resize(m_glq_weights.size()*AssLegShape::size(order));
+
+        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
             {
                 const double z = m_glq_nodes[i];
-                PlmSpan<double, sh_norm_param, sh_phase_param> plm(
-                        m_plm_grid.data() + i*SHLayout::size(order), 
-                        order);
+                AssLegSpan<double> plm(m_plm_grid.data() + i*AssLegShape::size(order), order);
                 m_recursion.plm_real(z, plm);
             }
         }
-        else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
+        else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            PlmVecSpan<double, sh_norm_param, sh_phase_param> plm(m_plm_grid, order, m_glq_nodes.size());
+            AssLegSpan<double, std::dynamic_extent> plm(m_plm_grid, order, m_glq_nodes.size());
             m_recursion.plm_real(m_glq_nodes, plm);
         }
 
-        m_ffts.resize(GridLayout::lat_size(order)*GridLayout::fft_size(order));
-        m_symm_asymm.resize(GridLayout::fft_size(order)*((GridLayout::lat_size(order) + 1) >> 1)*2);
+        m_ffts.resize(grid_layout_type::lat_size(order)*grid_layout_type::fft_size(order));
+        m_symm_asymm.resize(grid_layout_type::fft_size(order)*((grid_layout_type::lat_size(order) + 1) >> 1)*2);
 
-        auto shape = GridLayout::shape(order);
+        auto shape = grid_layout_type::shape(order);
         m_pocketfft_shape_grid[0] = shape[0];
         m_pocketfft_shape_grid[1] = shape[1];
 
         m_pocketfft_stride_grid[0] = long(shape[1]*sizeof(double));
         m_pocketfft_stride_grid[1] = sizeof(double);
 
-        auto fft_stride = GridLayout::fft_stride(order);
+        auto fft_stride = grid_layout_type::fft_stride(order);
         m_pocketfft_stride_fft[0] = long(fft_stride[0]*sizeof(std::complex<double>));
         m_pocketfft_stride_fft[1] = fft_stride[1]*sizeof(std::complex<double>);
 
@@ -624,43 +638,45 @@ public:
     }
 
     /**
-        @brief Forward transform from Gauss-Legendre quadrature grid to spherical harmonic coefficients.
+        @brief Forward transform from Gauss-Legendre quadrature grid to
+        spherical harmonic coefficients.
 
         @param values values on the spherical quadrature grid
         @param expansion coefficients of the expansion
     */
     void forward_transform(
-        SphereGLQGridSpan<const double, GridLayout> values,
-        RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
+        SphereGLQGridSpan<const double, grid_layout_type> values,
+        SHSpan<double, IndexingMode::nonnegative, norm, phase> expansion)
     {
         resize(values.order());
-        
+
         integrate_longitudinal(values);
 
         fft_to_symm_asymm();
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> truncated_expansion(expansion.data(), min_order);
+        SHSpan<double, IndexingMode::nonnegative, norm, phase> truncated_expansion(expansion.data(), min_order);
 
         integrate_latitudinal(truncated_expansion);
     }
 
     /**
-        @brief Backward transform from spherical harmonic expansion to Gauss-Legendre quadrature grid.
+        @brief Backward transform from spherical harmonic expansion to
+        Gauss-Legendre quadrature grid.
 
         @param expansion coefficients of the expansion
         @param values values on the spherical quadrature grid
     */
     void backward_transform(
-        RealSHSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion,
-        SphereGLQGridSpan<double, GridLayout> values)
+        SHSpan<const double, IndexingMode::nonnegative, norm, phase> expansion,
+        SphereGLQGridSpan<double, grid_layout_type> values)
     {
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
-        
-        RealSHSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> truncated_expansion(expansion.data(), min_order);
+
+        SHSpan<const double, IndexingMode::nonnegative, norm, phase> truncated_expansion(expansion.data(), min_order);
 
         sum_l(truncated_expansion);
         symm_asymm_to_fft();
@@ -668,97 +684,93 @@ public:
     }
 
     /**
-        @brief Backward transform from spherical harmonic expansion of even or odd parity to Gauss-Legendre quadrature grid.
+        @brief Backward transform from spherical harmonic expansion of even or
+        odd parity to Gauss-Legendre quadrature grid.
 
         @tparam Expansion type of expansion
 
         @param expansion coefficients of the expansion
         @param values values on the spherical quadrature grid
 
-        @note A spherical harmonic expansion has even/odd parity if the first index of all nonzero coefficients has even/odd parity.
+        @note A spherical harmonic expansion has even/odd parity if the first
+        index of all nonzero coefficients has even/odd parity.
     */
-    template <row_skipping_real_sh_expansion Expansion>
-        requires (std::remove_cvref_t<Expansion>::norm == sh_norm_param)
-        && (std::remove_cvref_t<Expansion>::phase == sh_phase_param)
-        && std::same_as<
-            typename std::remove_cvref_t<Expansion>::value_type, 
-            std::array<double, 2>>
-        && has_parity<Expansion>
+    template <zt::ZernikeNorm zernike_norm>
     void backward_transform(
-        Expansion&& expansion, SphereGLQGridSpan<double, GridLayout> values)
+        typename zt::ZernikeSpan<double, IndexingMode::nonnegative, zernike_norm, norm, phase>::template subspan<1>& expansion,
+        SphereGLQGridSpan<double, grid_layout_type> values)
     {
+        using ExpansionType = typename zt::ZernikeSpan<double, IndexingMode::nonnegative, zernike_norm, norm, phase>::template subspan<1>;
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
-        
-        typename std::remove_cvref_t<Expansion>::ConstView truncated_expansion(
-                expansion.data(), min_order);
-        
+
+        typename ExpansionType::const_view truncated_expansion(expansion.data(), min_order);
+
         sum_l(truncated_expansion);
         symm_asymm_to_fft();
         sum_m(values);
     }
-    
+
     /**
-        @brief Forward transform from Gauss-Legendre quadrature grid to spherical harmonic coefficients.
+        @brief Forward transform from Gauss-Legendre quadrature grid to
+        spherical harmonic coefficients.
 
         @param values values on the spherical quadrature grid
         @param order order of expansion
     */
-    [[nodiscard]] RealSHExpansion<sh_norm_param, sh_phase_param>
+    [[nodiscard]] SHExpansion<double, IndexingMode::nonnegative, norm, phase>
     forward_transform(
-        SphereGLQGridSpan<const double, GridLayout> values, std::size_t order)
+        SphereGLQGridSpan<const double, grid_layout_type> values, std::size_t order)
     {
-        RealSHExpansion<sh_norm_param, sh_phase_param> expansion(order);
+        SHExpansion<double, IndexingMode::nonnegative, norm, phase> expansion(order);
         forward_transform(values, expansion);
         return expansion;
     }
 
     /**
-        @brief Backward transform from spherical harmonic coefficients to Gauss-Legendre quadrature grid.
+        @brief Backward transform from spherical harmonic coefficients to
+        Gauss-Legendre quadrature grid.
 
         @param values values on the spherical quadrature grid
         @param expansion coefficients of the expansion
     */
-    [[nodiscard]] SphereGLQGrid<double, GridLayout> backward_transform(
-        RealSHSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion, std::size_t order)
+    [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
+        SHSpan<const double, IndexingMode::nonnegative, norm, phase> expansion, std::size_t order)
     {
-        SphereGLQGrid<double, GridLayout> grid(order);
+        SphereGLQGrid<double, grid_layout_type> grid(order);
         backward_transform(expansion, grid);
         return grid;
     }
 
     /**
-        @brief Backward transform from spherical harmonic expansion of even or odd parity to Gauss-Legendre quadrature grid.
+        @brief Backward transform from spherical harmonic expansion of even or
+        odd parity to Gauss-Legendre quadrature grid.
 
         @tparam Expansion type of expansion
 
         @param expansion coefficients of the expansion
         @param values values on the spherical quadrature grid
 
-        @note A spherical harmonic expansion has even/odd parity if the first index of all nonzero coefficients has even/odd parity.
+        @note A spherical harmonic expansion has even/odd parity if the first
+        index of all nonzero coefficients has even/odd parity.
     */
-    template <row_skipping_real_sh_expansion Expansion>
-        requires (std::remove_cvref_t<Expansion>::norm == sh_norm_param)
-        && (std::remove_cvref_t<Expansion>::phase == sh_phase_param)
-        && std::same_as<
-            typename std::remove_cvref_t<Expansion>::value_type, 
-            std::array<double, 2>>
-        && has_parity<Expansion>
-    [[nodiscard]] SphereGLQGrid<double, GridLayout> backward_transform(
-        Expansion&& expansion, std::size_t order)
+    template <zt::ZernikeNorm zernike_norm>
+    [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
+        typename zt::ZernikeSpan<const double, IndexingMode::nonnegative, zernike_norm, norm, phase>::template subspan<1>& expansion,
+        std::size_t order)
     {
-        SphereGLQGrid<double, GridLayout> grid(order);
+        SphereGLQGrid<double, grid_layout_type> grid(order);
         backward_transform(expansion, grid);
         return grid;
     }
 
 private:
     void integrate_longitudinal(
-        SphereGLQGridSpan<const double, GridLayout> values)
+        SphereGLQGridSpan<const double, grid_layout_type> values)
     {
-        constexpr std::size_t lon_axis = GridLayout::lon_axis;
-        constexpr double sh_normalization = normalization<sh_norm_param>();
+        constexpr std::size_t lon_axis = grid_layout_type::lon_axis;
+        constexpr double sh_normalization = normalization<norm>();
         const double prefactor = sh_normalization*(2.0*std::numbers::pi)/double(values.shape()[lon_axis]);
         pocketfft::r2c(
             m_pocketfft_shape_grid, m_pocketfft_stride_grid, m_pocketfft_stride_fft, lon_axis, pocketfft::FORWARD, values.flatten().data(), m_ffts.data(), prefactor);
@@ -767,8 +779,8 @@ private:
     void apply_gl_weights() noexcept
     {
         const std::size_t num_lat = m_glq_weights.size();
-        const std::size_t fft_order = GridLayout::fft_size(m_order);
-        if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
+        const std::size_t fft_order = grid_layout_type::fft_size(m_order);
+        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t i = 0; i < num_lat; ++i)
             {
@@ -780,7 +792,7 @@ private:
                 }
             }
         }
-        else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
+        else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t m = 0; m < fft_order; ++m)
             {
@@ -795,28 +807,46 @@ private:
     }
 
     /*
-    Apply Gauss-Legendre weights and divide Fourier transforms into symmetric and antisymmetric parts, `f(x) + f(-x)` and `f(x) - f(-x)`, where `x` are the Legendre nodes.
+    Apply Gauss-Legendre weights and divide Fourier transforms into symmetric
+    and antisymmetric parts, `f(x) + f(-x)` and `f(x) - f(-x)`, where `x` are
+    the Legendre nodes.
 
-    This division is useful to reduce operation count in the latitudinal integration stage due to symmetry properties of the associated legendre functions. Namely, `P_lm(-x) = (-1)^(l+m)*P_lm(x)`. This means that for `l + m` even, the integration is over the symmetric parts, and for `l + m` odd, it is over the antisymmetric parts.
+    This division is useful to reduce operation count in the latitudinal
+    integration stage due to symmetry properties of the associated legendre
+    functions. Namely, `P_lm(-x) = (-1)^(l+m)*P_lm(x)`. This means that for
+    `l + m` even, the integration is over the symmetric parts, and for `l + m`
+    odd, it is over the antisymmetric parts.
 
-    The final symmetric and antisymmetric parts have a very specific memory layout. Given number of latitudes `num_lat`, there are `(num_lat + 1)/2` symmetric and antisymmetric components. These are denoted `+` and `-` for symmetric and antisymmetric, respectively. The layout differs in an expected way depending on whether `GridLayout` is latitude or longitude major. Namely, for latitude major order `+` and `-` refer to blocks of `(num_lat + 1)/2` complex numbers, whereas for longitude major order they refer to individual complex numbers.
-    
-    Given `m` denoting the order of the Fourier transform, these components are then stored in memory as two alternating sequences:
+    The final symmetric and antisymmetric parts have a very specific memory
+    layout. Given number of latitudes `num_lat`, there are `(num_lat + 1)/2`
+    symmetric and antisymmetric components. These are denoted `+` and `-` for
+    symmetric and antisymmetric, respectively. The layout differs in an
+    expected way depending on whether `GridLayout` is latitude or longitude
+    major. Namely, for latitude major order `+` and `-` refer to blocks of
+    `(num_lat + 1)/2` complex numbers, whereas for longitude major order they
+    refer to individual complex numbers.
+
+    Given `m` denoting the order of the Fourier transform, these components
+    are then stored in memory as two alternating sequences:
     `m 0 1 2 3 4 5 6 7 8 ...`
     `s + - + - + - + - + ...`
     `a - + - + - + - + - ...`
-    In the latitudinal integration step, for even `l` the sequence `s` starting with the symmetric components is chosen, and for odd `l` the sequence `a` starting with the antisymmetric components is chosen. This leads to a moderately cache efficient access pattern in the latitudinal integration step.
+    In the latitudinal integration step, for even `l` the sequence `s`
+    starting with the symmetric components is chosen, and for odd `l` the
+    sequence `a` starting with the antisymmetric components is chosen. This
+    leads to a moderately cache efficient access pattern in the latitudinal
+    integration step.
     */
     void fft_to_symm_asymm() noexcept
     {
-        const std::size_t fft_order = GridLayout::fft_size(m_order);
-        const std::size_t num_lat = GridLayout::lat_size(m_order);
+        const std::size_t fft_order = grid_layout_type::fft_size(m_order);
+        const std::size_t num_lat = grid_layout_type::lat_size(m_order);
         const std::size_t central_offset = num_lat >> 1;
         const std::size_t num_unique_nodes = m_glq_weights.size();
         const std::size_t south_offset = num_unique_nodes - 1;
         const std::size_t north_offset = central_offset;
 
-        if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
+        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t i = 0; i < num_unique_nodes; ++i)
             {
@@ -825,7 +855,7 @@ private:
                     m_ffts.begin() + (south_offset - i)*fft_order, fft_order);
                 std::span<const std::complex<double>> fft_north(
                     m_ffts.begin() + (north_offset + i)*fft_order, fft_order);
-                
+
                 std::span<std::complex<double>> symm_asymm_i(
                     m_symm_asymm.begin() + 2*i*fft_order, fft_order);
                 std::span<std::complex<double>> asymm_symm_i(
@@ -847,7 +877,7 @@ private:
                 }
             }
         }
-        if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
+        if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
             std::span<std::complex<double>> symm_asymm(
                 m_symm_asymm.begin(), num_unique_nodes*fft_order);
@@ -864,7 +894,7 @@ private:
                     symm_asymm.begin() + num_unique_nodes*m, num_unique_nodes);
                 std::span<std::complex<double>> asymm_symm_m(
                     asymm_symm.begin() + num_unique_nodes*m, num_unique_nodes);
-                    
+
                 for (std::size_t i = 0; i < num_unique_nodes; ++i)
                 {
                     const double weight = m_glq_weights[i];
@@ -884,20 +914,18 @@ private:
     }
 
     void integrate_latitudinal(
-        RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion) noexcept
+        SHSpan<double, IndexingMode::nonnegative, norm, phase> expansion) noexcept
     {
-        const std::size_t fft_order = GridLayout::fft_size(m_order);
+        const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
 
         std::span coeffs = expansion.flatten();
         std::ranges::fill(coeffs, std::array<double, 2>{});
-        if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
+        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t i = 0; i < num_unique_nodes; ++i)
             {
-                PlmSpan<double, sh_norm_param, sh_phase_param> ass_leg(
-                        m_plm_grid.data() + i*SHLayout::size(m_order), 
-                        m_order);
+                AssLegSpan<const double> ass_leg(m_plm_grid.data() + i*AssLegShape::size(m_order), m_order);
                 std::span plm_flat = ass_leg.flatten();
                 for (auto l : expansion.indices())
                 {
@@ -907,17 +935,16 @@ private:
                         m_symm_asymm.begin() + (2*i + (l & 1))*fft_order, fft_order);
                     for (auto m : expansion_l.indices())
                     {
-                        expansion_l[m][0] += ass_leg_l[m]*fft[m].real();
-                        expansion_l[m][1] += ass_leg_l[m]*fft[m].imag();
+                        expansion_l[m, 0] += ass_leg_l[m]*fft[m].real();
+                        expansion_l[m, 1] += ass_leg_l[m]*fft[m].imag();
                     }
                 }
             }
         }
-        else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
+        else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
             const std::size_t num_plm = num_unique_nodes;
-            PlmVecSpan<double, sh_norm_param, sh_phase_param>
-            ass_leg(m_plm_grid.data(), m_order, num_plm);
+            AssLegSpan<double, std::dynamic_extent> ass_leg(m_plm_grid.data(), m_order, num_plm);
             for (auto l : expansion.indices())
             {
                 auto expansion_l = expansion[l];
@@ -927,10 +954,10 @@ private:
                     m_symm_asymm.begin() + (l & 1)*num_plm*fft_order, num_plm*fft_order);
                 for (auto m : expansion_l.indices())
                 {
-                    std::span<const double> ass_leg_lm = ass_leg_l[m];
+                    auto ass_leg_lm = ass_leg_l[m];
                     std::span<const std::complex<double>> fft(
                         ffts.begin() + m*num_plm, num_plm);
-                    
+
                     std::array<double, 2> coeff{};
                     switch (num_plm & 3)
                     {
@@ -967,74 +994,70 @@ private:
                         coeff[1] += partial_sum[i + 1];
                     }
 
-                    expansion_l[m] = coeff;
+                    expansion_l[m, 0] = coeff[0];
+                    expansion_l[m, 1] = coeff[1];
                 }
             }
         }
     }
 
     void sum_l(
-        RealSHSpan<const std::array<double, 2>, sh_norm_param, sh_phase_param> expansion) noexcept
+        SHSpan<const double, IndexingMode::nonnegative, norm, phase> expansion) noexcept
     {
-        const std::size_t fft_order = GridLayout::fft_size(m_order);
+        const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
         const std::size_t num_plm = num_unique_nodes;
 
         std::ranges::fill(m_symm_asymm, std::complex<double>{});
 
-        if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
+        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t i = 0; i < num_plm; ++i)
             {
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
-                PlmSpan<double, sh_norm_param, sh_phase_param> plm(
-                        m_plm_grid.data() + i*SHLayout::size(m_order), 
-                        m_order);
+                AssLegSpan<const double> plm( m_plm_grid.data() + i*AssLegShape::size(m_order), m_order);
                 std::span plm_flat = plm.flatten();
                 for (auto l : expansion.indices())
                 {
                     auto plm_l = plm[l];
                     auto expansion_l = expansion[l];
                     symm_asymm[(l & 1)*fft_order] += std::complex<double>{
-                        plm_l[0]*expansion_l[0][0], -plm_l[0]*expansion_l[0][1]
+                        plm_l[0]*expansion_l[0, 0], -plm_l[0]*expansion_l[0, 1]
                     };
                     for (auto m : expansion_l.indices(1))
                     {
                         const double weight = 0.5*plm_l[m];
                         symm_asymm[(l & 1)*fft_order + m]
                             += std::complex<double>{
-                                weight*expansion_l[m][0],
-                                -weight*expansion_l[m][1]
+                                weight*expansion_l[m, 0],
+                                -weight*expansion_l[m, 1]
                             };
                     }
                 }
             }
         }
-        else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
+        else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            PlmVecSpan<const double, sh_norm_param, sh_phase_param> ass_leg(
-                    m_plm_grid, m_order, num_plm);
+            AssLegSpan<const double, std::dynamic_extent> ass_leg(m_plm_grid, m_order, num_plm);
 
             std::span coeffs = expansion.flatten();
             for (auto l : expansion.indices())
             {
                 auto expansion_l = expansion[l];
                 auto ass_leg_l = ass_leg[l];
-                const std::array<double, 2> coeff = expansion_l[0];
                 std::span<const double> ass_leg_l0 = ass_leg_l[0];
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + (l & 1)*num_plm*fft_order, num_plm);
                 for (std::size_t i = 0; i < num_plm; ++i)
                 {
                     symm_asymm[i] += std::complex<double>{
-                        ass_leg_l0[i]*coeff[0], -ass_leg_l0[i]*coeff[1]
+                        ass_leg_l0[i]*expansion_l[0, 0], -ass_leg_l0[i]*expansion_l[0, 1]
                     };
                 }
 
                 for (auto m : expansion_l.indices(1))
                 {
-                    const std::array<double, 2> coeff = expansion_l[m];
                     std::span<const double> ass_leg_lm = ass_leg_l[m];
                     std::span<std::complex<double>> symm_asymm(
                         m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_plm, num_plm);
@@ -1042,7 +1065,7 @@ private:
                     {
                         const double weight = 0.5*ass_leg_lm[i];
                         symm_asymm[i] += std::complex<double>{
-                            weight*coeff[0], -weight*coeff[1]
+                            weight*expansion_l[m, 0], -weight*expansion_l[m, 1]
                         };
                     }
                 }
@@ -1050,73 +1073,62 @@ private:
         }
     }
 
-    template <row_skipping_real_sh_expansion Expansion>
-        requires (std::remove_cvref_t<Expansion>::norm == sh_norm_param)
-        && (std::remove_cvref_t<Expansion>::phase == sh_phase_param)
-        && std::same_as<
-            typename std::remove_cvref_t<Expansion>::value_type, 
-            std::array<double, 2>>
-    void sum_l(Expansion&& expansion) noexcept
+    template <zt::ZernikeNorm zernike_norm>
+    void sum_l(typename zt::ZernikeSpan<const double, IndexingMode::nonnegative, zernike_norm, norm, phase>::template subshape<1>& expansion) noexcept
     {
-        const std::size_t fft_order = GridLayout::fft_size(m_order);
+        const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
         const std::size_t num_plm = num_unique_nodes;
 
         std::ranges::fill(m_symm_asymm, std::complex<double>{});
 
-        if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
+        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t i = 0; i < num_plm; ++i)
             {
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
-                PlmSpan<double, sh_norm_param, sh_phase_param> plm(
-                        m_plm_grid.data() + i*SHLayout::size(m_order), 
+                AssLegSpan<const double> plm(m_plm_grid.data() + i*AssLegShape::size(m_order), 
                         m_order);
-                std::span plm_flat = plm.flatten();
                 for (auto l : expansion.indices())
                 {
                     auto plm_l = plm[l];
                     auto expansion_l = expansion[l];
                     symm_asymm[(l & 1)*fft_order] += std::complex<double>{
-                        plm_l[0]*expansion_l[0][0], -plm_l[0]*expansion_l[0][1]
+                        plm_l[0]*expansion_l[0, 0], -plm_l[0]*expansion_l[0, 1]
                     };
                     for (auto m : expansion_l.indices(1))
                     {
                         const double weight = 0.5*plm_l[m];
                         symm_asymm[(l & 1)*fft_order + m]
                             += std::complex<double>{
-                                weight*expansion_l[m][0],
-                                -weight*expansion_l[m][1]
+                                weight*expansion_l[m, 0],
+                                -weight*expansion_l[m, 1]
                             };
                     }
                 }
             }
         }
-        else if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
+        else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            PlmVecSpan<const double, sh_norm_param, sh_phase_param> ass_leg(
-                    m_plm_grid, m_order, num_plm);
+            AssLegSpan<const double, std::dynamic_extent> ass_leg(m_plm_grid, m_order, num_plm);
 
-            std::span coeffs = expansion.flatten();
             for (auto l : expansion.indices())
             {
                 auto expansion_l = expansion[l];
                 auto ass_leg_l = ass_leg[l];
-                const std::array<double, 2> coeff = expansion_l[0];
                 std::span<const double> ass_leg_l0 = ass_leg_l[0];
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + (l & 1)*num_plm*fft_order, num_plm);
                 for (std::size_t i = 0; i < num_plm; ++i)
                 {
                     symm_asymm[i] += std::complex<double>{
-                        ass_leg_l0[i]*coeff[0], -ass_leg_l0[i]*coeff[1]
+                        ass_leg_l0[i]*expansion_l[0, 0], -ass_leg_l0[i]*expansion_l[0, 1]
                     };
                 }
 
                 for (auto m : expansion_l.indices(1))
                 {
-                    const std::array<double, 2> coeff = expansion_l[m];
                     std::span<const double> ass_leg_lm = ass_leg_l[m];
                     std::span<std::complex<double>> symm_asymm(
                         m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_plm, num_plm);
@@ -1124,7 +1136,7 @@ private:
                     {
                         const double weight = 0.5*ass_leg_lm[i];
                         symm_asymm[i] += std::complex<double>{
-                            weight*coeff[0], -weight*coeff[1]
+                            weight*expansion_l[m, 0], -weight*expansion_l[m, 1]
                         };
                     }
                 }
@@ -1135,14 +1147,14 @@ private:
     // Inverse of `fft_to_symm_asymm`
     void symm_asymm_to_fft() noexcept
     {
-        const std::size_t fft_order = GridLayout::fft_size(m_order);
-        const std::size_t num_lat = GridLayout::lat_size(m_order);
+        const std::size_t fft_order = grid_layout_type::fft_size(m_order);
+        const std::size_t num_lat = grid_layout_type::lat_size(m_order);
         const std::size_t central_offset = num_lat >> 1;
         const std::size_t num_unique_nodes = m_glq_weights.size();
         const std::size_t south_offset = num_unique_nodes - 1;
         const std::size_t north_offset = central_offset;
 
-        if constexpr (std::same_as<GridLayout, LatLonLayout<typename GridLayout::Alignment>>)
+        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t i = 0; i < num_unique_nodes; ++i)
             {
@@ -1164,7 +1176,7 @@ private:
                 }
             }
         }
-        if constexpr (std::same_as<GridLayout, LonLatLayout<typename GridLayout::Alignment>>)
+        if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
             std::span<std::complex<double>> symm_asymm(
                 m_symm_asymm.begin(), num_unique_nodes*fft_order);
@@ -1181,7 +1193,7 @@ private:
                     symm_asymm.begin() + num_unique_nodes*m, num_unique_nodes);
                 std::span<const std::complex<double>> asymm_symm_m(
                     asymm_symm.begin() + num_unique_nodes*m, num_unique_nodes);
-                    
+
                 for (std::size_t i = 0; i < num_unique_nodes; ++i)
                 {
                     fft_m[north_offset + i] = symm_asymm_m[i] + asymm_symm_m[i];
@@ -1192,12 +1204,14 @@ private:
         }
     }
 
-    void sum_m(SphereGLQGridSpan<double, GridLayout> values)
+    void sum_m(SphereGLQGridSpan<double, grid_layout_type> values)
     {
-        constexpr std::size_t lon_axis = GridLayout::lon_axis;
+        constexpr std::size_t lon_axis = grid_layout_type::lon_axis;
         constexpr double prefactor = 1.0;
         pocketfft::c2r(
-            m_pocketfft_shape_grid, m_pocketfft_stride_fft, m_pocketfft_stride_grid, lon_axis, pocketfft::BACKWARD, m_ffts.data(), values.flatten().data(), prefactor);
+            m_pocketfft_shape_grid, m_pocketfft_stride_fft, m_pocketfft_stride_grid,
+            lon_axis, pocketfft::BACKWARD, m_ffts.data(), values.flatten().data(),
+            prefactor);
     }
 
     PlmRecursion m_recursion;
@@ -1213,7 +1227,8 @@ private:
 };
 
 /**
-    @brief Convenient alias for `GLQTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
+    @brief Convenient alias for `GLQTransformer` with orthonormal spherical
+    harmonics and no Condon-Shortley phase.
 
     @tparam GridLayout
 */
@@ -1222,7 +1237,8 @@ using GLQTransformerAcoustics
     = GLQTransformer<SHNorm::qm, SHPhase::none, GridLayout>;
 
 /**
-    @brief Convenient alias for `GLQTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
+    @brief Convenient alias for `GLQTransformer` with orthonormal spherical
+    harmonics with Condon-Shortley phase.
 
     @tparam GridLayout
 */
@@ -1231,7 +1247,8 @@ using GLQTransformerQM
     = GLQTransformer<SHNorm::qm, SHPhase::cs, GridLayout>;
 
 /**
-    @brief Convenient alias for `GLQTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+    @brief Convenient alias for `GLQTransformer` with 4-pi normal spherical
+    harmonics and no Condon-Shortley phase.
 
     @tparam GridLayout
 */
@@ -1258,7 +1275,8 @@ concept spherical_function = requires (Func f, double lon, double colat)
 };
 
 /**
-    @brief High-level interface for taking SH transforms of functions on balls of arbitrary radii.
+    @brief High-level interface for taking SH transforms of functions on balls
+    of arbitrary radii.
 
     @tparam sh_norm_param normalization convention of spherical harmonics
     @tparam sh_phase_param phase convention of spherical harmonics
@@ -1276,7 +1294,8 @@ public:
         m_grid(order), m_points(order), m_transformer(order) {}
 
     /**
-        @brief Resize the transformer to work with expansions of different order.
+        @brief Resize the transformer to work with expansions of different
+        order.
     */
     void resize(std::size_t order)
     {
@@ -1286,7 +1305,8 @@ public:
     }
 
     /**
-        @brief Get spherical harmonic expansion of a function expressed in spherical coordinates.
+        @brief Get spherical harmonic expansion of a function expressed in
+        spherical coordinates.
 
         @tparam FuncType type of function
 
@@ -1296,15 +1316,16 @@ public:
     template <spherical_function FuncType>
     void transform(
         FuncType&& f,
-        RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
+        SHSpan<double, IndexingMode::nonnegative, sh_norm_param, sh_phase_param> expansion)
     {
         resize(expansion.order());
-        m_points.generate_values(m_grid, f);
+        m_points.generate_values(m_grid, std::forward(f));
         m_transformer.forward_transform(m_grid, expansion);
     }
 
     /**
-        @brief Get spherical harmonic expansion of a function expressed in spherical coordinates.
+        @brief Get spherical harmonic expansion of a function expressed in
+        spherical coordinates.
 
         @tparam FuncType type of function
 
@@ -1314,16 +1335,17 @@ public:
         @returns spherical harmonic expansion
     */
     template <spherical_function FuncType>
-    [[nodiscard]] RealSHExpansion<sh_norm_param, sh_phase_param> transform(
-        FuncType&& f, std::size_t order)
+    [[nodiscard]] SHExpansion<double, IndexingMode::nonnegative, sh_norm_param, sh_phase_param>
+    transform(FuncType&& f, std::size_t order)
     {
         resize(order);
-        m_points.generate_values(m_grid, f);
+        m_points.generate_values(m_grid, std::forward(f));
         return m_transformer.forward_transform(m_grid, order);
     }
 
     /**
-        @brief Get spherical harmonic expansion of a function expressed in Cartesian coordinates.
+        @brief Get spherical harmonic expansion of a function expressed in
+        Cartesian coordinates.
 
         @tparam FuncType type of function
 
@@ -1333,7 +1355,7 @@ public:
     template <cartesian_function FuncType>
     void transform(
         FuncType&& f, 
-        RealSHSpan<std::array<double, 2>, sh_norm_param, sh_phase_param> expansion)
+        SHSpan<double, IndexingMode::nonnegative, sh_norm_param, sh_phase_param> expansion)
     {
         auto f_spherical = [&](double lon, double colat) {
             const double scolat = std::sin(colat);
@@ -1348,7 +1370,8 @@ public:
     }
 
     /**
-        @brief Get spherical harmonic expansion of a function expressed in Cartesian coordinates.
+        @brief Get spherical harmonic expansion of a function expressed in
+        Cartesian coordinates.
 
         @tparam FuncType type of function
 
@@ -1357,8 +1380,8 @@ public:
         @returns spherical harmonic expansion
     */
     template <cartesian_function FuncType>
-    [[nodiscard]] RealSHExpansion<sh_norm_param, sh_phase_param> transform(
-        FuncType&& f, std::size_t order)
+    [[nodiscard]] SHExpansion<double, IndexingMode::nonnegative, sh_norm_param, sh_phase_param>
+    transform(FuncType&& f, std::size_t order)
     {
         auto f_spherical = [&](double lon, double colat) {
             const double scolat = std::sin(colat);
@@ -1379,7 +1402,8 @@ private:
 };
 
 /**
-    @brief Convenient alias for `SHTransformer` with orthonormal spherical harmonics and no Condon-Shortley phase.
+    @brief Convenient alias for `SHTransformer` with orthonormal spherical
+    harmonics and no Condon-Shortley phase.
 
     @tparam GridLayout
 */
@@ -1388,7 +1412,8 @@ using SHTransformerAcoustics
     = SHTransformer<SHNorm::qm, SHPhase::none, GridLayout>;
 
 /**
-    @brief Convenient alias for `SHTransformer` with orthonormal spherical harmonics with Condon-Shortley phase.
+    @brief Convenient alias for `SHTransformer` with orthonormal spherical
+    harmonics with Condon-Shortley phase.
 
     @tparam GridLayout
 */
@@ -1397,7 +1422,8 @@ using SHTransformerQM
     = SHTransformer<SHNorm::qm, SHPhase::cs, GridLayout>;
 
 /**
-    @brief Convenient alias for `SHTransformer` with 4-pi normal spherical harmonics and no Condon-Shortley phase.
+    @brief Convenient alias for `SHTransformer` with 4-pi normal spherical
+    harmonics and no Condon-Shortley phase.
 
     @tparam GridLayout
 */
@@ -1405,5 +1431,5 @@ template <typename GridLayout = DefaultLayout>
 using SHTransformerGeo
     = SHTransformer<SHNorm::geo, SHPhase::none, GridLayout>;
 
-} // namespace st
-} // namespace zest
+} // namespace zest::st
+

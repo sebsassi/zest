@@ -70,6 +70,18 @@ public:
     [[nodiscard]] operator
     const_view() const noexcept { return const_view(m_data.data(), m_shape); }
 
+    [[nodiscard]] constexpr auto
+    tagless() noexcept requires tagged<shape_type>
+    {
+        return ShapedSpan<value_type, typename shape_type::untag>(m_data, m_shape);
+    }
+
+    [[nodiscard]] constexpr auto
+    tagless() const noexcept requires tagged<shape_type>
+    {
+        return ShapedSpan<value_type, typename shape_type::untag>(m_data, m_shape);
+    }
+
     [[nodiscard]] explicit operator
     std::span<value_type>() noexcept { return flatten(); }
 
@@ -80,10 +92,13 @@ public:
     shape() const noexcept { return m_shape; }
 
     [[nodiscard]] size_type
-    order() const noexcept requires sequenced<shape_type> { return m_shape.order(); }
+    order() const noexcept requires sequence_shaped<shape_type> { return m_shape.order(); }
 
     [[nodiscard]] const ShapeType::extent_type&
     extents() const noexcept { return m_shape.extents(); }
+
+    [[nodiscard]] constexpr size_type
+    extent(size_type i) const noexcept requires tensor_shaped<shape_type> { return m_shape.extent(i); }
 
     [[nodiscard]] size_type
     size() const noexcept { return m_data.size(); }

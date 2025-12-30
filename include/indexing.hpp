@@ -31,36 +31,21 @@ namespace zest
 namespace array::detail
 {
 
-template <typename SizeType, std::size_t N, std::size_t I, typename IndexType>
-[[nodiscard]] constexpr IndexType
-index_impl(
-    [[maybe_unused]] const std::array<SizeType, N>& extents, IndexType ind) noexcept
-{
-    return ind;
-}
-
-template <
-    typename SizeType, std::size_t N, std::size_t I, typename IndexType, typename... IndexTypes
->
-    requires (sizeof...(IndexTypes) + 2 <= N)
-[[nodiscard]] constexpr IndexType
-index_impl(
-    const std::array<SizeType, N>& extents, IndexType ind, IndexType next,
-    IndexTypes... inds) noexcept
-{
-    if constexpr (I < N)
-        return index_impl<SizeType, N, I + 1UL>(
-            extents, ind*extents[I] + next, inds...);
-    else
-        return ind;
-}
-
-template <typename SizeType, std::size_t N, typename... IndexTypes>
-    requires (sizeof...(IndexTypes) <= N)
+template <typename SizeType, std::size_t N, typename IndexType, typename... Inds, std::size_t... I>
 [[nodiscard]] constexpr auto
-index(const std::array<SizeType, N>& extents, IndexTypes... inds) noexcept
+index_impl(const std::array<SizeType, N>& extents, std::index_sequence<I...> /*unused*/, IndexType ind, Inds... inds) noexcept
 {
-    return index_impl<SizeType, N, 1UL>(extents, inds...);
+    IndexType res = ind;
+    ([&]{ res = res*IndexType(extents[1 + I]) + IndexType(inds); }(), ...);
+    return res;
+}
+
+template <typename SizeType, std::size_t N, typename... Inds>
+    requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= N)
+[[nodiscard]] constexpr auto
+index(const std::array<SizeType, N>& extents, Inds... inds) noexcept
+{
+    return index_impl<SizeType, N>(extents, std::make_index_sequence<sizeof...(Inds) - 1>{}, inds...);
 }
 
 } // namespace array::detail

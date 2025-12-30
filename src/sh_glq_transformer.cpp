@@ -21,10 +21,9 @@ SOFTWARE.
 */
 #include "sh_glq_transformer.hpp"
 
-namespace zest
-{
-namespace st
+
+namespace zest::st
 {
 
-} // namespace st
-} // namespace zest
+} // namespace zest::st
+

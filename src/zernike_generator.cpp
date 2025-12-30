@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -20,17 +20,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "spans.hpp"
 #include "zernike_generator.hpp"
 
-namespace zest
-{
-namespace zt
+namespace zest::zt
 {
 
 ZernikeGenerator::ZernikeGenerator(std::size_t max_order):
     m_plm_recursion(max_order), m_zernike_recursion(max_order), 
-    m_radial_zernike(RadialZernikeLayout::size(max_order)),
-    m_ass_leg_poly(TriangleLayout<IndexingMode::nonnegative>::size(max_order)), m_cossin(max_order) {}
+    m_radial_zernike(EvenTriangleShape<>::size(max_order)),
+    m_ass_leg_poly(TriangleShape<IndexingMode::nonnegative>::size(max_order)), m_cossin(max_order) {}
 
 void ZernikeGenerator::expand(std::size_t max_order)
 {
@@ -38,10 +37,10 @@ void ZernikeGenerator::expand(std::size_t max_order)
 
     m_plm_recursion.expand(max_order);
     m_zernike_recursion.expand(max_order);
-    m_radial_zernike.resize(RadialZernikeLayout::size(max_order));
-    m_ass_leg_poly.resize(TriangleLayout<IndexingMode::nonnegative>::size(max_order));
+    m_radial_zernike.resize(EvenTriangleShape<>::size(max_order));
+    m_ass_leg_poly.resize(TriangleShape<IndexingMode::nonnegative>::size(max_order));
     m_cossin.resize(max_order);
 }
 
-} // namespace zt
-} // namespace zest
+} // namespace zest::zt
+

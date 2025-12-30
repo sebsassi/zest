@@ -34,4 +34,10 @@ using TriangleShape = TensorSequenceShape<TriangleSequence<indexing_mode_param>,
 template <typename ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
 using TriangleSpan = ShapedSpan<ElementType, TriangleShape<indexing_mode_param, Ns...>>;
 
+template <std::size_t... Ns>
+using EvenTriangleShape = TensorSequenceShape<EvenTriangleSequence, Ns...>;
+
+template <typename ElementType, std::size_t... Ns>
+using EvenTriangleSpan = ShapedSpan<ElementType, EvenTriangleShape<Ns...>>;
+
 } // namespace zest

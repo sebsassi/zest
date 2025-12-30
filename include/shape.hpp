@@ -175,6 +175,9 @@ public:
     [[nodiscard]] constexpr extent_type
     extents() const noexcept { return m_extents; }
 
+    [[nodiscard]] constexpr size_type
+    extent(size_type i) const noexcept { return m_extents[i]; }
+
     template <typename... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < rank)
     [[nodiscard]] constexpr auto
@@ -233,7 +236,7 @@ public:
     using extent_type = std::array<size_type, sizeof...(Ns)>;
 
     static constexpr size_type rank = sizeof...(Ns);
-    static constexpr std::size_t linear_extent = roduct(std::array{Ns...});
+    static constexpr std::size_t linear_extent = product(std::array{Ns...});
     static constexpr extent_type static_extents = std::array{Ns...};
 
 private:
@@ -264,6 +267,9 @@ public:
 
     [[nodiscard]] constexpr extent_type
     extents() const noexcept { return static_extents; }
+
+    [[nodiscard]] constexpr size_type
+    extent(size_type i) const noexcept { return static_extents[i]; }
 
     template <typename... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < rank)
@@ -354,7 +360,7 @@ public:
     size() const noexcept { return m_size; }
 
     [[nodiscard]] constexpr S1::extent_type
-    order() const noexcept requires sequenced<S1>
+    order() const noexcept requires sequence_shaped<S1>
     {
         return m_shapes.first.extents();
     }

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -27,12 +27,13 @@ namespace zest
 {
 
 WignerdPiHalfCollection::WignerdPiHalfCollection(std::size_t max_order):
-    m_matrices((max_order*(max_order + 1)*(2*max_order + 1))/6), m_sqrtl_cache(2*max_order), m_inv_sqrtl_cache(2*max_order), m_max_order(max_order)
+    m_matrices((max_order*(max_order + 1)*(2*max_order + 1))/6),
+    m_sqrtl_cache(2*max_order), m_inv_sqrtl_cache(2*max_order), m_max_order(max_order)
 {
     if (max_order == 0) return;
     for (std::size_t l = 1; l < m_sqrtl_cache.size(); ++l)
         m_sqrtl_cache[l] = std::sqrt(double(l));
-    
+
     for (std::size_t i = 0; i < m_inv_sqrtl_cache.size(); ++i)
         m_inv_sqrtl_cache[i] = 1.0/m_sqrtl_cache[i];
 
@@ -79,7 +80,9 @@ WignerdPiHalfCollection::WignerdPiHalfCollection(std::size_t max_order):
             for (std::size_t i = 2; i <= l - m1; ++i)
             {
                 std::size_t m2 = l - i;
-                m_matrices[idx(l,m2,m1)] = (2.0*double(m1)*m_matrices[idx(l,m2 + 1,m1)] - m_sqrtl_cache[l - m2 - 1]*m_sqrtl_cache[l + m2 + 2]*m_matrices[idx(l,m2 + 2,m1)])*m_inv_sqrtl_cache[l - m2]*m_inv_sqrtl_cache[l + m2 + 1];
+                m_matrices[idx(l,m2,m1)] = (2.0*double(m1)*m_matrices[idx(l,m2 + 1,m1)]
+                        - m_sqrtl_cache[l - m2 - 1]*m_sqrtl_cache[l + m2 + 2]*m_matrices[idx(l,m2 + 2,m1)])
+                    *m_inv_sqrtl_cache[l - m2]*m_inv_sqrtl_cache[l + m2 + 1];
             }
         }
 
@@ -108,7 +111,7 @@ void WignerdPiHalfCollection::expand(std::size_t max_order)
 
     for (std::size_t l = old_size; l < m_sqrtl_cache.size(); ++l)
         m_sqrtl_cache[l] = std::sqrt(double(l));
-    
+
     for (std::size_t i = old_size; i < m_inv_sqrtl_cache.size(); ++i)
         m_inv_sqrtl_cache[i] = 1.0/m_sqrtl_cache[i];
 
@@ -123,7 +126,7 @@ void WignerdPiHalfCollection::expand(std::size_t max_order)
     double d_l0 = -1.0/std::numbers::sqrt2;
     for (std::size_t l = 2; l < m_max_order; ++l)    
         d_l0 *= -m_sqrtl_cache[2*l - 1]/m_sqrtl_cache[2*l];
-    
+
     for (std::size_t l = std::max(m_max_order, 2UL); l < max_order; ++l)
     {
         d_l0 *= -m_sqrtl_cache[2*l - 1]/m_sqrtl_cache[2*l];

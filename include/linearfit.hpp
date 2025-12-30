@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -21,14 +21,13 @@ SOFTWARE.
 */
 #pragma once
 
-#include <vector>
 #include <span>
+#include <vector>
 
 #include "md_span.hpp"
 
-namespace zest
-{
-namespace detail
+
+namespace zest::detail
 {
 
 /**
@@ -47,8 +46,14 @@ public:
 
         @returns `std::vector<double>` containing the fitted parameters
     */
+    template <std::size_t N, std::size_t M>
     [[nodiscard]] std::vector<double> operator()(
-        MDSpan<const double, 2> model, std::span<const double> data);
+        MDSpan<const double, N, M> model, std::span<const double> data)
+    {
+        std::vector<double> parameters = std::vector<double>(model.extent(1));
+        operator()(model, parameters, data);
+        return parameters;
+    }
 
     /**
         @brief Fit parameters to data
@@ -57,14 +62,34 @@ public:
         @param parameters fitted parameters
         @param data data set to fit
     */
+    template <std::size_t N, std::size_t M>
     void operator()(
-        MDSpan<const double, 2> model, std::span<double> parameters, std::span<const double> data);
+        MDSpan<const double, N, M> model, std::span<double> parameters, std::span<const double> data)
+    {
+        assert(model.extent(0) <= data.size());
+        assert(model.extent(1) <= parameters.size());
+        m_model_data.resize(model.extent(0)*model.extent(1));
+        m_data.resize(std::max(model.extent(0), model.extent(1)));
+
+        std::span<const double> data_view(data.begin(), model.extent(0));
+        std::span<double> parameters_view(parameters.begin(), model.extent(1));
+
+        // Copy because dgels_ will modify data
+        std::ranges::copy(std::span<const double>(model), m_model_data.begin());
+        std::ranges::copy(data_view, m_data.begin());
+
+        dgels_wrapper(model.extents());
+
+        std::copy_n(m_data.begin(), parameters_view.size(), parameters_view.begin());
+    }
 
 private:
+    void dgels_wrapper(std::array<std::size_t, 2> extents);
+
     std::vector<double> m_model_data;
     std::vector<double> m_data;
     std::vector<double> work;
 };
 
-} // namespace detail
-} // namespace zest
+} // namespace zest::detail
+

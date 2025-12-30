@@ -30,9 +30,22 @@ namespace zest
 {
 
 template <typename T>
-concept sequenced = requires (T x)
+concept tagged = requires { typename T::untag; };
+
+template <typename T>
+concept sequence_shaped = requires (T x)
     {
         { x.order() } -> std::same_as<typename T::size_type>;
+    };
+
+template <typename T>
+concept tensor_shaped
+    = std::same_as<
+        typename T::extent_type,
+        std::array<typename T::size_type, std::tuple_size_v<typename T::extent_type>>>
+    && requires (T x, typename T::size_type i)
+    {
+        { x.extent(i) } -> std::same_as<typename T::size_type>;
     };
 
 template <typename T>
@@ -137,27 +150,27 @@ concatenate_impl(
 
 } // namespace detail
 
-template <typename T, std::size_t N>
-    requires (std::tuple_size_v<T> <= N)
+template <std::size_t N, typename T>
+    requires (N <= std::tuple_size_v<T>)
 [[nodiscard]] constexpr auto
 take_last(const T& tuple_like) noexcept
 {
-    return take_last_impl(tuple_like, std::make_index_sequence<N>());
+    return detail::take_last_impl(tuple_like, std::make_index_sequence<N>());
 }
 
-template <typename T, std::size_t N>
-    requires (std::tuple_size_v<T> <= N)
+template <std::size_t N, typename T>
+    requires (N <= std::tuple_size_v<T>)
 [[nodiscard]] constexpr auto
 take_first(const T& tuple_like) noexcept
 {
-    return take_first_impl(tuple_like, std::make_index_sequence<N>());
+    return detail::take_first_impl(tuple_like, std::make_index_sequence<N>());
 }
 
 template <typename T, typename S>
 [[nodiscard]] constexpr auto
 append(const T& tuple_like, const S& element) noexcept
 {
-    return append_impl(
+    return detail::append_impl(
         tuple_like, element, std::make_index_sequence<std::tuple_size_v<T>>{});
 }
 
@@ -165,7 +178,7 @@ template <typename T, typename S>
 [[nodiscard]] constexpr auto
 prepend(const S& element, const T& tuple_like) noexcept
 {
-    return prepend_impl(
+    return detail::prepend_impl(
         element, tuple_like, std::make_index_sequence<std::tuple_size_v<T>>{});
 }
 
@@ -173,7 +186,7 @@ template <typename T, typename S>
 [[nodiscard]] constexpr auto
 concatenate(const T& tuple_like_t, const S& tuple_like_s) noexcept
 {
-    return concatenate_impl(
+    return detail::concatenate_impl(
         tuple_like_t, tuple_like_s,
         std::make_index_sequence<std::tuple_size_v<T>>{},
         std::make_index_sequence<std::tuple_size_v<S>>{});

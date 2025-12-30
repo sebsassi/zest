@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -19,9 +19,19 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 SOFTWARE.
 */
+#include <cmath>
+#include <cstddef>
+#include <span>
+#include <vector>
+
 #include "grid_evaluator.hpp"
+#include "sequence.hpp"
+#include "spans.hpp"
 
 namespace zest
+{
+
+namespace
 {
 
 template <std::floating_point T>
@@ -34,40 +44,47 @@ std::vector<T> linspace(T start, T stop, std::size_t count)
     const T step = (stop - start)/T(count - 1);
     for (std::size_t i = 0; i < count - 1; ++i)
         res[i] = start + T(i)*step;
-    
+
     res[count - 1] = stop;
 
     return res;
 }
 
+} // namespace
+
 namespace detail
 {
 
 void recursive_trig(
-    MDSpan<std::array<double, 2>, 2> trigs, std::span<const double> angles) noexcept
+    MDSpan<double, std::dynamic_extent, std::dynamic_extent, 2> trigs, std::span<const double> angles) noexcept
 {
-    MDSpan<std::array<double, 2>, 1> trigs_0 = trigs[0];
+    auto trigs_0 = trigs[0UL];
     for (std::size_t i = 0; i < angles.size(); ++i)
-        trigs_0[i] = {1.0, 0.0};
-    
-    if (trigs.extents()[0] == 1) return;
-
-    MDSpan<std::array<double, 2>, 1> trigs_1 = trigs[1];
-    for (std::size_t i = 0; i < angles.size(); ++i)
-        trigs_1[i] = {std::cos(angles[i]), std::sin(angles[i])};
-    
-    for (std::size_t i = 2; i < trigs.extents()[0]; ++i)
     {
-        MDSpan<std::array<double, 2>, 1> trigs_prev = trigs[i - 1];
-        MDSpan<std::array<double, 2>, 1> trigs_next = trigs[i];
+        trigs_0[i, 0] = 1.0;
+        trigs_0[i, 1] = 0.0;
+    }
+
+    if (trigs.extent(0) == 1) return;
+
+    auto trigs_1 = trigs[1UL];
+    for (std::size_t i = 0; i < angles.size(); ++i)
+    {
+        trigs_1[i, 0] = std::cos(angles[i]);
+        trigs_1[i, 1] = std::sin(angles[i]);
+    }
+
+    for (std::size_t i = 2; i < trigs.extent(0); ++i)
+    {
+        auto trigs_prev = trigs[i - 1];
+        auto trigs_next = trigs[i];
         for (std::size_t j = 0; j < angles.size(); ++j)
         {
-            trigs_next[j] = {
-                trigs_prev[j][0]*trigs_1[j][0] - trigs_prev[j][1]*trigs_1[j][1],
-                trigs_prev[j][0]*trigs_1[j][1] + trigs_prev[j][1]*trigs_1[j][0]
-            };
+            trigs_next[j, 0] = trigs_prev[j, 0]*trigs_1[j, 0] - trigs_prev[j, 1]*trigs_1[j, 1];
+            trigs_next[j, 1] = trigs_prev[j, 0]*trigs_1[j, 1] + trigs_prev[j, 1]*trigs_1[j, 0];
         }
     }
+
 }
 
 } // namespace detail
@@ -75,13 +92,12 @@ void recursive_trig(
 namespace st
 {
 
-GridEvaluator::GridEvaluator(std::size_t max_order):
-    m_plm_recursion(max_order), m_lon_size{}, m_lat_size{},
-    m_max_order(max_order) {}
+st::GridEvaluator::GridEvaluator(std::size_t max_order):
+    m_plm_recursion(max_order), m_max_order(max_order) {}
 
-GridEvaluator::GridEvaluator(
+st::GridEvaluator::GridEvaluator(
     std::size_t max_order, std::size_t lon_size, std::size_t lat_size):
-    m_plm_recursion(max_order), m_plm_grid(PlmLayout::size(max_order)*lat_size),
+    m_plm_recursion(max_order), m_plm_grid(TriangleShape<IndexingMode::nonnegative>::size(max_order)*lat_size),
     m_cos_colat(lat_size), m_cossin_lon_grid(max_order*lon_size),
     m_fm_grid(max_order*lat_size), m_lon_size(lon_size),
     m_lat_size(lat_size), m_max_order(max_order) {}
@@ -95,7 +111,7 @@ void GridEvaluator::resize(
 
     if (m_max_order < max_order || lat_size != m_lat_size)
     {
-        m_plm_grid.resize(PlmLayout::size(max_order)*lat_size);
+        m_plm_grid.resize(TriangleShape<IndexingMode::nonnegative>::size(max_order)*lat_size);
         m_fm_grid.resize(max_order*lat_size);
     }
 
@@ -104,28 +120,27 @@ void GridEvaluator::resize(
 
     if (lat_size != m_lat_size)
         m_cos_colat.resize(lat_size);
-    
+
     m_max_order = max_order;
     m_lon_size = lon_size;
     m_lat_size = lat_size;
 }
 
-void GridEvaluator::sum_m(MDSpan<double, 2> values, std::size_t order) noexcept
+void GridEvaluator::sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_extent> values, std::size_t order) noexcept
 {
-    MDSpan<const std::array<double, 2>, 2> cossin_lon(
-        m_cossin_lon_grid.data(), {order, m_lon_size});
-    
+    MDSpan<const double, std::dynamic_extent, std::dynamic_extent, 2>
+    cossin_lon(m_cossin_lon_grid.data(), {order, m_lon_size, 2});
+
     for (std::size_t m = 0; m < order; ++m)
     {
         std::span<std::array<double, 2>> f_m(
                 m_fm_grid.begin() + m*m_lat_size, m_lat_size);
-        MDSpan<const std::array<double, 2>, 1> cossin_lon_m
-            = cossin_lon[m];
+        auto cossin_lon_m = cossin_lon[m];
         for (std::size_t i = 0; i < m_lon_size; ++i)
         {
-            MDSpan<double, 1> values_i = values[i];
-            const double cos_lon = cossin_lon_m[i][0];
-            const double sin_lon = cossin_lon_m[i][1];
+            auto values_i = values[i];
+            const double cos_lon = cossin_lon_m[i, 0];
+            const double sin_lon = cossin_lon_m[i, 1];
             for (std::size_t j = 0; j < m_lat_size; ++j)
             {
                 values_i[j] += f_m[j][0]*cos_lon + f_m[j][1]*sin_lon;
@@ -147,10 +162,10 @@ GridEvaluator::GridEvaluator(
     std::size_t max_order, std::size_t lon_size, std::size_t lat_size, 
     std::size_t rad_size):
     m_zernike_recursion(max_order), m_plm_recursion(max_order),
-    m_zernike_grid(RadialZernikeLayout::size(max_order)*rad_size),
-    m_plm_grid(st::PlmLayout::size(max_order)*lat_size),
+    m_zernike_grid(EvenTriangleShape<>::size(max_order)*rad_size),
+    m_plm_grid(TriangleShape<IndexingMode::nonnegative>::size(max_order)*lat_size),
     m_cos_colat(lat_size), m_cossin_lon_grid(max_order*lon_size),
-    m_flm_grid(st::PlmLayout::size(max_order)*rad_size),
+    m_flm_grid(TriangleShape<IndexingMode::nonnegative>::size(max_order)*rad_size),
     m_fm_grid(max_order*lat_size*rad_size), m_lon_size(lon_size),
     m_lat_size(lat_size), m_rad_size(rad_size), m_max_order(max_order) {}
 
@@ -166,22 +181,22 @@ void GridEvaluator::resize(
 
     if (lon_size != m_lon_size || max_order < m_max_order)
         m_cossin_lon_grid.resize(max_order*lon_size);
-    
+
     if (lat_size != m_lat_size)
         m_cos_colat.resize(lat_size);
 
     if (lat_size != m_lat_size || max_order < m_max_order)
     {
-        m_zernike_grid.resize(RadialZernikeLayout::size(max_order)*rad_size);
-        m_plm_grid.resize(st::PlmLayout::size(max_order)*lat_size);
+        m_zernike_grid.resize(EvenTriangleShape<>::size(max_order)*rad_size);
+        m_plm_grid.resize(TriangleShape<IndexingMode::nonnegative>::size(max_order)*lat_size);
     }
 
     if (rad_size != m_rad_size || max_order < m_max_order)
-        m_flm_grid.resize(st::PlmLayout::size(max_order)*rad_size);
-    
+        m_flm_grid.resize(TriangleShape<IndexingMode::nonnegative>::size(max_order)*rad_size);
+
     if (rad_size != m_rad_size || lat_size != m_lat_size || max_order < m_max_order)
         m_fm_grid.resize(max_order*lat_size*rad_size);
-    
+
     m_max_order = max_order;
     m_lon_size = lon_size;
     m_lat_size = lat_size;
@@ -190,31 +205,30 @@ void GridEvaluator::resize(
 
 void GridEvaluator::sum_l(std::size_t order) noexcept
 {
-    TriangleVecSpan<
-        const std::array<double, 2>, TriangleLayout<IndexingMode::nonnegative>>
+    TriangleSpan<const double, IndexingMode::nonnegative, 2>
     flm(m_flm_grid, order, m_rad_size);
-    
-    TriangleVecSpan<const double, st::PlmLayout>
-    ass_leg(m_plm_grid.data(), order, m_lat_size);
+
+    TriangleSpan<const double, IndexingMode::nonnegative, 2, std::dynamic_extent>
+    ass_leg(m_plm_grid.data(), order, {2, m_lat_size});
 
     std::ranges::fill(m_fm_grid, std::array<double, 2>{});
-    MDSpan<std::array<double, 2>, 3> fm(
-            m_fm_grid.data(), {order, m_lat_size, m_rad_size});
-    
+    MDSpan<std::array<double, 2>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
+    fm(m_fm_grid.data(), {order, m_lat_size, m_rad_size});
+
     for (auto l : flm.indices())
     {
         auto ass_leg_l = ass_leg[l];
         auto flm_l = flm[l];
         for (auto m : flm_l.indices())
         {
-            std::span<const std::array<double, 2>> flm_lm = flm_l[m];
-            std::span<const double> ass_leg_lm = ass_leg_l[m];
-            
+            auto flm_lm = flm_l[m];
+            auto ass_leg_lm = ass_leg_l[m];
+
             MDSpan<std::array<double, 2>, 2> fm_m = fm[m];
             for (std::size_t i = 0; i < m_lat_size; ++i)
             {
                 const double weight = ass_leg_lm[i];
-                MDSpan<std::array<double, 2>, 1> fm_mi = fm_m[i];
+                auto fm_mi = fm_m[i];
                 for (std::size_t j = 0; j < m_rad_size; ++j)
                 {
                     fm_mi[j][0] += weight*flm_lm[j][0];
@@ -225,22 +239,21 @@ void GridEvaluator::sum_l(std::size_t order) noexcept
     }
 }
 
-void GridEvaluator::sum_m(MDSpan<double, 3> values, std::size_t order) noexcept
+void GridEvaluator::sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent> values, std::size_t order) noexcept
 {
-    MDSpan<const std::array<double, 2>, 2> cossin_lon(
-        m_cossin_lon_grid.data(), {order, m_lon_size});
+    MDSpan<const double, std::dynamic_extent, std::dynamic_extent, 2>
+    cossin_lon(m_cossin_lon_grid.data(), {order, m_lon_size, 2});
 
-    MDSpan<const std::array<double, 2>, 3> fm(
-            m_fm_grid.data(), {order, m_lat_size, m_rad_size});
-    
+    MDSpan<const std::array<double, 2>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
+    fm(m_fm_grid.data(), {order, m_lat_size, m_rad_size});
+
     for (std::size_t m = 0; m < order; ++m)
     {
-        MDSpan<const std::array<double, 2>, 1> cossin_lon_m
-            = cossin_lon[m];
-        MDSpan<const std::array<double, 2>, 2> fm_m = fm[m];
+        auto cossin_lon_m = cossin_lon[m];
+        auto fm_m = fm[m];
         for (std::size_t i = 0; i < m_lon_size; ++i)
         {
-            MDSpan<double, 2> values_i = values[i];
+            auto values_i = values[i];
             const double cos_lon = cossin_lon_m[i][0];
             const double sin_lon = cossin_lon_m[i][1];
             for (std::size_t j = 0; j < m_lat_size; ++j)

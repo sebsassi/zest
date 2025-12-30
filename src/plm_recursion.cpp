@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -23,9 +23,7 @@ SOFTWARE.
 
 #include <cmath>
 
-namespace zest
-{
-namespace st
+namespace zest::st
 {
 
 PlmRecursion::PlmRecursion(std::size_t max_order):
@@ -62,10 +60,10 @@ void PlmRecursion::expand(std::size_t max_order)
     m_sqrl.resize(2*max_order);
     m_alm.resize(max_order*max_order);
     m_blm.resize(max_order*max_order);
-    
+
     for (std::size_t l = prev_sqrl_size; l < m_sqrl.size(); ++l)
         m_sqrl[l] = std::sqrt(double(l));
-    
+
     for (std::size_t l = std::max(2UL, m_max_order); l < max_order; ++l)
     {
         const std::size_t ind = PlmLayout::index(l);
@@ -96,5 +94,5 @@ void PlmRecursion::expand_vec(std::size_t vec_size)
     }
 }
 
-} // namespace st
-} // namespace zest
+} // namespace zest::st
+

@@ -69,6 +69,12 @@ public:
     [[nodiscard]] constexpr operator
     const_view() const noexcept { return const_view(m_data, m_shape); }
 
+    [[nodiscard]] constexpr auto
+    tagless() const noexcept requires tagged<shape_type>
+    {
+        return ShapedSpan<value_type, typename shape_type::untag>(m_data, m_shape);
+    }
+
     [[nodiscard]] explicit constexpr operator
     std::span<value_type>() const noexcept { return flatten(); }
 
@@ -76,13 +82,19 @@ public:
     shape() const noexcept { return m_shape; }
 
     [[nodiscard]] constexpr size_type
-    order() const noexcept requires sequenced<shape_type> { return m_shape.order(); }
+    order() const noexcept requires sequence_shaped<shape_type> { return m_shape.order(); }
 
     [[nodiscard]] constexpr const ShapeType::extent_type&
     extents() const noexcept { return m_shape.extents(); }
 
     [[nodiscard]] constexpr size_type
+    extent(size_type i) const noexcept requires tensor_shaped<shape_type> { return m_shape.extent(i); }
+
+    [[nodiscard]] constexpr size_type
     size() const noexcept { return m_shape.size(); }
+
+    [[nodiscard]] constexpr bool
+    is_empty() const noexcept { return size() == 0; }
 
     [[nodiscard]] constexpr pointer
     data() const noexcept { return m_data; }
@@ -129,4 +141,4 @@ private:
     [[no_unique_address]] shape_type m_shape{};
 };
 
-} // namespace zest
+} //namespace zest

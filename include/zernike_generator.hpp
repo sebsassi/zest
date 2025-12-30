@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -23,23 +23,15 @@ SOFTWARE.
 
 #include <array>
 
-#include "layout.hpp"
 #include "zernike_conventions.hpp"
-#include "sh_conventions.hpp"
-#include "zernike_expansion.hpp"
 #include "plm_recursion.hpp"
 #include "radial_zernike_recursion.hpp"
+#include "sh_conventions.hpp"
+#include "zernike_expansion.hpp"
 
-namespace zest
-{
-namespace zt
-{
 
-template <
-    ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param,
-    st::SHPhase sh_phase_param>
-using ZernikeSpan = RealZernikeSpan<
-    std::array<double, 2>, zernike_norm_param, sh_norm_param, sh_phase_param>;
+namespace zest::zt
+{
 
 /**
      @brief Generator of real Zernike functions.
@@ -78,26 +70,16 @@ public:
         @param r radial coordinate
         @param znlm buffer for Zernike function values
     */
-    template <real_zernike_expansion ZernikeType>
-    void generate(double lon, double colat, double r, ZernikeType&& znlm)
+    template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+    void generate(double lon, double colat, double r, ZernikeSpan<double, indexing_mode, zernike_norm, sh_norm, sh_phase>& znlm)
     {
-        constexpr zt::ZernikeNorm zernike_norm
-            = std::remove_cvref_t<ZernikeType>::zernike_norm;
-        constexpr st::SHNorm sh_norm
-            = std::remove_cvref_t<ZernikeType>::sh_norm;
-        constexpr st::SHPhase sh_phase
-            = std::remove_cvref_t<ZernikeType>::sh_phase;
-        using ZernikeSpan = RealZernikeSpan<
-                typename ZernikeType::element_type, 
-                zernike_norm, sh_norm, sh_phase>;
-        using index_type = typename ZernikeSpan::index_type;
         expand(znlm.order());
 
         const double z = std::cos(colat);
-        auto ass_leg = st::PlmSpan<double, sh_norm, sh_phase>(
+        auto ass_leg = st::AssociatedLegendreSpan<double, sh_norm, sh_phase>(
                 m_ass_leg_poly, znlm.order());
         m_plm_recursion.plm_real(z, ass_leg);
-        
+
         auto radial_zernike = RadialZernikeSpan<double, zernike_norm>(
                 m_radial_zernike, znlm.order());
         m_zernike_recursion.zernike(r, radial_zernike);
@@ -108,37 +90,37 @@ public:
             m_cossin[m] = {std::cos(angle), std::sin(angle)};
         }
 
-        constexpr IndexingMode indexing_mode
-                = ZernikeSpan::Layout::indexing_mode;
         for (auto n : radial_zernike.indices())
         {
             auto radial_zernike_n = radial_zernike[n];
-            auto znlm_n = znlm[index_type(n)];
+            auto znlm_n = znlm[n];
             for (auto l : radial_zernike_n.indices())
             {
                 const double radial_zernike_nl = radial_zernike_n[l];
                 auto ass_leg_l = ass_leg[l];
-                auto znlm_nl = znlm_n[index_type(l)];
+                auto znlm_nl = znlm_n[l];
                 if constexpr (indexing_mode == IndexingMode::negative)
                     znlm_nl[0] = ass_leg_l[0];
                 else if constexpr (indexing_mode == IndexingMode::nonnegative)
-                    znlm_nl[0] = {radial_zernike_nl*ass_leg_l[0], 0.0};
-                
+                {
+                    znlm_nl[0, 0] = radial_zernike_nl*ass_leg_l[0];
+                    znlm_nl[0, 1] = 0.0;
+                }
+
                 for (auto m : ass_leg_l.indices())
                 {
                     const double ass_leg_lm = ass_leg_l[m];
                     const double prefactor = radial_zernike_nl*ass_leg_lm;
                     if constexpr (indexing_mode == IndexingMode::negative)
                     {
-                        znlm_nl[index_type(m)] = prefactor*m_cossin[m][0];
-                        znlm_n[-index_type(m)] = prefactor*m_cossin[m][1];
+                        znlm_nl[m] = prefactor*m_cossin[m][0];
+                        znlm_n[-m] = prefactor*m_cossin[m][1];
                     }
                     else if constexpr (
                         indexing_mode == IndexingMode::nonnegative)
                     {
-                        znlm_n[index_type(m)] = {
-                            prefactor*m_cossin[m][0], prefactor*m_cossin[m][1]
-                        };
+                        znlm_nl[m, 0] = prefactor*m_cossin[m][0];
+                        znlm_nl[m, 1] = prefactor*m_cossin[m][1];
                     }
                 }
             }
@@ -153,5 +135,5 @@ private:
     std::vector<std::array<double, 2>> m_cossin;
 };
 
-} // namespace zt
-} // namespace zest
+} // namespace zest::zt
+
