@@ -31,16 +31,17 @@ SOFTWARE.
 namespace zest
 {
 
-template <typename ElementType, typename ShapeType>
+template <typename ElementType, typename ShapeType, typename Allocator = std::allocator<ElementType>>
 class ShapedArray
 {
 public:
     using value_type = ElementType;
+    using allocator_type = Allocator;
     using size_type = std::size_t;
     using reference = value_type&;
     using const_reference = const value_type&;
-    using pointer = value_type*;
-    using const_pointer = const value_type*;
+    using pointer = std::allocator_traits<allocator_type>::pointer;
+    using const_pointer = std::allocator_traits<allocator_type>::const_pointer;
     using shape_type = ShapeType;
     using index_type = shape_type::index_type;
     using index_range = ShapeType::index_range;
@@ -177,7 +178,7 @@ public:
     }
 
 private:
-    std::vector<ElementType> m_data{};
+    std::vector<ElementType, Allocator> m_data{};
     shape_type m_shape{};
 };
 

@@ -23,25 +23,27 @@ SOFTWARE.
 
 #include <cmath>
 
+#include "spans.hpp"
+
 namespace zest::st
 {
 
 PlmRecursion::PlmRecursion(std::size_t max_order):
     m_sqrl(2*max_order), m_alm(max_order*max_order),
-    m_blm(max_order*max_order), m_u_scaled(), m_u(), m_max_order(max_order)
+    m_blm(max_order*max_order), m_max_order(max_order)
 {
     for (std::size_t l = 1; l < m_sqrl.size(); ++l)
         m_sqrl[l] = std::sqrt(double(l));
 
     for (std::size_t l = 2; l < m_max_order; ++l)
     {
-        const std::size_t ind = PlmLayout::index(l);
+        const std::size_t ind = TriangleShape<IndexingMode::nonnegative>::sequence_type::index(l);
         m_alm[ind] = m_sqrl[2*l - 1]*m_sqrl[2*l + 1]/double(l);
         m_blm[ind] = (double(l) - 1.0)*m_sqrl[2*l + 1]/(m_sqrl[2*l - 3]*double(l));
 
         for (std::size_t m = 1; m < l - 1; ++m)
         {
-            const std::size_t ind = PlmLayout::index(l, m);
+            const std::size_t ind = TriangleShape<IndexingMode::nonnegative>::sequence_type::index(l, m);
             // a(l,m) = sqrt((2l - 1)(2l + 1)/((l - m)(l + m)))
             m_alm[ind] = m_sqrl[2*l - 1]*m_sqrl[2*l + 1]
                     /(m_sqrl[l - m]*m_sqrl[l + m]);
@@ -66,13 +68,13 @@ void PlmRecursion::expand(std::size_t max_order)
 
     for (std::size_t l = std::max(2UL, m_max_order); l < max_order; ++l)
     {
-        const std::size_t ind = PlmLayout::index(l);
+        const std::size_t ind = TriangleShape<IndexingMode::nonnegative>::sequence_type::index(l);
         m_alm[ind] = m_sqrl[2*l - 1]*m_sqrl[2*l + 1]/double(l);
         m_blm[ind] = (double(l) - 1.0)*m_sqrl[2*l + 1]/(m_sqrl[2*l - 3]*double(l));
 
         for (std::size_t m = 1; m < l - 1; ++m)
         {
-            const std::size_t ind = PlmLayout::index(l, m);
+            const std::size_t ind = TriangleShape<IndexingMode::nonnegative>::sequence_type::index(l, m);
             // a(l,m) = sqrt((2l - 1)(2l + 1)/((l - m)(l + m)))
             m_alm[ind] = m_sqrl[2*l - 1]*m_sqrl[2*l + 1]
                     /(m_sqrl[l - m]*m_sqrl[l + m]);

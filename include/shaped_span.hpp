@@ -33,24 +33,25 @@ template <typename ElementType, typename ShapeType>
 class ShapedSpan
 {
 public:
-    using value_type = ElementType;
+    using element_type = ElementType;
+    using value_type = std::remove_cv_t<element_type>;
     using size_type = std::size_t;
-    using reference = value_type&;
-    using const_reference = const value_type&;
-    using pointer = value_type*;
-    using const_pointer = const value_type*;
+    using reference = element_type&;
+    using const_reference = const element_type&;
+    using pointer = element_type*;
+    using const_pointer = const element_type*;
     using shape_type = ShapeType;
     using index_type = shape_type::index_type;
     using index_range = ShapeType::index_range;
-    using const_view = ShapedSpan<const value_type, ShapeType>;
+    using const_view = ShapedSpan<const element_type, ShapeType>;
 
     template <std::size_t N>
     using subspan_type = ShapedSpan<
-        value_type, typename shape_type::template subshape_type<1>>;
+        element_type, typename shape_type::template subshape_type<1>>;
 
     template <std::size_t N>
     using const_subspan_type = ShapedSpan<
-        const value_type, typename shape_type::template subshape_type<1>>;
+        const element_type, typename shape_type::template subshape_type<1>>;
 
     constexpr ShapedSpan() = default;
 
@@ -72,7 +73,7 @@ public:
     [[nodiscard]] constexpr auto
     tagless() const noexcept requires tagged<shape_type>
     {
-        return ShapedSpan<value_type, typename shape_type::untag>(m_data, m_shape);
+        return ShapedSpan<element_type, typename shape_type::untag>(m_data, m_shape);
     }
 
     [[nodiscard]] explicit constexpr operator
@@ -102,7 +103,7 @@ public:
     [[nodiscard]] constexpr auto
     flatten() const noexcept
     {
-        return std::span<value_type, shape_type::linear_extent>(m_data, m_shape.size());
+        return std::span<element_type, shape_type::linear_extent>(m_data, m_shape.size());
     }
 
     [[nodiscard]] constexpr index_range

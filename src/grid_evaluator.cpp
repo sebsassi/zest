@@ -205,8 +205,8 @@ void GridEvaluator::resize(
 
 void GridEvaluator::sum_l(std::size_t order) noexcept
 {
-    TriangleSpan<const double, IndexingMode::nonnegative, 2>
-    flm(m_flm_grid, order, m_rad_size);
+    TriangleSpan<const double, IndexingMode::nonnegative, 2, std::dynamic_extent>
+    flm(m_flm_grid.data(), order, {2, m_rad_size});
 
     TriangleSpan<const double, IndexingMode::nonnegative, 2, std::dynamic_extent>
     ass_leg(m_plm_grid.data(), order, {2, m_lat_size});
