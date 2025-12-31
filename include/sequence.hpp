@@ -31,7 +31,7 @@ namespace zest
 {
 
 /**
-    @brief Enum for tagging index intervals as either symmetric or zero based.
+    @brief Enum for tagging index sequences as either symmetric or zero based.
 */
 enum class IndexingMode
 {
@@ -45,16 +45,19 @@ template <typename T>
 concept has_parity = requires (T x) { { x.parity() } -> std::same_as<Parity>; };
 
 /**
-    @brief Contiguous 1d layout, which is indexed exactly as you think it is.
+    @brief Contiguous 1d sequence, which is indexed exactly as you would expect.
 
-    @tparam indexing_mode_param determines if indexing is symmetric about zero
-    or starts at zero
+    @tparam indexing_mode_param Determines if indexing is symmetric about zero
+    or starts at zero.
 
+    With zero based indexing, a sequence to order `n` is indexed as
     ```
-    0 1 2 3 4 5...
+    0 1 2 3 4 ... n - 1
     ```
-
-    @tparam indexing_mode_param determines whether indexing may be negative
+    With symmetric indexing, the sequence is indexed as
+    ```
+    -n + 1 ... -2 -1 0 1 2 ... n - 1
+    ```
 */
 template <IndexingMode indexing_mode_param>
 struct StandardLinearSequence
@@ -68,9 +71,9 @@ struct StandardLinearSequence
     static constexpr size_type rank = 1;
 
     /**
-        @brief Number of elements in layout for size parameter `order`.
+        @brief Number of elements in sequence at the given order.
 
-        @param order parameter presenting the size of the layout
+        @param order Order at which the sequence is truncated.
     */
     [[nodiscard]] static constexpr std::size_t
     size(std::size_t order) noexcept
@@ -82,7 +85,9 @@ struct StandardLinearSequence
     }
 
     /**
-        @brief Linear index of an element in layout.
+        @brief Linear index of an element in sequence.
+
+        @param l
     */
     [[nodiscard]] static constexpr std::size_t
     index(index_type l) noexcept
@@ -92,17 +97,19 @@ struct StandardLinearSequence
 };
 
 /**
-    @brief Contiguous 1d layout, with indexing according to certain parity
+    @brief Contiguous 1d sequence, with only even or odd elements.
+
+    This sequence can present either one of the index sequences
     ```
-    0 2 4 6 8...
+    0 2 4 6 8 ...
     ```
-    or
+    and
     ```
-    1 3 5 7 9...
+    1 3 5 7 9 ...
     ```
 
     @warning This indexing implies that adjacent even and odd indices map to
-    the same memory slot. Indexing data with this layout mixing even and odd
+    the same element. Indexing data with this sequence mixing even and odd
     indices is an error.
 */
 struct ParityLinearSequence
@@ -114,9 +121,9 @@ struct ParityLinearSequence
     static constexpr size_type rank = 1;
 
     /**
-        @brief Number of elements in layout for size parameter `order`.
+        @brief Number of elements in sequence at the given order.
 
-        @param order parameter presenting the size of the layout
+        @param order Order at which the sequence is truncated.
     */
     [[nodiscard]] static constexpr std::size_t
     size(std::size_t order) noexcept
@@ -125,7 +132,9 @@ struct ParityLinearSequence
     }
 
     /**
-        @brief Linear index of an element in layout.
+        @brief Linear index of an element in sequence.
+
+        @param l
     */
     [[nodiscard]] static constexpr std::size_t
     index(index_type l) noexcept
@@ -135,7 +144,13 @@ struct ParityLinearSequence
 };
 
 /**
-    @brief Contiguous 2D layout with indexing
+    @brief Contiguous 2D sequence for index pairs on a triangular grid.
+
+    @tparam indexing_mode_param Determines if indexing is symmetric about zero
+    or starts at zero.
+
+    This sequence represents index pairs `(m,l)` subject to the condition
+    `abs(m) <= l`. For zero based indexing this translates to to the sequence
     ```
     (0,0)
     (1,0) (1,1)
@@ -143,7 +158,7 @@ struct ParityLinearSequence
     (3,0) (3,1) (3,2) (3,3)
     ...
     ```
-    or
+    For symmetric indexing this translates to the sequence.
     ```
                          (0,0)
                   (1,-1) (1,0) (1,1)
@@ -151,8 +166,6 @@ struct ParityLinearSequence
     (3,-3) (3,-2) (3,-1) (3,0) (3,1) (3,2) (3,3)
     ...
     ```
-
-    @tparam indexing_mode_param determines whether indexing may be negative
 */
 template <IndexingMode indexing_mode_param>
 struct TriangleSequence
@@ -179,9 +192,9 @@ public:
     using sublayout_t = sublayout<N>::type;
 
     /**
-        @brief Number of elements in layout for size parameter `order`.
+        @brief Number of elements in sequence at the given order.
 
-        @param order parameter presenting the size of the layout
+        @param order Order at which the sequence is truncated.
     */
     [[nodiscard]] static constexpr std::size_t
     size(std::size_t order) noexcept
@@ -193,7 +206,10 @@ public:
     }
 
     /**
-        @brief Linear index of an element in layout.
+        @brief Linear index of an element in sequence.
+
+        @param l
+        @param m
     */
     [[nodiscard]] static constexpr std::size_t
     index(index_type l, index_type m) noexcept
@@ -210,7 +226,9 @@ public:
         }
     }
     /**
-        @brief Linear index of an element in layout.
+        @brief Linear index of an element in sequence.
+
+        @param l
     */
     [[nodiscard]] static constexpr std::size_t
     index(index_type l) noexcept
@@ -221,12 +239,21 @@ public:
             return std::size_t(l*(l + 1));
     }
 
+    /**
+        @brief Order of a subsequence at given index `l`.
+
+        @param l
+    */
     [[nodiscard]] static constexpr std::size_t
     subextent(index_type l) noexcept { return l + 1; }
 };
 
 /**
-    @brief Contiguous 2D sequence with indexing
+    @brief Contiguous 2D sequence for index pairs with even sum on a triangular
+    grid.
+
+    This sequence represents index pairs `(l,n)` subject to the condition
+    `l <= n` such that `l + n` is even. This translates to the sequence
     ```
     (0,0)
           (1,1)
@@ -237,7 +264,7 @@ public:
     ```
 
     @warning This indexing implies that some index combinations are simply not
-    valid. It is erroneous to access data using this layout with indices whose
+    valid. It is erroneous to access data using this sequence with indices whose
     sum is an odd number.
 */
 struct EvenTriangleSequence
@@ -262,9 +289,9 @@ public:
     using sublayout_t = sublayout_helper<N>::type;
 
     /**
-        @brief Number of elements in layout for size parameter `order`.
+        @brief Number of elements in sequence at the given order.
 
-        @param order parameter presenting the size of the layout
+        @param order Order at which the sequence is truncated.
     */
     [[nodiscard]] static constexpr std::size_t
     size(std::size_t order) noexcept
@@ -274,7 +301,10 @@ public:
     }
 
     /**
-        @brief Linear index of an element in layout.
+        @brief Linear index of an element in sequence.
+
+        @param n
+        @param l
     */
     [[nodiscard]] static constexpr std::size_t
     index(std::size_t n, std::size_t l) noexcept
@@ -284,7 +314,9 @@ public:
     }
 
     /**
-        @brief Linear index of an element in layout.
+        @brief Linear index of an element in sequence.
+
+        @param n
     */
     [[nodiscard]] static constexpr std::size_t
     index(std::size_t n) noexcept
@@ -292,12 +324,25 @@ public:
          return (((n + 1)*(n + 1)) >> 2);
     }
 
+    /**
+        @brief Order of a subsequence at given index `n`.
+
+        @param n
+    */
     [[nodiscard]] static constexpr
     std::size_t subextent(index_type n) noexcept { return n + 1; }
 };
 
 /**
-    @brief Contiguous 2D layout with indexing
+    @brief Contiguous 2D sequence for index pairs on a triangular grid with
+    only even or odd indices in one direction.
+
+    @tparam indexing_mode_param Determines if indexing is symmetric about zero
+    or starts at zero.
+
+    This sequence represents index pairs `(m,l)` subject to the condition
+    `abs(m) <= l` such that `l` has definite parity. That is, for zero based
+    indexing it either represents the sequence
     ```
     (0,0)
 
@@ -306,7 +351,7 @@ public:
     (4,0) (4,1) (4,2) (4,3) (4,4)
     ...
     ```
-    or
+    or the sequence
     ```
     (1,0) (1,1)
 
@@ -315,7 +360,7 @@ public:
     (5,0) (5,1) (5,2) (5,3) (5,4) (5,5)
     ...
     ```
-    or alternatively
+    For symmetric indexing it alternatively represents
     ```
                                 (0,0)
 
@@ -334,11 +379,10 @@ public:
     ...
     ```
 
-    @tparam indexing_mode_param determines whether indexing may be negative
-
-    @note In this layout the index obtained from a pair `(l,m)` is unique only
+    @warning In this layout the index obtained from a pair `(l,m)` is unique only
     for `l` of the same parity. Otherwise the index is not unique, e.g., `(0,0)`
-    and `(1,0)` fall on the same index.
+    and `(1,0)` fall on the same index. It is therefore erroneous to mix even and
+    odd `l` values when accessing data.
 */
 template <IndexingMode indexing_mode_param>
 struct EvenRowTriangleSequence
@@ -366,9 +410,9 @@ public:
     using sublayout_type = sublayout_helper<N>::type;
 
     /**
-        @brief Number of elements in layout for size parameter `order`.
+        @brief Number of elements in sequence at the given order.
 
-        @param order parameter presenting the size of the layout
+        @param order Order at which the sequence is truncated.
     */
     static constexpr std::size_t 
     size(std::size_t order) noexcept
@@ -381,6 +425,9 @@ public:
 
     /**
         @brief Linear index of an element in layout.
+
+        @param l
+        @param m
     */
     static constexpr std::size_t 
     index(index_type l, index_type m) noexcept
@@ -398,7 +445,9 @@ public:
     }
 
     /**
-        @brief Linear index of an element in layout.
+        @brief Linear index of an element in sequence.
+
+        @param l
     */
     static constexpr std::size_t
     index(index_type l) noexcept
@@ -414,7 +463,8 @@ public:
 };
 
 /**
-    @brief Contiguous 3D layout with indexing
+    @brief Contiguous 3D sequence for index triples laid out in a tetrahedral
+    shape.
     ```
     (0,0,0)
 
