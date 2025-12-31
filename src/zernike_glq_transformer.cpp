@@ -20,13 +20,3 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "zernike_glq_transformer.hpp"
-
-#include "real_sh_expansion.hpp"
-
-namespace zest
-{
-namespace zt
-{
-
-} // namespace zt
-} // namespace zest

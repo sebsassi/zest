@@ -133,8 +133,9 @@ void GridEvaluator::sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_exten
 
     for (std::size_t m = 0; m < order; ++m)
     {
+        using difference_type = std::span<std::array<double, 2>>::difference_type;
         std::span<std::array<double, 2>> f_m(
-                m_fm_grid.begin() + m*m_lat_size, m_lat_size);
+                m_fm_grid.begin() + difference_type(m*m_lat_size), m_lat_size);
         auto cossin_lon_m = cossin_lon[m];
         for (std::size_t i = 0; i < m_lon_size; ++i)
         {
@@ -206,7 +207,7 @@ void GridEvaluator::resize(
 void GridEvaluator::sum_l(std::size_t order) noexcept
 {
     TriangleSpan<const double, IndexingMode::nonnegative, 2, std::dynamic_extent>
-    flm(m_flm_grid.data(), order, {2, m_rad_size});
+    flm(m_flm_grid.data(), order, std::array<std::size_t, 2>{2, m_rad_size});
 
     TriangleSpan<const double, IndexingMode::nonnegative, 2, std::dynamic_extent>
     ass_leg(m_plm_grid.data(), order, {2, m_lat_size});
@@ -254,12 +255,12 @@ void GridEvaluator::sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_exten
         for (std::size_t i = 0; i < m_lon_size; ++i)
         {
             auto values_i = values[i];
-            const double cos_lon = cossin_lon_m[i][0];
-            const double sin_lon = cossin_lon_m[i][1];
+            const double cos_lon = cossin_lon_m[i, 0];
+            const double sin_lon = cossin_lon_m[i, 1];
             for (std::size_t j = 0; j < m_lat_size; ++j)
             {
-                MDSpan<const std::array<double, 2>, 1> fm_mj = fm_m[j];
-                MDSpan<double, 1> values_ij = values_i[j];
+                auto fm_mj = fm_m[j];
+                auto values_ij = values_i[j];
                 for (std::size_t k = 0; k < m_rad_size; ++k)
                     values_ij[k] += fm_mj[k][0]*cos_lon + fm_mj[k][1]*sin_lon;
             }

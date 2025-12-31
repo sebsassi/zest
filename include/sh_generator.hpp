@@ -65,10 +65,9 @@ public:
         @param colat colatitude coordinate
         @param ylm buffer for spherical harmonic values
     */
-    template <IndexingMode indexing_mode_param, SHNorm sh_norm, SHShape sh_phase>
-    void generate(double lon, double colat, SHSpan<double, indexing_mode_param, sh_norm, sh_phase> ylm)
+    template <IndexingMode indexing_mode, SHNorm sh_norm, SHShape sh_phase>
+    void generate(double lon, double colat, SHSpan<double, indexing_mode, sh_norm, sh_phase> ylm)
     {
-        using SHSpanType = SHSpan<double, indexing_mode_param, sh_norm, sh_phase>;
         expand(ylm.extents());
 
         const double z = std::sin(colat);
@@ -81,7 +80,6 @@ public:
             m_cossin[m] = {std::cos(angle), std::sin(angle)};
         }
 
-        constexpr IndexingMode indexing_mode = SHSpanType::shape_type::sequence_type::indexing_mode;
         for (auto l : ass_leg.indices())
         {
             auto ylm_l = ylm[l];
@@ -109,6 +107,12 @@ public:
                 }
             }
         }
+    }
+
+    template <IndexingMode indexing_mode, SHNorm sh_norm, SHShape sh_phase>
+    void generate(double lon, double colat, SHExpansion<double, indexing_mode, sh_norm, sh_phase>& ylm)
+    {
+        generate(lon, colat, SHSPan<double, indexing_mode, sh_norm, sh_phase>(ylm));
     }
 
 private:

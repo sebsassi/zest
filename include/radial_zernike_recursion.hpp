@@ -27,7 +27,6 @@ SOFTWARE.
 
 #include "zernike_expansion.hpp"
 
-
 namespace zest::zt
 {
 
@@ -55,11 +54,10 @@ public:
         @param zernike storage for the evaluated polynomials
         @param r point at which the polynomials are evaluated
     */
-    template <ZernikeNorm zernike_norm_param>
+    template <ZernikeNorm zernike_norm>
     void zernike(
-        double r, RadialZernikeSpan<double, zernike_norm_param> zernike)
+        double r, RadialZernikeSpan<double, zernike_norm> zernike)
     {
-        using ZernikeSpan = RadialZernikeSpan<double, zernike_norm_param>;
         constexpr double sqrt5 = 2.2360679774997896964091737;
         constexpr double sqrt7 = 2.6457513110645905905016158;
 
@@ -73,7 +71,7 @@ public:
         zernike[0, 0] = 1.0;
         if (order == 1)
         {
-            if constexpr (zernike_norm_param == ZernikeNorm::normed)
+            if constexpr (zernike_norm == ZernikeNorm::normed)
                 zernike[0, 0] *= std::numbers::sqrt3;
             return;
         }
@@ -81,7 +79,7 @@ public:
         zernike[1, 1] = r;
         if (order == 2)
         {
-            if constexpr (zernike_norm_param == ZernikeNorm::normed)
+            if constexpr (zernike_norm == ZernikeNorm::normed)
             {
                 zernike[0, 0] *= std::numbers::sqrt3;
                 zernike[1, 1] *= sqrt5;
@@ -93,7 +91,7 @@ public:
         zernike[2, 2] = r2;
         if (order == 3)
         {
-            if constexpr (zernike_norm_param == ZernikeNorm::normed)
+            if constexpr (zernike_norm == ZernikeNorm::normed)
             {
                 zernike[0, 0] *= std::numbers::sqrt3;
                 zernike[1, 1] *= sqrt5;
@@ -114,21 +112,20 @@ public:
             auto zernike_nm4 = zernike[n - 4];
             for (std::size_t l = n & 1; l <= n - 4; l += 2)
             {
-                const std::size_t ind = ZernikeSpan::Layout::idx(n,l);
+                const std::size_t ind = zernike.shape(n, l);
                 zernike_n[l] = (m_k2[ind] + m_k1[ind]*r2)*zernike_nm2[l]
                     + m_k3[ind]*zernike_nm4[l];
 
-                if constexpr (zernike_norm_param == ZernikeNorm::normed)
+                if constexpr (zernike_norm == ZernikeNorm::normed)
                     zernike_nm4[l] *= m_norms[n - 4];
             }
 
             const double dn = double(n);
             zernike_n[n] = r*zernike(n - 1, n - 1);
-            zernike_n[n - 2] = (dn + 0.5)*zernike_n[n]
-                    - (dn - 0.5)*zernike_nm2[n - 2];
+            zernike_n[n - 2] = (dn + 0.5)*zernike_n[n] - (dn - 0.5)*zernike_nm2[n - 2];
         }
 
-        if constexpr (zernike_norm_param == ZernikeNorm::normed)
+        if constexpr (zernike_norm == ZernikeNorm::normed)
         {
             for (std::size_t n = order - 4; n < order; ++n)
             {
@@ -137,6 +134,13 @@ public:
                     zernike_n[l] *= m_norms[n];
             }
         }
+    }
+
+    template <ZernikeNorm zernike_norm>
+    void zernike(
+        double r, RadialZernikeExpansion<double, zernike_norm> zernike)
+    {
+        zernike(r, (typename decltype(zernike)::view)(zernike));
     }
 
     /**
@@ -152,7 +156,6 @@ public:
         std::span<const double> r,
         RadialZernikeSpan<double, zernike_norm_param, std::dynamic_extent> zernike)
     {
-        using ZernikeVecSpan = RadialZernikeSpan<double, zernike_norm_param, std::dynamic_extent>;
         constexpr double sqrt5 = 2.2360679774997896964091737;
         constexpr double sqrt7 = 2.6457513110645905905016158;
 
@@ -261,8 +264,7 @@ public:
 
             const auto dn = double(n);
             for (std::size_t i = 0; i < z_nnm2.size(); ++i)
-                z_nnm2[i] = (dn + 0.5)*z_nn[i]
-                    - (dn - 0.5)*z_nm2nm2[i];
+                z_nnm2[i] = (dn + 0.5)*z_nn[i] - (dn - 0.5)*z_nm2nm2[i];
         }
 
         if constexpr (zernike_norm_param == ZernikeNorm::normed)

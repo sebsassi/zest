@@ -25,6 +25,7 @@ SOFTWARE.
 #include <vector>
 
 #include "real_sh_expansion.hpp"
+#include "sequence.hpp"
 #include "sh_conventions.hpp"
 #include "wignerd_collection.hpp"
 #include "zernike_expansion.hpp"
@@ -118,17 +119,12 @@ public:
         and the third angle rotates about the new Z-axis again. In summary, the
         convention is: right-handed, intrinsic, ZYZ.
     */
-    template <st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
+    template <st::SHNorm sh_norm, st::SHPhase sh_phase>
     void rotate(
-        st::SHSpan<double, IndexingMode::nonnegative, sh_norm_param, sh_phase_param>& expansion,
+        st::SHSpan<double, IndexingMode::nonnegative, sh_norm, sh_phase> expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles, RotationType type)
     {
-        using ExpansionType = st::SHSpan<double, IndexingMode::nonnegative, sh_norm_param, sh_phase_param>;
-
-        constexpr st::SHNorm sh_norm = ExpansionType::norm;
-        constexpr st::SHPhase sh_phase = ExpansionType::phase;
-
         const std::size_t order = expansion.order();
         expand(order);
 
@@ -142,6 +138,15 @@ public:
                 m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
 
         to_real_expansion<sh_norm, sh_phase>(complex_expansion);
+    }
+
+    template <st::SHNorm sh_norm, st::SHPhase sh_phase>
+    void rotate(
+        st::SHExpansion<double, IndexingMode::nonnegative, sh_norm, sh_phase>& expansion,
+        const zest::WignerdPiHalfCollection& wigner_d_pi2,
+        const std::array<double, 3>& euler_angles, RotationType type)
+    {
+        rotate((typename decltype(expansion)::view)(expansion), wigner_d_pi2, euler_angles, type);
     }
 
     /**
@@ -159,25 +164,14 @@ public:
         and the third angle rotates about the new Z-axis again. In summary, the
         convention is: right-handed, intrinsic, ZYZ.
     */
-    template <zt::ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
+    template <zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     void rotate(
         typename zt::ZernikeSpan<
-            double, IndexingMode::nonnegative, zernike_norm_param,
-            sh_norm_param, sh_phase_param
-        >::template subspan_type<1>& expansion,
+            double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase
+        >::template subspan_type<1> expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles, RotationType type)
     {
-        using ExpansionType = typename zt::ZernikeSpan<
-                double, IndexingMode::nonnegative, zernike_norm_param,
-                sh_norm_param, sh_phase_param
-            >::template subspan_type<1>;
-
-        constexpr st::SHNorm sh_norm
-            = std::remove_cvref_t<ExpansionType>::norm;
-        constexpr st::SHPhase sh_phase
-            = std::remove_cvref_t<ExpansionType>::phase;
-
         const std::size_t order = expansion.order();
         expand(order);
 
@@ -208,25 +202,12 @@ public:
         and the third angle rotates about the new Z-axis again. In summary, the
         convention is: right-handed, intrinsic, ZYZ.
     */
-    template <zt::ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
+    template <zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     void rotate(
-        zt::ZernikeSpan<
-            double, IndexingMode::nonnegative, zernike_norm_param,
-            sh_norm_param, sh_phase_param>&
-        expansion,
+        zt::ZernikeSpan<double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase> expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles, RotationType type)
     {
-        using ExpansionType = zt::ZernikeSpan<
-            double, IndexingMode::nonnegative, zernike_norm_param,
-            sh_norm_param, sh_phase_param>;
-
-        constexpr zt::ZernikeNorm zernike_norm
-            = std::remove_cvref_t<ExpansionType>::zernike_norm;
-        constexpr st::SHNorm sh_norm
-            = std::remove_cvref_t<ExpansionType>::sh_norm;
-        constexpr st::SHPhase sh_phase = std::remove_cvref_t<ExpansionType>::sh_phase;
-
         const std::size_t order = expansion.order();
         expand(order);
 
@@ -246,59 +227,13 @@ public:
         to_real_expansion<zernike_norm, sh_norm, sh_phase>(complex_expansion);
     }
 
-    /**
-        @brief General rotation of a real spherical harmonic expansion via Wigner's D-matrix.
-
-        @tparam ExpansionType type of expansion to rotate
-
-        @param expansion real spherical harmonic expansion
-        @param wigner_d_pi2 Wigner d-matrices at pi/2
-        @param euler_angles Euler angles defining the rotation
-        @param type type of rotation
-
-        The rotation uses an intrinsic ZYZ convention, where the first Euler angle
-        rotates about the Z-axis, the second Euler angle rotates about the new Y-axis,
-        and the third angle rotates about the new Z-axis again. In summary, the
-        convention is: right-handed, intrinsic, ZYZ.
-    */
-    template <st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
+    template <zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     void rotate(
-        st::SHSpan<double, IndexingMode::nonnegative, sh_norm_param, sh_phase_param>& expansion,
+        zt::ZernikeExpansion<double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase>& expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
-        const std::array<std::array<double, 3>, 3>& matrix, RotationType type)
+        const std::array<double, 3>& euler_angles, RotationType type)
     {
-        const std::array<double, 3> euler_angles
-            = euler_angles_from_rotation_matrix(matrix);
-        rotate(expansion, wigner_d_pi2, euler_angles, type);
-    }
-
-    /**
-        @brief General rotation of a real Zernike expansion via Wigner's D-matrix.
-
-        @tparam ExpansionType type of expansion to rotate
-
-        @param expansion real Zernike expansion
-        @param wigner_d_pi2 Wigner d-matrices at pi/2
-        @param euler_angles Euler angles defining the rotation
-        @param type type of rotation
-
-        The rotation uses an intrinsic ZYZ convention, where the first Euler angle
-        rotates about the Z-axis, the second Euler angle rotates about the new Y-axis,
-        and the third angle rotates about the new Z-axis again. In summary, the
-        convention is: right-handed, intrinsic, ZYZ.
-    */
-    template <zt::ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
-    void rotate(
-        zt::ZernikeSpan<
-            double, IndexingMode::nonnegative, zernike_norm_param,
-            sh_norm_param, sh_phase_param>&
-        expansion,
-        const zest::WignerdPiHalfCollection& wigner_d_pi2,
-        const std::array<std::array<double, 3>, 3>& matrix, RotationType type)
-    {
-        const std::array<double, 3> euler_angles
-            = euler_angles_from_rotation_matrix(matrix);
-        rotate(expansion, wigner_d_pi2, euler_angles, type);
+        rotate((typename decltype(expansion)::view)(expansion), wigner_d_pi2, euler_angles, type);
     }
 
     /**
@@ -310,16 +245,11 @@ public:
         @param angle polar rotation angle
         @param type type of rotation
     */
-    template <st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
+    template <st::SHNorm sh_norm, st::SHPhase sh_phase>
     void polar_rotate(
-        st::SHSpan<double, IndexingMode::nonnegative, sh_norm_param, sh_phase_param>& expansion,
+        st::SHSpan<double, IndexingMode::nonnegative, sh_norm, sh_phase> expansion,
         double angle, RotationType type)
     {
-        using ExpansionType = st::SHSpan<double, IndexingMode::nonnegative, sh_norm_param, sh_phase_param>;
-
-        constexpr st::SHNorm sh_norm = ExpansionType::sh_norm;
-        constexpr st::SHPhase sh_phase = ExpansionType::sh_phase;
-
         const std::size_t order = expansion.order();
         expand(order);
 
@@ -335,6 +265,14 @@ public:
         to_real_expansion<sh_norm, sh_phase>(complex_expansion);
     }
 
+    template <st::SHNorm sh_norm, st::SHPhase sh_phase>
+    void polar_rotate(
+        st::SHExpansion<double, IndexingMode::nonnegative, sh_norm, sh_phase>& expansion,
+        double angle, RotationType type)
+    {
+        polar_rotate((typename decltype(expansion)::view)(expansion), angle, type);
+    }
+
     /**
         @brief Rotation about the Z-axis of a real Zernike expansion
 
@@ -344,22 +282,11 @@ public:
         @param angle polar rotation angle
         @param type type of rotation
     */
-    template <zt::ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param>
+    template <zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     void polar_rotate(
-        zt::ZernikeSpan<
-            double, IndexingMode::nonnegative, zernike_norm_param,
-            sh_norm_param, sh_phase_param>&
-        expansion,
+        zt::ZernikeSpan<double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase> expansion,
         double angle, RotationType type)
     {
-        using ExpansionType = zt::ZernikeSpan<
-            double, IndexingMode::nonnegative, zernike_norm_param,
-            sh_norm_param, sh_phase_param>;
-
-        constexpr zt::ZernikeNorm zernike_norm = ExpansionType::zernike_norm;
-        constexpr st::SHNorm sh_norm = ExpansionType::sh_norm;
-        constexpr st::SHPhase sh_phase = ExpansionType::sh_phase;
-
         const std::size_t order = expansion.order();
         expand(order);
 
@@ -377,6 +304,14 @@ public:
         }
 
         to_real_expansion<zernike_norm, sh_norm, sh_phase>(complex_expansion);
+    }
+
+    template <zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+    void polar_rotate(
+        zt::ZernikeExpansion<double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase>& expansion,
+        double angle, RotationType type)
+    {
+        polar_rotate((typename decltype(expansion)::view)(expansion), angle, type);
     }
 
 private:

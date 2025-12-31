@@ -32,7 +32,6 @@ SOFTWARE.
 #include "shaped_span.hpp"
 #include "zernike_conventions.hpp"
 
-
 namespace zest::zt
 {
 
@@ -84,6 +83,10 @@ using ZernikeNonnegativeShape = TaggedShape<
 */
 template <typename ElementType, ZernikeNorm zernike_norm_param, std::size_t... Ns>
 using RadialZernikeSpan = ShapedSpan<
+    ElementType, RadialZernikeShape<zernike_norm_param, Ns...>>;
+
+template <typename ElementType, ZernikeNorm zernike_norm_param, std::size_t... Ns>
+using RadialZernikeExpansion = ShapedArray<
     ElementType, RadialZernikeShape<zernike_norm_param, Ns...>>;
 
 /**

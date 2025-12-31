@@ -581,7 +581,7 @@ public:
         auto fft_stride = GridLayout::fft_stride(order);
         m_pocketfft_stride_fft[0] = long(fft_stride[0]*sizeof(std::complex<double>));
         m_pocketfft_stride_fft[1] = long(fft_stride[1]*sizeof(std::complex<double>));
-        m_pocketfft_stride_fft[2] = fft_stride[2]*sizeof(std::complex<double>);
+        m_pocketfft_stride_fft[2] = long(fft_stride[2]*sizeof(std::complex<double>));
     }
 
     /**
@@ -641,7 +641,7 @@ public:
         std::array<std::size_t, 3> fft_stride = GridLayout::fft_stride(order);
         m_pocketfft_stride_fft[0] = long(fft_stride[0]*sizeof(std::complex<double>));
         m_pocketfft_stride_fft[1] = long(fft_stride[1]*sizeof(std::complex<double>));
-        m_pocketfft_stride_fft[2] = fft_stride[2]*sizeof(std::complex<double>);
+        m_pocketfft_stride_fft[2] = long(fft_stride[2]*sizeof(std::complex<double>));
 
         m_order = order;
     }

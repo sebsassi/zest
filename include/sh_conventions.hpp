@@ -23,7 +23,6 @@ SOFTWARE.
 
 #include <numbers>
 
-
 namespace zest::st
 {
 

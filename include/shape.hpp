@@ -22,6 +22,7 @@ SOFTWARE.
 #pragma once
 
 #include <array>
+#include <cassert>
 #include <cstddef>
 #include <span>
 #include <tuple>
@@ -45,7 +46,7 @@ public:
     static constexpr std::size_t linear_extent = 0;
 
     template <std::size_t N>
-        requires (N == 0)
+        requires (N > 0)
     using subshape_type = NullShape;
 
     constexpr NullShape() = default;
@@ -63,6 +64,19 @@ public:
     [[nodiscard]] constexpr index_range
     indices() const noexcept { return index_range{}; }
 };
+
+template <typename T>
+concept shape = requires (T x, typename T::extent_type ex, typename T::index_type ind)
+    {
+        { T::size(ex) } -> std::same_as<typename T::size_type>;
+        { x.size() } -> std::same_as<typename T::size_type>;
+        { x.extents() } -> std::same_as<typename T::extent_type>;
+        { x.indices() } -> std::same_as<typename T::index_range>;
+        { x.indices(ind) } -> std::same_as<typename T::index_range>;
+    }
+    && std::same_as<decltype(T::rank), typename T::size_type>
+    && std::same_as<decltype(T::linear_extent), typename T::size_type>
+    && std::same_as<typename T::template subshape_type<T::rank>, NullShape>;
 
 template <typename SequenceType>
 class SequencedShape
@@ -99,7 +113,7 @@ public:
     [[nodiscard]] constexpr extent_type
     extents() const noexcept { return m_order; }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < rank)
     [[nodiscard]] constexpr auto
     subshape(Inds... indices) const noexcept
@@ -107,7 +121,7 @@ public:
         return subshape_type<sizeof...(Inds)>(sequence_type::subextent(indices...));
     }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) == rank)
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] Inds... indices) const noexcept
@@ -115,13 +129,20 @@ public:
         return NullShape{};
     }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= rank)
     [[nodiscard]] constexpr size_type
     operator()(Inds... indices) const noexcept { return sequence_type::index(indices...); }
 
     [[nodiscard]] constexpr index_range
-    indices() const noexcept { return sequence_type::indices(m_order); }
+    indices() const noexcept { return index_range(m_order); }
+
+    [[nodiscard]] constexpr index_range
+    indices(index_type index) const noexcept
+    {
+        assert(index < order());
+        return index_range(m_order);
+    }
 
 private:
     extent_type m_order{};
@@ -163,7 +184,7 @@ public:
     explicit constexpr TensorShape(size_type extents) requires (rank == 1):
         m_extents({extents}), m_size(size({extents})) {}
 
-    explicit constexpr TensorShape(extent_type extents):
+    explicit constexpr TensorShape(const extent_type& extents):
         m_extents(extents), m_size(size(extents)) {}
 
     [[nodiscard]] static constexpr size_type
@@ -178,7 +199,7 @@ public:
     [[nodiscard]] constexpr size_type
     extent(size_type i) const noexcept { return m_extents[i]; }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < rank)
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] Inds... inds) const noexcept
@@ -186,12 +207,12 @@ public:
         return subshape_type<sizeof...(Inds)>(take_last<rank - sizeof...(Inds)>(m_extents));
     }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) == rank)
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] Inds... inds) const noexcept { return NullShape{}; }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= rank)
     [[nodiscard]] constexpr size_type
     operator()(Inds... indices) const noexcept
@@ -201,6 +222,13 @@ public:
 
     [[nodiscard]] constexpr index_range
     indices() const noexcept { return index_range(m_extents[0]); }
+
+    [[nodiscard]] constexpr index_range
+    indices(index_type index) const noexcept
+    {
+        assert(index < extent(0));
+        return index_range(m_extents[0]);
+    }
 
 private:
     extent_type m_extents{};
@@ -271,7 +299,7 @@ public:
     [[nodiscard]] constexpr size_type
     extent(size_type i) const noexcept { return static_extents[i]; }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < rank)
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] Inds... inds) const noexcept
@@ -279,12 +307,12 @@ public:
         return subshape_type<sizeof...(Inds)>{};
     }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) == rank)
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] Inds... inds) const noexcept { return NullShape{}; }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= rank)
     [[nodiscard]] constexpr size_type
     operator()(Inds... indices) const noexcept
@@ -294,6 +322,13 @@ public:
 
     [[nodiscard]] constexpr index_range
     indices() const noexcept { return index_range(static_extents[0]); }
+
+    [[nodiscard]] constexpr index_range
+    indices(index_type index) const noexcept
+    {
+        assert(index < extent(0));
+        return index_range(index, static_extents[0]);
+    }
 };
 
 template <typename S1, typename S2>
@@ -368,7 +403,7 @@ public:
     [[nodiscard]] constexpr extent_type
     extents() const noexcept { return {m_shapes.first.extents(), m_shapes.second.extents()}; }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < S1::rank)
     [[nodiscard]] constexpr auto subshape(Inds... indices) const noexcept
     {
@@ -376,28 +411,28 @@ public:
             m_shapes.first.subextents(indices...), m_shapes.second.extents());
     }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) == S1::rank)
     [[nodiscard]] constexpr auto subshape([[maybe_unused]] Inds... indices) const noexcept
     {
         return S2(m_shapes.second.extents());
     }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (S1::rank <= sizeof...(Inds) && sizeof...(Inds) == rank)
     [[nodiscard]] constexpr auto subshape(Inds... indices) const noexcept
     {
         return subshape_type<sizeof...(Inds)>(m_shapes.second.subextents(indices...));
     }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) == rank)
     [[nodiscard]] constexpr auto subshape([[maybe_unused]] Inds... indices) const noexcept
     {
         return NullShape{};
     }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= rank)
     [[nodiscard]] constexpr size_type
     operator()(Inds... indices) const noexcept { return index(indices...); }
@@ -405,15 +440,18 @@ public:
     [[nodiscard]] constexpr index_range
     indices() const noexcept { return m_shapes.first.indices(); }
 
+    [[nodiscard]] constexpr index_range
+    indices(index_type index) const noexcept { return m_shapes.first.indices(index); }
+
 private:
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= S1::rank)
     [[nodiscard]] constexpr size_type index(Inds... indices)
     {
         return m_shapes.first.index(indices...)*m_shapes.second.size();
     }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (S1::rank < sizeof...(Inds) && sizeof...(Inds) <= rank)
     [[nodiscard]] constexpr size_type index(Inds... indices)
     {

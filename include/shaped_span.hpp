@@ -23,11 +23,19 @@ SOFTWARE.
 
 #include <cstddef>
 #include <span>
+#include <cassert>
 
 #include "utility.hpp"
 
 namespace zest
 {
+
+template <typename T>
+concept shaped_contiguous_buffer = requires (T x)
+    {
+        { x.data() } -> std::same_as<typename T::pointer>;
+        { x.shape() } -> std::same_as<const typename T::shape_type>;
+    };
 
 template <typename ElementType, typename ShapeType>
 class ShapedSpan
@@ -43,6 +51,7 @@ public:
     using shape_type = ShapeType;
     using index_type = shape_type::index_type;
     using index_range = ShapeType::index_range;
+    using view = ShapedSpan<element_type, ShapeType>;
     using const_view = ShapedSpan<const element_type, ShapeType>;
 
     template <std::size_t N>
@@ -67,6 +76,10 @@ public:
     constexpr ShapedSpan(std::span<value_type> data, const shape_type& shape):
         m_data(data), m_shape(shape) { assert(data.size() == m_shape.size()); }
 
+    template <shaped_contiguous_buffer T>
+    constexpr ShapedSpan(T& shaped_buffer):
+        m_data(shaped_buffer.data()), m_shape(shaped_buffer.shape()) {}
+
     [[nodiscard]] constexpr operator
     const_view() const noexcept { return const_view(m_data, m_shape); }
 
@@ -78,6 +91,14 @@ public:
 
     [[nodiscard]] explicit constexpr operator
     std::span<value_type>() const noexcept { return flatten(); }
+
+    template <typename NewShapeType>
+    [[nodiscard]] constexpr auto
+    reshape(const NewShapeType& shape) const noexcept
+    {
+        assert(shape.size() == m_shape.size());
+        return ShapedSpan<element_type, NewShapeType>(m_data, shape);
+    }
 
     [[nodiscard]] constexpr const ShapeType&
     shape() const noexcept { return m_shape; }
@@ -109,17 +130,17 @@ public:
     [[nodiscard]] constexpr index_range
     indices() const noexcept { return m_shape.indices(); }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] constexpr reference
     operator()(Inds... indices) const noexcept { return m_data[m_shape(indices...)]; }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] constexpr reference
     operator[](Inds... indices) const noexcept { return m_data[m_shape(indices...)]; }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) < shape_type::rank)
     [[nodiscard]] constexpr auto
     operator()(Inds... indices) const noexcept
@@ -128,7 +149,7 @@ public:
             m_data + m_shape(indices...), m_shape.subshape(indices...));
     }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) < shape_type::rank)
     [[nodiscard]] constexpr auto
     operator[](Inds... indices) const noexcept

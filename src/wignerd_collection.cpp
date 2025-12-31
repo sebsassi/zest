@@ -161,7 +161,9 @@ void WignerdPiHalfCollection::expand(std::size_t max_order)
             for (std::size_t i = 2; i <= l - m1; ++i)
             {
                 std::size_t m2 = l - i;
-                m_matrices[idx(l,m2,m1)] = (2.0*double(m1)*m_matrices[idx(l,m2 + 1,m1)] - m_sqrtl_cache[l - m2 - 1]*m_sqrtl_cache[l + m2 + 2]*m_matrices[idx(l,m2 + 2,m1)])*m_inv_sqrtl_cache[l - m2]*m_inv_sqrtl_cache[l + m2 + 1];
+                m_matrices[idx(l,m2,m1)] = (2.0*double(m1)*m_matrices[idx(l,m2 + 1,m1)]
+                        - m_sqrtl_cache[l - m2 - 1]*m_sqrtl_cache[l + m2 + 2]*m_matrices[idx(l,m2 + 2,m1)])
+                    *m_inv_sqrtl_cache[l - m2]*m_inv_sqrtl_cache[l + m2 + 1];
             }
         }
 

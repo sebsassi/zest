@@ -24,7 +24,6 @@ SOFTWARE.
 #include <cmath>
 #include <cstddef>
 
-
 namespace zest::zt
 {
 

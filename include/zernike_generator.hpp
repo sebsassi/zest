@@ -29,7 +29,6 @@ SOFTWARE.
 #include "sh_conventions.hpp"
 #include "zernike_expansion.hpp"
 
-
 namespace zest::zt
 {
 
@@ -71,20 +70,22 @@ public:
         @param znlm buffer for Zernike function values
     */
     template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
-    void generate(double lon, double colat, double r, ZernikeSpan<double, indexing_mode, zernike_norm, sh_norm, sh_phase>& znlm)
+    void generate(
+        double lon, double colat, double r,
+        ZernikeSpan<double, indexing_mode, zernike_norm, sh_norm, sh_phase>& expansion)
     {
-        expand(znlm.order());
+        expand(expansion.order());
 
         const double z = std::cos(colat);
         auto ass_leg = st::AssociatedLegendreSpan<double, sh_norm, sh_phase>(
-                m_ass_leg_poly, znlm.order());
+                m_ass_leg_poly, expansion.order());
         m_plm_recursion.plm_real(z, ass_leg);
 
         auto radial_zernike = RadialZernikeSpan<double, zernike_norm>(
-                m_radial_zernike, znlm.order());
+                m_radial_zernike, expansion.order());
         m_zernike_recursion.zernike(r, radial_zernike);
 
-        for (std::size_t m = 0; m < znlm.order(); ++m)
+        for (std::size_t m = 0; m < expansion.order(); ++m)
         {
             const double angle = double(m)*lon;
             m_cossin[m] = {std::cos(angle), std::sin(angle)};
@@ -93,7 +94,7 @@ public:
         for (auto n : radial_zernike.indices())
         {
             auto radial_zernike_n = radial_zernike[n];
-            auto znlm_n = znlm[n];
+            auto znlm_n = expansion[n];
             for (auto l : radial_zernike_n.indices())
             {
                 const double radial_zernike_nl = radial_zernike_n[l];
@@ -125,6 +126,14 @@ public:
                 }
             }
         }
+    }
+
+    template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+    void generate(
+        double lon, double colat, double r,
+        ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>& expansion)
+    {
+        generate(lon, colat, r, (typename decltype(expansion)::view)(expansion));
     }
 
 private:

@@ -21,6 +21,7 @@ SOFTWARE.
 */
 #pragma once
 
+#include <cassert>
 #include <concepts>
 #include <type_traits>
 
@@ -68,8 +69,8 @@ struct StandardLinearSequence
 
         @param order parameter presenting the size of the layout
     */
-    [[nodiscard]] static constexpr
-    std::size_t size(std::size_t order) noexcept
+    [[nodiscard]] static constexpr std::size_t
+    size(std::size_t order) noexcept
     {
         if constexpr (indexing_mode_param == IndexingMode::nonnegative)
             return order;
@@ -80,8 +81,8 @@ struct StandardLinearSequence
     /**
         @brief Linear index of an element in layout.
     */
-    [[nodiscard]] static constexpr
-    std::size_t index(index_type l) noexcept
+    [[nodiscard]] static constexpr std::size_t
+    index(index_type l) noexcept
     {
         return l;
     }
@@ -114,8 +115,8 @@ struct ParityLinearSequence
 
         @param order parameter presenting the size of the layout
     */
-    [[nodiscard]] static constexpr
-    std::size_t size(std::size_t order) noexcept
+    [[nodiscard]] static constexpr std::size_t
+    size(std::size_t order) noexcept
     {
         return (order + 1) >> 1;
     }
@@ -123,8 +124,8 @@ struct ParityLinearSequence
     /**
         @brief Linear index of an element in layout.
     */
-    [[nodiscard]] static constexpr
-    std::size_t index(index_type l) noexcept
+    [[nodiscard]] static constexpr std::size_t
+    index(index_type l) noexcept
     {
         return l >> 1;
     }
@@ -179,8 +180,8 @@ public:
 
         @param order parameter presenting the size of the layout
     */
-    [[nodiscard]] static constexpr
-    std::size_t size(std::size_t order) noexcept
+    [[nodiscard]] static constexpr std::size_t
+    size(std::size_t order) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::nonnegative)
             return (order*(order + 1)) >> 1;
@@ -191,19 +192,25 @@ public:
     /**
         @brief Linear index of an element in layout.
     */
-    [[nodiscard]] static constexpr
-    std::size_t index(index_type l, index_type m) noexcept
+    [[nodiscard]] static constexpr std::size_t
+    index(index_type l, index_type m) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::nonnegative)
+        {
+            assert(m <= l);
             return ((l*(l + 1)) >> 1) + m;
+        }
         else
+        {
+            assert(0 <= l && -l <= m && m <= l);
             return std::size_t(l*(l + 1) + m);
+        }
     }
     /**
         @brief Linear index of an element in layout.
     */
-    [[nodiscard]] static constexpr
-    std::size_t index(index_type l) noexcept
+    [[nodiscard]] static constexpr std::size_t
+    index(index_type l) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::nonnegative)
             return ((l*(l + 1)) >> 1);
@@ -211,8 +218,8 @@ public:
             return std::size_t(l*(l + 1));
     }
 
-    [[nodiscard]] static constexpr
-    std::size_t subextent(index_type l) noexcept { return l + 1; }
+    [[nodiscard]] static constexpr std::size_t
+    subextent(index_type l) noexcept { return l + 1; }
 };
 
 /**
@@ -256,8 +263,8 @@ public:
 
         @param order parameter presenting the size of the layout
     */
-    [[nodiscard]] static constexpr
-    std::size_t size(std::size_t order) noexcept
+    [[nodiscard]] static constexpr std::size_t
+    size(std::size_t order) noexcept
     {
         // OEIS A002620
         return ((order + 1)*(order + 1)) >> 2; 
@@ -269,7 +276,8 @@ public:
     [[nodiscard]] static constexpr std::size_t
     index(std::size_t n, std::size_t l) noexcept
     {
-         return (((n + 1)*(n + 1)) >> 2) + (l >> 1);
+        assert(l <= n && ((n - l) & 1) == 0);
+        return (((n + 1)*(n + 1)) >> 2) + (l >> 1);
     }
 
     /**
@@ -375,15 +383,22 @@ public:
     index(index_type l, index_type m) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::nonnegative)
+        {
+            assert(m <= l);
             return ((l*l) >> 2) + m;
+        }
         else
+        {
+            assert(0 <= l && -l <= m && m <= l);
             return std::size_t(((l*(l + 1)) >> 1) + m);
+        }
     }
 
     /**
         @brief Linear index of an element in layout.
     */
-    static constexpr std::size_t index(index_type l) noexcept
+    static constexpr std::size_t
+    index(index_type l) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::nonnegative)
             return ((l*l) >> 2);
@@ -459,9 +474,15 @@ public:
     index(index_type n, index_type l, index_type m) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::nonnegative)
+        {
+            assert(m <= l && l <= n && ((n - l) % 2) == 0);
             return (n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2) + m;
+        }
         else
+        {
+            assert(0 <= l && 0 <= n && -l <= m && m <= l && l <= n && ((n - l) % 2) == 0);
             return std::size_t(n*(n + 1)*(n + 2)/6 + ((l*(l + 1)) >> 1) + m);
+        }
     }
 
     /**
@@ -471,9 +492,15 @@ public:
     index(index_type n, index_type l) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::nonnegative)
+        {
+            assert(l <= n && ((n - l) % 2) == 0);
             return (n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2);
+        }
         else
+        {
+            assert(0 <= l && 0 <= n && l <= n && ((n - l) % 2) == 0);
             return std::size_t(n*(n + 1)*(n + 2)/6 + ((l*(l + 1)) >> 1));
+        }
     }
 
     /**

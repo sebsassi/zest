@@ -24,8 +24,8 @@ SOFTWARE.
 #include <span>
 #include <vector>
 
+#include "md_array.hpp"
 #include "md_span.hpp"
-
 
 namespace zest::detail
 {
@@ -55,6 +55,20 @@ public:
         return parameters;
     }
 
+    template <std::size_t N, std::size_t M>
+    [[nodiscard]] std::vector<double> operator()(
+        MDSpan<double, N, M> model, std::span<const double> data)
+    {
+        return operator()(MDSpan<const double, N, M>(model), data);
+    }
+
+    template <std::size_t N, std::size_t M>
+    [[nodiscard]] std::vector<double> operator()(
+        MDArray<double, N, M> model, std::span<const double> data)
+    {
+        return operator()(MDSpan<const double, N, M>(model), data);
+    }
+
     /**
         @brief Fit parameters to data
 
@@ -81,6 +95,20 @@ public:
         dgels_wrapper(model.extents());
 
         std::copy_n(m_data.begin(), parameters_view.size(), parameters_view.begin());
+    }
+
+    template <std::size_t N, std::size_t M>
+    void operator()(
+        MDSpan<double, N, M> model, std::span<double> parameters, std::span<const double> data)
+    {
+        operator()(MDSpan<const double, N, M>(model), parameters, data);
+    }
+
+    template <std::size_t N, std::size_t M>
+    void operator()(
+        MDArray<double, N, M> model, std::span<double> parameters, std::span<const double> data)
+    {
+        operator()(MDSpan<const double, N, M>(model), parameters, data);
     }
 
 private:

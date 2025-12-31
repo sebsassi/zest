@@ -71,6 +71,15 @@ cross_power_spectrum(
     }
 }
 
+template <typename ExpansionTypeA, typename ExpansionTypeB>
+void cross_power_spectrum(ExpansionTypeA&& a, ExpansionTypeA&& b, std::span<double> out)
+{
+    cross_power_spectrum(
+        ExpansionTypeA::const_view(std::forward(a)),
+        ExpansionTypeB::const_view(std::forward(b)),
+        out);
+}
+
 /**
     @brief Compute cross power spectrum of two spherical harmonic expansions.
 
@@ -89,6 +98,15 @@ cross_power_spectrum(
     std::vector<double> out(min_order);
     cross_power_spectrum(a, b, out);
     return out;
+}
+
+template <typename ExpansionTypeA, typename ExpansionTypeB>
+[[nodiscard]] std::vector<double>
+cross_power_spectrum(ExpansionTypeA&& a, ExpansionTypeA&& b)
+{
+    return cross_power_spectrum(
+        ExpansionTypeA::const_view(std::forward(a)),
+        ExpansionTypeB::const_view(std::forward(b)));
 }
 
 /**
@@ -128,6 +146,24 @@ power_spectrum(
     }
 }
 
+template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
+void
+power_spectrum(
+    SHSpan<double, indexing_mode, sh_norm, sh_phase> expansion,
+    std::span<double> out) noexcept
+{
+    power_spectrum(SHSpan<const double, indexing_mode, sh_norm, sh_phase>(expansion), out);
+}
+
+template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
+void
+power_spectrum(
+    SHExpansion<double, indexing_mode, sh_norm, sh_phase>& expansion,
+    std::span<double> out) noexcept
+{
+    power_spectrum(SHSpan<const double, indexing_mode, sh_norm, sh_phase>(expansion), out);
+}
+
 /**
     @brief Compute power spectrum of a spherical harmonic expansions.
 
@@ -142,6 +178,20 @@ power_spectrum(SHSpan<const double, indexing_mode, sh_norm, sh_phase> expansion)
     std::vector<double> out(expansion.order());
     power_spectrum(std::forward(expansion), out);
     return out;
+}
+
+template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
+[[nodiscard]] std::vector<double>
+power_spectrum(SHSpan<double, indexing_mode, sh_norm, sh_phase> expansion)
+{
+    return power_spectrum(SHSpan<const double, indexing_mode, sh_norm, sh_phase>(expansion));
+}
+
+template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
+[[nodiscard]] std::vector<double>
+power_spectrum(const SHExpansion<double, indexing_mode, sh_norm, sh_phase>& expansion)
+{
+    return power_spectrum(SHSpan<const double, indexing_mode, sh_norm, sh_phase>(expansion));
 }
 
 } // namespace st
@@ -190,6 +240,24 @@ power_spectrum(
     }
 }
 
+template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+void
+power_spectrum(
+    ZernikeSpan<double, indexing_mode, zernike_norm, sh_norm, sh_phase> expansion,
+    RadialZernikeSpan<double, zernike_norm> out) noexcept
+{
+    power_spectrum((typename decltype(expansion)::const_view)(expansion), out);
+}
+
+template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+void
+power_spectrum(
+    const ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>& expansion,
+    RadialZernikeSpan<double, zernike_norm> out) noexcept
+{
+    power_spectrum((typename decltype(expansion)::const_view)(expansion), out);
+}
+
 /**
     @brief Compute power spectrum of a Zernike expansions.
 
@@ -200,13 +268,29 @@ power_spectrum(
 template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
 [[nodiscard]] std::vector<double>
 power_spectrum(
-    ZernikeSpan<const double, indexing_mode, zernike_norm, sh_norm, sh_phase>& expansion)
+    ZernikeSpan<const double, indexing_mode, zernike_norm, sh_norm, sh_phase> expansion)
 {
     using SpectrumSpan = RadialZernikeSpan<double, zernike_norm>;
     std::vector<double> res(SpectrumSpan::shape_type::size(expansion.order()));
     power_spectrum(
         std::forward(expansion), SpectrumSpan(res, expansion.order()));
     return res;
+}
+
+template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+[[nodiscard]] std::vector<double>
+power_spectrum(
+    ZernikeSpan<double, indexing_mode, zernike_norm, sh_norm, sh_phase> expansion)
+{
+    return power_spectrum((typename decltype(expansion)::const_view)(expansion));
+}
+
+template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+[[nodiscard]] std::vector<double>
+power_spectrum(
+    const ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>& expansion)
+{
+    return power_spectrum((typename decltype(expansion)::const_view)(expansion));
 }
 
 } // namespace zt

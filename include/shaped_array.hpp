@@ -71,13 +71,13 @@ public:
     [[nodiscard]] operator
     const_view() const noexcept { return const_view(m_data.data(), m_shape); }
 
-    [[nodiscard]] constexpr auto
+    [[nodiscard]] auto
     tagless() noexcept requires tagged<shape_type>
     {
         return ShapedSpan<value_type, typename shape_type::untag>(m_data, m_shape);
     }
 
-    [[nodiscard]] constexpr auto
+    [[nodiscard]] auto
     tagless() const noexcept requires tagged<shape_type>
     {
         return ShapedSpan<value_type, typename shape_type::untag>(m_data, m_shape);
@@ -88,6 +88,34 @@ public:
 
     [[nodiscard]] explicit operator
     std::span<const value_type>() const noexcept { return flatten(); }
+
+    void reshape(const shape_type& shape)
+    {
+        m_shape = shape;
+        m_data.resize(m_shape.size());
+    }
+
+    template <typename... ExtentTypes>
+    void reshape(const ExtentTypes&... extents)
+    {
+        reshape(shape_type(extents...));
+    }
+
+    template <typename NewShapeType>
+    [[nodiscard]] auto
+    reshape(const NewShapeType& shape) noexcept
+    {
+        assert(m_shape.size() == shape.size());
+        return ShapedSpan<value_type, NewShapeType>(m_data.data(), shape);
+    }
+
+    template <typename NewShapeType>
+    [[nodiscard]] auto
+    reshape(const NewShapeType& shape) const noexcept
+    {
+        assert(m_shape.size() == shape.size());
+        return ShapedSpan<const value_type, NewShapeType>(m_data.data(), shape);
+    }
 
     [[nodiscard]] const ShapeType&
     shape() const noexcept { return m_shape; }
@@ -125,27 +153,27 @@ public:
     [[nodiscard]] index_range
     indices() const noexcept { return m_shape.indices(); }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] const_reference
     operator()(Inds... indices) const noexcept { return m_data[m_shape(indices...)]; }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] reference
     operator()(Inds... indices) noexcept { return m_data[m_shape(indices...)]; }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] const_reference
     operator[](Inds... indices) const noexcept { return m_data[m_shape(indices...)]; }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] reference
     operator[](Inds... indices) noexcept { return m_data[m_shape(indices...)]; }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) < shape_type::rank)
     [[nodiscard]] auto operator()(Inds... indices) const noexcept
     {
@@ -153,7 +181,7 @@ public:
             m_data.data() + m_shape(indices...), m_shape.subshape(indices...));
     }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) < shape_type::rank)
     [[nodiscard]] auto operator()(Inds... indices) noexcept
     {
@@ -161,7 +189,7 @@ public:
             m_data.data() + m_shape(indices...), m_shape.subshape(indices...));
     }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) < shape_type::rank)
     [[nodiscard]] auto operator[](Inds... indices) const noexcept
     {
@@ -169,7 +197,7 @@ public:
             m_data.data() + m_shape(indices...), m_shape.subshape(indices...));
     }
 
-    template <typename... Inds>
+    template <std::integral... Inds>
         requires (sizeof...(Inds) < shape_type::rank)
     [[nodiscard]] auto operator[](Inds... indices) noexcept
     {

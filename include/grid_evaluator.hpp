@@ -47,7 +47,8 @@ namespace detail
     @param angles array of input angles
 */
 void recursive_trig(
-    MDSpan<double, std::dynamic_extent, std::dynamic_extent, 2> trigs, std::span<const double> angles) noexcept;
+    MDSpan<double, std::dynamic_extent, std::dynamic_extent, 2> trigs,
+    std::span<const double> angles) noexcept;
 
 } // namespace detail
 
@@ -130,6 +131,23 @@ public:
 
         return res;
     }
+
+    template <SHNorm sh_norm, SHPhase sh_phase>
+    [[nodiscard]] std::vector<double> evaluate(
+        SHSpan<double, IndexingMode::nonnegative, sh_norm, sh_phase> expansion,
+        std::span<const double> longitudes, std::span<const double> colatitudes)
+    {
+        return evaluate((typename decltype(expansion)::const_view)(expansion), longitudes, colatitudes);
+    }
+
+    template <SHNorm sh_norm, SHPhase sh_phase>
+    [[nodiscard]] std::vector<double> evaluate(
+        const SHExpansion<double, IndexingMode::nonnegative, sh_norm, sh_phase>& expansion,
+        std::span<const double> longitudes, std::span<const double> colatitudes)
+    {
+        return evaluate((typename decltype(expansion)::const_view)(expansion), longitudes, colatitudes);
+    }
+
 private:
     template <SHNorm sh_norm, SHPhase sh_phase>
     void sum_l(SHSpan<const double, IndexingMode::nonnegative, sh_norm, sh_phase> expansion) noexcept
@@ -262,6 +280,22 @@ public:
                 res.data(), {m_lon_size, m_lat_size, m_rad_size}), order);
 
         return res;
+    }
+
+    template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+    [[nodiscard]] std::vector<double> evaluate(
+        ZernikeSpan<double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase> expansion,
+        std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
+    {
+        return evaluate((typename decltype(expansion)::const_view)(expansion), longitudes, colatitudes, radii);
+    }
+
+    template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+    [[nodiscard]] std::vector<double> evaluate(
+        const ZernikeExpansion<const double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase>& expansion,
+        std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
+    {
+        return evaluate((typename decltype(expansion)::const_view)(expansion), longitudes, colatitudes, radii);
     }
 
 private:

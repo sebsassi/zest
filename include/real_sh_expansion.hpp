@@ -31,7 +31,6 @@ SOFTWARE.
 #include "shaped_span.hpp"
 #include "spans.hpp"
 
-
 namespace zest::st
 {
 
@@ -100,6 +99,13 @@ template <
     std::size_t... Ns
 >
 using AssociatedLegendreSpan = ShapedSpan<
+    ElementType, AssociatedLegendreShape<sh_norm_param, sh_phase_param, Ns...>>;
+
+template <
+    complex_or_real_float ElementType, SHNorm sh_norm_param, SHPhase sh_phase_param,
+    std::size_t... Ns
+>
+using AssociatedLegendreExpansion = ShapedArray<
     ElementType, AssociatedLegendreShape<sh_norm_param, sh_phase_param, Ns...>>;
 
 /**

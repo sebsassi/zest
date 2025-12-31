@@ -30,7 +30,6 @@ SOFTWARE.
 #include "sh_conventions.hpp"
 #include "real_sh_expansion.hpp"
 
-
 namespace zest::st
 {
 
@@ -73,10 +72,18 @@ public:
         @param z point at which the polynomials are evaluated
         @param plm output buffer for the evaluated polynomials
     */
-    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
-    void plm_real(double z, AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param> plm)
+    template <SHNorm sh_norm, SHPhase sh_phase>
+    void plm_real(double z, AssociatedLegendreSpan<double, sh_norm, sh_phase> plm)
     {
         return plm_impl(z, std::numbers::sqrt2, plm);
+    }
+
+    template <SHNorm sh_norm, SHPhase sh_phase>
+    void plm_real(double z, AssociatedLegendreExpansion<double, sh_norm, sh_phase>& plm)
+    {
+        return plm_impl(
+            z, std::numbers::sqrt2,
+            AssociatedLegendreSpan<double, sh_norm, sh_phase>(plm));
     }
 
     /**
@@ -85,12 +92,21 @@ public:
         @param z points at which the polynomials are evaluated
         @param plm output buffer for the evaluated polynomials
     */
-    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
+    template <SHNorm sh_norm, SHPhase sh_phase>
     void plm_real(
         std::span<const double> z,
-        AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param, std::dynamic_extent> plm)
+        AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent> plm)
     {
         return plm_impl(z, std::numbers::sqrt2, plm);
+    }
+    template <SHNorm sh_norm, SHPhase sh_phase>
+    void plm_real(
+        std::span<const double> z,
+        AssociatedLegendreExpansion<double, sh_norm, sh_phase, std::dynamic_extent> plm)
+    {
+        return plm_impl(
+            z, std::numbers::sqrt2,
+            AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>(plm));
     }
 
     /**
@@ -99,10 +115,15 @@ public:
         @param z point at which the polynomials are evaluated
         @param plm utput buffer for the evaluated polynomials
     */
-    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
-    void plm_complex(double z, AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param> plm)
+    template <SHNorm sh_norm, SHPhase sh_phase>
+    void plm_complex(double z, AssociatedLegendreSpan<double, sh_norm, sh_phase> plm)
     {
         return plm_impl(z, 1.0, plm);
+    }
+    template <SHNorm sh_norm, SHPhase sh_phase>
+    void plm_complex(double z, AssociatedLegendreExpansion<double, sh_norm, sh_phase> plm)
+    {
+        return plm_impl(z, 1.0, AssociatedLegendreSpan<double, sh_norm, sh_phase>(plm));
     }
 
     /**
@@ -111,19 +132,29 @@ public:
         @param plm utput buffer for the evaluated polynomials
         @param z points at which the polynomials are evaluated
     */
-    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
+    template <SHNorm sh_norm, SHPhase sh_phase>
     void plm_complex(
         std::span<const double> z,
-        AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param, std::dynamic_extent> plm)
+        AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent> plm)
     {
         return plm_impl(z, 1.0, plm);
     }
 
+    template <SHNorm sh_norm, SHPhase sh_phase>
+    void plm_complex(
+        std::span<const double> z,
+        AssociatedLegendreExpansion<double, sh_norm, sh_phase, std::dynamic_extent>& plm)
+    {
+        return plm_impl(
+            z, 1.0, 
+            AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>(plm));
+    }
+
 private:
-    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
+    template <SHNorm sh_norm, SHPhase sh_phase>
     void plm_impl(
         double z, double complex_norm,
-        AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param> plm)
+        AssociatedLegendreSpan<double, sh_norm, sh_phase> plm)
     {
         constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
 
@@ -136,16 +167,16 @@ private:
 
         const double u = std::sqrt((1.0 - z)*(1.0 + z));
 
-        if constexpr (sh_norm_param == SHNorm::geo)
+        if constexpr (sh_norm == SHNorm::geo)
             plm[0, 0] = 1.0;
-        else if constexpr (sh_norm_param == SHNorm::qm)
+        else if constexpr (sh_norm == SHNorm::qm)
             plm[0, 0] = inv_sqrt_4pi;
 
         if (order == 1) return;
 
-        if constexpr (sh_norm_param == SHNorm::geo)
+        if constexpr (sh_norm == SHNorm::geo)
             plm[1, 0] = m_sqrl[3]*z;
-        else if constexpr (sh_norm_param == SHNorm::qm)
+        else if constexpr (sh_norm == SHNorm::qm)
             plm[1, 0] = m_sqrl[3]*z*inv_sqrt_4pi;
 
         std::span<double> plm_flat = plm.flatten();
@@ -160,9 +191,9 @@ private:
         constexpr double underflow_compensation = 1.0e-280;
 
         double pmm;
-        if constexpr (sh_norm_param == SHNorm::geo)
+        if constexpr (sh_norm == SHNorm::geo)
             pmm = underflow_compensation*complex_norm;
-        else if constexpr (sh_norm_param == SHNorm::qm)
+        else if constexpr (sh_norm == SHNorm::qm)
             pmm = underflow_compensation*complex_norm*inv_sqrt_4pi;
 
         // This number is repeatedly multiplied by u < 1. To avoid underflow
@@ -176,7 +207,7 @@ private:
 
             // `P(m,m) = u*sqrt((2m + 1)/(2m))*P(m - 1,m - 1)`
             // NOTE: multiplication by `u` happens later
-            pmm *= double(sh_phase_param)*m_sqrl[2*m + 1]/m_sqrl[2*m];
+            pmm *= double(sh_phase)*m_sqrl[2*m + 1]/m_sqrl[2*m];
             plm[m, m] = pmm;
 
             // `P(m+1,m) = z*sqrt(2m + 3)*P(m,m)`
@@ -203,15 +234,15 @@ private:
 
         // P(lmax,lmax)
         plm[order - 1, order - 1]
-                = double(sh_phase_param)*pmm*u_scaled*m_sqrl[2*order - 1]/m_sqrl[2*order - 2];
+                = double(sh_phase)*pmm*u_scaled*m_sqrl[2*order - 1]/m_sqrl[2*order - 2];
     }
 
-    template <SHNorm sh_norm_param, SHPhase sh_phase_param>
+    template <SHNorm sh_norm, SHPhase sh_phase>
     void plm_impl(
         std::span<const double> z, double complex_norm,
-        AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param, std::dynamic_extent> plm)
+        AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent> plm)
     {
-        using PlmVecSpan = AssociatedLegendreSpan<double, sh_norm_param, sh_phase_param, std::dynamic_extent>;
+        using PlmVecSpan = AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>;
         constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
 
         const std::size_t order = plm.order();
@@ -231,9 +262,9 @@ private:
         auto plm_00 = plm[0, 0];
         for (std::size_t i = 0; i < z.size(); ++i)
         {
-            if constexpr (sh_norm_param == SHNorm::geo)
+            if constexpr (sh_norm == SHNorm::geo)
                 plm_00[i] = 1.0;
-            else if constexpr (sh_norm_param == SHNorm::qm)
+            else if constexpr (sh_norm == SHNorm::qm)
                 plm_00[i] = inv_sqrt_4pi;
         }
 
@@ -242,9 +273,9 @@ private:
         auto plm_10 = plm[1, 0];
         for (std::size_t i = 0; i < z.size(); ++i)
         {
-            if constexpr (sh_norm_param == SHNorm::geo)
+            if constexpr (sh_norm == SHNorm::geo)
                 plm_10[i] = z[i]*m_sqrl[3];
-            else if constexpr (sh_norm_param == SHNorm::qm)
+            else if constexpr (sh_norm == SHNorm::qm)
                 plm_10[i] = z[i]*(m_sqrl[3]*inv_sqrt_4pi);
         }
 
@@ -267,9 +298,9 @@ private:
         constexpr double underflow_compensation = 1.0e-280;
 
         double pmm;
-        if constexpr (sh_norm_param == SHNorm::geo)
+        if constexpr (sh_norm == SHNorm::geo)
             pmm = underflow_compensation*complex_norm;
-        else if constexpr (sh_norm_param == SHNorm::qm)
+        else if constexpr (sh_norm == SHNorm::qm)
             pmm = underflow_compensation*complex_norm*inv_sqrt_4pi;
 
         // This number is repeatedly multiplied by u < 1. To avoid underflow
@@ -285,7 +316,7 @@ private:
 
             // `P(m, m) = u*sqrt((2m + 1)/(2m))*P(m - 1, m - 1)`
             // NOTE: multiplication by `u` happens later
-            pmm *= double(sh_phase_param)*m_sqrl[2*m + 1]/m_sqrl[2*m];
+            pmm *= double(sh_phase)*m_sqrl[2*m + 1]/m_sqrl[2*m];
             auto plm_mm = plm(m, m);
             for (std::size_t i = 0; i < z.size(); ++i)
                 plm_mm[i] = pmm;
@@ -329,7 +360,7 @@ private:
         auto plm_om1om1 = plm(order - 1, order - 1);
         for (std::size_t i = 0; i < z.size(); ++i)
             plm_om1om1[i]
-                = m_u_scaled[i]*(double(sh_phase_param)*pmm*m_sqrl[2*order - 1]
+                = m_u_scaled[i]*(double(sh_phase)*pmm*m_sqrl[2*order - 1]
                 /m_sqrl[2*order - 2]);
     }
 

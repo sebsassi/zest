@@ -20,10 +20,3 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "sh_glq_transformer.hpp"
-
-
-namespace zest::st
-{
-
-} // namespace zest::st
-

@@ -29,7 +29,6 @@ SOFTWARE.
 #include <type_traits>
 #include <utility>
 
-
 namespace zest::gl
 {
 

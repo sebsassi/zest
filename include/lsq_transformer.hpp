@@ -51,7 +51,7 @@ public:
         return m_sh_gen.max_order();
     }
 
-    [[nodiscard]] MDSpan<const double, 2> sh_values() const noexcept
+    [[nodiscard]] MDSpan<const double, std::dynamic_extent, std::dynamic_extent> sh_values() const noexcept
     {
         return m_sh_values;
     }
@@ -65,8 +65,7 @@ public:
 
         m_sh_gen.expand(expansion.order());
 
-        m_sh_values.reshape(
-                {data.size(), FitExpansion::Layout::size(expansion.order())});
+        m_sh_values.reshape({data.size(), expansion.size()});
 
         for (size_t i = 0; i < data.size(); ++i)
         {
@@ -110,7 +109,7 @@ public:
 
 private:
     RealSHGenerator m_sh_gen;
-    MDArray<double, 2> m_sh_values;
+    MDArray<double, std::dynamic_extent, std::dynamic_extent> m_sh_values;
     std::vector<double> m_coeffs;
     zest::detail::LinearMultifit m_fitter;
 };
@@ -134,26 +133,23 @@ public:
         return m_zernike_gen.max_order();
     }
 
-    [[nodiscard]] MDSpan<const double, 2> zernike_values() const noexcept
+    [[nodiscard]] MDSpan<const double, std::dynamic_extent, std::dynamic_extent> zernike_values() const noexcept
     {
         return m_zernike_values;
     }
 
-    template <
-        IndexingMode indexing_mode, ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param
-    >
+    template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     void transform(
         std::span<const double> data, std::span<const double> r, std::span<const double> lon,
         std::span<const double> colat,
-        ZernikeSpan<double, indexing_mode, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
+        ZernikeSpan<double, indexing_mode, zernike_norm, sh_norm, sh_phase> expansion)
     {
         using FitExpansion = ZernikeSpan<
-                double, indexing_mode, zernike_norm_param, sh_norm_param, sh_phase_param>;
+                double, indexing_mode, zernike_norm, sh_norm, sh_phase>;
 
         m_zernike_gen.expand(expansion.order());
 
-        m_zernike_values.reshape(
-                {data.size(), FitExpansion::Layout::size(expansion.order())});
+        m_zernike_values.reshape({data.size(), expansion.size()});
 
         for (size_t i = 0; i < data.size(); ++i)
         {
@@ -190,6 +186,15 @@ public:
         }
     }
 
+    template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+    void transform(
+        std::span<const double> data, std::span<const double> r, std::span<const double> lon,
+        std::span<const double> colat,
+        ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>& expansion)
+    {
+        transform(data, r, lon, colat, (typename decltype(expansion)::view)(expansion));
+    }
+
     template <
         IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     [[nodiscard]] auto transform(
@@ -204,7 +209,7 @@ public:
 
 private:
     ZernikeGenerator m_zernike_gen;
-    MDArray<double, 2> m_zernike_values;
+    MDArray<double, std::dynamic_extent, std::dynamic_extent> m_zernike_values;
     std::vector<double> m_coeffs;
     detail::LinearMultifit m_fitter;
 };
