@@ -31,13 +31,12 @@ namespace zest
 {
 
 /**
-    @brief Enum for tagging the `m` indexing style for spherical harmonics
-    related things.
+    @brief Enum for tagging index intervals as either symmetric or zero based.
 */
 enum class IndexingMode
 {
-    negative, // Index from `-l` to `l`
-    nonnegative // Index from `0` to `l`
+    symmetric, // Index from `-n` to `n`, inclusive.
+    zero_based // Index from `0` to `n`, inclusive.
 };
 
 enum class Parity { even = 0, odd = 1 };
@@ -46,7 +45,11 @@ template <typename T>
 concept has_parity = requires (T x) { { x.parity() } -> std::same_as<Parity>; };
 
 /**
-    @brief Contiguous 1d layout, which is indexed exactly as you think it is
+    @brief Contiguous 1d layout, which is indexed exactly as you think it is.
+
+    @tparam indexing_mode_param determines if indexing is symmetric about zero
+    or starts at zero
+
     ```
     0 1 2 3 4 5...
     ```
@@ -57,9 +60,9 @@ template <IndexingMode indexing_mode_param>
 struct StandardLinearSequence
 {
     using index_type = std::conditional_t<
-        indexing_mode_param == IndexingMode::negative, int, std::size_t>;
+        indexing_mode_param == IndexingMode::symmetric, int, std::size_t>;
     using size_type = std::size_t;
-    using index_range = std::conditional_t<(indexing_mode_param == IndexingMode::negative),
+    using index_range = std::conditional_t<(indexing_mode_param == IndexingMode::symmetric),
         SymmetricIndexRange<index_type>, StandardIndexRange<index_type>>;
 
     static constexpr size_type rank = 1;
@@ -72,7 +75,7 @@ struct StandardLinearSequence
     [[nodiscard]] static constexpr std::size_t
     size(std::size_t order) noexcept
     {
-        if constexpr (indexing_mode_param == IndexingMode::nonnegative)
+        if constexpr (indexing_mode_param == IndexingMode::zero_based)
             return order;
         else
             return 2*order - std::min(1UL, order);
@@ -154,7 +157,7 @@ struct ParityLinearSequence
 template <IndexingMode indexing_mode_param>
 struct TriangleSequence
 {
-    using index_type = std::conditional_t<indexing_mode_param == IndexingMode::negative,
+    using index_type = std::conditional_t<indexing_mode_param == IndexingMode::symmetric,
         int, std::size_t>;
     using size_type = std::size_t;
     using index_range = StandardIndexRange<index_type>;
@@ -183,7 +186,7 @@ public:
     [[nodiscard]] static constexpr std::size_t
     size(std::size_t order) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::nonnegative)
+        if constexpr (indexing_mode == IndexingMode::zero_based)
             return (order*(order + 1)) >> 1;
         else
             return order*order;
@@ -195,7 +198,7 @@ public:
     [[nodiscard]] static constexpr std::size_t
     index(index_type l, index_type m) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::nonnegative)
+        if constexpr (indexing_mode == IndexingMode::zero_based)
         {
             assert(m <= l);
             return ((l*(l + 1)) >> 1) + m;
@@ -212,7 +215,7 @@ public:
     [[nodiscard]] static constexpr std::size_t
     index(index_type l) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::nonnegative)
+        if constexpr (indexing_mode == IndexingMode::zero_based)
             return ((l*(l + 1)) >> 1);
         else
             return std::size_t(l*(l + 1));
@@ -341,7 +344,7 @@ template <IndexingMode indexing_mode_param>
 struct EvenRowTriangleSequence
 {
     using SubLayout = StandardLinearSequence<indexing_mode_param>;
-    using index_type = std::conditional_t<indexing_mode_param == IndexingMode::negative,
+    using index_type = std::conditional_t<indexing_mode_param == IndexingMode::symmetric,
         int, std::size_t>;
     using size_type = std::size_t;
     using index_range = ParityIndexRange<index_type>;
@@ -370,7 +373,7 @@ public:
     static constexpr std::size_t 
     size(std::size_t order) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::nonnegative)
+        if constexpr (indexing_mode == IndexingMode::zero_based)
             return ((order + 1)*(order + 1)) >> 2;
         else
             return (order*(order + 1)) >> 1;
@@ -382,7 +385,7 @@ public:
     static constexpr std::size_t 
     index(index_type l, index_type m) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::nonnegative)
+        if constexpr (indexing_mode == IndexingMode::zero_based)
         {
             assert(m <= l);
             return ((l*l) >> 2) + m;
@@ -400,7 +403,7 @@ public:
     static constexpr std::size_t
     index(index_type l) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::nonnegative)
+        if constexpr (indexing_mode == IndexingMode::zero_based)
             return ((l*l) >> 2);
         else
             return std::size_t(((l*(l + 1)) >> 1));
@@ -428,7 +431,7 @@ template <IndexingMode indexing_mode_param>
 struct ZernikeTetrahedralSequence
 {
     using SubLayout = EvenRowTriangleSequence<indexing_mode_param>;
-    using index_type = std::conditional_t<indexing_mode_param == IndexingMode::negative,
+    using index_type = std::conditional_t<indexing_mode_param == IndexingMode::symmetric,
         int, std::size_t>;
     using size_type = std::size_t;
     using index_range = StandardIndexRange<index_type>;
@@ -461,7 +464,7 @@ public:
     [[nodiscard]] static constexpr std::size_t
     size(std::size_t order) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::nonnegative)
+        if constexpr (indexing_mode == IndexingMode::zero_based)
             return (order + 1)*(order + 3)*(2*order + 1)/24; // OEIS A002623
         else
             return order*(order + 1)*(order + 2)/6; // OEIS A000292
@@ -473,7 +476,7 @@ public:
     [[nodiscard]] static constexpr std::size_t
     index(index_type n, index_type l, index_type m) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::nonnegative)
+        if constexpr (indexing_mode == IndexingMode::zero_based)
         {
             assert(m <= l && l <= n && ((n - l) % 2) == 0);
             return (n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2) + m;
@@ -491,7 +494,7 @@ public:
     [[nodiscard]] static constexpr std::size_t
     index(index_type n, index_type l) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::nonnegative)
+        if constexpr (indexing_mode == IndexingMode::zero_based)
         {
             assert(l <= n && ((n - l) % 2) == 0);
             return (n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2);
@@ -509,7 +512,7 @@ public:
     [[nodiscard]] static constexpr std::size_t
     index(index_type n) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::nonnegative)
+        if constexpr (indexing_mode == IndexingMode::zero_based)
             return (n + 1)*(n + 3)*(2*n + 1)/24;
         else
             return std::size_t(n*(n + 1)*(n + 2)/6);

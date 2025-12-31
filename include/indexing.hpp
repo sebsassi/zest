@@ -259,7 +259,7 @@ public:
         @param end end of index range
     */
     explicit constexpr ParityIndexRange(index_type end):
-        BasicIndexRange<index_type, index_type{1}>(end & 1, end) {}
+        BasicIndexRange<index_type, index_type{2}>(end & 1, end) {}
 
     /**
         @brief Constructs a range of indices `[2*floor(begin/2) + end % 2, end)`.
@@ -268,7 +268,7 @@ public:
         @param end end of index range
     */
     explicit constexpr ParityIndexRange(index_type begin, index_type end):
-        BasicIndexRange<index_type, index_type{1}>((begin & ~1UL) + (end & 1), end) {}
+        BasicIndexRange<index_type, index_type{2}>((begin & ~1UL) + (end & 1), end) {}
 };
 
 /**

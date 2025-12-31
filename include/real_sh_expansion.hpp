@@ -44,7 +44,7 @@ namespace zest::st
 */
 template <SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns>
 using AssociatedLegendreShape = TaggedShape<
-    TriangleShape<IndexingMode::nonnegative, Ns...>, SHTag<sh_norm_param, sh_phase_param>>;
+    TriangleShape<IndexingMode::zero_based, Ns...>, SHTag<sh_norm_param, sh_phase_param>>;
 
 /**
     @brief Tagged shape representing layout and conventions of spherical
@@ -60,7 +60,7 @@ template <
     std::size_t... Ns
 >
 using SHShape = TaggedShape<
-    std::conditional_t<(indexing_mode_param == IndexingMode::negative),
+    std::conditional_t<(indexing_mode_param == IndexingMode::symmetric),
         TriangleShape<indexing_mode_param, Ns...>,
         TriangleShape<indexing_mode_param, 2, Ns...>>,
     SHTag<sh_norm_param, sh_phase_param>>;
@@ -237,10 +237,10 @@ template <
 >
 constexpr ComplexEncodedRealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>
 to_complex_expansion(
-    SHSpan<double, IndexingMode::nonnegative, source_sh_norm, source_sh_phase>& expansion) noexcept
+    SHSpan<double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>& expansion) noexcept
 {
     using ExpansionType = SHSpan<
-        double, IndexingMode::nonnegative, source_sh_norm, source_sh_phase>;
+        double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>;
     using ReturnType = ComplexEncodedRealSHSpan<
         std::complex<double>, dest_sh_norm, dest_sh_phase>;
 
@@ -295,14 +295,14 @@ to_complex_expansion(
 template <
     SHNorm dest_sh_norm, SHPhase dest_sh_phase, SHNorm source_sh_norm, SHPhase source_sh_phase
 >
-constexpr SHSpan<double, IndexingMode::nonnegative, dest_sh_norm, dest_sh_phase>
+constexpr SHSpan<double, IndexingMode::zero_based, dest_sh_norm, dest_sh_phase>
 to_real_expansion(
     ComplexEncodedRealSHSpan<std::complex<double>, source_sh_norm, source_sh_phase>& expansion) noexcept
 {
     using ExpansionType = ComplexEncodedRealSHSpan<
         std::complex<double>, source_sh_norm, source_sh_phase>;
     using ReturnType = SHSpan<
-        double, IndexingMode::nonnegative, dest_sh_norm, dest_sh_phase>;
+        double, IndexingMode::zero_based, dest_sh_norm, dest_sh_phase>;
 
     constexpr double sh_norm
         = conversion_const<std::remove_cvref_t<ExpansionType>::shape::sh_norm, dest_sh_norm>();

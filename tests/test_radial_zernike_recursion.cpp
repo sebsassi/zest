@@ -84,7 +84,7 @@ bool test_zernike_layout_size_is_correct(std::size_t order)
         for (std::size_t l = n & 1; l <= n; l += 2)
         {
             const int mmin
-                = (indexing_mode_param == zest::IndexingMode::nonnegative) ?
+                = (indexing_mode_param == zest::IndexingMode::zero_based) ?
                     0 : -int(l);
             for (int m = mmin; m <= int(l); ++m)
                 ++i;
@@ -113,7 +113,7 @@ bool test_zernike_layout_indices_are_contiguous(std::size_t order)
         for (std::size_t l = n & 1; l <= n; l += 2)
         {
             const int mmin
-                = (indexing_mode_param == zest::IndexingMode::nonnegative) ?
+                = (indexing_mode_param == zest::IndexingMode::zero_based) ?
                     0 : -int(l);
             for (int m = mmin; m <= int(l); ++m)
             {
@@ -542,10 +542,10 @@ int main()
 {
     assert(test_radial_zernike_layout_size_is_correct(6));
     assert(test_radial_zernike_layout_indices_are_contiguous(6));
-    assert(test_zernike_layout_size_is_correct<zest::IndexingMode::nonnegative>(6));
-    assert(test_zernike_layout_indices_are_contiguous<zest::IndexingMode::nonnegative>(6));
-    assert(test_zernike_layout_size_is_correct<zest::IndexingMode::negative>(6));
-    assert(test_zernike_layout_indices_are_contiguous<zest::IndexingMode::negative>(6));
+    assert(test_zernike_layout_size_is_correct<zest::IndexingMode::zero_based>(6));
+    assert(test_zernike_layout_indices_are_contiguous<zest::IndexingMode::zero_based>(6));
+    assert(test_zernike_layout_size_is_correct<zest::IndexingMode::symmetric>(6));
+    assert(test_zernike_layout_indices_are_contiguous<zest::IndexingMode::symmetric>(6));
 
     test_zernike<zest::zt::ZernikeNorm::unnormed>();
     test_zernike<zest::zt::ZernikeNorm::normed>();

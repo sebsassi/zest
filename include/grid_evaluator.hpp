@@ -103,7 +103,7 @@ public:
     */
     template <SHNorm sh_norm, SHPhase sh_phase>
     [[nodiscard]] std::vector<double> evaluate(
-        SHSpan<const double, IndexingMode::nonnegative, sh_norm, sh_phase> expansion,
+        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes)
     {
         if (longitudes.size() == 0 || colatitudes.size() == 0)
@@ -134,7 +134,7 @@ public:
 
     template <SHNorm sh_norm, SHPhase sh_phase>
     [[nodiscard]] std::vector<double> evaluate(
-        SHSpan<double, IndexingMode::nonnegative, sh_norm, sh_phase> expansion,
+        SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes)
     {
         return evaluate((typename decltype(expansion)::const_view)(expansion), longitudes, colatitudes);
@@ -142,7 +142,7 @@ public:
 
     template <SHNorm sh_norm, SHPhase sh_phase>
     [[nodiscard]] std::vector<double> evaluate(
-        const SHExpansion<double, IndexingMode::nonnegative, sh_norm, sh_phase>& expansion,
+        const SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase>& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes)
     {
         return evaluate((typename decltype(expansion)::const_view)(expansion), longitudes, colatitudes);
@@ -150,7 +150,7 @@ public:
 
 private:
     template <SHNorm sh_norm, SHPhase sh_phase>
-    void sum_l(SHSpan<const double, IndexingMode::nonnegative, sh_norm, sh_phase> expansion) noexcept
+    void sum_l(SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion) noexcept
     {
         AssociatedLegendreSpan<const double, sh_norm, sh_phase, std::dynamic_extent>
         ass_leg(m_plm_grid, expansion.order(), m_lat_size);
@@ -245,7 +245,7 @@ public:
     */
     template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     [[nodiscard]] std::vector<double> evaluate(
-        ZernikeSpan<const double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase> expansion,
+        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
     {
         if (longitudes.size() == 0 || colatitudes.size() == 0 || radii.size() == 0)
@@ -284,7 +284,7 @@ public:
 
     template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     [[nodiscard]] std::vector<double> evaluate(
-        ZernikeSpan<double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase> expansion,
+        ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
     {
         return evaluate((typename decltype(expansion)::const_view)(expansion), longitudes, colatitudes, radii);
@@ -292,7 +292,7 @@ public:
 
     template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     [[nodiscard]] std::vector<double> evaluate(
-        const ZernikeExpansion<const double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase>& expansion,
+        const ZernikeExpansion<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
     {
         return evaluate((typename decltype(expansion)::const_view)(expansion), longitudes, colatitudes, radii);
@@ -300,7 +300,7 @@ public:
 
 private:
     template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
-    void sum_n(ZernikeSpan<const double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase> expansion) noexcept
+    void sum_n(ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion) noexcept
     {
         const std::size_t order = expansion.order();
         RadialZernikeSpan<const double, zernike_norm, std::dynamic_extent>
@@ -308,7 +308,7 @@ private:
 
         std::ranges::fill(m_flm_grid, 0.0);
 
-        TriangleSpan<double, IndexingMode::nonnegative, 2, std::dynamic_extent>
+        TriangleSpan<double, IndexingMode::zero_based, 2, std::dynamic_extent>
         flm(m_flm_grid, order, std::array<std::size_t, 2>{2, m_rad_size});
 
         for (auto n : expansion.indices())

@@ -533,7 +533,7 @@ public:
     using grid_span_type = SphereGLQGridSpan<T, grid_layout_type>;
 
     template <typename T>
-    using sh_span_type = SHSpan<T, IndexingMode::nonnegative, sh_norm_param, sh_phase_param>;
+    using sh_span_type = SHSpan<T, IndexingMode::zero_based, sh_norm_param, sh_phase_param>;
 
     static constexpr SHNorm norm = sh_norm_param;
     static constexpr SHPhase phase = sh_phase_param;
@@ -645,7 +645,7 @@ public:
     */
     void forward_transform(
         SphereGLQGridSpan<const double, grid_layout_type> values,
-        SHSpan<double, IndexingMode::nonnegative, norm, phase> expansion)
+        SHSpan<double, IndexingMode::zero_based, norm, phase> expansion)
     {
         resize(values.order());
 
@@ -655,7 +655,7 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        SHSpan<double, IndexingMode::nonnegative, norm, phase> truncated_expansion(expansion.data(), min_order);
+        SHSpan<double, IndexingMode::zero_based, norm, phase> truncated_expansion(expansion.data(), min_order);
 
         integrate_latitudinal(truncated_expansion);
     }
@@ -668,14 +668,14 @@ public:
         @param values values on the spherical quadrature grid
     */
     void backward_transform(
-        SHSpan<const double, IndexingMode::nonnegative, norm, phase> expansion,
+        SHSpan<const double, IndexingMode::zero_based, norm, phase> expansion,
         SphereGLQGridSpan<double, grid_layout_type> values)
     {
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        SHSpan<const double, IndexingMode::nonnegative, norm, phase> truncated_expansion(expansion.data(), min_order);
+        SHSpan<const double, IndexingMode::zero_based, norm, phase> truncated_expansion(expansion.data(), min_order);
 
         sum_l(truncated_expansion);
         symm_asymm_to_fft();
@@ -696,10 +696,10 @@ public:
     */
     template <zt::ZernikeNorm zernike_norm>
     void backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::nonnegative, zernike_norm, norm, phase>::template const_subspan_type<1>& expansion,
+        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, norm, phase>::template const_subspan_type<1>& expansion,
         SphereGLQGridSpan<double, grid_layout_type> values)
     {
-        using ExpansionType = typename zt::ZernikeSpan<double, IndexingMode::nonnegative, zernike_norm, norm, phase>::template const_subspan_type<1>;
+        using ExpansionType = typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, norm, phase>::template const_subspan_type<1>;
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
@@ -713,7 +713,7 @@ public:
 
     template <zt::ZernikeNorm zernike_norm>
     void backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::nonnegative, zernike_norm, norm, phase>::template subspan_type<1>& expansion,
+        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, norm, phase>::template subspan_type<1>& expansion,
         SphereGLQGridSpan<double, grid_layout_type> values)
     {
         backward_transform((typename decltype(expansion)::const_view)(expansion), values);
@@ -726,11 +726,11 @@ public:
         @param values values on the spherical quadrature grid
         @param order order of expansion
     */
-    [[nodiscard]] SHExpansion<double, IndexingMode::nonnegative, norm, phase>
+    [[nodiscard]] SHExpansion<double, IndexingMode::zero_based, norm, phase>
     forward_transform(
         SphereGLQGridSpan<const double, grid_layout_type> values, std::size_t order)
     {
-        SHExpansion<double, IndexingMode::nonnegative, norm, phase> expansion(order);
+        SHExpansion<double, IndexingMode::zero_based, norm, phase> expansion(order);
         forward_transform(values, expansion);
         return expansion;
     }
@@ -743,7 +743,7 @@ public:
         @param expansion coefficients of the expansion
     */
     [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
-        SHSpan<const double, IndexingMode::nonnegative, norm, phase> expansion, std::size_t order)
+        SHSpan<const double, IndexingMode::zero_based, norm, phase> expansion, std::size_t order)
     {
         SphereGLQGrid<double, grid_layout_type> grid(order);
         backward_transform(expansion, grid);
@@ -764,7 +764,7 @@ public:
     */
     template <zt::ZernikeNorm zernike_norm>
     [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::nonnegative, zernike_norm, norm, phase>::template const_subspan_type<1>& expansion,
+        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, norm, phase>::template const_subspan_type<1>& expansion,
         std::size_t order)
     {
         SphereGLQGrid<double, grid_layout_type> grid(order);
@@ -774,7 +774,7 @@ public:
 
     template <zt::ZernikeNorm zernike_norm>
     [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::nonnegative, zernike_norm, norm, phase>::template subspan_type<1>& expansion,
+        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, norm, phase>::template subspan_type<1>& expansion,
         std::size_t order)
     {
         return backward_transform((typename decltype(expansion)::const_view)(expansion), order);
@@ -931,7 +931,7 @@ private:
     }
 
     void integrate_latitudinal(
-        SHSpan<double, IndexingMode::nonnegative, norm, phase> expansion) noexcept
+        SHSpan<double, IndexingMode::zero_based, norm, phase> expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
@@ -1019,7 +1019,7 @@ private:
     }
 
     void sum_l(
-        SHSpan<const double, IndexingMode::nonnegative, norm, phase> expansion) noexcept
+        SHSpan<const double, IndexingMode::zero_based, norm, phase> expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
@@ -1092,7 +1092,7 @@ private:
 
     template <zt::ZernikeNorm zernike_norm>
     void sum_l(
-        typename zt::ZernikeSpan<const double, IndexingMode::nonnegative, zernike_norm, norm, phase>::template const_subshape_type<1>& expansion) noexcept
+        typename zt::ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, norm, phase>::template const_subshape_type<1>& expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
@@ -1334,7 +1334,7 @@ public:
     template <spherical_function FuncType>
     void transform(
         FuncType&& f,
-        SHSpan<double, IndexingMode::nonnegative, sh_norm_param, sh_phase_param> expansion)
+        SHSpan<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param> expansion)
     {
         resize(expansion.order());
         m_points.generate_values(m_grid, std::forward(f));
@@ -1353,7 +1353,7 @@ public:
         @returns spherical harmonic expansion
     */
     template <spherical_function FuncType>
-    [[nodiscard]] SHExpansion<double, IndexingMode::nonnegative, sh_norm_param, sh_phase_param>
+    [[nodiscard]] SHExpansion<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param>
     transform(FuncType&& f, std::size_t order)
     {
         resize(order);
@@ -1373,7 +1373,7 @@ public:
     template <cartesian_function FuncType>
     void transform(
         FuncType&& f, 
-        SHSpan<double, IndexingMode::nonnegative, sh_norm_param, sh_phase_param> expansion)
+        SHSpan<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param> expansion)
     {
         auto f_spherical = [&](double lon, double colat) {
             const double scolat = std::sin(colat);
@@ -1398,7 +1398,7 @@ public:
         @returns spherical harmonic expansion
     */
     template <cartesian_function FuncType>
-    [[nodiscard]] SHExpansion<double, IndexingMode::nonnegative, sh_norm_param, sh_phase_param>
+    [[nodiscard]] SHExpansion<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param>
     transform(FuncType&& f, std::size_t order)
     {
         auto f_spherical = [&](double lon, double colat) {

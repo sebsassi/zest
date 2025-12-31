@@ -61,7 +61,7 @@ template <
     st::SHNorm sh_norm_param, st::SHPhase sh_phase_param, std::size_t... Ns
 >
 using ZernikeShape = TaggedShape<
-    std::conditional_t<(indexing_mode_param == IndexingMode::negative), 
+    std::conditional_t<(indexing_mode_param == IndexingMode::symmetric), 
         TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode_param>, Ns...>,
         TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode_param>, 2, Ns...>>,
     ZernikeTag<zernike_norm_param>, st::SHTag<sh_norm_param, sh_phase_param>>;
@@ -71,7 +71,7 @@ template <
     std::size_t... Ns
 >
 using ZernikeNonnegativeShape = TaggedShape<
-    TensorSequenceShape<ZernikeTetrahedralSequence<IndexingMode::nonnegative>, Ns...>,
+    TensorSequenceShape<ZernikeTetrahedralSequence<IndexingMode::zero_based>, Ns...>,
     ZernikeTag<zernike_norm_param>, st::SHTag<sh_norm_param, sh_phase_param>>;
 
 /**
@@ -310,12 +310,12 @@ template <
     std::complex<double>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>
 to_complex_expansion(
     ZernikeSpan<
-        double, IndexingMode::nonnegative, source_zernike_norm,
+        double, IndexingMode::zero_based, source_zernike_norm,
         source_sh_norm, source_sh_phase>&
     expansion) noexcept
 {
     using ExpansionType = ZernikeSpan<
-        double, IndexingMode::nonnegative, source_zernike_norm,
+        double, IndexingMode::zero_based, source_zernike_norm,
         source_sh_norm, source_sh_phase>;
     using ReturnType = ComplexEncodedRealZernikeSpan<
         std::complex<double>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>;
@@ -410,7 +410,7 @@ template <
     ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
 >
 [[nodiscard]] constexpr ZernikeSpan<
-    double, IndexingMode::nonnegative, dest_zernike_norm,
+    double, IndexingMode::zero_based, dest_zernike_norm,
     dest_sh_norm, dest_sh_phase>
 to_real_expansion(
     ComplexEncodedRealZernikeSpan<
@@ -420,7 +420,7 @@ to_real_expansion(
     using ExpansionType = ComplexEncodedRealZernikeSpan<
         std::complex<double>, source_zernike_norm, source_sh_norm, source_sh_phase>;
     using ReturnType = ZernikeSpan<
-        double, IndexingMode::nonnegative, dest_zernike_norm,
+        double, IndexingMode::zero_based, dest_zernike_norm,
         dest_sh_norm, dest_sh_phase>;
 
     constexpr double shnorm = st::conversion_const<ExpansionType::sh_norm, dest_sh_norm>();
@@ -518,12 +518,12 @@ template <
 >::template subspan_type<1>
 to_complex_expansion(
     typename ZernikeExpansion<
-        double, IndexingMode::nonnegative, source_zernike_norm,
+        double, IndexingMode::zero_based, source_zernike_norm,
         source_sh_norm, source_sh_phase
     >::template subspan_type<1>& expansion) noexcept
 {
     using ExpansionType = typename ZernikeExpansion<
-            double, IndexingMode::nonnegative, source_zernike_norm, source_sh_norm, source_sh_phase
+            double, IndexingMode::zero_based, source_zernike_norm, source_sh_norm, source_sh_phase
         >::template subspan_type<1>;
     using ReturnType = typename ComplexEncodedRealZernikeSpan<
             std::complex<double>, source_zernike_norm, dest_sh_norm, dest_sh_phase
@@ -580,7 +580,7 @@ template <
     ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
 >
 [[nodiscard]] constexpr typename ZernikeExpansion<
-    double, IndexingMode::nonnegative, source_zernike_norm, source_sh_norm, source_sh_phase
+    double, IndexingMode::zero_based, source_zernike_norm, source_sh_norm, source_sh_phase
 >::template subspan_type<1>
 to_real_expansion(
     typename ComplexEncodedRealZernikeSpan<
@@ -591,7 +591,7 @@ to_real_expansion(
             std::complex<double>, source_zernike_norm, dest_sh_norm, dest_sh_phase
         >::template subspan_type<1>;
     using ReturnType = typename ZernikeExpansion<
-            double, IndexingMode::nonnegative, source_zernike_norm, source_sh_norm, source_sh_phase
+            double, IndexingMode::zero_based, source_zernike_norm, source_sh_norm, source_sh_phase
         >::template subspan_type<1>;
 
     constexpr double shnorm

@@ -26,7 +26,7 @@ namespace zest::st
 
 RealSHGenerator::RealSHGenerator(std::size_t max_order):
     m_recursion(max_order),
-    m_ass_leg_poly(TriangleShape<IndexingMode::nonnegative>::size(max_order)),
+    m_ass_leg_poly(TriangleShape<IndexingMode::zero_based>::size(max_order)),
     m_cossin(max_order) {}
 
 void RealSHGenerator::expand(std::size_t max_order)
@@ -34,7 +34,7 @@ void RealSHGenerator::expand(std::size_t max_order)
     if (max_order <= this->max_order()) return;
 
     m_recursion.expand(max_order);
-    m_ass_leg_poly.resize(TriangleShape<IndexingMode::nonnegative>::size(max_order));
+    m_ass_leg_poly.resize(TriangleShape<IndexingMode::zero_based>::size(max_order));
     m_cossin.resize(max_order);
 }
 

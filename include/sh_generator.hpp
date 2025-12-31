@@ -84,21 +84,21 @@ public:
         {
             auto ylm_l = ylm[l];
             auto ass_leg_l = ass_leg[l];
-            if constexpr (indexing_mode == IndexingMode::negative)
+            if constexpr (indexing_mode == IndexingMode::symmetric)
                 ylm_l[0] = ass_leg_l[0];
-            else if constexpr (indexing_mode == IndexingMode::nonnegative)
+            else if constexpr (indexing_mode == IndexingMode::zero_based)
                 ylm_l[0] = {ass_leg_l[0], 0.0};
 
             for (auto m : ass_leg_l.indices(1))
             {
                 const double ass_leg_lm = ass_leg_l[m];
 
-                if constexpr (indexing_mode == IndexingMode::negative)
+                if constexpr (indexing_mode == IndexingMode::symmetric)
                 {
                     ylm_l[int(m)] = ass_leg_lm*m_cossin[m][0];
                     ylm_l[-int(m)] = ass_leg_lm*m_cossin[m][1];
                 }
-                else if constexpr (indexing_mode == IndexingMode::nonnegative)
+                else if constexpr (indexing_mode == IndexingMode::zero_based)
                 {
                     ylm_l[m] = {
                         ass_leg_lm*m_cossin[m][0],

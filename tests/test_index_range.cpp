@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024, 2025 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -21,8 +21,8 @@ SOFTWARE.
 */
 
 #include <array>
-#include <cstdio>
 #include <cassert>
+#include <cstdio>
 
 #include "indexing.hpp"
 
@@ -31,7 +31,7 @@ bool test_standard_index_range()
     std::array<std::size_t, 10> reference = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     bool success = true;
     std::size_t j = 0;
-    for (std::size_t i : zest::StandardIndexRange{10})
+    for (std::size_t i : zest::StandardIndexRange<std::size_t>{10})
     {
         success = success && (i == reference[j]);
         ++j;
@@ -39,7 +39,7 @@ bool test_standard_index_range()
 
     if (!success)
     {
-        for (std::size_t i : zest::StandardIndexRange{10})
+        for (std::size_t i : zest::StandardIndexRange<std::size_t>{10})
             std::printf("%lu ", i);
     }
 
@@ -51,7 +51,7 @@ bool test_parity_index_range_even()
     std::array<std::size_t, 5> reference = {0, 2, 4, 6, 8};
     bool success = true;
     std::size_t j = 0;
-    for (std::size_t i : zest::ParityIndexRange{10})
+    for (std::size_t i : zest::ParityIndexRange<std::size_t>{10})
     {
         success = success && (i == reference[j]);
         ++j;
@@ -59,7 +59,7 @@ bool test_parity_index_range_even()
 
     if (!success)
     {
-        for (std::size_t i : zest::StandardIndexRange{10})
+        for (std::size_t i : zest::StandardIndexRange<std::size_t>{10})
             std::printf("%lu ", i);
     }
 
@@ -71,7 +71,7 @@ bool test_parity_index_range_odd()
     std::array<std::size_t, 5> reference = {1, 3, 5, 7, 9};
     bool success = true;
     std::size_t j = 0;
-    for (std::size_t i : zest::ParityIndexRange{11})
+    for (std::size_t i : zest::ParityIndexRange<std::size_t>{11})
     {
         success = success && (i == reference[j]);
         ++j;
@@ -79,7 +79,7 @@ bool test_parity_index_range_odd()
 
     if (!success)
     {
-        for (std::size_t i : zest::StandardIndexRange{11})
+        for (std::size_t i : zest::StandardIndexRange<std::size_t>{11})
             std::printf("%lu ", i);
     }
 
@@ -91,7 +91,7 @@ bool test_symmetric_index_range()
     std::array<int, 9> reference = {-4, -3, -2, -1, 0, 1, 2, 3, 4};
     bool success = true;
     std::size_t j = 0;
-    for (int i : zest::SymmetricIndexRange{5})
+    for (int i : zest::SymmetricIndexRange<int>{5})
     {
         success = success && (i == reference[j]);
         ++j;
@@ -99,7 +99,7 @@ bool test_symmetric_index_range()
 
     if (!success)
     {
-        for (int i : zest::SymmetricIndexRange{5})
+        for (int i : zest::SymmetricIndexRange<int>{5})
             std::printf("%d ", i);
     }
 

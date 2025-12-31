@@ -100,9 +100,9 @@ public:
                 const double radial_zernike_nl = radial_zernike_n[l];
                 auto ass_leg_l = ass_leg[l];
                 auto znlm_nl = znlm_n[l];
-                if constexpr (indexing_mode == IndexingMode::negative)
+                if constexpr (indexing_mode == IndexingMode::symmetric)
                     znlm_nl[0] = ass_leg_l[0];
-                else if constexpr (indexing_mode == IndexingMode::nonnegative)
+                else if constexpr (indexing_mode == IndexingMode::zero_based)
                 {
                     znlm_nl[0, 0] = radial_zernike_nl*ass_leg_l[0];
                     znlm_nl[0, 1] = 0.0;
@@ -112,13 +112,13 @@ public:
                 {
                     const double ass_leg_lm = ass_leg_l[m];
                     const double prefactor = radial_zernike_nl*ass_leg_lm;
-                    if constexpr (indexing_mode == IndexingMode::negative)
+                    if constexpr (indexing_mode == IndexingMode::symmetric)
                     {
                         znlm_nl[m] = prefactor*m_cossin[m][0];
                         znlm_n[-m] = prefactor*m_cossin[m][1];
                     }
                     else if constexpr (
-                        indexing_mode == IndexingMode::nonnegative)
+                        indexing_mode == IndexingMode::zero_based)
                     {
                         znlm_nl[m, 0] = prefactor*m_cossin[m][0];
                         znlm_nl[m, 1] = prefactor*m_cossin[m][1];

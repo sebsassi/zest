@@ -61,7 +61,7 @@ public:
         std::span<const double> data, std::span<const double> lon, std::span<const double> colat,
         SHSpan<double, indexing_mode, sh_norm_param, sh_phase_param> expansion)
     {
-        using FitExpansion = SHSpan<double, IndexingMode::negative, sh_norm_param, sh_phase_param>;
+        using FitExpansion = SHSpan<double, IndexingMode::symmetric, sh_norm_param, sh_phase_param>;
 
         m_sh_gen.expand(expansion.order());
 
@@ -76,7 +76,7 @@ public:
         m_coeffs.resize(m_sh_values.extent(1));
         m_fitter(m_sh_values, m_coeffs, data);
 
-        if constexpr (indexing_mode == IndexingMode::negative)
+        if constexpr (indexing_mode == IndexingMode::symmetric)
         {
             std::ranges::copy(m_coeffs, expansion.flatten().begin());
         }
@@ -160,7 +160,7 @@ public:
         m_coeffs.resize(m_zernike_values.extent(1));
         m_fitter(m_zernike_values, m_coeffs, data);
 
-        if constexpr (indexing_mode == IndexingMode::negative)
+        if constexpr (indexing_mode == IndexingMode::symmetric)
         {
             std::ranges::copy(m_coeffs, expansion.flatten().begin());
         }

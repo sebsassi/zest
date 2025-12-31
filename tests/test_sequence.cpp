@@ -20,27 +20,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "spans.hpp"
-#include "zernike_generator.hpp"
+#include <array>
+#include <cassert>
+#include <cstdio>
 
-namespace zest::zt
-{
+#include "sequence.hpp"
 
-ZernikeGenerator::ZernikeGenerator(std::size_t max_order):
-    m_plm_recursion(max_order), m_zernike_recursion(max_order), 
-    m_radial_zernike(EvenTriangleShape<>::size(max_order)),
-    m_ass_leg_poly(TriangleShape<IndexingMode::zero_based>::size(max_order)), m_cossin(max_order) {}
-
-void ZernikeGenerator::expand(std::size_t max_order)
-{
-    if (max_order <= this->max_order()) return;
-
-    m_plm_recursion.expand(max_order);
-    m_zernike_recursion.expand(max_order);
-    m_radial_zernike.resize(EvenTriangleShape<>::size(max_order));
-    m_ass_leg_poly.resize(TriangleShape<IndexingMode::zero_based>::size(max_order));
-    m_cossin.resize(max_order);
-}
-
-} // namespace zest::zt
 

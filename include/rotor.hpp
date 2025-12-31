@@ -121,7 +121,7 @@ public:
     */
     template <st::SHNorm sh_norm, st::SHPhase sh_phase>
     void rotate(
-        st::SHSpan<double, IndexingMode::nonnegative, sh_norm, sh_phase> expansion,
+        st::SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles, RotationType type)
     {
@@ -142,7 +142,7 @@ public:
 
     template <st::SHNorm sh_norm, st::SHPhase sh_phase>
     void rotate(
-        st::SHExpansion<double, IndexingMode::nonnegative, sh_norm, sh_phase>& expansion,
+        st::SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase>& expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles, RotationType type)
     {
@@ -167,7 +167,7 @@ public:
     template <zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     void rotate(
         typename zt::ZernikeSpan<
-            double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase
+            double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase
         >::template subspan_type<1> expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles, RotationType type)
@@ -204,7 +204,7 @@ public:
     */
     template <zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     void rotate(
-        zt::ZernikeSpan<double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase> expansion,
+        zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles, RotationType type)
     {
@@ -229,7 +229,7 @@ public:
 
     template <zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     void rotate(
-        zt::ZernikeExpansion<double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase>& expansion,
+        zt::ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>& expansion,
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles, RotationType type)
     {
@@ -247,7 +247,7 @@ public:
     */
     template <st::SHNorm sh_norm, st::SHPhase sh_phase>
     void polar_rotate(
-        st::SHSpan<double, IndexingMode::nonnegative, sh_norm, sh_phase> expansion,
+        st::SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
         double angle, RotationType type)
     {
         const std::size_t order = expansion.order();
@@ -267,7 +267,7 @@ public:
 
     template <st::SHNorm sh_norm, st::SHPhase sh_phase>
     void polar_rotate(
-        st::SHExpansion<double, IndexingMode::nonnegative, sh_norm, sh_phase>& expansion,
+        st::SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase>& expansion,
         double angle, RotationType type)
     {
         polar_rotate((typename decltype(expansion)::view)(expansion), angle, type);
@@ -284,7 +284,7 @@ public:
     */
     template <zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     void polar_rotate(
-        zt::ZernikeSpan<double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase> expansion,
+        zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
         double angle, RotationType type)
     {
         const std::size_t order = expansion.order();
@@ -308,7 +308,7 @@ public:
 
     template <zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     void polar_rotate(
-        zt::ZernikeExpansion<double, IndexingMode::nonnegative, zernike_norm, sh_norm, sh_phase>& expansion,
+        zt::ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>& expansion,
         double angle, RotationType type)
     {
         polar_rotate((typename decltype(expansion)::view)(expansion), angle, type);

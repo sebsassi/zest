@@ -133,9 +133,9 @@ static_assert(test_const_view_can_be_taken<zest::TriangleSpan<double, zest::Tria
 
 static_assert(test_const_view_can_be_taken<zest::TriangleVecSpan<double, zest::TriangleLayout<zest::IndexingMode::nonnegative>>>());
 
-static_assert(test_const_view_can_be_taken<zest::TetrahedronSpan<double, zest::ZernikeTetrahedralLayout<zest::IndexingMode::nonnegative>>>());
+static_assert(test_const_view_can_be_taken<zest::TetrahedronSpan<double, zest::ZernikeTetrahedralLayout<zest::IndexingMode::zero_based>>>());
 
-static_assert(test_const_view_can_be_taken<zest::TetrahedronVecSpan<double, zest::ZernikeTetrahedralLayout<zest::IndexingMode::nonnegative>>>());
+static_assert(test_const_view_can_be_taken<zest::TetrahedronVecSpan<double, zest::ZernikeTetrahedralLayout<zest::IndexingMode::zero_based>>>());
 
 int main()
 {
@@ -148,6 +148,6 @@ int main()
     assert(test_triangle_span_indexing_works<zest::RowSkippingTriangleLayout<zest::IndexingMode::negative>>());
     assert(test_triangle_span_indexing_works<zest::RowSkippingTriangleLayout<zest::IndexingMode::nonnegative>>());
 
-    assert(test_tetrahedron_span_indexing_works<zest::ZernikeTetrahedralLayout<zest::IndexingMode::negative>>());
+    assert(test_tetrahedron_span_indexing_works<zest::ZernikeTetrahedralLayout<zest::IndexingMode::symmetric>>());
     assert(test_tetrahedron_span_indexing_works<zest::ZernikeTetrahedralLayout<zest::IndexingMode::nonnegative>>());
 }

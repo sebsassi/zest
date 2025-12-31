@@ -55,7 +55,7 @@ cross_power_spectrum(
         auto a_l = a[l];
         auto b_l = b[l];
         auto& out_l = out[l];
-        if constexpr (indexing_mode == IndexingMode::negative)
+        if constexpr (indexing_mode == IndexingMode::symmetric)
         {
             out_l = 0.0;
             for (auto m : a_l.indices())
@@ -128,7 +128,7 @@ power_spectrum(
     {
         auto expansion_l = expansion[l];
         auto& out_l = out[l];
-        if constexpr (indexing_mode == IndexingMode::negative)
+        if constexpr (indexing_mode == IndexingMode::symmetric)
         {
             out_l = 0.0;
             for (auto m : expansion_l.indices())
@@ -222,7 +222,7 @@ power_spectrum(
         {
             auto expansion_nl = expansion_n[l];
             auto& out_nl = out_n[l];
-            if (indexing_mode == IndexingMode::negative)
+            if (indexing_mode == IndexingMode::symmetric)
             {
                 out_nl = 0.0;
                 for (auto m : expansion_nl.indices())
