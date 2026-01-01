@@ -62,11 +62,11 @@ concept has_parity = requires (T x) { { x.parity() } -> std::same_as<Parity>; };
 template <IndexingMode indexing_mode_param>
 struct StandardLinearSequence
 {
-    using index_type = std::conditional_t<
-        indexing_mode_param == IndexingMode::symmetric, int, std::size_t>;
+    using index_type = std::conditional_t<(indexing_mode_param == IndexingMode::symmetric),
+        int, std::size_t>;
     using size_type = std::size_t;
     using index_range = std::conditional_t<(indexing_mode_param == IndexingMode::symmetric),
-        SymmetricIndexRange<index_type>, StandardIndexRange<index_type>>;
+        SymmetricIndexRange<int>, StandardIndexRange<std::size_t>>;
 
     static constexpr size_type rank = 1;
 
@@ -75,8 +75,8 @@ struct StandardLinearSequence
 
         @param order Order at which the sequence is truncated.
     */
-    [[nodiscard]] static constexpr std::size_t
-    size(std::size_t order) noexcept
+    [[nodiscard]] static constexpr size_type
+    size(size_type order) noexcept
     {
         if constexpr (indexing_mode_param == IndexingMode::zero_based)
             return order;
@@ -89,7 +89,7 @@ struct StandardLinearSequence
 
         @param l
     */
-    [[nodiscard]] static constexpr std::size_t
+    [[nodiscard]] static constexpr index_type
     index(index_type l) noexcept
     {
         return l;
@@ -125,8 +125,8 @@ struct ParityLinearSequence
 
         @param order Order at which the sequence is truncated.
     */
-    [[nodiscard]] static constexpr std::size_t
-    size(std::size_t order) noexcept
+    [[nodiscard]] static constexpr size_type
+    size(size_type order) noexcept
     {
         return (order + 1) >> 1;
     }
@@ -136,7 +136,7 @@ struct ParityLinearSequence
 
         @param l
     */
-    [[nodiscard]] static constexpr std::size_t
+    [[nodiscard]] static constexpr index_type
     index(index_type l) noexcept
     {
         return l >> 1;
@@ -149,7 +149,7 @@ struct ParityLinearSequence
     @tparam indexing_mode_param Determines if indexing is symmetric about zero
     or starts at zero.
 
-    This sequence represents index pairs `(m,l)` subject to the condition
+    This sequence represents index pairs `(l,m)` subject to the condition
     `abs(m) <= l`. For zero based indexing this translates to to the sequence
     ```
     (0,0)
@@ -196,8 +196,8 @@ public:
 
         @param order Order at which the sequence is truncated.
     */
-    [[nodiscard]] static constexpr std::size_t
-    size(std::size_t order) noexcept
+    [[nodiscard]] static constexpr size_type
+    size(size_type order) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::zero_based)
             return (order*(order + 1)) >> 1;
@@ -211,7 +211,7 @@ public:
         @param l
         @param m
     */
-    [[nodiscard]] static constexpr std::size_t
+    [[nodiscard]] static constexpr index_type
     index(index_type l, index_type m) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::zero_based)
@@ -222,7 +222,7 @@ public:
         else
         {
             assert(0 <= l && -l <= m && m <= l);
-            return std::size_t(l*(l + 1) + m);
+            return l*(l + 1) + m;
         }
     }
     /**
@@ -230,13 +230,13 @@ public:
 
         @param l
     */
-    [[nodiscard]] static constexpr std::size_t
+    [[nodiscard]] static constexpr index_type
     index(index_type l) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::zero_based)
             return ((l*(l + 1)) >> 1);
         else
-            return std::size_t(l*(l + 1));
+            return l*(l + 1);
     }
 
     /**
@@ -244,15 +244,15 @@ public:
 
         @param l
     */
-    [[nodiscard]] static constexpr std::size_t
-    subextent(index_type l) noexcept { return l + 1; }
+    [[nodiscard]] static constexpr size_type
+    subextent(index_type l) noexcept { return size_type(l + 1); }
 };
 
 /**
     @brief Contiguous 2D sequence for index pairs with even sum on a triangular
     grid.
 
-    This sequence represents index pairs `(l,n)` subject to the condition
+    This sequence represents index pairs `(n,l)` subject to the condition
     `l <= n` such that `l + n` is even. This translates to the sequence
     ```
     (0,0)
@@ -293,8 +293,8 @@ public:
 
         @param order Order at which the sequence is truncated.
     */
-    [[nodiscard]] static constexpr std::size_t
-    size(std::size_t order) noexcept
+    [[nodiscard]] static constexpr size_type
+    size(size_type order) noexcept
     {
         // OEIS A002620
         return ((order + 1)*(order + 1)) >> 2; 
@@ -306,8 +306,8 @@ public:
         @param n
         @param l
     */
-    [[nodiscard]] static constexpr std::size_t
-    index(std::size_t n, std::size_t l) noexcept
+    [[nodiscard]] static constexpr index_type
+    index(index_type n, index_type l) noexcept
     {
         assert(l <= n && ((n - l) & 1) == 0);
         return (((n + 1)*(n + 1)) >> 2) + (l >> 1);
@@ -318,8 +318,8 @@ public:
 
         @param n
     */
-    [[nodiscard]] static constexpr std::size_t
-    index(std::size_t n) noexcept
+    [[nodiscard]] static constexpr index_type
+    index(index_type n) noexcept
     {
          return (((n + 1)*(n + 1)) >> 2);
     }
@@ -330,7 +330,7 @@ public:
         @param n
     */
     [[nodiscard]] static constexpr
-    std::size_t subextent(index_type n) noexcept { return n + 1; }
+    size_type subextent(index_type n) noexcept { return size_type(n + 1); }
 };
 
 /**
@@ -340,7 +340,7 @@ public:
     @tparam indexing_mode_param Determines if indexing is symmetric about zero
     or starts at zero.
 
-    This sequence represents index pairs `(m,l)` subject to the condition
+    This sequence represents index pairs `(l,m)` subject to the condition
     `abs(m) <= l` such that `l` has definite parity. That is, for zero based
     indexing it either represents the sequence
     ```
@@ -379,10 +379,10 @@ public:
     ...
     ```
 
-    @warning In this layout the index obtained from a pair `(l,m)` is unique only
-    for `l` of the same parity. Otherwise the index is not unique, e.g., `(0,0)`
-    and `(1,0)` fall on the same index. It is therefore erroneous to mix even and
-    odd `l` values when accessing data.
+    @warning In this layout the index obtained from a pair `(l,m)` is unique
+    only for `l` of the same parity. Otherwise the index is not unique, e.g.,
+    `(0,0)` and `(1,0)` fall on the same index. It is therefore erroneous to
+    mix even and odd `l` values when accessing data.
 */
 template <IndexingMode indexing_mode_param>
 struct EvenRowTriangleSequence
@@ -414,8 +414,8 @@ public:
 
         @param order Order at which the sequence is truncated.
     */
-    static constexpr std::size_t 
-    size(std::size_t order) noexcept
+    static constexpr size_type
+    size(size_type order) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::zero_based)
             return ((order + 1)*(order + 1)) >> 2;
@@ -424,12 +424,12 @@ public:
     }
 
     /**
-        @brief Linear index of an element in layout.
+        @brief Linear index of an element in sequence.
 
         @param l
         @param m
     */
-    static constexpr std::size_t 
+    static constexpr index_type
     index(index_type l, index_type m) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::zero_based)
@@ -440,7 +440,7 @@ public:
         else
         {
             assert(0 <= l && -l <= m && m <= l);
-            return std::size_t(((l*(l + 1)) >> 1) + m);
+            return ((l*(l + 1)) >> 1) + m;
         }
     }
 
@@ -449,22 +449,34 @@ public:
 
         @param l
     */
-    static constexpr std::size_t
+    static constexpr index_type
     index(index_type l) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::zero_based)
             return ((l*l) >> 2);
         else
-            return std::size_t(((l*(l + 1)) >> 1));
+            return (l*(l + 1)) >> 1;
     }
 
-    [[nodiscard]] static constexpr std::size_t
+    /**
+        @brief Order of a subsequence at given index `l`.
+
+        @param l
+    */
+    [[nodiscard]] static constexpr index_type
     subextent(index_type l) noexcept { return l + 1; }
 };
 
 /**
     @brief Contiguous 3D sequence for index triples laid out in a tetrahedral
     shape.
+
+    @tparam indexing_mode_param Determines if indexing is symmetric about zero
+    or starts at zero.
+
+    This sequences represents index triples `(n,l,m)`, which are subject to the
+    conditions `abs(m) <= l <= n` such that `n + l` is even. For zero based
+    indexing this corresponds to the sequence
     ```
     (0,0,0)
 
@@ -474,8 +486,15 @@ public:
     (2,2,0) (2,2,1) (2,2,2)
     ...
     ```
+    For symmetric indexing it corresponds to
+    ```
+                      (0,0,0)
 
-    @tparam indexing_mode_param determines whether indexing may be negative
+             (1,1,-1) (1,1,0) (1,1,1)
+
+                      (2,2,0)
+    (2,2,-2) (2,2,-1) (2,2,0) (2,2,1) (2,2,2)
+    ````
 */
 template <IndexingMode indexing_mode_param>
 struct ZernikeTetrahedralSequence
@@ -507,12 +526,12 @@ public:
     using sublayout_t = sublayout_helpler<N>::type;
 
     /**
-        @brief Number of elements in layout for size parameter `order`.
+        @brief Number of elements in sequence at the given order.
 
-        @param order parameter presenting the size of the layout
+        @param order Order at which the sequence is truncated.
     */
-    [[nodiscard]] static constexpr std::size_t
-    size(std::size_t order) noexcept
+    [[nodiscard]] static constexpr size_type
+    size(size_type order) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::zero_based)
             return (order + 1)*(order + 3)*(2*order + 1)/24; // OEIS A002623
@@ -521,9 +540,13 @@ public:
     }
 
     /**
-        @brief Linear index of an element in layout.
+        @brief Linear index of an element in sequence.
+
+        @param n
+        @param l
+        @param m
     */
-    [[nodiscard]] static constexpr std::size_t
+    [[nodiscard]] static constexpr index_type
     index(index_type n, index_type l, index_type m) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::zero_based)
@@ -534,14 +557,17 @@ public:
         else
         {
             assert(0 <= l && 0 <= n && -l <= m && m <= l && l <= n && ((n - l) % 2) == 0);
-            return std::size_t(n*(n + 1)*(n + 2)/6 + ((l*(l + 1)) >> 1) + m);
+            return n*(n + 1)*(n + 2)/6 + ((l*(l + 1)) >> 1) + m;
         }
     }
 
     /**
-        @brief Linear index of an element in layout.
+        @brief Linear index of an element in sequence.
+
+        @param n
+        @param l
     */
-    [[nodiscard]] static constexpr std::size_t
+    [[nodiscard]] static constexpr index_type
     index(index_type n, index_type l) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::zero_based)
@@ -552,26 +578,39 @@ public:
         else
         {
             assert(0 <= l && 0 <= n && l <= n && ((n - l) % 2) == 0);
-            return std::size_t(n*(n + 1)*(n + 2)/6 + ((l*(l + 1)) >> 1));
+            return n*(n + 1)*(n + 2)/6 + ((l*(l + 1)) >> 1);
         }
     }
 
     /**
-        @brief Linear index of an element in layout.
+        @brief Linear index of an element in sequence.
+
+        @param n
     */
-    [[nodiscard]] static constexpr std::size_t
+    [[nodiscard]] static constexpr index_type
     index(index_type n) noexcept
     {
         if constexpr (indexing_mode == IndexingMode::zero_based)
             return (n + 1)*(n + 3)*(2*n + 1)/24;
         else
-            return std::size_t(n*(n + 1)*(n + 2)/6);
+            return n*(n + 1)*(n + 2)/6;
     }
 
-    [[nodiscard]] static constexpr std::size_t
+    /**
+        @brief Order of a subsequence at given index `n`.
+
+        @param n
+    */
+    [[nodiscard]] static constexpr index_type
     subextent(index_type n) noexcept { return n + 1; }
 
-    [[nodiscard]] static constexpr std::size_t
+    /**
+        @brief Order of a subsequence at given index pair `(n,l)`.
+
+        @param n
+        @param l
+    */
+    [[nodiscard]] static constexpr index_type
     subextent([[maybe_unused]] index_type n, index_type l) noexcept { return l + 1; }
 };
 
