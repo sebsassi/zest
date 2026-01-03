@@ -264,8 +264,8 @@ public:
     ```
 
     @warning This indexing implies that some index combinations are simply not
-    valid. It is erroneous to access data using this sequence with indices whose
-    sum is an odd number.
+    valid. It is erroneous to access data using this sequence with indices
+    `(n,l)`.
 */
 struct EvenTriangleSequence
 {
@@ -385,7 +385,7 @@ public:
     mix even and odd `l` values when accessing data.
 */
 template <IndexingMode indexing_mode_param>
-struct EvenRowTriangleSequence
+struct ParityRowTriangleSequence
 {
     using SubLayout = StandardLinearSequence<indexing_mode_param>;
     using index_type = std::conditional_t<indexing_mode_param == IndexingMode::symmetric,
@@ -494,12 +494,17 @@ public:
 
                       (2,2,0)
     (2,2,-2) (2,2,-1) (2,2,0) (2,2,1) (2,2,2)
-    ````
+    ...
+    ```
+
+    @warning This indexing implies that some index combinations are simply not
+    valid. It is erroneous to access data using this sequence with indices
+    `(n,l)`.
 */
 template <IndexingMode indexing_mode_param>
 struct ZernikeTetrahedralSequence
 {
-    using SubLayout = EvenRowTriangleSequence<indexing_mode_param>;
+    using SubLayout = ParityRowTriangleSequence<indexing_mode_param>;
     using index_type = std::conditional_t<indexing_mode_param == IndexingMode::symmetric,
         int, std::size_t>;
     using size_type = std::size_t;
@@ -513,7 +518,7 @@ private:
 
     template <> struct sublayout_helpler<1>
     {
-        using type = EvenRowTriangleSequence<indexing_mode_param>;
+        using type = ParityRowTriangleSequence<indexing_mode_param>;
     };
     template <> struct sublayout_helpler<2>
     {

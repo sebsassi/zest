@@ -374,7 +374,7 @@ struct EvenTriangleSequence
     and `(1,0)` fall on the same index.
 */
 template <IndexingMode indexing_mode_param>
-struct EvenRowTriangleSequence
+struct ParityRowTriangleSequence
 {
     using SubLayout = StandardLinearSequence<indexing_mode_param>;
     using index_type = std::conditional_t<
@@ -450,7 +450,7 @@ struct EvenRowTriangleSequence
 template <IndexingMode indexing_mode_param>
 struct ZernikeTetrahedralSequence
 {
-    using SubLayout = EvenRowTriangleSequence<indexing_mode_param>;
+    using SubLayout = ParityRowTriangleSequence<indexing_mode_param>;
     using index_type = std::conditional_t<
         indexing_mode_param == IndexingMode::symmetric, int, std::size_t>;
     using size_type = std::size_t;
@@ -462,7 +462,7 @@ struct ZernikeTetrahedralSequence
     template<std::size_t N> requires (N == 1 || N == 2) struct sublayout;
     template<> struct sublayout<1>
     {
-        using type = EvenRowTriangleSequence<indexing_mode_param>;
+        using type = ParityRowTriangleSequence<indexing_mode_param>;
     };
     template<> struct sublayout<2>
     {

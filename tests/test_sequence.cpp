@@ -26,6 +26,9 @@ SOFTWARE.
 
 #include "sequence.hpp"
 
+namespace
+{
+
 template <zest::IndexingMode indexing_mode>
 bool test_standard_linear_sequence_size(
     std::size_t order, std::size_t expected_size)
@@ -130,7 +133,7 @@ bool test_triangle_sequence_size(
     return Sequence::size(order) == expected_size;
 }
 
-bool test_triangle_sequence_index_zero_based(
+bool test_triangle_sequence_index_both_zero_based(
     std::size_t l, std::size_t m, std::size_t expected_linear_index)
 {
     using Sequence = zest::TriangleSequence<zest::IndexingMode::zero_based>;
@@ -138,12 +141,26 @@ bool test_triangle_sequence_index_zero_based(
     return Sequence::index(l, m) == expected_linear_index;
 }
 
-bool test_triangle_sequence_index_symmetric(
+bool test_triangle_sequence_index_first_zero_based(std::size_t l)
+{
+    using Sequence = zest::TriangleSequence<zest::IndexingMode::zero_based>;
+
+    return Sequence::index(l) == Sequence::index(l, 0);
+}
+
+bool test_triangle_sequence_index_both_symmetric(
     int l, int m, int expected_linear_index)
 {
     using Sequence = zest::TriangleSequence<zest::IndexingMode::symmetric>;
 
     return Sequence::index(l, m) == expected_linear_index;
+}
+
+bool test_triangle_sequence_index_first_symmetric(int l)
+{
+    using Sequence = zest::TriangleSequence<zest::IndexingMode::symmetric>;
+
+    return Sequence::index(l) == Sequence::index(l, 0);
 }
 
 template <std::size_t N>
@@ -190,12 +207,18 @@ bool test_even_triangle_sequence_size(
     return Sequence::size(order) == expected_size;
 }
 
-bool test_even_triangle_sequence_index(
+bool test_even_triangle_sequence_index_both(
     std::size_t n, std::size_t l, std::size_t expected_linear_index)
 {
     using Sequence = zest::EvenTriangleSequence;
 
     return Sequence::index(n, l) == expected_linear_index;
+}
+bool test_even_triangle_sequence_index_first(std::size_t n)
+{
+    using Sequence = zest::EvenTriangleSequence;
+
+    return Sequence::index(n) == Sequence::index(n, n & 1);
 }
 
 template <std::size_t N>
@@ -215,6 +238,186 @@ bool test_even_triangle_sequence_index_range(
 
     return success;
 }
+
+bool test_parity_row_triangle_sequence_size_zero_based(
+    std::size_t order, std::size_t expected_size)
+{
+    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::zero_based>;
+
+    return Sequence::size(order) == expected_size;
+}
+
+bool test_parity_row_triangle_sequence_index_both_zero_based(
+    std::size_t l, std::size_t m, std::size_t expected_linear_index)
+{
+    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::zero_based>;
+
+    return Sequence::index(l, m) == expected_linear_index;
+}
+
+bool test_parity_row_triangle_sequence_index_first_zero_based(std::size_t n)
+{
+    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::zero_based>;
+
+    return Sequence::index(0) == Sequence::index(n, 0);
+}
+
+template <std::size_t N>
+bool test_parity_row_triangle_sequence_index_range_zero_based(
+    std::size_t order, std::array<std::size_t, N> expected_indices)
+{
+    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::zero_based>;
+    using index_range = typename Sequence::index_range;
+
+    bool success = true;
+    std::size_t j = 0;
+    for (std::size_t i : index_range{order})
+    {
+        success = success && (i == expected_indices[j]);
+        ++j;
+    }
+
+    return success;
+}
+
+bool test_parity_row_triangle_sequence_size_symmetric(
+    std::size_t order, std::size_t expected_size)
+{
+    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::symmetric>;
+
+    return Sequence::size(order) == expected_size;
+}
+
+bool test_parity_row_triangle_sequence_index_both_symmetric(
+    int l, int m, int expected_linear_index)
+{
+    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::symmetric>;
+
+    return Sequence::index(l, m) == expected_linear_index;
+}
+
+bool test_parity_row_triangle_sequence_index_first_symmetric(int l)
+{
+    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::symmetric>;
+
+    return Sequence::index(l) == Sequence::index(l, 0);
+}
+
+template <std::size_t N>
+bool test_parity_row_triangle_sequence_index_range_symmetric(
+    std::size_t order, std::array<int, N> expected_indices)
+{
+    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::symmetric>;
+    using index_range = typename Sequence::index_range;
+
+    bool success = true;
+    std::size_t j = 0;
+    for (int i : index_range{int(order)})
+    {
+        success = success && (i == expected_indices[j]);
+        ++j;
+    }
+
+    return success;
+}
+
+bool test_zernike_tetrahedral_sequence_size_zero_based(
+    std::size_t order, std::size_t expected_size)
+{
+    using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::zero_based>;
+
+    return Sequence::size(order) == expected_size;
+}
+
+bool test_zernike_tetrahedral_sequence_index_all_zero_based(
+    std::size_t n, std::size_t l, std::size_t m, std::size_t expected_linear_index)
+{
+    using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::zero_based>;
+
+    return Sequence::index(n, l, m) == expected_linear_index;
+}
+
+bool test_zernike_tetrahedral_sequence_index_first_two_zero_based(std::size_t n, std::size_t l)
+{
+    using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::zero_based>;
+
+    return Sequence::index(n, l) == Sequence::index(n, l, 0);
+}
+
+bool test_zernike_tetrahedral_sequence_index_first_zero_based(std::size_t n)
+{
+    using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::zero_based>;
+
+    return Sequence::index(n) == Sequence::index(n, 0, 0);
+}
+
+template <std::size_t N>
+bool test_zernike_tetrahedral_sequence_index_range_zero_based(
+    std::size_t order, std::array<std::size_t, N> expected_indices)
+{
+    using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::zero_based>;
+    using index_range = typename Sequence::index_range;
+
+    bool success = true;
+    std::size_t j = 0;
+    for (std::size_t i : index_range{order})
+    {
+        success = success && (i == expected_indices[j]);
+        ++j;
+    }
+
+    return success;
+}
+
+bool test_zernike_tetrahedral_sequence_size_symmetric(
+    std::size_t order, std::size_t expected_size)
+{
+    using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::symmetric>;
+
+    return Sequence::size(order) == expected_size;
+}
+
+bool test_zernike_tetrahedral_sequence_index_all_symmetric(
+    int n, int l, int m, int expected_linear_index)
+{
+        using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::symmetric>;
+
+    return Sequence::index(n, l, m) == expected_linear_index;
+}
+
+bool test_zernike_tetrahedral_sequence_index_first_two_symmetric(int n, int l)
+{
+        using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::symmetric>;
+
+    return Sequence::index(n, l) == Sequence::index(n, l, 0);
+}
+
+bool test_zernike_tetrahedral_sequence_index_first_symmetric(int n)
+{
+        using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::symmetric>;
+
+    return Sequence::index(n) == Sequence::index(n, 0, 0);
+}
+
+template <std::size_t N>
+bool test_zernike_tetrahedral_sequence_index_range_symmetric(
+    std::size_t order, std::array<int, N> expected_indices)
+{
+    using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::symmetric>;
+    using index_range = typename Sequence::index_range;
+
+    bool success = true;
+    std::size_t j = 0;
+    for (int i : index_range{int(order)})
+    {
+        success = success && (i == expected_indices[j]);
+        ++j;
+    }
+
+    return success;
+}
+
+} // namespace
 
 int main()
 {
@@ -279,32 +482,48 @@ int main()
     test_triangle_sequence_size<zest::IndexingMode::symmetric>(2, 4);
     test_triangle_sequence_size<zest::IndexingMode::symmetric>(7, 49);
 
-    test_triangle_sequence_index_zero_based(0, 0, 0);
-    test_triangle_sequence_index_zero_based(1, 0, 1);
-    test_triangle_sequence_index_zero_based(1, 1, 2);
-    test_triangle_sequence_index_zero_based(2, 0, 3);
-    test_triangle_sequence_index_zero_based(2, 1, 4);
-    test_triangle_sequence_index_zero_based(2, 2, 5);
-    test_triangle_sequence_index_zero_based(3, 1, 7);
-    test_triangle_sequence_index_zero_based(3, 2, 8);
-    test_triangle_sequence_index_zero_based(3, 3, 9);
-    test_triangle_sequence_index_zero_based(4, 0, 10);
-    test_triangle_sequence_index_zero_based(4, 1, 11);
-    test_triangle_sequence_index_zero_based(4, 4, 14);
+    test_triangle_sequence_index_both_zero_based(0, 0, 0);
+    test_triangle_sequence_index_both_zero_based(1, 0, 1);
+    test_triangle_sequence_index_both_zero_based(1, 1, 2);
+    test_triangle_sequence_index_both_zero_based(2, 0, 3);
+    test_triangle_sequence_index_both_zero_based(2, 1, 4);
+    test_triangle_sequence_index_both_zero_based(2, 2, 5);
+    test_triangle_sequence_index_both_zero_based(3, 1, 7);
+    test_triangle_sequence_index_both_zero_based(3, 2, 8);
+    test_triangle_sequence_index_both_zero_based(3, 3, 9);
+    test_triangle_sequence_index_both_zero_based(4, 0, 10);
+    test_triangle_sequence_index_both_zero_based(4, 1, 11);
+    test_triangle_sequence_index_both_zero_based(4, 4, 14);
 
-    test_triangle_sequence_index_symmetric(0, 0, 0);
-    test_triangle_sequence_index_symmetric(1, -1, 1);
-    test_triangle_sequence_index_symmetric(1, 0, 2);
-    test_triangle_sequence_index_symmetric(1, 1, 3);
-    test_triangle_sequence_index_symmetric(2, -2, 4);
-    test_triangle_sequence_index_symmetric(2, -0, 6);
-    test_triangle_sequence_index_symmetric(2, 2, 8);
-    test_triangle_sequence_index_symmetric(3, -3, 9);
-    test_triangle_sequence_index_symmetric(3, -0, 12);
-    test_triangle_sequence_index_symmetric(3, 3, 15);
-    test_triangle_sequence_index_symmetric(4, -4, 16);
-    test_triangle_sequence_index_symmetric(4, 0, 20);
-    test_triangle_sequence_index_symmetric(4, 4, 24);
+    test_triangle_sequence_index_first_zero_based(0);
+    test_triangle_sequence_index_first_zero_based(1);
+    test_triangle_sequence_index_first_zero_based(2);
+    test_triangle_sequence_index_first_zero_based(3);
+    test_triangle_sequence_index_first_zero_based(4);
+    test_triangle_sequence_index_first_zero_based(5);
+    test_triangle_sequence_index_first_zero_based(6);
+
+    test_triangle_sequence_index_both_symmetric(0, 0, 0);
+    test_triangle_sequence_index_both_symmetric(1, -1, 1);
+    test_triangle_sequence_index_both_symmetric(1, 0, 2);
+    test_triangle_sequence_index_both_symmetric(1, 1, 3);
+    test_triangle_sequence_index_both_symmetric(2, -2, 4);
+    test_triangle_sequence_index_both_symmetric(2, -0, 6);
+    test_triangle_sequence_index_both_symmetric(2, 2, 8);
+    test_triangle_sequence_index_both_symmetric(3, -3, 9);
+    test_triangle_sequence_index_both_symmetric(3, -0, 12);
+    test_triangle_sequence_index_both_symmetric(3, 3, 15);
+    test_triangle_sequence_index_both_symmetric(4, -4, 16);
+    test_triangle_sequence_index_both_symmetric(4, 0, 20);
+    test_triangle_sequence_index_both_symmetric(4, 4, 24);
+
+    test_triangle_sequence_index_first_symmetric(0);
+    test_triangle_sequence_index_first_symmetric(1);
+    test_triangle_sequence_index_first_symmetric(2);
+    test_triangle_sequence_index_first_symmetric(3);
+    test_triangle_sequence_index_first_symmetric(4);
+    test_triangle_sequence_index_first_symmetric(5);
+    test_triangle_sequence_index_first_symmetric(6);
 
     test_triangle_sequence_index_range_zero_based(0, std::array<std::size_t, 0>{});
     test_triangle_sequence_index_range_zero_based(1, std::array<std::size_t, 1>{0});
@@ -324,15 +543,23 @@ int main()
     test_even_triangle_sequence_size(5, 9);
     test_even_triangle_sequence_size(6, 12);
 
-    test_even_triangle_sequence_index(0, 0, 0);
-    test_even_triangle_sequence_index(1, 1, 1);
-    test_even_triangle_sequence_index(2, 0, 2);
-    test_even_triangle_sequence_index(2, 2, 3);
-    test_even_triangle_sequence_index(3, 1, 4);
-    test_even_triangle_sequence_index(3, 3, 5);
-    test_even_triangle_sequence_index(4, 0, 6);
-    test_even_triangle_sequence_index(4, 2, 7);
-    test_even_triangle_sequence_index(4, 4, 8);
+    test_even_triangle_sequence_index_both(0, 0, 0);
+    test_even_triangle_sequence_index_both(1, 1, 1);
+    test_even_triangle_sequence_index_both(2, 0, 2);
+    test_even_triangle_sequence_index_both(2, 2, 3);
+    test_even_triangle_sequence_index_both(3, 1, 4);
+    test_even_triangle_sequence_index_both(3, 3, 5);
+    test_even_triangle_sequence_index_both(4, 0, 6);
+    test_even_triangle_sequence_index_both(4, 2, 7);
+    test_even_triangle_sequence_index_both(4, 4, 8);
+
+    test_even_triangle_sequence_index_first(0);
+    test_even_triangle_sequence_index_first(1);
+    test_even_triangle_sequence_index_first(2);
+    test_even_triangle_sequence_index_first(3);
+    test_even_triangle_sequence_index_first(4);
+    test_even_triangle_sequence_index_first(5);
+    test_even_triangle_sequence_index_first(6);
 
     test_even_triangle_sequence_index_range(0, std::array<std::size_t, 0>{});
     test_even_triangle_sequence_index_range(1, std::array<std::size_t, 1>{0});
@@ -341,4 +568,203 @@ int main()
     test_even_triangle_sequence_index_range(4, std::array<std::size_t, 2>{1, 3});
     test_even_triangle_sequence_index_range(7, std::array<std::size_t, 4>{0, 2, 4, 6});
     test_even_triangle_sequence_index_range(8, std::array<std::size_t, 4>{1, 3, 5, 7});
+
+    test_parity_row_triangle_sequence_size_zero_based(0, 0);
+    test_parity_row_triangle_sequence_size_zero_based(1, 1);
+    test_parity_row_triangle_sequence_size_zero_based(2, 2);
+    test_parity_row_triangle_sequence_size_zero_based(3, 4);
+    test_parity_row_triangle_sequence_size_zero_based(4, 6);
+    test_parity_row_triangle_sequence_size_zero_based(5, 9);
+    test_parity_row_triangle_sequence_size_zero_based(6, 12);
+
+    test_parity_row_triangle_sequence_index_both_zero_based(0, 0, 0);
+    test_parity_row_triangle_sequence_index_both_zero_based(1, 0, 0);
+    test_parity_row_triangle_sequence_index_both_zero_based(1, 1, 1);
+    test_parity_row_triangle_sequence_index_both_zero_based(2, 0, 1);
+    test_parity_row_triangle_sequence_index_both_zero_based(2, 1, 2);
+    test_parity_row_triangle_sequence_index_both_zero_based(2, 2, 3);
+    test_parity_row_triangle_sequence_index_both_zero_based(3, 0, 2);
+    test_parity_row_triangle_sequence_index_both_zero_based(3, 1, 3);
+    test_parity_row_triangle_sequence_index_both_zero_based(3, 2, 4);
+    test_parity_row_triangle_sequence_index_both_zero_based(3, 3, 5);
+    test_parity_row_triangle_sequence_index_both_zero_based(4, 0, 4);
+    test_parity_row_triangle_sequence_index_both_zero_based(4, 4, 8);
+    test_parity_row_triangle_sequence_index_both_zero_based(5, 0, 5);
+    test_parity_row_triangle_sequence_index_both_zero_based(5, 5, 10);
+    test_parity_row_triangle_sequence_index_both_zero_based(6, 0, 9);
+    test_parity_row_triangle_sequence_index_both_zero_based(6, 6, 15);
+    test_parity_row_triangle_sequence_index_both_zero_based(7, 0, 11);
+    test_parity_row_triangle_sequence_index_both_zero_based(7, 7, 18);
+
+    test_parity_row_triangle_sequence_index_first_zero_based(0);
+    test_parity_row_triangle_sequence_index_first_zero_based(1);
+    test_parity_row_triangle_sequence_index_first_zero_based(2);
+    test_parity_row_triangle_sequence_index_first_zero_based(3);
+    test_parity_row_triangle_sequence_index_first_zero_based(4);
+    test_parity_row_triangle_sequence_index_first_zero_based(5);
+    test_parity_row_triangle_sequence_index_first_zero_based(6);
+
+    test_parity_row_triangle_sequence_index_range_zero_based(0, std::array<std::size_t, 0>{});
+    test_parity_row_triangle_sequence_index_range_zero_based(1, std::array<std::size_t, 1>{0});
+    test_parity_row_triangle_sequence_index_range_zero_based(2, std::array<std::size_t, 1>{1});
+    test_parity_row_triangle_sequence_index_range_zero_based(3, std::array<std::size_t, 2>{0, 2});
+    test_parity_row_triangle_sequence_index_range_zero_based(4, std::array<std::size_t, 2>{1, 3});
+    test_parity_row_triangle_sequence_index_range_zero_based(5, std::array<std::size_t, 3>{0, 2, 4});
+    test_parity_row_triangle_sequence_index_range_zero_based(6, std::array<std::size_t, 3>{1, 3, 5});
+
+    test_parity_row_triangle_sequence_size_symmetric(0, 0);
+    test_parity_row_triangle_sequence_size_symmetric(1, 1);
+    test_parity_row_triangle_sequence_size_symmetric(2, 3);
+    test_parity_row_triangle_sequence_size_symmetric(3, 6);
+    test_parity_row_triangle_sequence_size_symmetric(4, 8);
+    test_parity_row_triangle_sequence_size_symmetric(5, 15);
+    test_parity_row_triangle_sequence_size_symmetric(6, 19);
+
+    test_parity_row_triangle_sequence_index_both_symmetric(0, 0, 0);
+    test_parity_row_triangle_sequence_index_both_symmetric(1, -1, 0);
+    test_parity_row_triangle_sequence_index_both_symmetric(1, 0, 1);
+    test_parity_row_triangle_sequence_index_both_symmetric(1, 1, 2);
+    test_parity_row_triangle_sequence_index_both_symmetric(2, -2, 1);
+    test_parity_row_triangle_sequence_index_both_symmetric(2, 0, 3);
+    test_parity_row_triangle_sequence_index_both_symmetric(2, 2, 5);
+    test_parity_row_triangle_sequence_index_both_symmetric(3, -3, 3);
+    test_parity_row_triangle_sequence_index_both_symmetric(3, 0, 6);
+    test_parity_row_triangle_sequence_index_both_symmetric(3, 3, 9);
+    test_parity_row_triangle_sequence_index_both_symmetric(4, -4, 6);
+    test_parity_row_triangle_sequence_index_both_symmetric(4, 0, 10);
+    test_parity_row_triangle_sequence_index_both_symmetric(4, 4, 14);
+    test_parity_row_triangle_sequence_index_both_symmetric(5, -5, 10);
+    test_parity_row_triangle_sequence_index_both_symmetric(5, 0, 15);
+    test_parity_row_triangle_sequence_index_both_symmetric(5, 5, 20);
+
+    test_parity_row_triangle_sequence_index_first_symmetric(0);
+    test_parity_row_triangle_sequence_index_first_symmetric(1);
+    test_parity_row_triangle_sequence_index_first_symmetric(2);
+    test_parity_row_triangle_sequence_index_first_symmetric(3);
+    test_parity_row_triangle_sequence_index_first_symmetric(4);
+    test_parity_row_triangle_sequence_index_first_symmetric(5);
+    test_parity_row_triangle_sequence_index_first_symmetric(6);
+
+    test_parity_row_triangle_sequence_index_range_symmetric(0, std::array<int, 0>{});
+    test_parity_row_triangle_sequence_index_range_symmetric(1, std::array<int, 1>{0});
+    test_parity_row_triangle_sequence_index_range_symmetric(2, std::array<int, 1>{1});
+    test_parity_row_triangle_sequence_index_range_symmetric(3, std::array<int, 2>{0, 2});
+    test_parity_row_triangle_sequence_index_range_symmetric(4, std::array<int, 2>{1, 3});
+    test_parity_row_triangle_sequence_index_range_symmetric(5, std::array<int, 3>{0, 2, 4});
+    test_parity_row_triangle_sequence_index_range_symmetric(6, std::array<int, 3>{1, 3, 5});
+
+    test_zernike_tetrahedral_sequence_size_zero_based(0, 0);
+    test_zernike_tetrahedral_sequence_size_zero_based(1, 1);
+    test_zernike_tetrahedral_sequence_size_zero_based(2, 3);
+    test_zernike_tetrahedral_sequence_size_zero_based(3, 4);
+    test_zernike_tetrahedral_sequence_size_zero_based(4, 10);
+    test_zernike_tetrahedral_sequence_size_zero_based(5, 19);
+    test_zernike_tetrahedral_sequence_size_zero_based(6, 31);
+
+    test_zernike_tetrahedral_sequence_index_all_zero_based(0, 0, 0, 0);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(1, 1, 0, 1);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(1, 1, 1, 2);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(2, 0, 0, 3);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(2, 2, 0, 4);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(2, 2, 1, 5);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(2, 2, 2, 6);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(3, 1, 0, 7);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(3, 1, 1, 8);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(3, 3, 0, 9);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(3, 3, 3, 12);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(4, 0, 0, 13);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(4, 2, 0, 14);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(4, 2, 2, 16);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(4, 4, 0, 17);
+    test_zernike_tetrahedral_sequence_index_all_zero_based(4, 4, 4, 21);
+
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(0, 0);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(1, 1);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(2, 0);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(2, 2);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(3, 1);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(3, 3);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(4, 0);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(4, 2);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(4, 4);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(5, 1);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(5, 3);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(5, 5);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(6, 0);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(6, 2);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(6, 4);
+    test_zernike_tetrahedral_sequence_index_first_two_zero_based(6, 6);
+
+    test_zernike_tetrahedral_sequence_index_first_zero_based(0);
+    test_zernike_tetrahedral_sequence_index_first_zero_based(1);
+    test_zernike_tetrahedral_sequence_index_first_zero_based(2);
+    test_zernike_tetrahedral_sequence_index_first_zero_based(3);
+    test_zernike_tetrahedral_sequence_index_first_zero_based(4);
+    test_zernike_tetrahedral_sequence_index_first_zero_based(5);
+    test_zernike_tetrahedral_sequence_index_first_zero_based(6);
+
+    test_zernike_tetrahedral_sequence_index_range_zero_based(0, std::array<std::size_t, 0>{});
+    test_zernike_tetrahedral_sequence_index_range_zero_based(1, std::array<std::size_t, 1>{0});
+    test_zernike_tetrahedral_sequence_index_range_zero_based(2, std::array<std::size_t, 2>{0, 1});
+    test_zernike_tetrahedral_sequence_index_range_zero_based(3, std::array<std::size_t, 3>{0, 1, 2});
+    test_zernike_tetrahedral_sequence_index_range_zero_based(4, std::array<std::size_t, 4>{0, 1, 2, 3});
+
+    test_zernike_tetrahedral_sequence_size_symmetric(0, 0);
+    test_zernike_tetrahedral_sequence_size_symmetric(1, 1);
+    test_zernike_tetrahedral_sequence_size_symmetric(2, 4);
+    test_zernike_tetrahedral_sequence_size_symmetric(3, 10);
+    test_zernike_tetrahedral_sequence_size_symmetric(4, 20);
+    test_zernike_tetrahedral_sequence_size_symmetric(5, 35);
+    test_zernike_tetrahedral_sequence_size_symmetric(6, 56);
+
+    test_zernike_tetrahedral_sequence_index_all_symmetric(0, 0, 0, 0);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(1, 1, -1, 1);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(1, 1, 0, 2);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(1, 1, 1, 3);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(2, 0, 0, 4);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(2, 2, -2, 5);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(2, 2, -1, 6);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(2, 2, 0, 7);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(2, 2, 1, 8);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(2, 2, 2, 9);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(3, 1, -1, 10);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(3, 1, 1, 12);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(3, 3, -3, 13);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(3, 3, -3, 19);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(4, 0, 0, 20);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(4, 2, -2, 21);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(4, 2, 2, 25);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(4, 4, -4, 26);
+    test_zernike_tetrahedral_sequence_index_all_symmetric(4, 4, 4, 34);
+
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(0, 0);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(1, 1);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(2, 0);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(2, 2);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(3, 1);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(3, 3);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(4, 0);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(4, 2);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(4, 4);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(5, 1);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(5, 3);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(5, 5);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(6, 0);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(6, 2);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(6, 4);
+    test_zernike_tetrahedral_sequence_index_first_two_symmetric(6, 6);
+
+    test_zernike_tetrahedral_sequence_index_first_symmetric(0);
+    test_zernike_tetrahedral_sequence_index_first_symmetric(1);
+    test_zernike_tetrahedral_sequence_index_first_symmetric(2);
+    test_zernike_tetrahedral_sequence_index_first_symmetric(3);
+    test_zernike_tetrahedral_sequence_index_first_symmetric(4);
+    test_zernike_tetrahedral_sequence_index_first_symmetric(5);
+    test_zernike_tetrahedral_sequence_index_first_symmetric(6);
+
+    test_zernike_tetrahedral_sequence_index_range_symmetric(0, std::array<int, 0>{});
+    test_zernike_tetrahedral_sequence_index_range_symmetric(1, std::array<int, 1>{0});
+    test_zernike_tetrahedral_sequence_index_range_symmetric(2, std::array<int, 2>{0, 1});
+    test_zernike_tetrahedral_sequence_index_range_symmetric(3, std::array<int, 3>{0, 1, 2});
+    test_zernike_tetrahedral_sequence_index_range_symmetric(4, std::array<int, 4>{0, 1, 2, 3});
 }

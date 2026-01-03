@@ -25,6 +25,7 @@ macro(create_test TESTNAME)
 endmacro()
 
 create_test(test_index_range)
+create_test(test_sequence)
 create_test(test_gauss_legendre)
 create_test(test_triangle_layout)
 create_test(test_md_span)
