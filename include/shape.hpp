@@ -91,11 +91,27 @@ public:
     static constexpr size_type rank = sequence_type::rank;
     static constexpr std::size_t linear_extent = std::dynamic_extent;
 
+private:
+    template <std::size_t N> struct subshape_helper;
+
     template <std::size_t N>
-        requires (N > 0)
-    using subshape_type = std::conditional_t<(N < rank),
-        SequencedShape<typename sequence_type::template sublayout_t<N>>,
-        NullShape>;
+        requires (0 < N && N < rank)
+    struct subshape_helper<N>
+    {
+        using type = SequencedShape<typename sequence_type::template subsequence_type<N>>;
+    };
+
+    template <std::size_t N>
+        requires (N == rank)
+    struct subshape_helper<N>
+    {
+        using type = NullShape;
+    };
+
+public:
+    template <std::size_t N>
+        requires (0 < N && N <= rank)
+    using subshape_type = subshape_helper<N>::type;
 
     constexpr SequencedShape() = default;
     explicit constexpr SequencedShape(extent_type order):
@@ -118,7 +134,7 @@ public:
     [[nodiscard]] constexpr auto
     subshape(Inds... indices) const noexcept
     {
-        return subshape_type<sizeof...(Inds)>(sequence_type::subextent(indices...));
+        return subshape_type<sizeof...(Inds)>(sequence_type::subextent(index_type(indices)...));
     }
 
     template <std::integral... Inds>
@@ -131,8 +147,8 @@ public:
 
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= rank)
-    [[nodiscard]] constexpr size_type
-    operator()(Inds... indices) const noexcept { return sequence_type::index(indices...); }
+    [[nodiscard]] constexpr index_type
+    operator()(Inds... indices) const noexcept { return sequence_type::index(index_type(indices)...); }
 
     [[nodiscard]] constexpr index_range
     indices() const noexcept { return index_range(m_order); }
@@ -141,7 +157,7 @@ public:
     indices(index_type index) const noexcept
     {
         assert(index < order());
-        return index_range(m_order);
+        return index_range(index, index_type(m_order));
     }
 
 private:
@@ -167,17 +183,23 @@ private:
     struct subshape_helper;
 
     template <std::size_t N, std::size_t... Inds>
+        requires (sizeof...(Inds) == N && 1 <= N && N < rank)
     struct subshape_helper<N, std::index_sequence<Inds...>>
     {
         using type = TensorShape<std::get<N + Inds>(static_extents)...>;
     };
 
+    template <std::size_t N>
+        requires (N == rank)
+    struct subshape_helper<N, std::index_sequence<>>
+    {
+        using type = NullShape;
+    };
+
 public:
     template <std::size_t N>
-        requires (N > 0)
-    using subshape_type = std::conditional_t<(N < rank),
-        typename subshape_helper<N, std::make_index_sequence<rank - N>>::type,
-        NullShape>;
+        requires (0 < N && N <= rank)
+    using subshape_type = subshape_helper<N, std::make_index_sequence<rank - N>>::type;
 
     constexpr TensorShape() = default;
 
@@ -214,10 +236,10 @@ public:
 
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= rank)
-    [[nodiscard]] constexpr size_type
+    [[nodiscard]] constexpr index_type
     operator()(Inds... indices) const noexcept
     {
-        return array::detail::index(m_extents, indices...);
+        return array::detail::index(m_extents, index_type(indices)...);
     }
 
     [[nodiscard]] constexpr index_range
@@ -272,19 +294,26 @@ private:
     struct subshape_helper;
 
     template <std::size_t N, std::size_t... Inds>
+        requires (sizeof...(Inds) == N && 1 <= N && N < rank)
     struct subshape_helper<N, std::index_sequence<Inds...>>
     {
         using type = TensorShape<std::get<N + Inds>(static_extents)...>;
     };
 
+    template <std::size_t N>
+        requires (N == rank)
+    struct subshape_helper<N, std::index_sequence<>>
+    {
+        using type = NullShape;
+    };
+
 public:
     template <std::size_t N>
-        requires (N > 0)
-    using subshape_type = std::conditional_t<(N < rank),
-        typename subshape_helper<N, std::make_index_sequence<rank - N>>::type,
-        NullShape>;
+        requires (0 < N && N <= rank)
+    using subshape_type = subshape_helper<N, std::make_index_sequence<rank - N>>::type;
 
     constexpr TensorShape() = default;
+    explicit constexpr TensorShape([[maybe_unused]] size_type extent) requires (rank == 1) {}
     explicit constexpr TensorShape([[maybe_unused]] extent_type extents) {}
 
     [[nodiscard]] static constexpr size_type
@@ -314,10 +343,10 @@ public:
 
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= rank)
-    [[nodiscard]] constexpr size_type
+    [[nodiscard]] constexpr index_type
     operator()(Inds... indices) const noexcept
     {
-        return array::detail::index(static_extents, indices...);
+        return array::detail::index(static_extents, index_type(indices)...);
     }
 
     [[nodiscard]] constexpr index_range
@@ -422,7 +451,7 @@ public:
         requires (S1::rank <= sizeof...(Inds) && sizeof...(Inds) == rank)
     [[nodiscard]] constexpr auto subshape(Inds... indices) const noexcept
     {
-        return subshape_type<sizeof...(Inds)>(m_shapes.second.subextents(indices...));
+        return subshape_type<sizeof...(Inds)>(m_shapes.second.subextents(index_type(indices)...));
     }
 
     template <std::integral... Inds>
@@ -434,8 +463,8 @@ public:
 
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= rank)
-    [[nodiscard]] constexpr size_type
-    operator()(Inds... indices) const noexcept { return index(indices...); }
+    [[nodiscard]] constexpr index_type
+    operator()(Inds... indices) const noexcept { return index(index_type(indices)...); }
 
     [[nodiscard]] constexpr index_range
     indices() const noexcept { return m_shapes.first.indices(); }

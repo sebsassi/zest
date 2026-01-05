@@ -26,6 +26,28 @@ SOFTWARE.
 
 #include "indexing.hpp"
 
+namespace {
+
+bool test_array_index_1d(const std::array<std::size_t, 1>& extents, std::size_t i)
+{
+    return zest::array::detail::index(extents, i) == i;
+}
+
+bool test_array_index_2d(const std::array<std::size_t, 2>& extents, std::size_t i, std::size_t j)
+{
+    return zest::array::detail::index(extents, i, j) == extents[1]*i + j;
+}
+
+bool test_array_index_3d(const std::array<std::size_t, 3>& extents, std::size_t i, std::size_t j, std::size_t k)
+{
+    return zest::array::detail::index(extents, i, j, k) == extents[2]*(extents[1]*i + j) + k;
+}
+
+bool test_array_index_4d(const std::array<std::size_t, 4>& extents, std::size_t i, std::size_t j, std::size_t k, std::size_t l)
+{
+    return zest::array::detail::index(extents, i, j, k, l) == extents[3]*(extents[2]*(extents[1]*i + j) + k) + l;
+}
+
 bool test_standard_index_range()
 {
     std::array<std::size_t, 10> reference = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -106,8 +128,44 @@ bool test_symmetric_index_range()
     return success;
 }
 
+} // namespace
+
 int main()
 {
+    assert(test_array_index_1d({4}, 0));
+    assert(test_array_index_1d({4}, 2));
+    assert(test_array_index_1d({4}, 3));
+
+    assert(test_array_index_2d({4, 5}, 0, 0));
+    assert(test_array_index_2d({4, 5}, 0, 3));
+    assert(test_array_index_2d({4, 5}, 2, 0));
+    assert(test_array_index_2d({4, 5}, 2, 3));
+
+    assert(test_array_index_3d({4, 5, 6}, 0, 0, 0));
+    assert(test_array_index_3d({4, 5, 6}, 0, 0, 4));
+    assert(test_array_index_3d({4, 5, 6}, 0, 3, 0));
+    assert(test_array_index_3d({4, 5, 6}, 2, 0, 0));
+    assert(test_array_index_3d({4, 5, 6}, 2, 3, 0));
+    assert(test_array_index_3d({4, 5, 6}, 2, 0, 4));
+    assert(test_array_index_3d({4, 5, 6}, 0, 3, 4));
+    assert(test_array_index_3d({4, 5, 6}, 2, 3, 4));
+
+    assert(test_array_index_4d({4, 5, 6, 7}, 0, 0, 0, 0));
+    assert(test_array_index_4d({4, 5, 6, 7}, 0, 0, 0, 5));
+    assert(test_array_index_4d({4, 5, 6, 7}, 0, 0, 4, 0));
+    assert(test_array_index_4d({4, 5, 6, 7}, 0, 3, 0, 0));
+    assert(test_array_index_4d({4, 5, 6, 7}, 2, 0, 0, 0));
+    assert(test_array_index_4d({4, 5, 6, 7}, 2, 3, 0, 0));
+    assert(test_array_index_4d({4, 5, 6, 7}, 2, 0, 4, 0));
+    assert(test_array_index_4d({4, 5, 6, 7}, 2, 0, 0, 5));
+    assert(test_array_index_4d({4, 5, 6, 7}, 0, 3, 0, 5));
+    assert(test_array_index_4d({4, 5, 6, 7}, 0, 0, 4, 5));
+    assert(test_array_index_4d({4, 5, 6, 7}, 2, 3, 4, 0));
+    assert(test_array_index_4d({4, 5, 6, 7}, 2, 3, 0, 5));
+    assert(test_array_index_4d({4, 5, 6, 7}, 2, 0, 4, 5));
+    assert(test_array_index_4d({4, 5, 6, 7}, 0, 3, 4, 5));
+    assert(test_array_index_4d({4, 5, 6, 7}, 2, 3, 4, 5));
+
     assert(test_standard_index_range());
     assert(test_parity_index_range_even());
     assert(test_parity_index_range_odd());

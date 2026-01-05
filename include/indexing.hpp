@@ -31,21 +31,18 @@ namespace zest
 namespace array::detail
 {
 
-template <typename SizeType, std::size_t N, typename IndexType, typename... Inds, std::size_t... I>
+template <typename SizeType, std::size_t N, typename IndexType, typename... Inds>
+    requires (0 <= sizeof...(Inds) && sizeof...(Inds) + 1 <= N)
 [[nodiscard]] constexpr auto
-index_impl(const std::array<SizeType, N>& extents, std::index_sequence<I...> /*unused*/, IndexType ind, Inds... inds) noexcept
+index(const std::array<SizeType, N>& extents, IndexType ind, Inds... inds) noexcept
 {
-    IndexType res = ind;
-    ([&]{ res = res*IndexType(extents[1 + I]) + IndexType(inds); }(), ...);
-    return res;
-}
-
-template <typename SizeType, std::size_t N, typename... Inds>
-    requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= N)
-[[nodiscard]] constexpr auto
-index(const std::array<SizeType, N>& extents, Inds... inds) noexcept
-{
-    return index_impl<SizeType, N>(extents, std::make_index_sequence<sizeof...(Inds) - 1>{}, inds...);
+    auto impl = [&]<std::size_t... I>(std::index_sequence<I...>)
+    {
+        IndexType res = ind;
+        ([&]{ res = res*IndexType(extents[1 + I]) + IndexType(inds); }(), ...);
+        return res;
+    };
+    return impl(std::make_index_sequence<sizeof...(Inds)>{});
 }
 
 } // namespace array::detail

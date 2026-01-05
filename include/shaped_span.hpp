@@ -21,9 +21,9 @@ SOFTWARE.
 */
 #pragma once
 
+#include <cassert>
 #include <cstddef>
 #include <span>
-#include <cassert>
 
 #include "utility.hpp"
 
@@ -56,11 +56,11 @@ public:
 
     template <std::size_t N>
     using subspan_type = ShapedSpan<
-        element_type, typename shape_type::template subshape_type<1>>;
+        element_type, typename shape_type::template subshape_type<N>>;
 
     template <std::size_t N>
     using const_subspan_type = ShapedSpan<
-        const element_type, typename shape_type::template subshape_type<1>>;
+        const element_type, typename shape_type::template subshape_type<N>>;
 
     constexpr ShapedSpan() = default;
 
@@ -77,6 +77,7 @@ public:
         m_data(data), m_shape(shape) { assert(data.size() == m_shape.size()); }
 
     template <shaped_contiguous_buffer T>
+        requires std::same_as<typename T::shape_type, shape_type>
     constexpr ShapedSpan(T& shaped_buffer):
         m_data(shaped_buffer.data()), m_shape(shaped_buffer.shape()) {}
 

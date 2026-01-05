@@ -50,11 +50,11 @@ public:
 
     template <std::size_t N>
     using subspan_type = ShapedSpan<
-        value_type, typename shape_type::template subshape_type<1>>;
+        value_type, typename shape_type::template subshape_type<N>>;
 
     template <std::size_t N>
     using const_subspan_type = ShapedSpan<
-        const value_type, typename shape_type::template subshape_type<1>>;
+        const value_type, typename shape_type::template subshape_type<N>>;
 
     ShapedArray() = default;
 

@@ -179,9 +179,9 @@ struct TriangleSequence
     static constexpr size_type rank = 2;
 
 private:
-    template <std::size_t N> struct sublayout;
+    template <std::size_t N> struct subsequence_helper;
 
-    template <> struct sublayout<1>
+    template <> struct subsequence_helper<1>
     {
         using type = StandardLinearSequence<indexing_mode_param>;
     };
@@ -189,7 +189,7 @@ private:
 public:
     template <std::size_t N>
         requires (N == 1)
-    using sublayout_t = sublayout<N>::type;
+    using subsequence_type = subsequence_helper<N>::type;
 
     /**
         @brief Number of elements in sequence at the given order.
@@ -276,9 +276,9 @@ struct EvenTriangleSequence
     static constexpr size_type rank = 2;
 
 private:
-    template <std::size_t N> struct sublayout_helper;
+    template <std::size_t N> struct subsequence_helper;
 
-    template <> struct sublayout_helper<1>
+    template <> struct subsequence_helper<1>
     {
         using type = ParityLinearSequence;
     };
@@ -286,7 +286,7 @@ private:
 public:
     template <std::size_t N>
         requires (N == 1)
-    using sublayout_t = sublayout_helper<N>::type;
+    using subsequence_type = subsequence_helper<N>::type;
 
     /**
         @brief Number of elements in sequence at the given order.
@@ -397,9 +397,9 @@ struct ParityRowTriangleSequence
     static constexpr size_type rank = 2;
 
 private:
-    template <std::size_t N> struct sublayout_helper;
+    template <std::size_t N> struct subsequence_helper;
 
-    template <> struct sublayout_helper<1>
+    template <> struct subsequence_helper<1>
     {
         using type = StandardLinearSequence<indexing_mode_param>;
     };
@@ -407,7 +407,7 @@ private:
 public:
     template <std::size_t N>
         requires (N == 1)
-    using sublayout_type = sublayout_helper<N>::type;
+    using subsequence_type = subsequence_helper<N>::type;
 
     /**
         @brief Number of elements in sequence at the given order.
@@ -463,8 +463,8 @@ public:
 
         @param l
     */
-    [[nodiscard]] static constexpr index_type
-    subextent(index_type l) noexcept { return l + 1; }
+    [[nodiscard]] static constexpr size_type
+    subextent(index_type l) noexcept { return size_type(l + 1); }
 };
 
 /**
@@ -511,16 +511,16 @@ struct ZernikeTetrahedralSequence
     using index_range = StandardIndexRange<index_type>;
 
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
-    static constexpr size_type rank = 2;
+    static constexpr size_type rank = 3;
 
 private:
-    template <std::size_t N> struct sublayout_helpler;
+    template <std::size_t N> struct subsequence_helper;
 
-    template <> struct sublayout_helpler<1>
+    template <> struct subsequence_helper<1>
     {
         using type = ParityRowTriangleSequence<indexing_mode_param>;
     };
-    template <> struct sublayout_helpler<2>
+    template <> struct subsequence_helper<2>
     {
         using type = StandardLinearSequence<indexing_mode_param>;
     };
@@ -528,7 +528,7 @@ private:
 public:
     template <std::size_t N>
         requires (N == 1 || N == 2)
-    using sublayout_t = sublayout_helpler<N>::type;
+    using subsequence_type = subsequence_helper<N>::type;
 
     /**
         @brief Number of elements in sequence at the given order.
@@ -606,8 +606,8 @@ public:
 
         @param n
     */
-    [[nodiscard]] static constexpr index_type
-    subextent(index_type n) noexcept { return n + 1; }
+    [[nodiscard]] static constexpr size_type
+    subextent(index_type n) noexcept { return size_type(n + 1); }
 
     /**
         @brief Order of a subsequence at given index pair `(n,l)`.
@@ -615,8 +615,8 @@ public:
         @param n
         @param l
     */
-    [[nodiscard]] static constexpr index_type
-    subextent([[maybe_unused]] index_type n, index_type l) noexcept { return l + 1; }
+    [[nodiscard]] static constexpr size_type
+    subextent([[maybe_unused]] index_type n, index_type l) noexcept { return size_type(l + 1); }
 };
 
 } // namespace zest
