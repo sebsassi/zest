@@ -23,7 +23,7 @@ SOFTWARE.
 
 #include <vector>
 
-#include "plm_recursion.hpp"
+#include "associated_legendre_recursion.hpp"
 #include "real_sh_expansion.hpp"
 
 namespace zest::st
@@ -72,7 +72,7 @@ public:
 
         const double z = std::sin(colat);
         AssociatedLegendreSpan<double, sh_norm, sh_phase> ass_leg(m_ass_leg_poly, ylm.order());
-        m_recursion.plm_real(z, ass_leg);
+        m_recursion.generate_real(z, ass_leg);
 
         for (std::size_t m = 0; m < ylm.order(); ++m)
         {
@@ -116,7 +116,7 @@ public:
     }
 
 private:
-    PlmRecursion m_recursion;
+    AssociatedLegendreRecursion m_recursion;
     std::vector<double> m_ass_leg_poly;
     std::vector<std::array<double, 2>> m_cossin;
 };

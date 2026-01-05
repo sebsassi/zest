@@ -19,7 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 SOFTWARE.
 */
-#include "plm_recursion.hpp"
+#include "associated_legendre_recursion.hpp"
 
 #include <cmath>
 
@@ -28,7 +28,7 @@ SOFTWARE.
 namespace zest::st
 {
 
-PlmRecursion::PlmRecursion(std::size_t max_order):
+AssociatedLegendreRecursion::AssociatedLegendreRecursion(std::size_t max_order):
     m_sqrl(2*max_order), m_alm(max_order*max_order),
     m_blm(max_order*max_order), m_max_order(max_order)
 {
@@ -54,7 +54,7 @@ PlmRecursion::PlmRecursion(std::size_t max_order):
     }
 }
 
-void PlmRecursion::expand(std::size_t max_order)
+void AssociatedLegendreRecursion::expand(std::size_t max_order)
 {
     if (max_order <= m_max_order) return;
 
@@ -87,7 +87,7 @@ void PlmRecursion::expand(std::size_t max_order)
     m_max_order = max_order;
 }
 
-void PlmRecursion::expand_vec(std::size_t vec_size)
+void AssociatedLegendreRecursion::expand_vec(std::size_t vec_size)
 {
     if (m_u_scaled.size() <= vec_size)
     {

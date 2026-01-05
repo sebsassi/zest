@@ -21,10 +21,11 @@ SOFTWARE.
 */
 #include "sh_glq_transformer.hpp"
 
-#include <random>
 #include <cmath>
 #include <cassert>
 
+namespace
+{
 
 constexpr bool is_close(double a, double b, double tol)
 {
@@ -72,37 +73,41 @@ bool test_glq_forward_transform_expands_Y00()
 
     const double reference_coeff = 1.0;
 
-    const auto& coeffs = expansion.flatten();
-
     constexpr double tol = 1.0e-13;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (auto l : expansion.indices())
     {
-        if (i == 0)
+        auto expansion_l = expansion[l];
+        for (auto m : expansion_l.indices())
         {
-            if (is_close(coeffs[i][0], reference_coeff, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
+            if (l == 0 && m == 0)
+            {
+                if (is_close(expansion[l, m, 0], reference_coeff, tol)
+                        && is_close(expansion[l, m, 1], 0.0, tol))
+                    success = success && true;
+                else
+                    success = success && false;
+            }
             else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            {
+                if (is_close(expansion[l, m, 0], 0.0, tol)
+                        && is_close(expansion[l, m, 1], 0.0, tol))
+                    success = success && true;
+                else
+                    success = success && false;
+            }
+
         }
     }
 
     if (!success)
     {
-        for (std::size_t l = 0; l <= order; ++l)
+        for (auto l : expansion.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
-                std::printf("%lu %lu %f %f\n", l, m, expansion(l,m)[0], expansion(l,m)[1]);
+            auto expansion_l = expansion[l];
+            for (auto m : expansion_l.indices())
+                std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
         }
     }
     return success;
@@ -113,7 +118,7 @@ template <
     zest::st::SHPhase sh_phase_param>
 bool test_glq_forward_transform_expands_Y10()
 {
-    constexpr std::size_t order = 6; 
+    constexpr std::size_t order = 6;
 
     auto function = []([[maybe_unused]] double lon, double colat)
     {
@@ -123,8 +128,8 @@ bool test_glq_forward_transform_expands_Y10()
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm*std::sqrt(3.0)*z;
     };
-    
-    zest::st::GLQTransformer<sh_norm_param, sh_phase_param, GridLayout> 
+
+    zest::st::GLQTransformer<sh_norm_param, sh_phase_param, GridLayout>
     transformer(order);
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
@@ -134,37 +139,41 @@ bool test_glq_forward_transform_expands_Y10()
 
     const double reference_coeff = 1.0;
 
-    const auto& coeffs = expansion.flatten();
-
     constexpr double tol = 1.0e-13;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (auto l : expansion.indices())
     {
-        if (i == 1)
+        auto expansion_l = expansion[l];
+        for (auto m : expansion_l.indices())
         {
-            if (is_close(coeffs[i][0], reference_coeff, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
+            if (l == 1 && m == 0)
+            {
+                if (is_close(expansion[l, m, 0], reference_coeff, tol)
+                        && is_close(expansion[l, m, 1], 0.0, tol))
+                    success = success && true;
+                else
+                    success = success && false;
+            }
             else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            {
+                if (is_close(expansion[l, m, 0], 0.0, tol)
+                        && is_close(expansion[l, m, 1], 0.0, tol))
+                    success = success && true;
+                else
+                    success = success && false;
+            }
+
         }
     }
 
     if (!success)
     {
-        for (std::size_t l = 0; l <= order; ++l)
+        for (auto l : expansion.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
-                std::printf("%lu %lu %f %f\n", l, m, expansion(l,m)[0], expansion(l,m)[1]);
+            auto expansion_l = expansion[l];
+            for (auto m : expansion_l.indices())
+                std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
         }
     }
     return success;
@@ -175,12 +184,12 @@ template <
     zest::st::SHPhase sh_phase_param>
 bool test_glq_forward_transform_expands_Y21()
 {
-    constexpr std::size_t order = 6; 
+    constexpr std::size_t order = 6;
 
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? 
+        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ?
             -1.0 : 1.0;
         constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
@@ -197,37 +206,41 @@ bool test_glq_forward_transform_expands_Y21()
 
     const double reference_coeff = 1.0;
 
-    const auto& coeffs = expansion.flatten();
-
     constexpr double tol = 1.0e-13;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (auto l : expansion.indices())
     {
-        if (i == 4)
+        auto expansion_l = expansion[l];
+        for (auto m : expansion_l.indices())
         {
-            if (is_close(coeffs[i][0], reference_coeff, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
+            if (l == 2 && m == 1)
+            {
+                if (is_close(expansion[l, m, 0], reference_coeff, tol)
+                        && is_close(expansion[l, m, 1], 0.0, tol))
+                    success = success && true;
+                else
+                    success = success && false;
+            }
             else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            {
+                if (is_close(expansion[l, m, 0], 0.0, tol)
+                        && is_close(expansion[l, m, 1], 0.0, tol))
+                    success = success && true;
+                else
+                    success = success && false;
+            }
+
         }
     }
 
     if (!success)
     {
-        for (std::size_t l = 0; l <= order; ++l)
+        for (auto l : expansion.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
-                std::printf("%lu %lu %f %f\n", l, m, expansion(l,m)[0], expansion(l,m)[1]);
+            auto expansion_l = expansion[l];
+            for (auto m : expansion_l.indices())
+                std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
         }
     }
     return success;
@@ -238,18 +251,18 @@ template <
     zest::st::SHPhase sh_phase_param>
 bool test_glq_forward_transform_expands_Y31()
 {
-    constexpr std::size_t order = 6; 
+    constexpr std::size_t order = 6;
 
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? 
+        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ?
             -1.0 : 1.0;
         constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
-    
+
     zest::st::GLQTransformer<sh_norm_param, sh_phase_param, GridLayout> 
     transformer(order);
 
@@ -260,37 +273,41 @@ bool test_glq_forward_transform_expands_Y31()
 
     const double reference_coeff = 1.0;
 
-    const auto& coeffs = expansion.flatten();
-
     constexpr double tol = 1.0e-13;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (auto l : expansion.indices())
     {
-        if (i == 7)
+        auto expansion_l = expansion[l];
+        for (auto m : expansion_l.indices())
         {
-            if (is_close(coeffs[i][0], reference_coeff, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
+            if (l == 3 && m == 1)
+            {
+                if (is_close(expansion[l, m, 0], reference_coeff, tol)
+                        && is_close(expansion[l, m, 1], 0.0, tol))
+                    success = success && true;
+                else
+                    success = success && false;
+            }
             else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            {
+                if (is_close(expansion[l, m, 0], 0.0, tol)
+                        && is_close(expansion[l, m, 1], 0.0, tol))
+                    success = success && true;
+                else
+                    success = success && false;
+            }
+
         }
     }
 
     if (!success)
     {
-        for (std::size_t l = 0; l <= order; ++l)
+        for (auto l : expansion.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
-                std::printf("%lu %lu %f %f\n", l, m, expansion(l,m)[0], expansion(l,m)[1]);
+            auto expansion_l = expansion[l];
+            for (auto m : expansion_l.indices())
+                std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
         }
     }
     return success;
@@ -301,19 +318,19 @@ template <
     zest::st::SHPhase sh_phase_param>
 bool test_glq_forward_transform_expands_Y4m3()
 {
-    constexpr std::size_t order = 6; 
+    constexpr std::size_t order = 6;
 
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? 
+        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ?
             -1.0 : 1.0;
         constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
     };
     
-    zest::st::GLQTransformer<sh_norm_param, sh_phase_param, GridLayout> 
+    zest::st::GLQTransformer<sh_norm_param, sh_phase_param, GridLayout>
     transformer(order);
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
@@ -323,37 +340,41 @@ bool test_glq_forward_transform_expands_Y4m3()
 
     const double reference_coeff = 1.0;
 
-    const auto& coeffs = expansion.flatten();
-
     constexpr double tol = 1.0e-13;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (auto l : expansion.indices())
     {
-        if (i == 13)
+        auto expansion_l = expansion[l];
+        for (auto m : expansion_l.indices())
         {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], reference_coeff, tol))
-                success = success && true;
+            if (l == 4 && m == 3)
+            {
+                if (is_close(expansion[l, m, 0], 0.0, tol)
+                        && is_close(expansion[l, m, 1], reference_coeff, tol))
+                    success = success && true;
+                else
+                    success = success && false;
+            }
             else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            {
+                if (is_close(expansion[l, m, 0], 0.0, tol)
+                        && is_close(expansion[l, m, 1], 0.0, tol))
+                    success = success && true;
+                else
+                    success = success && false;
+            }
+
         }
     }
 
     if (!success)
     {
-        for (std::size_t l = 0; l <= order; ++l)
+        for (auto l : expansion.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
-                std::printf("%lu %lu %f %f\n", l, m, expansion(l,m)[0], expansion(l,m)[1]);
+            auto expansion_l = expansion[l];
+            for (auto m : expansion_l.indices())
+                std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
         }
     }
     return success;
@@ -364,19 +385,19 @@ template <
     zest::st::SHPhase sh_phase_param>
 bool test_glq_forward_transform_expands_Y31_plus_Y4m3()
 {
-    constexpr std::size_t order = 6; 
+    constexpr std::size_t order = 6;
 
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? 
+        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ?
             -1.0 : 1.0;
         constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
     };
     
-    zest::st::GLQTransformer<sh_norm_param, sh_phase_param, GridLayout> 
+    zest::st::GLQTransformer<sh_norm_param, sh_phase_param, GridLayout>
     transformer(order);
 
     zest::st::SphereGLQGridPoints<GridLayout> points{};
@@ -386,45 +407,49 @@ bool test_glq_forward_transform_expands_Y31_plus_Y4m3()
 
     const double reference_coeff = 1.0;
 
-    const auto& coeffs = expansion.flatten();
-
     constexpr double tol = 1.0e-13;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (auto l : expansion.indices())
     {
-        if (i == 7)
+        auto expansion_l = expansion[l];
+        for (auto m : expansion_l.indices())
         {
-            if (is_close(coeffs[i][0], reference_coeff, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
+            if (l == 3 && m == 1)
+            {
+                if (is_close(expansion[l, m, 0], reference_coeff, tol)
+                        && is_close(expansion[l, m, 1], 0.0, tol))
+                    success = success && true;
+                else
+                    success = success && false;
+            }
+            else if (l == 4 && m == 3)
+            {
+                if (is_close(expansion[l, m, 0], 0.0, tol)
+                        && is_close(expansion[l, m, 1], reference_coeff, tol))
+                    success = success && true;
+                else
+                    success = success && false;
+            }
             else
-                success = success && false;
-        }
-        else if (i == 13)
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], reference_coeff, tol))
-                success = success && true;
-            else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            {
+                if (is_close(expansion[l, m, 0], 0.0, tol)
+                        && is_close(expansion[l, m, 1], 0.0, tol))
+                    success = success && true;
+                else
+                    success = success && false;
+            }
+
         }
     }
 
     if (!success)
     {
-        for (std::size_t l = 0; l <= order; ++l)
+        for (auto l : expansion.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
-                std::printf("%lu %lu %f %f\n", l, m, expansion(l,m)[0], expansion(l,m)[1]);
+            auto expansion_l = expansion[l];
+            for (auto m : expansion_l.indices())
+                std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
         }
     }
     return success;
@@ -838,6 +863,8 @@ void test_glq()
 
     assert((test_sh_transform_converges<GridLayout, sh_norm_param, sh_phase_param>()));
 }
+
+} // namespace
 
 int main()
 {

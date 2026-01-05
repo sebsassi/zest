@@ -26,7 +26,8 @@ SOFTWARE.
 
 #include "indexing.hpp"
 
-namespace {
+namespace
+{
 
 bool test_array_index_1d(const std::array<std::size_t, 1>& extents, std::size_t i)
 {

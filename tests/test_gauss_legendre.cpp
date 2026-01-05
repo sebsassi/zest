@@ -21,9 +21,12 @@ SOFTWARE.
 */
 #include "gauss_legendre.hpp"
 
-#include <cstdio>
 #include <cassert>
+#include <cstdio>
 #include <vector>
+
+namespace
+{
 
 bool is_close(double x, double y, double abserr)
 {
@@ -164,19 +167,6 @@ bool test_unpacked_weights_sum_to_two_for_num_nodes_between_71_and_100()
     return success_status;
 }
 
-void compare_nodes_and_weights(std::size_t num_nodes)
-{
-    std::vector<double> nodes{};
-    std::vector<double> weights{};
-    zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::cos>(nodes, weights, num_nodes & 1);
-    for (const auto& node : nodes)
-        std::printf("%.15Lf\n", (long double)node);
-    std::printf("\n");
-    for (const auto& weight : weights)
-        std::printf("%.15Lf\n", (long double)weight);
-    std::printf("\n");
-}
-
 void do_tests_small_num_nodes()
 {
     constexpr std::size_t even_num = 32;
@@ -209,9 +199,10 @@ void do_tests_large_num_nodes()
     assert(test_packed_layout_odd_first_node_is_near_zero<odd_num>());
 }
 
+} // namespace
+
 int main()
 {
-    //compare_nodes_and_weights(71);
     assert(test_num_nodes_can_be_zero());
     do_tests_small_num_nodes();
     do_tests_large_num_nodes();

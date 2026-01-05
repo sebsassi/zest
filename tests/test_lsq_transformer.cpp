@@ -20,10 +20,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "lsq_transformer.hpp"
+#include "sequence.hpp"
 
 #include <random>
 #include <cmath>
 #include <cassert>
+
+namespace
+{
 
 constexpr bool is_close(double a, double b, double tol)
 {
@@ -78,66 +82,68 @@ bool test_real_sh_generator_generates_correct_up_to_order_5(
 
     zest::st::RealSHGenerator generator(order);
 
-    using YlmSpan = zest::st::RealSHSpan<double, sh_norm_param, sh_phase_param>;
-    std::vector<double> ylm(YlmSpan::Layout::size(order));
+    using Expansion = zest::st::SHExpansion<double, zest::IndexingMode::symmetric, sh_norm_param, sh_phase_param>;
+    Expansion ylm(order);
 
-    generator.generate(lon, lat, YlmSpan(ylm, order));
+    auto ylm_flat = ylm.flatten();
 
-    bool success = is_close(ylm[0], Y00, 1.0e-10)
-            && is_close(ylm[1], Y1m1, 1.0e-10)
-            && is_close(ylm[2], Y10, 1.0e-10)
-            && is_close(ylm[3], Y11, 1.0e-10)
-            && is_close(ylm[4], Y2m2, 1.0e-10)
-            && is_close(ylm[5], Y2m1, 1.0e-10)
-            && is_close(ylm[6], Y20, 1.0e-10)
-            && is_close(ylm[7], Y21, 1.0e-10)
-            && is_close(ylm[8], Y22, 1.0e-10)
-            && is_close(ylm[9], Y3m3, 1.0e-10)
-            && is_close(ylm[10], Y3m2, 1.0e-10)
-            && is_close(ylm[11], Y3m1, 1.0e-10)
-            && is_close(ylm[12], Y30, 1.0e-10)
-            && is_close(ylm[13], Y31, 1.0e-10)
-            && is_close(ylm[14], Y32, 1.0e-10)
-            && is_close(ylm[15], Y33, 1.0e-10)
-            && is_close(ylm[16], Y4m4, 1.0e-10)
-            && is_close(ylm[17], Y4m3, 1.0e-10)
-            && is_close(ylm[18], Y4m2, 1.0e-10)
-            && is_close(ylm[19], Y4m1, 1.0e-10)
-            && is_close(ylm[20], Y40, 1.0e-10)
-            && is_close(ylm[21], Y41, 1.0e-10)
-            && is_close(ylm[22], Y42, 1.0e-10)
-            && is_close(ylm[23], Y43, 1.0e-10)
-            && is_close(ylm[24], Y44, 1.0e-10);
+    generator.generate(lon, lat, ylm);
+
+    bool success = is_close(ylm_flat[0], Y00, 1.0e-10)
+            && is_close(ylm_flat[1], Y1m1, 1.0e-10)
+            && is_close(ylm_flat[2], Y10, 1.0e-10)
+            && is_close(ylm_flat[3], Y11, 1.0e-10)
+            && is_close(ylm_flat[4], Y2m2, 1.0e-10)
+            && is_close(ylm_flat[5], Y2m1, 1.0e-10)
+            && is_close(ylm_flat[6], Y20, 1.0e-10)
+            && is_close(ylm_flat[7], Y21, 1.0e-10)
+            && is_close(ylm_flat[8], Y22, 1.0e-10)
+            && is_close(ylm_flat[9], Y3m3, 1.0e-10)
+            && is_close(ylm_flat[10], Y3m2, 1.0e-10)
+            && is_close(ylm_flat[11], Y3m1, 1.0e-10)
+            && is_close(ylm_flat[12], Y30, 1.0e-10)
+            && is_close(ylm_flat[13], Y31, 1.0e-10)
+            && is_close(ylm_flat[14], Y32, 1.0e-10)
+            && is_close(ylm_flat[15], Y33, 1.0e-10)
+            && is_close(ylm_flat[16], Y4m4, 1.0e-10)
+            && is_close(ylm_flat[17], Y4m3, 1.0e-10)
+            && is_close(ylm_flat[18], Y4m2, 1.0e-10)
+            && is_close(ylm_flat[19], Y4m1, 1.0e-10)
+            && is_close(ylm_flat[20], Y40, 1.0e-10)
+            && is_close(ylm_flat[21], Y41, 1.0e-10)
+            && is_close(ylm_flat[22], Y42, 1.0e-10)
+            && is_close(ylm_flat[23], Y43, 1.0e-10)
+            && is_close(ylm_flat[24], Y44, 1.0e-10);
     
     if (success)
         return true;
     else
     {
-        std::printf("Y00 %f %f\n", ylm[0], Y00);
-        std::printf("Y1m1 %f %f\n", ylm[1], Y1m1);
-        std::printf("Y10 %f %f\n", ylm[2], Y10);
-        std::printf("Y11 %f %f\n", ylm[3], Y11);
-        std::printf("Y2m2 %f %f\n", ylm[4], Y2m2);
-        std::printf("Y2m1 %f %f\n", ylm[5], Y2m1);
-        std::printf("Y20 %f %f\n", ylm[6], Y20);
-        std::printf("Y21 %f %f\n", ylm[7], Y21);
-        std::printf("Y22 %f %f\n", ylm[8], Y22);
-        std::printf("Y3m3 %f %f\n", ylm[9], Y3m3);
-        std::printf("Y3m2 %f %f\n", ylm[10], Y3m2);
-        std::printf("Y3m1 %f %f\n", ylm[11], Y3m1);
-        std::printf("Y30 %f %f\n", ylm[12], Y30);
-        std::printf("Y31 %f %f\n", ylm[13], Y31);
-        std::printf("Y32 %f %f\n", ylm[14], Y32);
-        std::printf("Y33 %f %f\n", ylm[15], Y33);
-        std::printf("Y4m4 %f %f\n", ylm[16], Y4m4);
-        std::printf("Y4m3 %f %f\n", ylm[17], Y4m3);
-        std::printf("Y4m2 %f %f\n", ylm[18], Y4m2);
-        std::printf("Y4m1 %f %f\n", ylm[19], Y4m1);
-        std::printf("Y40 %f %f\n", ylm[20], Y40);
-        std::printf("Y41 %f %f\n", ylm[21], Y41);
-        std::printf("Y42 %f %f\n", ylm[22], Y42);
-        std::printf("Y43 %f %f\n", ylm[23], Y43);
-        std::printf("Y44 %f %f\n", ylm[24], Y44);
+        std::printf("Y00 %f %f\n", ylm_flat[0], Y00);
+        std::printf("Y1m1 %f %f\n", ylm_flat[1], Y1m1);
+        std::printf("Y10 %f %f\n", ylm_flat[2], Y10);
+        std::printf("Y11 %f %f\n", ylm_flat[3], Y11);
+        std::printf("Y2m2 %f %f\n", ylm_flat[4], Y2m2);
+        std::printf("Y2m1 %f %f\n", ylm_flat[5], Y2m1);
+        std::printf("Y20 %f %f\n", ylm_flat[6], Y20);
+        std::printf("Y21 %f %f\n", ylm_flat[7], Y21);
+        std::printf("Y22 %f %f\n", ylm_flat[8], Y22);
+        std::printf("Y3m3 %f %f\n", ylm_flat[9], Y3m3);
+        std::printf("Y3m2 %f %f\n", ylm_flat[10], Y3m2);
+        std::printf("Y3m1 %f %f\n", ylm_flat[11], Y3m1);
+        std::printf("Y30 %f %f\n", ylm_flat[12], Y30);
+        std::printf("Y31 %f %f\n", ylm_flat[13], Y31);
+        std::printf("Y32 %f %f\n", ylm_flat[14], Y32);
+        std::printf("Y33 %f %f\n", ylm_flat[15], Y33);
+        std::printf("Y4m4 %f %f\n", ylm_flat[16], Y4m4);
+        std::printf("Y4m3 %f %f\n", ylm_flat[17], Y4m3);
+        std::printf("Y4m2 %f %f\n", ylm_flat[18], Y4m2);
+        std::printf("Y4m1 %f %f\n", ylm_flat[19], Y4m1);
+        std::printf("Y40 %f %f\n", ylm_flat[20], Y40);
+        std::printf("Y41 %f %f\n", ylm_flat[21], Y41);
+        std::printf("Y42 %f %f\n", ylm_flat[22], Y42);
+        std::printf("Y43 %f %f\n", ylm_flat[23], Y43);
+        std::printf("Y44 %f %f\n", ylm_flat[24], Y44);
         return false;
     }
 }
@@ -162,16 +168,15 @@ bool test_lsq_geo_expansion_expands_Y00()
     std::mt19937 gen;
     std::uniform_real_distribution dist{0.0, 1.0};
 
-
     for (std::size_t i = 0; i < num_points; ++i)
         lon[i] = 2.0*std::numbers::pi*dist(gen);
-    
+
     for (std::size_t i = 0; i < num_points; ++i)
         lat[i] = std::numbers::pi*(dist(gen) - 0.5);
-    
+
     for (std::size_t i = 0; i < num_points; ++i)
         values[i] = function(lon[i], std::sin(lat[i]));
-    
+
     zest::st::LSQTransformer transformer(order);
 
     auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
@@ -230,16 +235,15 @@ bool test_lsq_geo_expansion_expands_Y21()
     std::mt19937 gen;
     std::uniform_real_distribution dist{0.0, 1.0};
 
-
     for (std::size_t i = 0; i < num_points; ++i)
         lon[i] = 2.0*std::numbers::pi*dist(gen);
-    
+
     for (std::size_t i = 0; i < num_points; ++i)
         lat[i] = std::numbers::pi*(dist(gen) - 0.5);
-    
+
     for (std::size_t i = 0; i < num_points; ++i)
         values[i] = function(lon[i], std::sin(lat[i]));
-    
+
     zest::st::LSQTransformer transformer(order);
 
     auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
@@ -301,13 +305,13 @@ bool test_lsq_geo_expansion_expands_Y31()
 
     for (std::size_t i = 0; i < num_points; ++i)
         lon[i] = 2.0*std::numbers::pi*dist(gen);
-    
+
     for (std::size_t i = 0; i < num_points; ++i)
         lat[i] = std::numbers::pi*(dist(gen) - 0.5);
-    
+
     for (std::size_t i = 0; i < num_points; ++i)
         values[i] = function(lon[i], std::sin(lat[i]));
-    
+
     zest::st::LSQTransformer transformer(order);
 
     auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
@@ -369,13 +373,13 @@ bool test_lsq_geo_expansion_expands_Y4m3()
 
     for (std::size_t i = 0; i < num_points; ++i)
         lon[i] = 2.0*std::numbers::pi*dist(gen);
-    
+
     for (std::size_t i = 0; i < num_points; ++i)
         lat[i] = std::numbers::pi*(dist(gen) - 0.5);
-    
+
     for (std::size_t i = 0; i < num_points; ++i)
         values[i] = function(lon[i], std::sin(lat[i]));
-    
+
     zest::st::LSQTransformer transformer(order);
 
     auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
@@ -437,13 +441,13 @@ bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
 
     for (std::size_t i = 0; i < num_points; ++i)
         lon[i] = 2.0*std::numbers::pi*dist(gen);
-    
+
     for (std::size_t i = 0; i < num_points; ++i)
         lat[i] = std::numbers::pi*(dist(gen) - 0.5);
-    
+
     for (std::size_t i = 0; i < num_points; ++i)
         values[i] = function(lon[i], std::sin(lat[i]));
-    
+
     zest::st::LSQTransformer transformer(order);
 
     auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
@@ -500,6 +504,8 @@ void test_lsq()
     assert((test_lsq_geo_expansion_expands_Y4m3<sh_norm_param, sh_phase_param>()));
     assert((test_lsq_geo_expansion_expands_Y31_plus_Y4m3<sh_norm_param, sh_phase_param>()));
 }
+
+} // namespace
 
 int main()
 {

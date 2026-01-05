@@ -31,9 +31,9 @@ SOFTWARE.
 #include "pocketfft_spec.hpp"
 
 #include "alignment.hpp"
+#include "associated_legendre_recursion.hpp"
 #include "gauss_legendre.hpp"
 #include "md_span.hpp"
-#include "plm_recursion.hpp"
 #include "radial_zernike_recursion.hpp"
 #include "zernike_expansion.hpp"
 
@@ -536,13 +536,13 @@ public:
         m_pocketfft_shape_grid(3), m_pocketfft_stride_grid(3), 
         m_pocketfft_stride_fft(3) {};
     explicit GLQTransformer(std::size_t order):
-        m_zernike_recursion(order), m_plm_recursion(order),
+        m_zernike_recursion(order), m_ass_leg_recursion(order),
         m_rad_glq_nodes(GridLayout::rad_size(order)),
         m_rad_glq_weights(GridLayout::rad_size(order)),
         m_lat_glq_nodes(GridLayout::lat_size(order)),
         m_lat_glq_weights(GridLayout::lat_size(order)),
         m_zernike_grid(GridLayout::rad_size(order)*RadZerShape::size(order)),
-        m_plm_grid(GridLayout::lat_size(order)*AssLegShape::size(order)),
+        m_ass_leg_grid(GridLayout::lat_size(order)*AssLegShape::size(order)),
         m_flm_grid(GridLayout::rad_size(order)*AssLegShape::size(order)),
         m_ffts(GridLayout::rad_size(order)*GridLayout::lat_size(order)*GridLayout::fft_size(order)),
         m_pocketfft_shape_grid(3),
@@ -563,11 +563,11 @@ public:
         RadZerSpan<double, std::dynamic_extent>
         zernike(m_zernike_grid, order, m_rad_glq_nodes.size());
 
-        m_zernike_recursion.zernike<zernike_norm_param>(
+        m_zernike_recursion.generate<zernike_norm_param>(
                 m_rad_glq_nodes, zernike);
 
-        AssLegSpan<double> plm(m_plm_grid, order, m_lat_glq_nodes.size());
-        m_plm_recursion.plm_real(m_lat_glq_nodes, plm);
+        AssLegSpan<double> ass_leg(m_ass_leg_grid, order, m_lat_glq_nodes.size());
+        m_ass_leg_recursion.generate_real(m_lat_glq_nodes, ass_leg);
 
         auto shape = GridLayout::shape(order);
         m_pocketfft_shape_grid[0] = shape[0];
@@ -596,7 +596,7 @@ public:
     {
         if (order == m_order) return;
 
-        m_plm_recursion.expand(order);
+        m_ass_leg_recursion.expand(order);
         m_zernike_recursion.expand(order);
 
         m_rad_glq_nodes.resize(GridLayout::rad_size(order));
@@ -619,14 +619,14 @@ public:
         RadZerSpan<double, std::dynamic_extent>
         zernike(m_zernike_grid, order, m_rad_glq_nodes.size());
 
-        m_zernike_recursion.zernike<zernike_norm_param>(
+        m_zernike_recursion.generate<zernike_norm_param>(
                 m_rad_glq_nodes, zernike);
 
-        m_plm_grid.resize(GridLayout::lat_size(order)*AssLegShape::size(order));
+        m_ass_leg_grid.resize(GridLayout::lat_size(order)*AssLegShape::size(order));
         m_flm_grid.resize(GridLayout::rad_size(order)*AssLegShape::size(order));
 
-        AssLegSpan<double, std::dynamic_extent> plm(m_plm_grid, order, m_lat_glq_nodes.size());
-        m_plm_recursion.plm_real(m_lat_glq_nodes, plm);
+        AssLegSpan<double, std::dynamic_extent> ass_leg(m_ass_leg_grid, order, m_lat_glq_nodes.size());
+        m_ass_leg_recursion.generate_real(m_lat_glq_nodes, ass_leg);
 
         m_ffts.resize(GridLayout::rad_size(order)*GridLayout::lat_size(order)*GridLayout::fft_size(order));
         std::array<std::size_t, 3> shape = GridLayout::shape(order);
@@ -806,7 +806,7 @@ private:
         flm(m_flm_grid, min_order, rad_glq_size);
 
         AssLegSpan<const double, std::dynamic_extent>
-        ass_leg(m_plm_grid, min_order, m_lat_glq_nodes.size());
+        ass_leg(m_ass_leg_grid, min_order, m_lat_glq_nodes.size());
 
         MDSpan<const std::complex<double>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
         fft(m_ffts.data(), {fft_order, lat_glq_size, rad_glq_size});
@@ -927,7 +927,7 @@ private:
         flm(m_flm_grid, min_order, rad_glq_size);
 
         RadialZernikeSpan<const double, zernike_norm, std::dynamic_extent>
-        ass_leg(m_plm_grid, m_order, m_lat_glq_nodes.size());
+        ass_leg(m_ass_leg_grid, m_order, m_lat_glq_nodes.size());
 
         std::ranges::fill(m_ffts, std::complex<double>{});
 
@@ -970,13 +970,13 @@ private:
     }
 
     RadialZernikeRecursion m_zernike_recursion;
-    st::PlmRecursion m_plm_recursion;
+    st::AssociatedLegendreRecursion m_ass_leg_recursion;
     std::vector<double> m_rad_glq_nodes;
     std::vector<double> m_rad_glq_weights;
     std::vector<double> m_lat_glq_nodes;
     std::vector<double> m_lat_glq_weights;
     std::vector<double> m_zernike_grid;
-    std::vector<double> m_plm_grid;
+    std::vector<double> m_ass_leg_grid;
     std::vector<std::array<double, 2>> m_flm_grid;
     std::vector<std::complex<double>> m_ffts;
     std::vector<std::size_t> m_pocketfft_shape_grid;

@@ -278,6 +278,17 @@ to_complex_expansion(
     return ReturnType(as_complex_span(expansion.flatten()), expansion.order());
 }
 
+template <
+    SHNorm dest_sh_norm, SHPhase dest_sh_phase, SHNorm source_sh_norm, SHPhase source_sh_phase
+>
+constexpr ComplexEncodedRealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>
+to_complex_expansion(
+    SHExpansion<double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>& expansion) noexcept
+{
+    using ExpansionType = SHExpansion<double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>;
+    return to_complex_expansion((typename ExpansionType::view)(expansion));
+}
+
 /**
     @brief Convert complex spherical harmonic expansion of a real function to a
     real spherical harmonic expansion.

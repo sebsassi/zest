@@ -143,7 +143,7 @@ bool test_radial_zernike_recursion_correct_for_order_1()
 
     const double R00 = 1.0*((zernike_norm_param == zest::zt::ZernikeNorm::normed) ? std::sqrt(3.0) : 1.0);
 
-    recursion.zernike<zernike_norm_param>(1.0, zest::zt::RadialZernikeSpan<double, zernike_norm_param>(std::span(zernike), order));
+    recursion.generate<zernike_norm_param>(1.0, zest::zt::RadialZernikeSpan<double, zernike_norm_param>(std::span(zernike), order));
     bool success = is_close(zernike[0], R00, 1.0e-10);
 
     if (!success)
@@ -199,7 +199,7 @@ bool test_radial_zernike_recursion_generates_correct_up_to_order_7(double r)
     std::vector<double> zernike(zest::zt::RadialZernikeLayout::size(order));
     zest::zt::RadialZernikeRecursion recursion(order);
 
-    recursion.zernike<zernike_norm_param>(r, zest::zt::RadialZernikeSpan<double, zernike_norm_param>(std::span(zernike), order));
+    recursion.generate<zernike_norm_param>(r, zest::zt::RadialZernikeSpan<double, zernike_norm_param>(std::span(zernike), order));
     bool success = is_close(zernike[0], R00, 1.0e-10)
             && is_close(zernike[1], R11, 1.0e-10)
             && is_close(zernike[2], R20, 1.0e-10)
@@ -261,7 +261,7 @@ bool test_radial_zernike_normed_recursion_is_orthonormal()
         zest::zt::RadialZernikeSpan<double, zest::zt::ZernikeNorm::normed> 
         zernike(
                 zernike_grid.data() + i*zest::zt::RadialZernikeLayout::size(order), order);
-        recursion.zernike<zest::zt::ZernikeNorm::normed>(r, zernike);
+        recursion.generate<zest::zt::ZernikeNorm::normed>(r, zernike);
     }
 
     const std::size_t matrix_size = (((order - 1) >> 1) + 1)*(((order - 1) >> 1) + 1);
@@ -344,7 +344,7 @@ bool test_radial_zernike_vec_recursion_correct_for_order_1()
     const double R00 = 1.0
         *((zernike_norm_param == zest::zt::ZernikeNorm::normed) ? std::sqrt(3.0) : 1.0);
 
-    recursion.zernike<zernike_norm_param>(rad, zest::zt::RadialZernikeVecSpan<double, zernike_norm_param>(zernike, order, vec_size));
+    recursion.generate<zernike_norm_param>(rad, zest::zt::RadialZernikeVecSpan<double, zernike_norm_param>(zernike, order, vec_size));
     bool success = is_close(zernike[0], R00, 1.0e-10)
             && is_close(zernike[1], R00, 1.0e-10)
             && is_close(zernike[2], R00, 1.0e-10)
@@ -411,7 +411,7 @@ bool test_radial_zernike_vec_recursion_generates_correct_up_to_order_7(double r)
             zest::zt::RadialZernikeLayout::size(order)*vec_size);
     zest::zt::RadialZernikeRecursion recursion(order);
 
-    recursion.zernike<zernike_norm_param>(x, zest::zt::RadialZernikeVecSpan<double, zernike_norm_param>(std::span(zernike), order, vec_size));
+    recursion.generate<zernike_norm_param>(x, zest::zt::RadialZernikeVecSpan<double, zernike_norm_param>(std::span(zernike), order, vec_size));
     bool success = is_close(zernike[0], R00, 1.0e-10)
             && is_close(zernike[1], R11, 1.0e-10)
             && is_close(zernike[2], R20, 1.0e-10)
@@ -497,7 +497,7 @@ bool test_radial_zernike_vec_recursion_end_points_correct_up_to(std::size_t orde
 
     const std::array<double, 2> x = {0.0, 1.0};
     zest::zt::RadialZernikeRecursion recursion(order);
-    recursion.zernike<zernike_norm_param>(x, test_end_points);
+    recursion.generate<zernike_norm_param>(x, test_end_points);
 
     constexpr double tol = 1.0e-13;
     bool success = true;

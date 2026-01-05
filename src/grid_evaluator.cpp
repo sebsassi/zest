@@ -93,11 +93,11 @@ namespace st
 {
 
 st::GridEvaluator::GridEvaluator(std::size_t max_order):
-    m_plm_recursion(max_order), m_max_order(max_order) {}
+    m_ass_leg_recursion(max_order), m_max_order(max_order) {}
 
 st::GridEvaluator::GridEvaluator(
     std::size_t max_order, std::size_t lon_size, std::size_t lat_size):
-    m_plm_recursion(max_order), m_plm_grid(TriangleShape<IndexingMode::zero_based>::size(max_order)*lat_size),
+    m_ass_leg_recursion(max_order), m_ass_leg_grid(TriangleShape<IndexingMode::zero_based>::size(max_order)*lat_size),
     m_cos_colat(lat_size), m_cossin_lon_grid(max_order*lon_size),
     m_fm_grid(max_order*lat_size), m_lon_size(lon_size),
     m_lat_size(lat_size), m_max_order(max_order) {}
@@ -107,11 +107,11 @@ void GridEvaluator::resize(
     std::size_t max_order, std::size_t lon_size, std::size_t lat_size)
 {
     if (m_max_order < max_order)
-        m_plm_recursion.expand(max_order);
+        m_ass_leg_recursion.expand(max_order);
 
     if (m_max_order < max_order || lat_size != m_lat_size)
     {
-        m_plm_grid.resize(TriangleShape<IndexingMode::zero_based>::size(max_order)*lat_size);
+        m_ass_leg_grid.resize(TriangleShape<IndexingMode::zero_based>::size(max_order)*lat_size);
         m_fm_grid.resize(max_order*lat_size);
     }
 
@@ -156,15 +156,15 @@ namespace zt
 {
 
 GridEvaluator::GridEvaluator(std::size_t max_order):
-    m_zernike_recursion(max_order), m_plm_recursion(max_order), m_max_order(max_order) {}
+    m_zernike_recursion(max_order), m_ass_leg_recursion(max_order), m_max_order(max_order) {}
 
 
 GridEvaluator::GridEvaluator(
     std::size_t max_order, std::size_t lon_size, std::size_t lat_size, 
     std::size_t rad_size):
-    m_zernike_recursion(max_order), m_plm_recursion(max_order),
+    m_zernike_recursion(max_order), m_ass_leg_recursion(max_order),
     m_zernike_grid(EvenTriangleShape<>::size(max_order)*rad_size),
-    m_plm_grid(TriangleShape<IndexingMode::zero_based>::size(max_order)*lat_size),
+    m_ass_leg_grid(TriangleShape<IndexingMode::zero_based>::size(max_order)*lat_size),
     m_cos_colat(lat_size), m_cossin_lon_grid(max_order*lon_size),
     m_flm_grid(TriangleShape<IndexingMode::zero_based>::size(max_order)*rad_size),
     m_fm_grid(max_order*lat_size*rad_size), m_lon_size(lon_size),
@@ -177,7 +177,7 @@ void GridEvaluator::resize(
     if (max_order < m_max_order)
     {
         m_zernike_recursion.expand(max_order);
-        m_plm_recursion.expand(max_order);
+        m_ass_leg_recursion.expand(max_order);
     }
 
     if (lon_size != m_lon_size || max_order < m_max_order)
@@ -189,7 +189,7 @@ void GridEvaluator::resize(
     if (lat_size != m_lat_size || max_order < m_max_order)
     {
         m_zernike_grid.resize(EvenTriangleShape<>::size(max_order)*rad_size);
-        m_plm_grid.resize(TriangleShape<IndexingMode::zero_based>::size(max_order)*lat_size);
+        m_ass_leg_grid.resize(TriangleShape<IndexingMode::zero_based>::size(max_order)*lat_size);
     }
 
     if (rad_size != m_rad_size || max_order < m_max_order)
@@ -210,7 +210,7 @@ void GridEvaluator::sum_l(std::size_t order) noexcept
     flm(m_flm_grid.data(), order, std::array<std::size_t, 2>{2, m_rad_size});
 
     TriangleSpan<const double, IndexingMode::zero_based, 2, std::dynamic_extent>
-    ass_leg(m_plm_grid.data(), order, {2, m_lat_size});
+    ass_leg(m_ass_leg_grid.data(), order, {2, m_lat_size});
 
     std::ranges::fill(m_fm_grid, std::array<double, 2>{});
     MDSpan<std::array<double, 2>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>

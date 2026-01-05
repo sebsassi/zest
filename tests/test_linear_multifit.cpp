@@ -53,7 +53,7 @@ bool test_linearfit_3_parameter_function()
     std::vector<double> data(data_size);
     for (std::size_t i = 0; i < data_size; ++i)
         data[i] = fit_f(points[i]);
-    
+
     zest::Matrix<double> model(data_size, 3);
     for (std::size_t i = 0; i < model.nrows(); ++i)
     {
@@ -67,7 +67,7 @@ bool test_linearfit_3_parameter_function()
     bool success = is_close(parameters[0], 2.0, 1.0e-10)
             && is_close(parameters[1], 0.5, 1.0e-10)
             && is_close(parameters[2], 0.7, 1.0e-10);
-    
+
     if (success)
         return true;
     else

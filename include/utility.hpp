@@ -84,7 +84,7 @@ take_last_impl(const T& tuple, std::index_sequence<I...> /*unused*/) noexcept
 
 template <typename T, std::size_t N, std::size_t... I>
 [[nodiscard]] constexpr std::array<T, sizeof...(I)>
-take_first_impl(const std::array<T, sizeof...(I)>& arr)
+take_first_impl(const std::array<T, N>& arr, std::index_sequence<I...> /*unused*/) noexcept
 {
     return {std::get<I>(arr)...};
 }
@@ -176,10 +176,10 @@ append(const T& tuple_like, const S& element) noexcept
 
 template <typename T, typename S>
 [[nodiscard]] constexpr auto
-prepend(const S& element, const T& tuple_like) noexcept
+prepend(const T& element, const S& tuple_like) noexcept
 {
     return detail::prepend_impl(
-        element, tuple_like, std::make_index_sequence<std::tuple_size_v<T>>{});
+        element, tuple_like, std::make_index_sequence<std::tuple_size_v<S>>{});
 }
 
 template <typename T, typename S>

@@ -78,7 +78,7 @@ public:
 
     template <shaped_contiguous_buffer T>
         requires std::same_as<typename T::shape_type, shape_type>
-    constexpr ShapedSpan(T& shaped_buffer):
+    constexpr ShapedSpan(const T& shaped_buffer):
         m_data(shaped_buffer.data()), m_shape(shaped_buffer.shape()) {}
 
     [[nodiscard]] constexpr operator

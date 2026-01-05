@@ -29,8 +29,8 @@ SOFTWARE.
 #include <vector>
 
 #include "real_sh_expansion.hpp"
+#include "associated_legendre_recursion.hpp"
 #include "md_span.hpp"
-#include "plm_recursion.hpp"
 #include "radial_zernike_recursion.hpp"
 #include "zernike_expansion.hpp"
 
@@ -116,9 +116,9 @@ public:
             m_cos_colat[i] = std::cos(colatitudes[i]);
 
         AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>
-        ass_leg(m_plm_grid, order, m_lat_size);
+        ass_leg(m_ass_leg_grid, order, m_lat_size);
 
-        m_plm_recursion.plm_real(m_cos_colat, ass_leg);
+        m_ass_leg_recursion.generate_real(m_cos_colat, ass_leg);
 
         MDSpan<double, std::dynamic_extent, std::dynamic_extent, 2> cossin_lon(
             m_cossin_lon_grid.data(), std::array<std::size_t, 3>{order, m_lon_size, 2});
@@ -153,7 +153,7 @@ private:
     void sum_l(SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion) noexcept
     {
         AssociatedLegendreSpan<const double, sh_norm, sh_phase, std::dynamic_extent>
-        ass_leg(m_plm_grid, expansion.order(), m_lat_size);
+        ass_leg(m_ass_leg_grid, expansion.order(), m_lat_size);
         for (auto l : expansion.indices())
         {
             auto expansion_l = expansion[l];
@@ -177,8 +177,8 @@ private:
 
     void sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_extent> values, std::size_t order) noexcept;
 
-    st::PlmRecursion m_plm_recursion;
-    std::vector<double> m_plm_grid;
+    st::AssociatedLegendreRecursion m_ass_leg_recursion;
+    std::vector<double> m_ass_leg_grid;
     std::vector<double> m_cos_colat;
     std::vector<double> m_cossin_lon_grid;
     std::vector<std::array<double, 2>> m_fm_grid;
@@ -258,15 +258,15 @@ public:
         RadialZernikeSpan<double, zernike_norm, std::dynamic_extent>
         zernike(m_zernike_grid, order, m_rad_size);
 
-        m_zernike_recursion.zernike<zernike_norm>(radii, zernike);
+        m_zernike_recursion.generate<zernike_norm>(radii, zernike);
 
         for (std::size_t i = 0; i < m_lat_size; ++i)
             m_cos_colat[i] = std::cos(colatitudes[i]);
 
         st::AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>
-        ass_leg(m_plm_grid, order, m_lat_size);
+        ass_leg(m_ass_leg_grid, order, m_lat_size);
 
-        m_plm_recursion.plm_real(m_cos_colat, ass_leg);
+        m_ass_leg_recursion.generate_real(m_cos_colat, ass_leg);
 
         MDSpan<double, std::dynamic_extent, std::dynamic_extent, 2> cossin_lon(
                 m_cossin_lon_grid.data(), {order, m_lon_size, 2});
@@ -339,9 +339,9 @@ private:
     void sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent> values, std::size_t order) noexcept;
 
     RadialZernikeRecursion m_zernike_recursion;
-    st::PlmRecursion m_plm_recursion;
+    st::AssociatedLegendreRecursion m_ass_leg_recursion;
     std::vector<double> m_zernike_grid;
-    std::vector<double> m_plm_grid;
+    std::vector<double> m_ass_leg_grid;
     std::vector<double> m_cos_colat;
     std::vector<double> m_cossin_lon_grid;
     std::vector<double> m_flm_grid;

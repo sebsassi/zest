@@ -55,7 +55,7 @@ public:
         @param r point at which the polynomials are evaluated
     */
     template <ZernikeNorm zernike_norm>
-    void zernike(
+    void generate(
         double r, RadialZernikeSpan<double, zernike_norm> zernike)
     {
         constexpr double sqrt5 = 2.2360679774997896964091737;
@@ -137,7 +137,7 @@ public:
     }
 
     template <ZernikeNorm zernike_norm>
-    void zernike(
+    void generate(
         double r, RadialZernikeExpansion<double, zernike_norm> zernike)
     {
         zernike(r, (typename decltype(zernike)::view)(zernike));
@@ -152,7 +152,7 @@ public:
         @param r points at which the polynomials are evaluated
     */
     template <ZernikeNorm zernike_norm_param>
-    void zernike(
+    void generate(
         std::span<const double> r,
         RadialZernikeSpan<double, zernike_norm_param, std::dynamic_extent> zernike)
     {

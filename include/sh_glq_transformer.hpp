@@ -31,9 +31,9 @@ SOFTWARE.
 #include "pocketfft_spec.hpp"
 
 #include "alignment.hpp"
+#include "associated_legendre_recursion.hpp"
 #include "gauss_legendre.hpp"
 #include "md_span.hpp"
-#include "plm_recursion.hpp"
 #include "zernike_expansion.hpp"
 
 namespace zest::st
@@ -546,7 +546,7 @@ public:
         m_recursion(order),
         m_glq_nodes(gl::PackedLayout::size(grid_layout_type::lat_size(order))),
         m_glq_weights(gl::PackedLayout::size(grid_layout_type::lat_size(order))),
-        m_plm_grid(grid_layout_type::lat_size(order)*AssLegShape::size(order)),
+        m_ass_leg_grid(grid_layout_type::lat_size(order)*AssLegShape::size(order)),
         m_ffts(grid_layout_type::lat_size(order)*grid_layout_type::fft_size(order)),
         m_symm_asymm(grid_layout_type::fft_size(order)*((grid_layout_type::lat_size(order) + 1) >> 1)*2),
         m_pocketfft_shape_grid(2),
@@ -562,14 +562,14 @@ public:
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
             {
                 const double z = m_glq_nodes[i];
-                AssLegSpan<double> plm(m_plm_grid.data() + i*AssLegShape::size(order), order);
-                m_recursion.plm_real(z, plm);
+                AssLegSpan<double> ass_leg(m_ass_leg_grid.data() + i*AssLegShape::size(order), order);
+                m_recursion.generate_real(z, ass_leg);
             }
         }
         else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            AssLegSpan<double, std::dynamic_extent> plm(m_plm_grid, order, m_glq_nodes.size());
-            m_recursion.plm_real(m_glq_nodes, plm);
+            AssLegSpan<double, std::dynamic_extent> ass_leg(m_ass_leg_grid, order, m_glq_nodes.size());
+            m_recursion.generate_real(m_glq_nodes, ass_leg);
         }
 
         auto shape = grid_layout_type::shape(order);
@@ -602,21 +602,21 @@ public:
         m_glq_weights.resize(gl::PackedLayout::size(grid_layout_type::lat_size(order)));
         gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::cos>(
                 m_glq_nodes, m_glq_weights, grid_layout_type::lat_size(order) & 1);
-        m_plm_grid.resize(m_glq_weights.size()*AssLegShape::size(order));
+        m_ass_leg_grid.resize(m_glq_weights.size()*AssLegShape::size(order));
 
         if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
             {
                 const double z = m_glq_nodes[i];
-                AssLegSpan<double> plm(m_plm_grid.data() + i*AssLegShape::size(order), order);
-                m_recursion.plm_real(z, plm);
+                AssLegSpan<double> ass_leg(m_ass_leg_grid.data() + i*AssLegShape::size(order), order);
+                m_recursion.generate_real(z, ass_leg);
             }
         }
         else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            AssLegSpan<double, std::dynamic_extent> plm(m_plm_grid, order, m_glq_nodes.size());
-            m_recursion.plm_real(m_glq_nodes, plm);
+            AssLegSpan<double, std::dynamic_extent> ass_leg(m_ass_leg_grid, order, m_glq_nodes.size());
+            m_recursion.generate_real(m_glq_nodes, ass_leg);
         }
 
         m_ffts.resize(grid_layout_type::lat_size(order)*grid_layout_type::fft_size(order));
@@ -942,8 +942,8 @@ private:
         {
             for (std::size_t i = 0; i < num_unique_nodes; ++i)
             {
-                AssLegSpan<const double> ass_leg(m_plm_grid.data() + i*AssLegShape::size(m_order), m_order);
-                std::span plm_flat = ass_leg.flatten();
+                AssLegSpan<const double> ass_leg(m_ass_leg_grid.data() + i*AssLegShape::size(m_order), m_order);
+                std::span ass_leg_flat = ass_leg.flatten();
                 for (auto l : expansion.indices())
                 {
                     auto ass_leg_l = ass_leg[l];
@@ -960,23 +960,23 @@ private:
         }
         else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            const std::size_t num_plm = num_unique_nodes;
-            AssLegSpan<double, std::dynamic_extent> ass_leg(m_plm_grid.data(), m_order, num_plm);
+            const std::size_t num_ass_leg = num_unique_nodes;
+            AssLegSpan<double, std::dynamic_extent> ass_leg(m_ass_leg_grid.data(), m_order, num_ass_leg);
             for (auto l : expansion.indices())
             {
                 auto expansion_l = expansion[l];
                 auto ass_leg_l = ass_leg[l];
                 std::span<const std::complex<double>> ffts;
                 ffts = std::span<const std::complex<double>>(
-                    m_symm_asymm.begin() + (l & 1)*num_plm*fft_order, num_plm*fft_order);
+                    m_symm_asymm.begin() + (l & 1)*num_ass_leg*fft_order, num_ass_leg*fft_order);
                 for (auto m : expansion_l.indices())
                 {
                     auto ass_leg_lm = ass_leg_l[m];
                     std::span<const std::complex<double>> fft(
-                        ffts.begin() + m*num_plm, num_plm);
+                        ffts.begin() + m*num_ass_leg, num_ass_leg);
 
                     std::array<double, 2> coeff{};
-                    switch (num_plm & 3)
+                    switch (num_ass_leg & 3)
                     {
                         case 1:
                             coeff[0] = ass_leg_lm[0]*fft[0].real();
@@ -993,7 +993,7 @@ private:
                     }
 
                     std::array<double, 8> partial_sum{};
-                    for (std::size_t i = (num_plm & 3); i < num_plm; i += 4)
+                    for (std::size_t i = (num_ass_leg & 3); i < num_ass_leg; i += 4)
                     {
                         partial_sum[0] += ass_leg_lm[i]*fft[i].real();
                         partial_sum[1] += ass_leg_lm[i]*fft[i].imag();
@@ -1023,28 +1023,28 @@ private:
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
-        const std::size_t num_plm = num_unique_nodes;
+        const std::size_t num_ass_leg = num_unique_nodes;
 
         std::ranges::fill(m_symm_asymm, std::complex<double>{});
 
         if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
-            for (std::size_t i = 0; i < num_plm; ++i)
+            for (std::size_t i = 0; i < num_ass_leg; ++i)
             {
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
-                AssLegSpan<const double> plm( m_plm_grid.data() + i*AssLegShape::size(m_order), m_order);
-                std::span plm_flat = plm.flatten();
+                AssLegSpan<const double> ass_leg( m_ass_leg_grid.data() + i*AssLegShape::size(m_order), m_order);
+                std::span ass_leg_flat = ass_leg.flatten();
                 for (auto l : expansion.indices())
                 {
-                    auto plm_l = plm[l];
+                    auto ass_leg_l = ass_leg[l];
                     auto expansion_l = expansion[l];
                     symm_asymm[(l & 1)*fft_order] += std::complex<double>{
-                        plm_l[0]*expansion_l[0, 0], -plm_l[0]*expansion_l[0, 1]
+                        ass_leg_l[0]*expansion_l[0, 0], -ass_leg_l[0]*expansion_l[0, 1]
                     };
                     for (auto m : expansion_l.indices(1))
                     {
-                        const double weight = 0.5*plm_l[m];
+                        const double weight = 0.5*ass_leg_l[m];
                         symm_asymm[(l & 1)*fft_order + m]
                             += std::complex<double>{
                                 weight*expansion_l[m, 0],
@@ -1056,7 +1056,7 @@ private:
         }
         else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            AssLegSpan<const double, std::dynamic_extent> ass_leg(m_plm_grid, m_order, num_plm);
+            AssLegSpan<const double, std::dynamic_extent> ass_leg(m_ass_leg_grid, m_order, num_ass_leg);
 
             std::span coeffs = expansion.flatten();
             for (auto l : expansion.indices())
@@ -1065,8 +1065,8 @@ private:
                 auto ass_leg_l = ass_leg[l];
                 std::span<const double> ass_leg_l0 = ass_leg_l[0];
                 std::span<std::complex<double>> symm_asymm(
-                    m_symm_asymm.begin() + (l & 1)*num_plm*fft_order, num_plm);
-                for (std::size_t i = 0; i < num_plm; ++i)
+                    m_symm_asymm.begin() + (l & 1)*num_ass_leg*fft_order, num_ass_leg);
+                for (std::size_t i = 0; i < num_ass_leg; ++i)
                 {
                     symm_asymm[i] += std::complex<double>{
                         ass_leg_l0[i]*expansion_l[0, 0], -ass_leg_l0[i]*expansion_l[0, 1]
@@ -1077,8 +1077,8 @@ private:
                 {
                     std::span<const double> ass_leg_lm = ass_leg_l[m];
                     std::span<std::complex<double>> symm_asymm(
-                        m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_plm, num_plm);
-                    for (std::size_t i = 0; i < num_plm; ++i)
+                        m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_ass_leg, num_ass_leg);
+                    for (std::size_t i = 0; i < num_ass_leg; ++i)
                     {
                         const double weight = 0.5*ass_leg_lm[i];
                         symm_asymm[i] += std::complex<double>{
@@ -1096,28 +1096,28 @@ private:
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_unique_nodes = m_glq_weights.size();
-        const std::size_t num_plm = num_unique_nodes;
+        const std::size_t num_ass_leg = num_unique_nodes;
 
         std::ranges::fill(m_symm_asymm, std::complex<double>{});
 
         if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
-            for (std::size_t i = 0; i < num_plm; ++i)
+            for (std::size_t i = 0; i < num_ass_leg; ++i)
             {
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
-                AssLegSpan<const double> plm(m_plm_grid.data() + i*AssLegShape::size(m_order), 
+                AssLegSpan<const double> ass_leg(m_ass_leg_grid.data() + i*AssLegShape::size(m_order), 
                         m_order);
                 for (auto l : expansion.indices())
                 {
-                    auto plm_l = plm[l];
+                    auto ass_leg_l = ass_leg[l];
                     auto expansion_l = expansion[l];
                     symm_asymm[(l & 1)*fft_order] += std::complex<double>{
-                        plm_l[0]*expansion_l[0, 0], -plm_l[0]*expansion_l[0, 1]
+                        ass_leg_l[0]*expansion_l[0, 0], -ass_leg_l[0]*expansion_l[0, 1]
                     };
                     for (auto m : expansion_l.indices(1))
                     {
-                        const double weight = 0.5*plm_l[m];
+                        const double weight = 0.5*ass_leg_l[m];
                         symm_asymm[(l & 1)*fft_order + m]
                             += std::complex<double>{
                                 weight*expansion_l[m, 0],
@@ -1129,7 +1129,7 @@ private:
         }
         else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            AssLegSpan<const double, std::dynamic_extent> ass_leg(m_plm_grid, m_order, num_plm);
+            AssLegSpan<const double, std::dynamic_extent> ass_leg(m_ass_leg_grid, m_order, num_ass_leg);
 
             for (auto l : expansion.indices())
             {
@@ -1137,8 +1137,8 @@ private:
                 auto ass_leg_l = ass_leg[l];
                 std::span<const double> ass_leg_l0 = ass_leg_l[0];
                 std::span<std::complex<double>> symm_asymm(
-                    m_symm_asymm.begin() + (l & 1)*num_plm*fft_order, num_plm);
-                for (std::size_t i = 0; i < num_plm; ++i)
+                    m_symm_asymm.begin() + (l & 1)*num_ass_leg*fft_order, num_ass_leg);
+                for (std::size_t i = 0; i < num_ass_leg; ++i)
                 {
                     symm_asymm[i] += std::complex<double>{
                         ass_leg_l0[i]*expansion_l[0, 0], -ass_leg_l0[i]*expansion_l[0, 1]
@@ -1149,8 +1149,8 @@ private:
                 {
                     std::span<const double> ass_leg_lm = ass_leg_l[m];
                     std::span<std::complex<double>> symm_asymm(
-                        m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_plm, num_plm);
-                    for (std::size_t i = 0; i < num_plm; ++i)
+                        m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_ass_leg, num_ass_leg);
+                    for (std::size_t i = 0; i < num_ass_leg; ++i)
                     {
                         const double weight = 0.5*ass_leg_lm[i];
                         symm_asymm[i] += std::complex<double>{
@@ -1232,10 +1232,10 @@ private:
             prefactor);
     }
 
-    PlmRecursion m_recursion;
+    AssociatedLegendreRecursion m_recursion;
     std::vector<double> m_glq_nodes;
     std::vector<double> m_glq_weights;
-    std::vector<double> m_plm_grid;
+    std::vector<double> m_ass_leg_grid;
     std::vector<std::complex<double>> m_ffts;
     std::vector<std::complex<double>> m_symm_asymm;
     std::vector<std::size_t> m_pocketfft_shape_grid;

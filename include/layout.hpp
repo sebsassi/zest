@@ -213,14 +213,14 @@ struct TriangleSequence
     static constexpr LayoutTag layout_tag = LayoutTag::triangular;
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
 
-    template<std::size_t N> requires (N == 1) struct sublayout;
+    template<std::size_t N> requires (N == 1) struct subsequence_helper;
     template<> struct sublayout<1>
     {
         using type = StandardLinearSequence<indexing_mode_param>;
     };
 
     template <std::size_t N>
-    using sublayout_t = sublayout<N>::type;
+    using subsequence_type = subsequence_helper<N>::type;
 
     /**
         @brief Number of elements in layout for size parameter `order`.
@@ -293,7 +293,7 @@ struct EvenTriangleSequence
     };
 
     template <std::size_t N>
-    using sublayout_t = sublayout<N>::type;
+    using subsequence_type = sublayout<N>::type;
 
     /**
         @brief Number of elements in layout for size parameter `order`.
@@ -470,7 +470,7 @@ struct ZernikeTetrahedralSequence
     };
 
     template <std::size_t N>
-    using sublayout_t = sublayout<N>::type;
+    using subsequence_type = sublayout<N>::type;
 
     /**
         @brief Number of elements in layout for size parameter `order`.

@@ -183,7 +183,7 @@ private:
     struct subshape_helper;
 
     template <std::size_t N, std::size_t... Inds>
-        requires (sizeof...(Inds) == N && 1 <= N && N < rank)
+        requires (sizeof...(Inds) == rank - N && 1 <= N && N < rank)
     struct subshape_helper<N, std::index_sequence<Inds...>>
     {
         using type = TensorShape<std::get<N + Inds>(static_extents)...>;
@@ -294,7 +294,7 @@ private:
     struct subshape_helper;
 
     template <std::size_t N, std::size_t... Inds>
-        requires (sizeof...(Inds) == N && 1 <= N && N < rank)
+        requires (sizeof...(Inds) == rank - N && 1 <= N && N < rank)
     struct subshape_helper<N, std::index_sequence<Inds...>>
     {
         using type = TensorShape<std::get<N + Inds>(static_extents)...>;
@@ -319,8 +319,8 @@ public:
     [[nodiscard]] static constexpr size_type
     size([[maybe_unused]] extent_type extents) noexcept { return linear_extent; }
 
-    [[nodiscard]] constexpr size_type
-    size() const noexcept { return linear_extent; }
+    [[nodiscard]] static constexpr size_type
+    size() noexcept { return linear_extent; }
 
     [[nodiscard]] constexpr extent_type
     extents() const noexcept { return static_extents; }
@@ -411,17 +411,48 @@ public:
     using subshape_type = subshape_helper<N>::type;
 
     constexpr CompositeShape() = default;
-    constexpr CompositeShape(S1::extent_type first_extents, S2::extent_type second_extents):
+    constexpr CompositeShape(
+        const S1::extent_type& first_extents, const S2::extent_type& second_extents):
         m_shapes(first_extents, second_extents), m_size(size(first_extents, second_extents)) {}
 
+    explicit constexpr CompositeShape(const S1::extent_type& first_extents)
+        requires (S1::linear_extent == std::dynamic_extent
+            && S2::linear_extent != std::dynamic_extent):
+        m_shapes(S1{first_extents}, S2{}), m_size(size(first_extents)) {}
+
+    explicit constexpr CompositeShape(const S2::extent_type& second_extents)
+        requires (S1::linear_extent != std::dynamic_extent
+            && S2::linear_extent == std::dynamic_extent):
+        m_shapes(S1{}, S2{second_extents}), m_size(size(second_extents)) {}
+
+    constexpr CompositeShape(const S1& s1, const S2& s2):
+        m_shapes(s1, s2), m_size(s1.size()*s2.size()) {}
+
     [[nodiscard]] static constexpr size_type
-    size(S1::extent_type first_extents, S2::extent_type second_extents) noexcept
+    size(const S1::extent_type& first_extents, const S2::extent_type& second_extents) noexcept
     {
         return S1::size(first_extents)*S2::size(second_extents);
     }
 
+    [[nodiscard]] static constexpr size_type
+    size(const S1::extent_type& first_extents)
+        requires (S1::linear_extent == std::dynamic_extent && S2::linear_extent != std::dynamic_extent)
+    {
+        return S1::size(first_extents)*S2::linear_extent;
+    }
+
+    [[nodiscard]] static constexpr size_type
+    size(const S2::extent_type& second_extents)
+        requires (S1::linear_extent != std::dynamic_extent && S2::linear_extent == std::dynamic_extent)
+    {
+        return S1::linear_extent*S2::size(second_extents);
+    }
+
+    [[nodiscard]] static constexpr size_type
+    size() noexcept requires (linear_extent != std::dynamic_extent) { return linear_extent; }
+
     [[nodiscard]] constexpr size_type
-    size() const noexcept { return m_size; }
+    size() const noexcept requires (linear_extent == std::dynamic_extent) { return m_size; }
 
     [[nodiscard]] constexpr S1::extent_type
     order() const noexcept requires sequence_shaped<S1>
@@ -434,29 +465,39 @@ public:
 
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < S1::rank)
-    [[nodiscard]] constexpr auto subshape(Inds... indices) const noexcept
+    [[nodiscard]] constexpr auto
+    subshape(Inds... indices) const noexcept
     {
         return subshape_type<sizeof...(Inds)>(
-            m_shapes.first.subextents(indices...), m_shapes.second.extents());
+            m_shapes.first.subshape((typename S1::index_type)(indices)...), m_shapes.second);
     }
 
     template <std::integral... Inds>
         requires (sizeof...(Inds) == S1::rank)
-    [[nodiscard]] constexpr auto subshape([[maybe_unused]] Inds... indices) const noexcept
+    [[nodiscard]] constexpr auto
+    subshape([[maybe_unused]] Inds... indices) const noexcept
     {
-        return S2(m_shapes.second.extents());
+        return m_shapes.second;
     }
 
     template <std::integral... Inds>
-        requires (S1::rank <= sizeof...(Inds) && sizeof...(Inds) == rank)
-    [[nodiscard]] constexpr auto subshape(Inds... indices) const noexcept
+        requires (S1::rank < sizeof...(Inds) && sizeof...(Inds) < rank)
+    [[nodiscard]] constexpr auto
+    subshape(Inds... indices) const noexcept
     {
-        return subshape_type<sizeof...(Inds)>(m_shapes.second.subextents(index_type(indices)...));
+        auto impl = [&]<std::size_t... I, typename T>(std::index_sequence<I...>, T index_tuple)
+        {
+            return m_shapes.second.subshape(std::get<S1::rank + I>(index_tuple)...);
+        };
+        return impl(
+            std::make_index_sequence<sizeof...(Inds) - S1::rank>{},
+            std::make_tuple(indices...));
     }
 
     template <std::integral... Inds>
         requires (sizeof...(Inds) == rank)
-    [[nodiscard]] constexpr auto subshape([[maybe_unused]] Inds... indices) const noexcept
+    [[nodiscard]] constexpr auto
+    subshape([[maybe_unused]] Inds... indices) const noexcept
     {
         return NullShape{};
     }
@@ -475,28 +516,27 @@ public:
 private:
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= S1::rank)
-    [[nodiscard]] constexpr size_type index(Inds... indices)
+    [[nodiscard]] constexpr index_type
+    index(Inds... indices)
     {
-        return m_shapes.first.index(indices...)*m_shapes.second.size();
+        return m_shapes.first.index((typename S1::index_type)(indices)...)*m_shapes.second.size();
     }
 
     template <std::integral... Inds>
         requires (S1::rank < sizeof...(Inds) && sizeof...(Inds) <= rank)
-    [[nodiscard]] constexpr size_type index(Inds... indices)
+    [[nodiscard]] constexpr index_type
+    index(Inds... indices) const noexcept
     {
-        return split_index(
+        auto impl = [&]<std::size_t... I, std::size_t... J, typename T>
+        (std::index_sequence<I...>, std::index_sequence<J...>, T index_tuple)
+        {
+            return m_shapes.first((typename S1::index_type)(std::get<I>(index_tuple))...)*m_shapes.second.size()
+                + m_shapes.second((typename S2::index_type)(std::get<S1::rank + J>(index_tuple))...);
+        };
+        return impl(
             std::make_index_sequence<S1::rank>{},
             std::make_index_sequence<sizeof...(Inds) - S1::rank>{},
             std::make_tuple(indices...));
-    }
-
-    template <std::size_t... I, std::size_t... J, typename T>
-    [[nodiscard]] constexpr size_type
-    split_index(
-        std::index_sequence<I...> /*unused*/, std::index_sequence<J...> /*unused*/, T indices)
-    {
-        return S1::index(std::get<I>(indices)...)*m_shapes.second.size()
-            + array::detail::index(std::get<S1::rank + J>(indices)...);
     }
 
     std::pair<S1, S2> m_shapes{};
@@ -519,7 +559,7 @@ struct TaggedShape: public ShapeType, public Tags...
     using untag = ShapeType;
 
     template <std::size_t N>
-    using subshape = TaggedShape<typename ShapeType::template subshape<N>, Tags...>;
+    using subshape_type = TaggedShape<typename ShapeType::template subshape_type<N>, Tags...>;
 
     using ShapeType::ShapeType;
 };

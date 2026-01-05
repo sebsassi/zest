@@ -24,7 +24,7 @@ SOFTWARE.
 #include <array>
 
 #include "zernike_conventions.hpp"
-#include "plm_recursion.hpp"
+#include "associated_legendre_recursion.hpp"
 #include "radial_zernike_recursion.hpp"
 #include "sh_conventions.hpp"
 #include "zernike_expansion.hpp"
@@ -49,7 +49,7 @@ public:
     */
     [[nodiscard]] std::size_t max_order() const noexcept
     {
-        return m_plm_recursion.max_order();
+        return m_ass_leg_recursion.max_order();
     }
 
     /**
@@ -79,11 +79,11 @@ public:
         const double z = std::cos(colat);
         auto ass_leg = st::AssociatedLegendreSpan<double, sh_norm, sh_phase>(
                 m_ass_leg_poly, expansion.order());
-        m_plm_recursion.plm_real(z, ass_leg);
+        m_ass_leg_recursion.generate_real(z, ass_leg);
 
         auto radial_zernike = RadialZernikeSpan<double, zernike_norm>(
                 m_radial_zernike, expansion.order());
-        m_zernike_recursion.zernike(r, radial_zernike);
+        m_zernike_recursion.generate(r, radial_zernike);
 
         for (std::size_t m = 0; m < expansion.order(); ++m)
         {
@@ -137,7 +137,7 @@ public:
     }
 
 private:
-    st::PlmRecursion m_plm_recursion;
+    st::AssociatedLegendreRecursion m_ass_leg_recursion;
     RadialZernikeRecursion m_zernike_recursion;
     std::vector<double> m_radial_zernike;
     std::vector<double> m_ass_leg_poly;
