@@ -525,6 +525,9 @@ private:
     template <typename T, std::size_t... Ns>
     using AssLegSpan = AssociatedLegendreSpan<T, sh_norm_param, sh_phase_param, Ns...>;
 
+    template <typename T>
+    using AssLegVecSpan = AssociatedLegendreVectorSpan<T, sh_norm_param, sh_phase_param>;
+
     using AssLegShape = AssociatedLegendreShape<sh_norm_param, sh_phase_param>;
 
 public:
@@ -560,12 +563,9 @@ public:
 
         if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
+            AssLegVecSpan<double> ass_leg(m_ass_leg_grid.data(), m_glq_nodes.size(), order);
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
-            {
-                const double z = m_glq_nodes[i];
-                AssLegSpan<double> ass_leg(m_ass_leg_grid.data() + i*AssLegShape::size(order), order);
-                m_recursion.generate_real(z, ass_leg);
-            }
+                m_recursion.generate_real(m_glq_nodes[i], ass_leg[i]);
         }
         else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
@@ -607,12 +607,9 @@ public:
 
         if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
+            AssLegVecSpan<double> ass_leg(m_ass_leg_grid.data(), m_glq_nodes.size(), order);
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
-            {
-                const double z = m_glq_nodes[i];
-                AssLegSpan<double> ass_leg(m_ass_leg_grid.data() + i*AssLegShape::size(order), order);
-                m_recursion.generate_real(z, ass_leg);
-            }
+                m_recursion.generate_real(m_glq_nodes[i], ass_leg[i]);
         }
         else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
@@ -935,19 +932,19 @@ private:
         SHSpan<double, IndexingMode::zero_based, norm, phase> expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
-        const std::size_t num_unique_nodes = m_glq_weights.size();
+        const std::size_t num_ass_leg = m_glq_weights.size();
 
         std::span coeffs = expansion.flatten();
         std::ranges::fill(coeffs, std::array<double, 2>{});
         if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
-            for (std::size_t i = 0; i < num_unique_nodes; ++i)
+            AssLegVecSpan<const double> ass_leg(m_ass_leg_grid.data(), num_ass_leg, m_order);
+            for (std::size_t i = 0; i < num_ass_leg; ++i)
             {
-                AssLegSpan<const double> ass_leg(m_ass_leg_grid.data() + i*AssLegShape::size(m_order), m_order);
-                std::span ass_leg_flat = ass_leg.flatten();
+                auto ass_leg_i = ass_leg[i];
                 for (auto l : expansion.indices())
                 {
-                    auto ass_leg_l = ass_leg[l];
+                    auto ass_leg_l = ass_leg_i[l];
                     auto expansion_l = expansion[l];
                     std::span<const std::complex<double>> fft(
                         m_symm_asymm.begin() + (2*i + (l & 1))*fft_order, fft_order);
@@ -961,8 +958,7 @@ private:
         }
         else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            const std::size_t num_ass_leg = num_unique_nodes;
-            AssLegSpan<double, std::dynamic_extent> ass_leg(m_ass_leg_grid.data(), m_order, num_ass_leg);
+            AssLegSpan<const double, std::dynamic_extent> ass_leg(m_ass_leg_grid.data(), m_order, num_ass_leg);
             for (auto l : expansion.indices())
             {
                 auto expansion_l = expansion[l];
@@ -1023,22 +1019,21 @@ private:
         SHSpan<const double, IndexingMode::zero_based, norm, phase> expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
-        const std::size_t num_unique_nodes = m_glq_weights.size();
-        const std::size_t num_ass_leg = num_unique_nodes;
+        const std::size_t num_ass_leg = m_glq_weights.size();
 
         std::ranges::fill(m_symm_asymm, std::complex<double>{});
 
         if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
+            AssLegVecSpan<const double> ass_leg(m_ass_leg_grid.data(), num_ass_leg, m_order);
             for (std::size_t i = 0; i < num_ass_leg; ++i)
             {
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
-                AssLegSpan<const double> ass_leg( m_ass_leg_grid.data() + i*AssLegShape::size(m_order), m_order);
-                std::span ass_leg_flat = ass_leg.flatten();
+                auto ass_leg_i = ass_leg[i];
                 for (auto l : expansion.indices())
                 {
-                    auto ass_leg_l = ass_leg[l];
+                    auto ass_leg_l = ass_leg_i[l];
                     auto expansion_l = expansion[l];
                     symm_asymm[(l & 1)*fft_order] += std::complex<double>{
                         ass_leg_l[0]*expansion_l[0, 0], -ass_leg_l[0]*expansion_l[0, 1]
@@ -1096,22 +1091,21 @@ private:
         typename zt::ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, norm, phase>::template const_subshape_type<1>& expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
-        const std::size_t num_unique_nodes = m_glq_weights.size();
-        const std::size_t num_ass_leg = num_unique_nodes;
+        const std::size_t num_ass_leg = m_glq_weights.size();
 
         std::ranges::fill(m_symm_asymm, std::complex<double>{});
 
         if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
+            AssLegVecSpan<const double> ass_leg(m_ass_leg_grid.data(), num_ass_leg, m_order);
             for (std::size_t i = 0; i < num_ass_leg; ++i)
             {
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
-                AssLegSpan<const double> ass_leg(m_ass_leg_grid.data() + i*AssLegShape::size(m_order), 
-                        m_order);
+                auto ass_leg_i = ass_leg[i];
                 for (auto l : expansion.indices())
                 {
-                    auto ass_leg_l = ass_leg[l];
+                    auto ass_leg_l = ass_leg_i[l];
                     auto expansion_l = expansion[l];
                     symm_asymm[(l & 1)*fft_order] += std::complex<double>{
                         ass_leg_l[0]*expansion_l[0, 0], -ass_leg_l[0]*expansion_l[0, 1]

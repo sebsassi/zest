@@ -672,4 +672,3 @@ using ComplexEncodedRealZernikeSpan = ShapedSpan<
     ElementType, ZernikeNonnegativeShape<zernike_norm, sh_norm, sh_phase, Ns...>>;
 
 } // namespace zest::zt
-
