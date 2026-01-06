@@ -22,132 +22,29 @@ SOFTWARE.
 #include "radial_zernike_recursion.hpp"
 
 #include "gauss_legendre.hpp"
+#include "zernike_conventions.hpp"
 
 #include <cassert>
-
-template <zest::IndexingMode indexing_mode_param>
-using ZernikeLayout
-    = zest::ZernikeTetrahedralLayout<indexing_mode_param>;
 
 constexpr bool is_close(double a, double b, double tol)
 {
     return std::fabs(a - b) < tol;
 }
 
-bool test_radial_zernike_layout_size_is_correct(std::size_t order)
-{
-    std::size_t i = 0;
-    for (std::size_t n = 0; n < order; ++n)
-    {
-        for (std::size_t l = n & 1; l <= n; l += 2)
-            ++i;
-    }
-
-    bool success = true;
-    std::size_t size = zest::zt::RadialZernikeLayout::size(order);
-    if (i != size)
-    {
-        std::printf("%lu %lu", size, i);
-        success = success && false;
-    }
-
-    return success;
-}
-
-bool test_radial_zernike_layout_indices_are_contiguous(std::size_t order)
-{
-    bool success = true;
-    std::size_t i = 0;
-    for (std::size_t n = 0; n < order; ++n)
-    {
-        for (std::size_t l = n & 1; l <= n; l += 2)
-        {
-            const std::size_t ind = zest::zt::RadialZernikeLayout::index(n, l);
-            if (ind != i)
-            {
-                std::printf("(%lu, %lu) ind = %lu i = %lu\n", n, l, ind, i);
-                success = success && false;
-            }
-            ++i;
-        }
-    }
-
-    return success;
-}
-
-template <zest::IndexingMode indexing_mode_param>
-bool test_zernike_layout_size_is_correct(std::size_t order)
-{
-    std::size_t i = 0;
-    for (std::size_t n = 0; n < order; ++n)
-    {
-        for (std::size_t l = n & 1; l <= n; l += 2)
-        {
-            const int mmin
-                = (indexing_mode_param == zest::IndexingMode::zero_based) ?
-                    0 : -int(l);
-            for (int m = mmin; m <= int(l); ++m)
-                ++i;
-        }
-    }
-
-    bool success = true;
-    std::size_t size = ZernikeLayout<indexing_mode_param>::size(order);
-    if (i != size)
-    {
-        std::printf("%lu %lu", size, i);
-        success = success && false;
-    }
-
-    return success;
-}
-
-template <zest::IndexingMode indexing_mode_param>
-bool test_zernike_layout_indices_are_contiguous(std::size_t order)
-{
-    using index_type = typename ZernikeLayout<indexing_mode_param>::index_type;
-    bool success = true;
-    std::size_t i = 0;
-    for (std::size_t n = 0; n < order; ++n)
-    {
-        for (std::size_t l = n & 1; l <= n; l += 2)
-        {
-            const int mmin
-                = (indexing_mode_param == zest::IndexingMode::zero_based) ?
-                    0 : -int(l);
-            for (int m = mmin; m <= int(l); ++m)
-            {
-                const std::size_t ind = ZernikeLayout<indexing_mode_param>::index(index_type(n), index_type(l), index_type(m));
-                if (ind != i)
-                {
-                    std::printf(
-                            "(%lu, %lu, %d) ind = %lu i = %lu\n",
-                            n, l, m, ind, i);
-                    success = success && false;
-                }
-                ++i;
-            }
-        }
-    }
-
-    return success;
-}
-
-
 template <zest::zt::ZernikeNorm zernike_norm_param>
 bool test_radial_zernike_recursion_correct_for_order_1()
 {
     constexpr std::size_t order = 1;
-    std::vector<double> zernike(zest::zt::RadialZernikeLayout::size(order));
     zest::zt::RadialZernikeRecursion recursion(order);
 
     const double R00 = 1.0*((zernike_norm_param == zest::zt::ZernikeNorm::normed) ? std::sqrt(3.0) : 1.0);
 
-    recursion.generate<zernike_norm_param>(1.0, zest::zt::RadialZernikeSpan<double, zernike_norm_param>(std::span(zernike), order));
-    bool success = is_close(zernike[0], R00, 1.0e-10);
+    zest::zt::RadialZernikeExpansion<double, zest::zt::ZernikeNorm::normed> zernike(order);
+    recursion.generate(1.0, zernike);
+    bool success = is_close(zernike[0, 0], R00, 1.0e-10);
 
     if (!success)
-        std::printf("R00 %f %f\n", zernike[0], R00);
+        std::printf("R00 %f %f\n", zernike[0, 0], R00);
     
     return success;
 }
@@ -196,47 +93,47 @@ bool test_radial_zernike_recursion_generates_correct_up_to_order_7(double r)
     const double R66 = r*r*r*r*r*r
         *((zernike_norm_param == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
 
-    std::vector<double> zernike(zest::zt::RadialZernikeLayout::size(order));
     zest::zt::RadialZernikeRecursion recursion(order);
 
-    recursion.generate<zernike_norm_param>(r, zest::zt::RadialZernikeSpan<double, zernike_norm_param>(std::span(zernike), order));
-    bool success = is_close(zernike[0], R00, 1.0e-10)
-            && is_close(zernike[1], R11, 1.0e-10)
-            && is_close(zernike[2], R20, 1.0e-10)
-            && is_close(zernike[3], R22, 1.0e-10)
-            && is_close(zernike[4], R31, 1.0e-10)
-            && is_close(zernike[5], R33, 1.0e-10)
-            && is_close(zernike[6], R40, 1.0e-10)
-            && is_close(zernike[7], R42, 1.0e-10)
-            && is_close(zernike[8], R44, 1.0e-10)
-            && is_close(zernike[9], R51, 1.0e-10)
-            && is_close(zernike[10], R53, 1.0e-10)
-            && is_close(zernike[11], R55, 1.0e-10)
-            && is_close(zernike[12], R60, 1.0e-10)
-            && is_close(zernike[13], R62, 1.0e-10)
-            && is_close(zernike[14], R64, 1.0e-10)
-            && is_close(zernike[15], R66, 1.0e-10);
-    
+    zest::zt::RadialZernikeExpansion<double, zest::zt::ZernikeNorm::normed> zernike(order);
+    recursion.generate(r, zernike);
+    bool success = is_close(zernike[0, 0], R00, 1.0e-10)
+            && is_close(zernike[1, 1], R11, 1.0e-10)
+            && is_close(zernike[2, 0], R20, 1.0e-10)
+            && is_close(zernike[2, 2], R22, 1.0e-10)
+            && is_close(zernike[3, 1], R31, 1.0e-10)
+            && is_close(zernike[3, 3], R33, 1.0e-10)
+            && is_close(zernike[4, 0], R40, 1.0e-10)
+            && is_close(zernike[4, 2], R42, 1.0e-10)
+            && is_close(zernike[4, 4], R44, 1.0e-10)
+            && is_close(zernike[5, 1], R51, 1.0e-10)
+            && is_close(zernike[5, 3], R53, 1.0e-10)
+            && is_close(zernike[5, 5], R55, 1.0e-10)
+            && is_close(zernike[6, 0], R60, 1.0e-10)
+            && is_close(zernike[6, 2], R62, 1.0e-10)
+            && is_close(zernike[6, 4], R64, 1.0e-10)
+            && is_close(zernike[6, 6], R66, 1.0e-10);
+
     if (success)
         return true;
     else
     {
-        std::printf("R00 %f %f\n", zernike[0], R00);
-        std::printf("R11 %f %f\n", zernike[1], R11);
-        std::printf("R20 %f %f\n", zernike[2], R20);
-        std::printf("R22 %f %f\n", zernike[3], R22);
-        std::printf("R31 %f %f\n", zernike[4], R31);
-        std::printf("R33 %f %f\n", zernike[5], R33);
-        std::printf("R40 %f %f\n", zernike[6], R40);
-        std::printf("R42 %f %f\n", zernike[7], R42);
-        std::printf("R44 %f %f\n", zernike[8], R44);
-        std::printf("R51 %f %f\n", zernike[9], R51);
-        std::printf("R53 %f %f\n", zernike[10], R53);
-        std::printf("R55 %f %f\n", zernike[11], R55);
-        std::printf("R60 %f %f\n", zernike[12], R60);
-        std::printf("R62 %f %f\n", zernike[13], R62);
-        std::printf("R64 %f %f\n", zernike[14], R64);
-        std::printf("R66 %f %f\n", zernike[15], R66);
+        std::printf("R00 %f %f\n", zernike[0, 0], R00);
+        std::printf("R11 %f %f\n", zernike[1, 1], R11);
+        std::printf("R20 %f %f\n", zernike[2, 0], R20);
+        std::printf("R22 %f %f\n", zernike[2, 2], R22);
+        std::printf("R31 %f %f\n", zernike[3, 1], R31);
+        std::printf("R33 %f %f\n", zernike[3, 3], R33);
+        std::printf("R40 %f %f\n", zernike[4, 0], R40);
+        std::printf("R42 %f %f\n", zernike[4, 2], R42);
+        std::printf("R44 %f %f\n", zernike[4, 4], R44);
+        std::printf("R51 %f %f\n", zernike[5, 1], R51);
+        std::printf("R53 %f %f\n", zernike[5, 3], R53);
+        std::printf("R55 %f %f\n", zernike[5, 5], R55);
+        std::printf("R60 %f %f\n", zernike[6, 0], R60);
+        std::printf("R62 %f %f\n", zernike[6, 2], R62);
+        std::printf("R64 %f %f\n", zernike[6, 4], R64);
+        std::printf("R66 %f %f\n", zernike[6, 6], R66);
         return false;
     }
 }
@@ -540,13 +437,6 @@ void test_zernike()
 
 int main()
 {
-    assert(test_radial_zernike_layout_size_is_correct(6));
-    assert(test_radial_zernike_layout_indices_are_contiguous(6));
-    assert(test_zernike_layout_size_is_correct<zest::IndexingMode::zero_based>(6));
-    assert(test_zernike_layout_indices_are_contiguous<zest::IndexingMode::zero_based>(6));
-    assert(test_zernike_layout_size_is_correct<zest::IndexingMode::symmetric>(6));
-    assert(test_zernike_layout_indices_are_contiguous<zest::IndexingMode::symmetric>(6));
-
     test_zernike<zest::zt::ZernikeNorm::unnormed>();
     test_zernike<zest::zt::ZernikeNorm::normed>();
 
