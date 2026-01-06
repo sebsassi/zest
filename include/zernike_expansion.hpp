@@ -21,10 +21,8 @@ SOFTWARE.
 */
 #pragma once
 
-#include <complex>
 #include <type_traits>
 
-#include "array_complex_view.hpp"
 #include "sequence.hpp"
 #include "sh_conventions.hpp"
 #include "shape.hpp"
@@ -129,7 +127,7 @@ using RadialZernikeSpan = ShapedSpan<
     ElementType, RadialZernikeShape<zernike_norm, Ns...>>;
 
 /**
-    @brief A container for storing 3D radial Zernike polynomial data.
+    @brief A container of 3D radial Zernike polynomial data.
 
     @tparam ElementType Type of elements in the view.
     @tparam zernike_norm Zernike function normalization convention.
@@ -164,7 +162,7 @@ using RadialZernikeExpansionTensor = ShapedArray<
     ElementType, RadialZernikeTensorShape<zernike_norm, Ns...>>;
 
 /**
-    @brief A non-owning view for storing 3D Zernike function data.
+    @brief A non-owning view of 3D Zernike function data.
 
     @tparam ElementType Type of elements
     @tparam indexing_mode Determines azimuthal index order.
@@ -181,24 +179,7 @@ using ZernikeSpan = ShapedSpan<
     ElementType, ZernikeShape<indexing_mode, zernike_norm, sh_norm, sh_phase, Ns...>>;
 
 /**
-    @brief A complex encoded view of real 3D Zernike function data.
-
-    @tparam ElementType Type of elements
-    @tparam indexing_mode Determines azimuthal index order.
-    @tparam zernike_norm Zernike function normalization convention.
-    @tparam sh_norm Spherical harmonic normalization convention.
-    @tparam sh_phase Spherical harmonic phase convention.
-    @tparam Ns Extents representing inner multidimensional array structure.
-*/
-template <
-    typename ElementType, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase,
-    std::size_t... Ns
->
-using ComplexEncodedRealZernikeSpan = ShapedSpan<
-    ElementType, ZernikeNonnegativeShape<zernike_norm, sh_norm, sh_phase, Ns...>>;
-
-/**
-    @brief Convenient alias for `RealZernikeSpan` with unnormalized Zernike
+    @brief Convenient alias for `ZernikeSpan` with unnormalized Zernike
     functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
 
     @tparam ElementType Type of elements in the view.
@@ -211,7 +192,7 @@ using ZernikeSpanAcoustics = ZernikeSpan<
     Ns...>;
 
 /**
-    @brief Convenient alias for `RealZernikeSpan` with orthonormal Zernike
+    @brief Convenient alias for `ZernikeSpan` with orthonormal Zernike
     functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
 
     @tparam ElementType Type of elements in the view.
@@ -224,7 +205,7 @@ using ZernikeSpanNormalAcoustics = ZernikeSpan<
     Ns...>;
 
 /**
-    @brief Convenient alias for `RealZernikeSpan` with unnormalized Zernike
+    @brief Convenient alias for `ZernikeSpan` with unnormalized Zernike
     functions, orthonormal spherical harmonics, and Condon-Shortley phase.
 
     @tparam ElementType Type of elements in the view.
@@ -237,7 +218,7 @@ using ZernikeSpanQM = ZernikeSpan<
     Ns...>;
 
 /**
-    @brief Convenient alias for `RealZernikeSpan` with orthonormal Zernike
+    @brief Convenient alias for `ZernikeSpan` with orthonormal Zernike
     functions, orthonormal spherical harmonics, and Condon-Shortley phase.
 
     @tparam ElementType Type of elements in the view.
@@ -250,7 +231,7 @@ using ZernikeSpanNormalQM = ZernikeSpan<
     Ns...>;
 
 /**
-    @brief Convenient alias for `RealZernikeSpan` with unnormalized Zernike
+    @brief Convenient alias for `ZernikeSpan` with unnormalized Zernike
     functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
 
     @tparam ElementType Type of elements in the view.
@@ -263,7 +244,7 @@ using ZernikeSpanGeo = ZernikeSpan<
     Ns...>;
 
 /**
-    @brief Convenient alias for `RealZernikeSpan` with orthonormal Zernike
+    @brief Convenient alias for `ZernikeSpan` with orthonormal Zernike
     functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
 
     @tparam ElementType Type of elements in the view.
@@ -376,345 +357,217 @@ using ZernikeExpansionNormalGeo = ZernikeExpansion<
     st::SHNorm::geo, st::SHPhase::none, Ns...>;
 
 /**
-    @brief Convert real Zernike expansion of a real function to a complex Zernike expansion.
+    @brief A non-owning view of a multidimensional array pf 3D Zernike function
+    data.
 
-    @tparam dest_zernike_norm Zernike normalization convention of the output view
-    @tparam dest_sh_norm spherical harmonic normalization convention of the output view
-    @tparam dest_sh_phase phase convention of the output view
-
-    @param expansion Zernike expansion
-
-    @return view of the expansion transformed to a complex expansion
-
-    @note This function modifies the input data and merely produces a new view over the same data.
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam zernike_norm Zernike function normalization convention.
+    @tparam sh_norm Spherical harmonic normalization convention.
+    @tparam sh_phase Spherical harmonic phase convention.
+    @tparam Ns Extents representing inner multidimensional array structure.
 */
 template <
-    ZernikeNorm dest_zernike_norm, st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase,
-    ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
+    typename ElementType, IndexingMode indexing_mode, ZernikeNorm zernike_norm,
+    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... Ns
 >
-[[nodiscard]] constexpr ComplexEncodedRealZernikeSpan<
-    std::complex<double>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>
-to_complex_expansion(
-    ZernikeSpan<
-        double, IndexingMode::zero_based, source_zernike_norm,
-        source_sh_norm, source_sh_phase>&
-    expansion) noexcept
-{
-    using ExpansionType = ZernikeSpan<
-        double, IndexingMode::zero_based, source_zernike_norm,
-        source_sh_norm, source_sh_phase>;
-    using ReturnType = ComplexEncodedRealZernikeSpan<
-        std::complex<double>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>;
-
-    constexpr double shnorm = st::conversion_const<ExpansionType::sh_norm, dest_sh_norm>();
-    constexpr double cnorm = 1.0/std::numbers::sqrt2;
-    constexpr double norm = shnorm*cnorm;
-
-    for (auto n : expansion.indices())
-    {
-        if constexpr (dest_zernike_norm == ExpansionType::zernike_norm)
-        {
-            auto expansion_n = expansion[n];
-            for (auto l : expansion_n.indices())
-            {
-                auto expansion_nl = expansion_n[l];
-                expansion_nl[0][0] *= shnorm;
-                expansion_nl[0][1] *= shnorm;
-
-                if constexpr (dest_sh_phase == ExpansionType::sh_phase)
-                {
-                    for (auto m : expansion_nl.indices(1))
-                    {
-                        expansion_nl[m][0] *= norm;
-                        expansion_nl[m][1] *= -norm;
-                    }
-                }
-                else
-                {
-                    double prefactor = norm;
-                    for (auto m : expansion_nl.indices(1))
-                    {
-                        prefactor *= -1.0;
-                        expansion_nl[m][0] *= prefactor;
-                        expansion_nl[m][1] *= -prefactor;
-                    }
-                }
-            }
-        }
-        else
-        {
-            const double znorm = conversion_factor<ExpansionType::zernike_norm, dest_zernike_norm>(n);
-            const double zshnorm = shnorm*znorm;
-            const double zshcnorm = norm*znorm;
-            auto expansion_n = expansion[n];
-            for (auto l : expansion_n.indices())
-            {
-                auto expansion_nl = expansion_n[l];
-                expansion_nl[0][0] *= zshnorm;
-                expansion_nl[0][1] *= zshnorm;
-
-                if constexpr (dest_sh_phase == ExpansionType::sh_phase)
-                {
-                    for (auto m : expansion_nl.indices(1))
-                    {
-                        expansion_nl[m][0] *= zshcnorm;
-                        expansion_nl[m][1] *= -zshcnorm;
-                    }
-                }
-                else
-                {
-                    double prefactor = zshcnorm;
-                    for (auto m : expansion_nl.indices(1))
-                    {
-                        prefactor *= -1.0;
-                        expansion_nl[m][0] *= prefactor;
-                        expansion_nl[m][1] *= -prefactor;
-                    }
-                }
-            }
-        }
-    }
-
-    return ReturnType(as_complex_span(expansion.flatten()), expansion.order());
-}
+using ZernikeTensorSpan = ShapedSpan<
+    ElementType, ZernikeTensorShape<indexing_mode, zernike_norm, sh_norm, sh_phase, Ns...>>;
 
 /**
-    @brief Convert complex Zernike expansion of a real function to a real Zernike expansion.
+    @brief Convenient alias for `ZernikeTensorSpan` with unnormalized Zernike
+    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
 
-    @tparam dest_zernike_norm Zernike normalization convention of the output view
-    @tparam dest_sh_norm spherical harmonic normalization convention of the output view
-    @tparam dest_sh_phase phase convention of the output view
-
-    @param expansion Zernike expansion
-
-    @return view of the expansion transformed to a real expansion
-
-    @note This function modifies the input data and merely produces a new view over the same data.
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam Ns Extents representing inner multidimensional array structure.
 */
-template <
-    ZernikeNorm dest_zernike_norm, st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase,
-    ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
->
-[[nodiscard]] constexpr ZernikeSpan<
-    double, IndexingMode::zero_based, dest_zernike_norm,
-    dest_sh_norm, dest_sh_phase>
-to_real_expansion(
-    ComplexEncodedRealZernikeSpan<
-        std::complex<double>, source_zernike_norm, source_sh_norm, source_sh_phase>&
-    expansion) noexcept
-{
-    using ExpansionType = ComplexEncodedRealZernikeSpan<
-        std::complex<double>, source_zernike_norm, source_sh_norm, source_sh_phase>;
-    using ReturnType = ZernikeSpan<
-        double, IndexingMode::zero_based, dest_zernike_norm,
-        dest_sh_norm, dest_sh_phase>;
-
-    constexpr double shnorm = st::conversion_const<ExpansionType::sh_norm, dest_sh_norm>();
-    constexpr double cnorm = std::numbers::sqrt2;
-    constexpr double norm = shnorm*cnorm;
-
-    ReturnType res(as_float_span(expansion.flatten()), expansion.order());
-
-    for (auto n : res.indices())
-    {
-        if constexpr (dest_zernike_norm == ExpansionType::zernike_norm)
-        {
-            auto res_n = res[n];
-            for (auto l : res_n.indices())
-            {
-                auto res_nl = res_n[l];
-                res_nl[0][0] *= shnorm;
-                res_nl[0][1] *= shnorm;
-
-                if constexpr (dest_sh_phase == ExpansionType::sh_phase)
-                {
-                    for (auto m : res_nl.indices(1))
-                    {
-                        res_nl[m][0] *= norm;
-                        res_nl[m][1] *= -norm;
-                    }
-                }
-                else
-                {
-                    double prefactor = norm;
-                    for (auto m : res_nl.indices(1))
-                    {
-                        prefactor *= -1.0;
-                        res_nl[m][0] *= prefactor;
-                        res_nl[m][1] *= -prefactor;
-                    }
-                }
-            }
-        }
-        else
-        {
-            const double znorm = conversion_factor<ExpansionType::zernike_norm, dest_zernike_norm>(n);
-            const double zshnorm = shnorm*znorm;
-            const double zshcnorm = norm*znorm;
-            auto res_n = res[n];
-            for (auto l : res_n.indices())
-            {
-                auto res_nl = res_n[l];
-                res_nl[0][0] *= zshnorm;
-                res_nl[0][1] *= zshnorm;
-
-                if constexpr (dest_sh_phase == ExpansionType::sh_phase)
-                {
-                    for (auto m : res_nl.indices(1))
-                    {
-                        res_nl[m][0] *= zshcnorm;
-                        res_nl[m][1] *= -zshcnorm;
-                    }
-                }
-                else
-                {
-                    double prefactor = zshcnorm;
-                    for (auto m : res_nl.indices(1))
-                    {
-                        prefactor *= -1.0;
-                        res_nl[m][0] *= prefactor;
-                        res_nl[m][1] *= -prefactor;
-                    }
-                }
-            }
-        }
-    }
-
-    return res;
-}
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+using ZernikeTensorSpanAcoustics = ZernikeTensorSpan<
+    ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none,
+    Ns...>;
 
 /**
-    @brief Convert real spherical harmonic expansion of a real function to a complex spherical harmonic expansion.
+    @brief Convenient alias for `ZernikeTensorSpan` with orthonormal Zernike
+    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
 
-    @tparam DEST_NORM normalization convention of the output view
-    @tparam dest_sh_phase phase convention of the output view
-
-    @param expansion spherical harmonic expansion
-
-    @return view of the expansion transformed to a complex expansion
-
-    @note This function modifies the input data and merely produces a new view over the same data.
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam Ns Extents representing inner multidimensional array structure.
 */
-template <
-    st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase,
-    ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
->
-[[nodiscard]] constexpr typename ComplexEncodedRealZernikeSpan<
-    std::complex<double>, source_zernike_norm, dest_sh_norm, dest_sh_phase
->::template subspan_type<1>
-to_complex_expansion(
-    typename ZernikeExpansion<
-        double, IndexingMode::zero_based, source_zernike_norm,
-        source_sh_norm, source_sh_phase
-    >::template subspan_type<1>& expansion) noexcept
-{
-    using ExpansionType = typename ZernikeExpansion<
-            double, IndexingMode::zero_based, source_zernike_norm, source_sh_norm, source_sh_phase
-        >::template subspan_type<1>;
-    using ReturnType = typename ComplexEncodedRealZernikeSpan<
-            std::complex<double>, source_zernike_norm, dest_sh_norm, dest_sh_phase
-        >::template subspan_type<1>;
-
-    constexpr double shnorm
-        = st::conversion_const<std::remove_cvref_t<ExpansionType>::norm, dest_sh_norm>();
-    constexpr double cnorm = 1.0/std::numbers::sqrt2;
-    constexpr double norm = shnorm*cnorm;
-
-    for (auto l : expansion.indices())
-    {
-        auto expansion_l = expansion[l];
-        expansion_l[0][0] *= shnorm;
-        expansion_l[0][1] *= shnorm;
-
-        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::phase)
-        {
-            for (auto m : expansion_l.indices(1))
-            {
-                expansion_l[m][0] *= norm;
-                expansion_l[m][1] *= -norm;
-            }
-        }
-        else
-        {
-            double prefactor = norm;
-            for (auto m : expansion_l.indices(1))
-            {
-                prefactor *= -1.0;
-                expansion_l[m][0] *= prefactor;
-                expansion_l[m][1] *= -prefactor;
-            }
-        }
-    }
-
-    return ReturnType(as_complex_span(expansion.flatten()), expansion.order());
-}
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+using ZernikeTensorSpanNormalAcoustics = ZernikeTensorSpan<
+    ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none,
+    Ns...>;
 
 /**
-    @brief Convert complex spherical harmonic expansion of a real function to a real spherical harmonic expansion.
+    @brief Convenient alias for `ZernikeTensorSpan` with unnormalized Zernike
+    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
 
-    @tparam DEST_NORM normalization convention of the output view
-    @tparam dest_sh_phase phase convention of the output view
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam Ns Extents representing inner multidimensional array structure.
+*/
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+using ZernikeTensorSpanQM = ZernikeTensorSpan<
+    ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs,
+    Ns...>;
 
-    @param expansion spherical harmonic expansion
+/**
+    @brief Convenient alias for `ZernikeTensorSpan` with orthonormal Zernike
+    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
 
-    @return view of the expansion transformed to a complex expansion
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam Ns Extents representing inner multidimensional array structure.
+*/
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+using ZernikeTensorSpanNormalQM = ZernikeTensorSpan<
+    ElementType, indexing_mode, ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs,
+    Ns...>;
 
-    @note This function modifies the input data and merely produces a new view over the same data.
+/**
+    @brief Convenient alias for `ZernikeTensorSpan` with unnormalized Zernike
+    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam Ns Extents representing inner multidimensional array structure.
+*/
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+using ZernikeTensorSpanGeo = ZernikeTensorSpan<
+    ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none,
+    Ns...>;
+
+/**
+    @brief Convenient alias for `ZernikeTensorSpan` with orthonormal Zernike
+    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam Ns Extents representing inner multidimensional array structure.
+*/
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+using ZernikeTensorSpanNormalGeo = ZernikeTensorSpan<
+    ElementType, indexing_mode, ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none,
+    Ns...>;
+
+/**
+    @brief A container for Zernike function data.
+
+    @tparam ElementType Type of elements
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam zernike_norm Zernike function normalization convention.
+    @tparam sh_norm Spherical harmonic normalization convention.
+    @tparam sh_phase Spherical harmonic phase convention.
+    @tparam Ns Extents representing inner multidimensional array structure.
 */
 template <
-    st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase, 
-    ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
+    typename ElementType, IndexingMode indexing_mode_param, ZernikeNorm zernike_norm_param,
+    st::SHNorm sh_norm_param, st::SHPhase sh_phase_param, std::size_t... Ns
 >
-[[nodiscard]] constexpr typename ZernikeExpansion<
-    double, IndexingMode::zero_based, source_zernike_norm, source_sh_norm, source_sh_phase
->::template subspan_type<1>
-to_real_expansion(
-    typename ComplexEncodedRealZernikeSpan<
-        std::complex<double>, source_zernike_norm, dest_sh_norm, dest_sh_phase
-    >::template subspan_type<1>& expansion) noexcept
-{
-    using ExpansionType = typename ComplexEncodedRealZernikeSpan<
-            std::complex<double>, source_zernike_norm, dest_sh_norm, dest_sh_phase
-        >::template subspan_type<1>;
-    using ReturnType = typename ZernikeExpansion<
-            double, IndexingMode::zero_based, source_zernike_norm, source_sh_norm, source_sh_phase
-        >::template subspan_type<1>;
+using ZernikeExpansionTensor = ShapedArray<
+    ElementType, ZernikeTensorShape<indexing_mode_param, zernike_norm_param,
+    sh_norm_param, sh_phase_param, Ns...>>;
 
-    constexpr double shnorm
-        = st::conversion_const<std::remove_cvref_t<ExpansionType>::norm, dest_sh_norm>();
-    constexpr double cnorm = std::numbers::sqrt2;
-    constexpr double norm = shnorm*cnorm;
+/**
+    @brief Convenient alias for `ZernikeExpansionTensor` with unnormalized Zernike
+    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
 
-    ReturnType res(as_float_span(expansion.flatten()), expansion.order());
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam Ns Extents representing inner multidimensional array structure.
+*/
+template <typename ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+using ZernikeExpansionTensorAcoustics = ZernikeExpansionTensor<
+    ElementType, indexing_mode_param, ZernikeNorm::unnormed,
+    st::SHNorm::qm, st::SHPhase::none, Ns...>;
 
-    for (auto l : res.indices())
-    {
-        auto res_l = res[l];
-        res_l[0][0] *= shnorm;
-        res_l[0][1] *= shnorm;
+/**
+    @brief Convenient alias for `ZernikeExpansionTensor` with orthnormal Zernike
+    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
 
-        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::phase)
-        {
-            for (auto m : res_l.indices(1))
-            {
-                res_l[m][0] *= norm;
-                res_l[m][1] *= -norm;
-            }
-        }
-        else
-        {
-            double prefactor = norm;
-            for (auto m : res_l.indices(1))
-            {
-                prefactor *= -1.0;
-                res_l[m][0] *= prefactor;
-                res_l[m][1] *= -prefactor;
-            }
-        }
-    }
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam Ns Extents representing inner multidimensional array structure.
+*/
+template <typename ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+using ZernikeExpansionTensorNormalAcoustics = ZernikeExpansionTensor<
+    ElementType, indexing_mode_param, ZernikeNorm::normed,
+    st::SHNorm::qm, st::SHPhase::none, Ns...>;
 
-    return res;
-}
+/**
+    @brief Convenient alias for `ZernikeExpansionTensor` with unnormalized Zernike
+    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
+    @tparam Ns extents representing inner multidimensional array structure
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam Ns Extents representing inner multidimensional array structure.
+*/
+template <typename ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+using ZernikeExpansionTensorQM = ZernikeExpansionTensor<
+    ElementType, indexing_mode_param, ZernikeNorm::unnormed,
+    st::SHNorm::qm, st::SHPhase::cs, Ns...>;
+
+/**
+    @brief Convenient alias for `ZernikeExpansionTensor` with orthonormal Zernike
+    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
+    @tparam Ns extents representing inner multidimensional array structure
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam Ns Extents representing inner multidimensional array structure.
+*/
+template <typename ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+using ZernikeExpansionTensorNormalQM = ZernikeExpansionTensor<
+    ElementType, indexing_mode_param, ZernikeNorm::normed,
+    st::SHNorm::qm, st::SHPhase::cs, Ns...>;
+
+/**
+    @brief Convenient alias for `ZernikeExpansionTensor` with unnormalized Zernike
+    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
+    @tparam Ns extents representing inner multidimensional array structure
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam Ns Extents representing inner multidimensional array structure.
+*/
+template <typename ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+using ZernikeExpansionTensorGeo = ZernikeExpansionTensor<
+    ElementType, indexing_mode_param, ZernikeNorm::unnormed,
+    st::SHNorm::geo, st::SHPhase::none, Ns...>;
+
+/**
+    @brief Convenient alias for `ZernikeExpansionTensor` with orthonormal Zernike
+    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
+    @tparam Ns extents representing inner multidimensional array structure
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam Ns Extents representing inner multidimensional array structure.
+*/
+template <typename ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+using ZernikeExpansionTensorNormalGeo = ZernikeExpansionTensor<
+    ElementType, indexing_mode_param, ZernikeNorm::normed,
+    st::SHNorm::geo, st::SHPhase::none, Ns...>;
+
+/**
+    @brief A complex encoded view of real 3D Zernike function data.
+
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam zernike_norm Zernike function normalization convention.
+    @tparam sh_norm Spherical harmonic normalization convention.
+    @tparam sh_phase Spherical harmonic phase convention.
+    @tparam Ns Extents representing inner multidimensional array structure.
+*/
+template <
+    typename ElementType, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase,
+    std::size_t... Ns
+>
+using ComplexEncodedRealZernikeSpan = ShapedSpan<
+    ElementType, ZernikeNonnegativeShape<zernike_norm, sh_norm, sh_phase, Ns...>>;
 
 } // namespace zest::zt
 

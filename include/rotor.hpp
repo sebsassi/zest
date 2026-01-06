@@ -25,6 +25,7 @@ SOFTWARE.
 #include <vector>
 
 #include "real_sh_expansion.hpp"
+#include "complex_view.hpp"
 #include "sequence.hpp"
 #include "sh_conventions.hpp"
 #include "wignerd_collection.hpp"
@@ -128,7 +129,7 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        auto complex_expansion = to_complex_expansion<sh_norm, sh_phase>(expansion);
+        auto complex_expansion = encode_as_complex_expansion<sh_norm, sh_phase>(expansion);
 
         set_up_euler_rotations(euler_angles, type, order);
 
@@ -137,7 +138,7 @@ public:
                 complex_expansion[l], wigner_d_pi2[l],
                 m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
 
-        to_real_expansion<sh_norm, sh_phase>(complex_expansion);
+        decode_as_real_expansion<sh_norm, sh_phase>(complex_expansion);
     }
 
     template <st::SHNorm sh_norm, st::SHPhase sh_phase>
@@ -175,7 +176,7 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        auto complex_expansion = to_complex_expansion<sh_norm, sh_phase>(expansion);
+        auto complex_expansion = encode_as_complex_expansion<sh_norm, sh_phase>(expansion);
 
         set_up_euler_rotations(euler_angles, type, order);
 
@@ -184,7 +185,7 @@ public:
                 complex_expansion[l], wigner_d_pi2[l],
                 m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
 
-        to_real_expansion<sh_norm, sh_phase>(complex_expansion);
+        decode_as_real_expansion<sh_norm, sh_phase>(complex_expansion);
     }
 
     /**
@@ -211,7 +212,7 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        auto complex_expansion = to_complex_expansion<zernike_norm, sh_norm, sh_phase>(expansion);
+        auto complex_expansion = encode_as_complex_expansion<zernike_norm, sh_norm, sh_phase>(expansion);
 
         set_up_euler_rotations(euler_angles, type, order);
 
@@ -224,7 +225,7 @@ public:
                         m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
         }
 
-        to_real_expansion<zernike_norm, sh_norm, sh_phase>(complex_expansion);
+        decode_as_real_expansion<zernike_norm, sh_norm, sh_phase>(complex_expansion);
     }
 
     template <zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
@@ -253,7 +254,7 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        auto complex_expansion = to_complex_expansion<sh_norm, sh_phase>(expansion);
+        auto complex_expansion = encode_as_complex_expansion<sh_norm, sh_phase>(expansion);
 
         const double angle_rot = detail::convert(angle, type);
         for (std::size_t l = 0; l < order; ++l)
@@ -262,7 +263,7 @@ public:
         for (auto l : expansion.indices(1))
             zest::polar_rotate_l(complex_expansion[l], m_exp_alpha);
 
-        to_real_expansion<sh_norm, sh_phase>(complex_expansion);
+        decode_as_real_expansion<sh_norm, sh_phase>(complex_expansion);
     }
 
     template <st::SHNorm sh_norm, st::SHPhase sh_phase>
@@ -290,7 +291,7 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        auto complex_expansion = to_complex_expansion<zernike_norm, sh_norm, sh_phase>(expansion);
+        auto complex_expansion = encode_as_complex_expansion<zernike_norm, sh_norm, sh_phase>(expansion);
 
         const double angle_rot = detail::convert(angle, type);
         for (std::size_t l = 0; l < order; ++l)
@@ -303,7 +304,7 @@ public:
                 zest::polar_rotate_l(expansion_n[l], m_exp_alpha);
         }
 
-        to_real_expansion<zernike_norm, sh_norm, sh_phase>(complex_expansion);
+        decode_as_real_expansion<zernike_norm, sh_norm, sh_phase>(complex_expansion);
     }
 
     template <zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>

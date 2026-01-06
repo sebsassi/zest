@@ -21,12 +21,10 @@ SOFTWARE.
 */
 #pragma once
 
-#include <complex>
 #include <concepts>
 #include <type_traits>
 
 #include "sh_conventions.hpp"
-#include "array_complex_view.hpp"
 #include "shaped_array.hpp"
 #include "shaped_span.hpp"
 #include "spans.hpp"
@@ -217,139 +215,6 @@ template <typename T>
 concept has_sh_conventions = std::derived_from<T, SHTag<T::sh_norm, T::sh_phase>>;
 
 } // namespace detail
-
-/**
-    @brief Convert real spherical harmonic expansion of a real function to a
-    complex spherical harmonic expansion.
-
-    @tparam dest_sh_norm normalization convention of the output view
-    @tparam dest_sh_phase phase convention of the output view
-
-    @param expansion spherical harmonic expansion
-
-    @return view of the expansion transformed to a complex expansion
-
-    @note IMPORTANT: This function modifies the input data! The output is just
-    a new view over the same data.
-*/
-template <
-    SHNorm dest_sh_norm, SHPhase dest_sh_phase, SHNorm source_sh_norm, SHPhase source_sh_phase
->
-constexpr ComplexEncodedRealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>
-to_complex_expansion(
-    SHSpan<double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>& expansion) noexcept
-{
-    using ExpansionType = SHSpan<
-        double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>;
-    using ReturnType = ComplexEncodedRealSHSpan<
-        std::complex<double>, dest_sh_norm, dest_sh_phase>;
-
-    constexpr double sh_norm
-        = conversion_const<std::remove_cvref_t<ExpansionType>::shape::sh_norm, dest_sh_norm>();
-    constexpr double cnorm = 1.0/std::numbers::sqrt2;
-    constexpr double norm = sh_norm*cnorm;
-
-    for (auto l : expansion.indices())
-    {
-        auto expansion_l = expansion[l];
-        expansion_l[0, 0] *= sh_norm;
-        expansion_l[0, 1] *= sh_norm;
-
-        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::shape::sh_phase)
-        {
-            for (auto m : expansion_l.indices(1))
-            {
-                expansion_l[m, 0] *= norm;
-                expansion_l[m, 1] *= -norm;
-            }
-        }
-        else
-        {
-            double prefactor = norm;
-            for (auto m : expansion_l.indices(1))
-            {
-                prefactor *= -1.0;
-                expansion_l[m, 0] *= prefactor;
-                expansion_l[m, 1] *= -prefactor;
-            }
-        }
-    }
-
-    return ReturnType(as_complex_span(expansion.flatten()), expansion.order());
-}
-
-template <
-    SHNorm dest_sh_norm, SHPhase dest_sh_phase, SHNorm source_sh_norm, SHPhase source_sh_phase
->
-constexpr ComplexEncodedRealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>
-to_complex_expansion(
-    SHExpansion<double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>& expansion) noexcept
-{
-    using ExpansionType = SHExpansion<double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>;
-    return to_complex_expansion((typename ExpansionType::view)(expansion));
-}
-
-/**
-    @brief Convert complex spherical harmonic expansion of a real function to a
-    real spherical harmonic expansion.
-
-    @tparam dest_sh_norm normalization convention of the output view
-    @tparam dest_sh_phase phase convention of the output view
-
-    @param expansion spherical harmonic expansion
-
-    @return view of the expansion transformed to a complex expansion
-
-    @note IMPORTANT: This function modifies the input data! The output is just
-    a new view over the same data.
-*/
-template <
-    SHNorm dest_sh_norm, SHPhase dest_sh_phase, SHNorm source_sh_norm, SHPhase source_sh_phase
->
-constexpr SHSpan<double, IndexingMode::zero_based, dest_sh_norm, dest_sh_phase>
-to_real_expansion(
-    ComplexEncodedRealSHSpan<std::complex<double>, source_sh_norm, source_sh_phase>& expansion) noexcept
-{
-    using ExpansionType = ComplexEncodedRealSHSpan<
-        std::complex<double>, source_sh_norm, source_sh_phase>;
-    using ReturnType = SHSpan<
-        double, IndexingMode::zero_based, dest_sh_norm, dest_sh_phase>;
-
-    constexpr double sh_norm
-        = conversion_const<std::remove_cvref_t<ExpansionType>::shape::sh_norm, dest_sh_norm>();
-    constexpr double cnorm = std::numbers::sqrt2;
-    constexpr double norm = sh_norm*cnorm;
-
-    ReturnType res(as_float_span(expansion.flatten()), expansion.order());
-
-    for (auto l : res.indices())
-    {
-        auto res_l = res[l];
-        res_l[0, 0] *= sh_norm;
-        res_l[0, 1] *= sh_norm;
-
-        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::shape::phase)
-        {
-            for (auto m : res_l.indices(1))
-            {
-                res_l[m, 0] *= norm;
-                res_l[m, 1] *= -norm;
-            }
-        }
-        else
-        {
-            double prefactor = norm;
-            for (auto m : res_l.indices(1))
-            {
-                prefactor *= -1.0;
-                res_l[m, 0] *= prefactor;
-                res_l[m, 1] *= -prefactor;
-            }
-        }
-    }
-
-    return res;
-}
 
 } // namespace zest::st
 
