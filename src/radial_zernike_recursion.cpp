@@ -23,7 +23,7 @@ SOFTWARE.
 
 #include <cmath>
 
-#include "spans.hpp"
+#include "triangle_spans.hpp"
 
 namespace zest::zt
 {

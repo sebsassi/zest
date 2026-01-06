@@ -19,28 +19,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 SOFTWARE.
 */
+#pragma once
 
-#include "triangle_spans.hpp"
-#include "zernike_generator.hpp"
+#include <cstddef>
 
-namespace zest::zt
+#include "shaped_span.hpp"
+#include "triangle_shapes.hpp"
+
+namespace zest
 {
 
-ZernikeGenerator::ZernikeGenerator(std::size_t max_order):
-    m_ass_leg_recursion(max_order), m_zernike_recursion(max_order), 
-    m_radial_zernike(EvenTriangleShape<>::size(max_order)),
-    m_ass_leg_poly(TriangleShape<IndexingMode::zero_based>::size(max_order)), m_cossin(max_order) {}
+template <typename ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+using TriangleSpan = ShapedSpan<ElementType, TriangleShape<indexing_mode_param, Ns...>>;
 
-void ZernikeGenerator::expand(std::size_t max_order)
-{
-    if (max_order <= this->max_order()) return;
+template <typename ElementType, std::size_t... Ns>
+using EvenTriangleSpan = ShapedSpan<ElementType, EvenTriangleShape<Ns...>>;
 
-    m_ass_leg_recursion.expand(max_order);
-    m_zernike_recursion.expand(max_order);
-    m_radial_zernike.resize(EvenTriangleShape<>::size(max_order));
-    m_ass_leg_poly.resize(TriangleShape<IndexingMode::zero_based>::size(max_order));
-    m_cossin.resize(max_order);
-}
-
-} // namespace zest::zt
-
+} // namespace zest

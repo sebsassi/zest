@@ -28,7 +28,7 @@ SOFTWARE.
 #include "md_span.hpp"
 #include "linearfit.hpp"
 #include "md_array.hpp"
-#include "real_sh_expansion.hpp"
+#include "sh_expansion.hpp"
 #include "sh_generator.hpp"
 #include "zernike_generator.hpp"
 

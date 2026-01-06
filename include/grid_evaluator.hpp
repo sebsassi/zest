@@ -29,7 +29,7 @@ SOFTWARE.
 #include <span>
 #include <vector>
 
-#include "real_sh_expansion.hpp"
+#include "sh_expansion.hpp"
 #include "associated_legendre_recursion.hpp"
 #include "md_span.hpp"
 #include "radial_zernike_recursion.hpp"

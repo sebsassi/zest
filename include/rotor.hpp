@@ -25,7 +25,7 @@ SOFTWARE.
 #include <cstddef>
 #include <vector>
 
-#include "real_sh_expansion.hpp"
+#include "sh_expansion.hpp"
 #include "complex_view.hpp"
 #include "sequence.hpp"
 #include "sh_conventions.hpp"

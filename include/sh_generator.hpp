@@ -24,7 +24,7 @@ SOFTWARE.
 #include <vector>
 
 #include "associated_legendre_recursion.hpp"
-#include "real_sh_expansion.hpp"
+#include "sh_expansion.hpp"
 
 namespace zest::st
 {

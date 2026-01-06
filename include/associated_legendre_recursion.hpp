@@ -28,7 +28,7 @@ SOFTWARE.
 #include <vector>
 
 #include "sh_conventions.hpp"
-#include "real_sh_expansion.hpp"
+#include "sh_expansion.hpp"
 
 namespace zest::st
 {

@@ -24,7 +24,7 @@ SOFTWARE.
 #include <cstddef>
 #include <vector>
 
-#include "real_sh_expansion.hpp"
+#include "sh_expansion.hpp"
 #include "sh_conventions.hpp"
 #include "zernike_expansion.hpp"
 

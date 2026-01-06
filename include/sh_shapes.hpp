@@ -25,7 +25,7 @@ SOFTWARE.
 
 #include "sequence.hpp"
 #include "sh_conventions.hpp"
-#include "spans.hpp"
+#include "triangle_shapes.hpp"
 
 namespace zest::st
 {

@@ -24,8 +24,8 @@ SOFTWARE.
 #include <complex>
 
 #include "array_complex_view.hpp"
-#include "real_sh_expansion.hpp"
 #include "sh_conventions.hpp"
+#include "sh_expansion.hpp"
 #include "zernike_conventions.hpp"
 #include "zernike_expansion.hpp"
 

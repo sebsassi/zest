@@ -26,7 +26,7 @@ SOFTWARE.
 
 #include "grid_evaluator.hpp"
 #include "sequence.hpp"
-#include "spans.hpp"
+#include "triangle_spans.hpp"
 
 namespace zest
 {
