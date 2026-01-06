@@ -453,7 +453,7 @@ using ZernikeTensorSpanNormalGeo = ZernikeTensorSpan<
     Ns...>;
 
 /**
-    @brief A container for Zernike function data.
+    @brief A container for mutlidimensional arrays of Zernike function data.
 
     @tparam ElementType Type of elements
     @tparam indexing_mode Determines azimuthal index order.
