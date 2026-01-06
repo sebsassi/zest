@@ -21,6 +21,8 @@ SOFTWARE.
 */
 #pragma once
 
+#include <cstddef>
+
 #include "sequence.hpp"
 #include "shape.hpp"
 #include "shaped_span.hpp"

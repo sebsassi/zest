@@ -24,6 +24,7 @@ SOFTWARE.
 #include <array>
 #include <complex>
 #include <concepts>
+#include <cstddef>
 #include <span>
 #include <type_traits>
 #include <vector>

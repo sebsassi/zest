@@ -23,6 +23,7 @@ SOFTWARE.
 
 #include <cassert>
 #include <concepts>
+#include <cstddef>
 #include <type_traits>
 
 #include "indexing.hpp"

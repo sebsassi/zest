@@ -21,80 +21,15 @@ SOFTWARE.
 */
 #pragma once
 
-#include <type_traits>
+#include <cstddef>
 
 #include "sh_conventions.hpp"
+#include "sh_shapes.hpp"
 #include "shaped_array.hpp"
 #include "shaped_span.hpp"
-#include "spans.hpp"
 
 namespace zest::st
 {
-
-/**
-    @brief Shape representing an efficient layout of associated Legendre
-    functions, tagged with normalization and phase conventions.
-
-    @tparam sh_norm_param normalization convention of the spherical harmonics
-    @tparam sh_phase_param phase convention of the spherical harmonics
-    @tparam Ns extents representing inner multidimensional array structure
-*/
-template <SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns>
-using AssociatedLegendreShape = TaggedShape<
-    TriangleShape<IndexingMode::zero_based, Ns...>, SHTag<sh_norm_param, sh_phase_param>>;
-
-/**
-    @brief Shape representing an efficient layout of a multidimensional array
-    of associated Legendre functions, tagged with normalization and phase
-    conventions.
-
-    @tparam sh_norm_param normalization convention of the spherical harmonics
-    @tparam sh_phase_param phase convention of the spherical harmonics
-    @tparam Ns extents representing inner multidimensional array structure
-*/
-template <SHNorm sh_norm_param, SHPhase sh_phase_param, std::size_t... Ns>
-using AssociatedLegendreTensorShape = TaggedShape<
-    TriangleTensorShape<IndexingMode::zero_based, Ns...>, SHTag<sh_norm_param, sh_phase_param>>;
-
-/**
-    @brief Tagged shape representing layout and conventions of spherical
-    harmonic data.
-
-    @tparam IndexingMode determines azimuthal index order
-    @tparam sh_norm_param normalization convention of the spherical harmonics
-    @tparam sh_phase_param phase convention of the spherical harmonics
-    @tparam Ns extents representing inner multidimensional array structure
-*/
-template <
-    IndexingMode indexing_mode_param, SHNorm sh_norm_param, SHPhase sh_phase_param,
-    std::size_t... Ns
->
-using SHShape = TaggedShape<
-    std::conditional_t<(indexing_mode_param == IndexingMode::symmetric),
-        TriangleShape<indexing_mode_param, Ns...>,
-        TriangleShape<indexing_mode_param, 2, Ns...>>,
-    SHTag<sh_norm_param, sh_phase_param>>;
-
-/**
-    @brief Shape representing an efficient layout of a multidimensional array of
-    spherical harmonics, tagged with normalization and phase conventions.
-
-    @tparam IndexingMode determines azimuthal index order
-    @tparam sh_norm_param normalization convention of the spherical harmonics
-    @tparam sh_phase_param phase convention of the spherical harmonics
-    @tparam Ns extents representing inner multidimensional array structure
-*/
-template <
-    IndexingMode indexing_mode_param, SHNorm sh_norm_param, SHPhase sh_phase_param,
-    std::size_t... Ns
->
-using SHTensorShape = TaggedShape<
-    std::conditional_t<(indexing_mode_param == IndexingMode::symmetric),
-        TriangleTensorShape<indexing_mode_param, Ns...>,
-        CompositeShape<
-            TensorShape<Ns...>,
-            TriangleShape<indexing_mode_param, 2>>>,
-    SHTag<sh_norm_param, sh_phase_param>>;
 
 /**
     @brief A non-owning view of associated Legendre function data.

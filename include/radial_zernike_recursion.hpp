@@ -22,6 +22,7 @@ SOFTWARE.
 #pragma once
 
 #include <cassert>
+#include <cstddef>
 #include <span>
 #include <vector>
 

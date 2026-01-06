@@ -24,6 +24,7 @@ SOFTWARE.
 #include <array>
 #include <cmath>
 #include <concepts>
+#include <cstddef>
 #include <numbers>
 #include <ranges>
 #include <type_traits>

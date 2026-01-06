@@ -21,6 +21,7 @@ SOFTWARE.
 */
 #pragma once
 
+#include <cstddef>
 #include <vector>
 
 #include "real_sh_expansion.hpp"

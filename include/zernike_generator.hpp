@@ -22,6 +22,7 @@ SOFTWARE.
 #pragma once
 
 #include <array>
+#include <cstddef>
 
 #include "zernike_conventions.hpp"
 #include "associated_legendre_recursion.hpp"

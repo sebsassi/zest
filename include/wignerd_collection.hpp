@@ -23,6 +23,7 @@ SOFTWARE.
 
 #include <array>
 #include <complex>
+#include <cstddef>
 #include <span>
 #include <vector>
 

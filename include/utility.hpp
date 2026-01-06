@@ -23,6 +23,7 @@ SOFTWARE.
 
 #include <complex>
 #include <concepts>
+#include <cstddef>
 #include <type_traits>
 #include <utility>
 
