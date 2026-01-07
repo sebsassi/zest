@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024-2026 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -23,6 +23,9 @@ SOFTWARE.
 
 #include <cassert>
 
+namespace
+{
+
 constexpr bool test_radialzernikespan_const_view_can_be_taken()
 {
     zest::zt::RadialZernikeSpan<double, zest::zt::ZernikeNorm::normed>
@@ -35,9 +38,9 @@ constexpr bool test_radialzernikespan_const_view_can_be_taken()
 
 constexpr bool test_radialzernikevecspan_const_view_can_be_taken()
 {
-    zest::zt::RadialZernikeVecSpan<double, zest::zt::ZernikeNorm::normed>
+    zest::zt::RadialZernikeVectorSpan<double, zest::zt::ZernikeNorm::normed>
     span{};
-    [[maybe_unused]] auto const_view = zest::zt::RadialZernikeVecSpan<
+    [[maybe_unused]] auto const_view = zest::zt::RadialZernikeVectorSpan<
             const double, zest::zt::ZernikeNorm::normed>(span);
     return true;
 }
@@ -346,6 +349,8 @@ bool test_zernike_expansion_subsubspan_indexing_is_contiguous()
 
     return success;
 }
+
+} // namespace
 
 int main()
 {

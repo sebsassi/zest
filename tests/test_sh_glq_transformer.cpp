@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024-2026 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -62,7 +62,7 @@ bool test_glq_forward_transform_expands_Y00()
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm;
     };
-    
+
     zest::st::GLQTransformer<sh_norm_param, sh_phase_param, GridLayout> 
     transformer(order);
 

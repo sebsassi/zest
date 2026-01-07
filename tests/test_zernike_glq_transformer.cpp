@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024-2026 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -22,6 +22,9 @@ SOFTWARE.
 #include "zernike_glq_transformer.hpp"
 
 #include <cassert>
+
+namespace
+{
 
 constexpr bool is_close(double a, double b, double tol)
 {
@@ -78,7 +81,7 @@ bool test_glq_forward_transform_expands_Z000()
     zest::zt::GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param> 
     transformer(order);
 
-    zest::zt::RealZernikeExpansion expansion
+    zest::zt::ZernikeExpansion expansion
         = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
@@ -155,7 +158,7 @@ bool test_glq_forward_transform_expands_Z200()
     zest::zt::GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param> 
     transformer(order);
 
-    zest::zt::RealZernikeExpansion expansion
+    zest::zt::ZernikeExpansion expansion
         = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
@@ -231,7 +234,7 @@ bool test_glq_forward_transform_expands_Z110()
     zest::zt::GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param> 
     transformer(order);
 
-    zest::zt::RealZernikeExpansion expansion
+    zest::zt::ZernikeExpansion expansion
         = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
@@ -310,7 +313,7 @@ bool test_glq_forward_transform_expands_Z221()
     zest::zt::GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param> 
     transformer(order);
 
-    zest::zt::RealZernikeExpansion expansion
+    zest::zt::ZernikeExpansion expansion
         = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
@@ -384,7 +387,7 @@ bool test_glq_forward_transform_expands_Z33m2()
     zest::zt::GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param> 
     transformer(order);
 
-    zest::zt::RealZernikeExpansion expansion
+    zest::zt::ZernikeExpansion expansion
         = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
@@ -463,7 +466,7 @@ bool test_glq_forward_transform_expands_Z531()
     zest::zt::GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param> 
     transformer(order);
     
-    zest::zt::RealZernikeExpansion expansion
+    zest::zt::ZernikeExpansion expansion
         = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
@@ -999,6 +1002,8 @@ void test_glq()
 
     assert((test_zernike_transform_converges<zernike_norm_param, sh_norm_param, sh_phase_param>()));
 }
+
+} // namespace
 
 int main()
 {

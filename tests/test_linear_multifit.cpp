@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Sebastian Sassi
+Copyright (c) 2024-2026 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -24,6 +24,9 @@ SOFTWARE.
 #include <cassert>
 #include <cmath>
 #include <random>
+
+namespace
+{
 
 constexpr bool is_close(double a, double b, double tol)
 {
@@ -78,6 +81,8 @@ bool test_linearfit_3_parameter_function()
         return false;
     }
 }
+
+} // namespace
 
 int main()
 {
