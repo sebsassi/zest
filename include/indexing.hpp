@@ -226,7 +226,7 @@ public:
         @param end end of index range
     */
     StandardIndexRange(index_type end): 
-        BasicIndexRange<index_type, index_type{1}>(end) {};
+        BasicIndexRange<index_type, index_type{1}>(index_type{}, end) {};
 
     /**
         @brief Constructs a range of indices `[begin, end)`.
@@ -234,7 +234,7 @@ public:
         @param begin start of index range
         @param end end of index range
     */
-    StandardIndexRange(index_type begin, index_type end): 
+    StandardIndexRange(index_type begin, index_type end):
         BasicIndexRange<index_type, index_type{1}>(begin, end) {};
 };
 

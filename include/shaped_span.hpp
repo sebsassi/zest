@@ -64,17 +64,23 @@ public:
 
     constexpr ShapedSpan() = default;
 
+    template <typename... ExtentTypes>
+    constexpr ShapedSpan(pointer data, const ExtentTypes&... extents):
+        m_data(data), m_shape(extents...) {}
+
     constexpr ShapedSpan(pointer data, const shape_type::extent_type& extents):
         m_data(data), m_shape(extents) {}
     constexpr ShapedSpan(pointer data, const shape_type& shape):
         m_data(data), m_shape(shape) {}
 
     template <typename... ExtentTypes>
-    constexpr ShapedSpan(std::span<value_type> data, const ExtentTypes&... extents):
+    constexpr ShapedSpan(std::span<element_type> data, const ExtentTypes&... extents):
         m_data(data.data()), m_shape(extents...) { assert(data.size() == m_shape.size()); }
 
-    constexpr ShapedSpan(std::span<value_type> data, const shape_type& shape):
-        m_data(data), m_shape(shape) { assert(data.size() == m_shape.size()); }
+    constexpr ShapedSpan(std::span<element_type> data, const shape_type::extent_type& extents):
+        m_data(data.data()), m_shape(extents) { assert(data.size() == m_shape.size()); }
+    constexpr ShapedSpan(std::span<element_type> data, const shape_type& shape):
+        m_data(data.data()), m_shape(shape) { assert(data.size() == m_shape.size()); }
 
     template <shaped_contiguous_buffer T>
         requires std::same_as<typename T::shape_type, shape_type>

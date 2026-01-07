@@ -34,7 +34,7 @@ SOFTWARE.
 #include "alignment.hpp"
 #include "associated_legendre_recursion.hpp"
 #include "gauss_legendre.hpp"
-#include "md_span.hpp"
+#include "sh_expansion.hpp"
 #include "zernike_expansion.hpp"
 
 namespace zest::st
@@ -67,7 +67,7 @@ struct LatLonLayout
         @param order order of spherical harmonic expansion
     */
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
-    shape(std::size_t order) noexcept
+    extents(std::size_t order) noexcept
     {
         return {lat_size(order), lon_size(order)};
     }
@@ -145,7 +145,7 @@ struct LonLatLayout
         @param order order of spherical harmonic expansion
     */
     [[nodiscard]] static constexpr std::array<std::size_t, 2>
-    shape(std::size_t order) noexcept
+    extents(std::size_t order) noexcept
     {
         return {lon_size(order), lat_size(order)};
     }
@@ -198,88 +198,28 @@ struct LonLatLayout
 
 using DefaultLayout = LonLatLayout<>;
 
-/**
-    @brief A non-owning view on data modeling a Gauss-Legendre quadrature grid
-    on the sphere.
-
-    @tparam ElementType type of elements in the grid
-    @tparam LayoutType grid layout
-*/
-template <typename ElementType, typename LayoutType = DefaultLayout>
-class SphereGLQGridSpan: public MDSpan<ElementType, 2>
+template <typename LayoutType>
+class SphereGLQGridShape: public DynamicTensorShape<2>
 {
 public:
-    using typename MDSpan<ElementType, 2>::element_type;
-    using Layout = LayoutType;
-    using ConstView = SphereGLQGridSpan<const element_type, Layout>;
+    SphereGLQGridShape(size_type order):
+        DynamicTensorShape<2>(LayoutType::extents(order)), m_order(order) {}
 
-    using MDSpan<ElementType, 2>::extents;
-    using MDSpan<ElementType, 2>::data;
-    using MDSpan<ElementType, 2>::size;
-
-    /**
-        @brief Number of grid points.
-
-        @param order order of spherical harmonic expansion
-    */
-    [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
-    {
-        return Layout::size(order);
-    }
-
-    /**
-        @brief Shape of the grid.
-
-        @param order order of spherical harmonic expansion
-    */
-    [[nodiscard]] static constexpr std::array<std::size_t, 2>
-    shape(std::size_t order) noexcept
-    {
-        return Layout::shape(order);
-    }
-
-    constexpr SphereGLQGridSpan() noexcept = default;
-    constexpr SphereGLQGridSpan(element_type* data, std::size_t order) noexcept:
-        MDSpan<ElementType, 2>(data, Layout::shape(order)), m_order(order) {}
-    constexpr SphereGLQGridSpan(
-        std::span<element_type> buffer, std::size_t order) noexcept:
-        MDSpan<ElementType, 2>(buffer.data(), Layout::shape(order)),
-        m_order(order) {}
-
-    /**
-        @brief Order of spherical harmonic expansion.
-    */
-    [[nodiscard]] constexpr std::size_t
+    [[nodiscard]] constexpr size_type
     order() const noexcept { return m_order; }
-    
-    /**
-        @brief Shape of the grid.
-    */
-    [[nodiscard]] constexpr const std::array<std::size_t, 2>&
-    shape() const noexcept { return extents(); }
-
-    /**
-        @brief Flattened view of the underlying buffer.
-    */
-    [[nodiscard]] constexpr std::span<element_type>
-    flatten() const noexcept { return std::span<element_type>(data(), size()); }
-
-    [[nodiscard]] constexpr operator ConstView() const noexcept
-    {
-        return ConstView(data(), size(), extents(), m_order);
-    }
-
-protected:
-    friend SphereGLQGridSpan<std::remove_const_t<element_type>, Layout>;
-
-    constexpr SphereGLQGridSpan(
-        element_type* data, std::size_t size, const std::array<std::size_t, 2>& extents,
-        std::size_t order) noexcept:
-        MDSpan<ElementType, 2>(data, size, extents), m_order(order) {}
 
 private:
-    std::size_t m_order{};
+    size_type m_order;
 };
+
+/**
+    @brief A non-owning view of a Gauss-Legendre quadrature grid on the sphere.
+
+    @tparam ElementType Type of elements in the grid.
+    @tparam LayoutType Layout of the grid.
+*/
+template <typename ElementType, typename LayoutType = DefaultLayout>
+using SphereGLQGridSpan = ShapedSpan<ElementType, SphereGLQGridShape<LayoutType>>;
 
 /**
     @brief Container for Gauss-Legendre quadrature gridded data on the sphere.
@@ -288,98 +228,7 @@ private:
     @tparam LayoutType grid layout
 */
 template <typename ElementType, typename LayoutType = DefaultLayout>
-class SphereGLQGrid
-{
-public:
-    using element_type = ElementType;
-    using value_type = std::remove_cvref_t<element_type>;
-    using Layout = LayoutType;
-    using View = SphereGLQGridSpan<element_type, Layout>;
-    using ConstView = SphereGLQGridSpan<const element_type, Layout>;
-
-    SphereGLQGrid() = default;
-    explicit SphereGLQGrid(std::size_t order):
-        m_values(Layout::size(order)), m_shape(Layout::shape(order)), 
-        m_order(order) {}
-
-    /**
-        @brief Order of spherical harmonic expansion.
-    */
-    [[nodiscard]] std::size_t order() const noexcept { return m_order; }
-
-    /**
-        @brief Shape of the grid.
-    */
-    [[nodiscard]] std::array<std::size_t, 2>
-    shape() const noexcept { return m_shape; }
-
-    /**
-        @brief Flattened view of the underlying buffer.
-    */
-    [[nodiscard]] std::span<const element_type>
-    flatten() const noexcept { return m_values; }
-
-    /**
-        @brief Flattened view of the underlying buffer.
-    */
-    std::span<element_type> flatten() noexcept { return m_values; }
-
-    [[nodiscard]] operator View() noexcept
-    {
-        return View(m_values, m_order);
-    };
-
-    [[nodiscard]] operator ConstView() const noexcept
-    {
-        return ConstView(m_values, m_order);
-    };
-
-    /**
-        @brief Change the size of the grid.
-    */
-    void resize(std::size_t order)
-    {
-        m_values.resize(Layout::size(order));
-        m_shape = Layout::shape(order);
-        m_order = order;
-    }
-
-    [[nodiscard]] element_type
-    operator()(std::size_t i, std::size_t j) const noexcept
-    {
-        return m_values[m_shape[1]*i + j];
-    }
-
-    [[nodiscard]] element_type& operator()(std::size_t i, std::size_t j) noexcept
-    {
-        return m_values[m_shape[1]*i + j];
-    }
-
-private:
-    using Allocator
-        = AlignedAllocator<element_type, typename LayoutType::Alignment>;
-
-    std::vector<element_type, Allocator> m_values{};
-    std::array<std::size_t, 2> m_shape{};
-    std::size_t m_order{};
-};
-
-/**
-    @brief Concept enforcing a type to be either `SphereGLQGrid` or
-    `SphereGLQGridSpan`.
-*/
-template <typename T>
-concept sphere_glq_grid
-    = std::same_as<
-        std::remove_cvref_t<T>,
-        SphereGLQGridSpan<
-            typename std::remove_cvref_t<T>::element_type,
-            typename std::remove_cvref_t<T>::Layout>>
-    || std::same_as<
-        std::remove_cvref_t<T>,
-        SphereGLQGrid<
-            typename std::remove_cvref_t<T>::element_type,
-            typename std::remove_cvref_t<T>::Layout>>;
+using SphereGLQGrid = ShapedArray<ElementType, SphereGLQGridShape<LayoutType>>;
 
 /**
     @brief Points defining a Gauss-Legendre quadrature grid on the sphere.
@@ -401,14 +250,14 @@ public:
     {
         constexpr std::size_t lon_axis = GridLayout::lon_axis;
         constexpr std::size_t lat_axis = GridLayout::lat_axis;
-        const auto shape = GridLayout::shape(order);
+        const auto shape = GridLayout::extents(order);
         resize(shape[lon_axis], shape[lat_axis]);
     }
 
     /**
         @brief Shape of the corresponding grid.
     */
-    [[nodiscard]] std::array<std::size_t, 2> shape() noexcept
+    [[nodiscard]] std::array<std::size_t, 2> extents() noexcept
     {
         return {m_glq_nodes.size(), m_longitudes.size()};
     }
@@ -432,16 +281,14 @@ public:
     /**
         @brief Generate Gauss-Legendre quadrature grid values from a function.
 
-        @tparam GridType type of grid
         @tparam FuncType type of function
 
         @param grid grid to place the values in
         @param f function to generate values
     */
-    template <sphere_glq_grid GridType, typename FuncType>
-        requires std::same_as<
-            typename std::remove_cvref_t<GridType>::Layout, GridLayout>
-    void generate_values(GridType& grid, FuncType&& f)
+    template <typename FuncType>
+        requires std::same_as<std::invoke_result_t<FuncType, double, double>, double>
+    void generate_values(SphereGLQGridSpan<double, GridLayout>& grid, FuncType&& f)
     {
         resize(grid.order());
 
@@ -453,7 +300,7 @@ public:
                 for (std::size_t j = 0; j < m_longitudes.size(); ++j)
                 {
                     const double lon = m_longitudes[j];
-                    grid(i,j) = f(lon, colatitude);
+                    grid[i, j] = f(lon, colatitude);
                 }
             }
         }
@@ -465,7 +312,7 @@ public:
                 for (std::size_t j = 0; j < m_glq_nodes.size(); ++j)
                 {
                     const double colatitude = m_glq_nodes[j];
-                    grid(i,j) = f(lon, colatitude);
+                    grid[i, j] = f(lon, colatitude);
                 }
             }
         }
@@ -479,10 +326,10 @@ public:
         @param f function to generate values
     */
     template <typename FuncType>
+        requires std::same_as<std::invoke_result_t<FuncType, double, double>, double>
     auto generate_values(FuncType&& f, std::size_t order)
     {
-        using CodomainType = std::invoke_result_t<FuncType, double, double>;
-        SphereGLQGrid<CodomainType, GridLayout> grid(order);
+        SphereGLQGrid<double, GridLayout> grid(order);
         generate_values(grid, f);
         return grid;
     }

@@ -206,11 +206,11 @@ void GridEvaluator::resize(
 
 void GridEvaluator::sum_l(std::size_t order) noexcept
 {
-    TriangleSpan<const double, IndexingMode::zero_based, 2, std::dynamic_extent>
-    flm(m_flm_grid.data(), order, std::array<std::size_t, 2>{2, m_rad_size});
+    TriangleSpan<const double, IndexingMode::zero_based, std::dynamic_extent, 2>
+    flm(m_flm_grid.data(), order, std::array<std::size_t, 2>{m_rad_size, 2});
 
-    TriangleSpan<const double, IndexingMode::zero_based, 2, std::dynamic_extent>
-    ass_leg(m_ass_leg_grid.data(), order, {2, m_lat_size});
+    TriangleSpan<const double, IndexingMode::zero_based, std::dynamic_extent>
+    ass_leg(m_ass_leg_grid.data(), order, m_lat_size);
 
     std::ranges::fill(m_fm_grid, std::array<double, 2>{});
     MDSpan<std::array<double, 2>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
@@ -225,15 +225,15 @@ void GridEvaluator::sum_l(std::size_t order) noexcept
             auto flm_lm = flm_l[m];
             auto ass_leg_lm = ass_leg_l[m];
 
-            MDSpan<std::array<double, 2>, 2> fm_m = fm[m];
+            auto fm_m = fm[m];
             for (std::size_t i = 0; i < m_lat_size; ++i)
             {
                 const double weight = ass_leg_lm[i];
                 auto fm_mi = fm_m[i];
                 for (std::size_t j = 0; j < m_rad_size; ++j)
                 {
-                    fm_mi[j][0] += weight*flm_lm[j][0];
-                    fm_mi[j][1] += weight*flm_lm[j][1];
+                    fm_mi[j][0] += weight*flm_lm[j, 0];
+                    fm_mi[j][1] += weight*flm_lm[j, 1];
                 }
             }
         }

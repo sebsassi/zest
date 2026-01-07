@@ -411,22 +411,27 @@ public:
     using subshape_type = subshape_helper<N>::type;
 
     constexpr CompositeShape() = default;
-    constexpr CompositeShape(
-        const S1::extent_type& first_extents, const S2::extent_type& second_extents):
-        m_shapes(first_extents, second_extents), m_size(size(first_extents, second_extents)) {}
 
-    explicit constexpr CompositeShape(const S1::extent_type& first_extents)
+    template <typename E1, typename E2>
+        requires std::constructible_from<S1, E1> && std::constructible_from<S2, E2>
+    constexpr CompositeShape(const E1& first_extents, const E2& second_extents):
+        m_shapes(S1{first_extents}, S2{second_extents}) {}
+
+    template <typename E>
+        requires std::constructible_from<S1, E>
+    explicit constexpr CompositeShape(const E& first_extents)
         requires (S1::linear_extent == std::dynamic_extent
             && S2::linear_extent != std::dynamic_extent):
-        m_shapes(S1{first_extents}, S2{}), m_size(size(first_extents)) {}
+        m_shapes(S1{first_extents}, S2{}) {}
 
-    explicit constexpr CompositeShape(const S2::extent_type& second_extents)
+    template <typename E>
+        requires std::constructible_from<S2, E>
+    explicit constexpr CompositeShape(const E& second_extents)
         requires (S1::linear_extent != std::dynamic_extent
             && S2::linear_extent == std::dynamic_extent):
-        m_shapes(S1{}, S2{second_extents}), m_size(size(second_extents)) {}
+        m_shapes(S1{}, S2{second_extents}) {}
 
-    constexpr CompositeShape(const S1& s1, const S2& s2):
-        m_shapes(s1, s2), m_size(s1.size()*s2.size()) {}
+    constexpr CompositeShape(const S1& s1, const S2& s2): m_shapes(s1, s2) {}
 
     [[nodiscard]] static constexpr size_type
     size(const S1::extent_type& first_extents, const S2::extent_type& second_extents) noexcept
@@ -452,7 +457,10 @@ public:
     size() noexcept requires (linear_extent != std::dynamic_extent) { return linear_extent; }
 
     [[nodiscard]] constexpr size_type
-    size() const noexcept requires (linear_extent == std::dynamic_extent) { return m_size; }
+    size() const noexcept requires (linear_extent == std::dynamic_extent)
+    {
+        return m_shapes.first.size()*m_shapes.second.size();
+    }
 
     [[nodiscard]] constexpr S1::extent_type
     order() const noexcept requires sequence_shaped<S1>
@@ -517,9 +525,9 @@ private:
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= S1::rank)
     [[nodiscard]] constexpr index_type
-    index(Inds... indices)
+    index(Inds... indices) const noexcept
     {
-        return m_shapes.first.index((typename S1::index_type)(indices)...)*m_shapes.second.size();
+        return m_shapes.first((typename S1::index_type)(indices)...)*m_shapes.second.size();
     }
 
     template <std::integral... Inds>
@@ -540,7 +548,6 @@ private:
     }
 
     std::pair<S1, S2> m_shapes{};
-    size_type m_size{};
 };
 
 template <typename SequenceType, std::size_t... Ns>

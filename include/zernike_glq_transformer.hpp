@@ -131,6 +131,20 @@ struct LonLatRadLayout
 
 using DefaultLayout = LonLatRadLayout<>;
 
+template <typename LayoutType>
+class BallGLQGridShape: public DynamicTensorShape<3>
+{
+public:
+    BallGLQGridShape(size_type order):
+        DynamicTensorShape<3>(LayoutType::extents(order)), m_order(order) {}
+
+    [[nodiscard]] constexpr size_type
+    order() const noexcept { return m_order; }
+
+private:
+    size_type m_order;
+};
+
 /**
     @brief A non-owning view of gridded data in spherical coordinates in the unit ball.
 
@@ -138,79 +152,7 @@ using DefaultLayout = LonLatRadLayout<>;
     @tparam LayoutType grid layout
 */
 template <typename ElementType, typename LayoutType = DefaultLayout>
-class BallGLQGridSpan: public MDSpan<ElementType, 3>
-{
-public:
-    using typename MDSpan<ElementType, 3>::value_type;
-    using Layout = LayoutType;
-    using ConstView = BallGLQGridSpan<const value_type, Layout>;
-
-    using MDSpan<ElementType, 3>::extents;
-    using MDSpan<ElementType, 3>::data;
-    using MDSpan<ElementType, 3>::size;
-
-    /**
-        @brief Number of grid points.
-
-        @param order order of Zernike expansion
-    */
-    [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
-    {
-        return Layout::size(order);
-    }
-
-    /**
-        @brief Shape of the grid.
-
-        @param order order of Zernike expansion
-    */
-    [[nodiscard]] static constexpr std::array<std::size_t, 3>
-    shape(std::size_t order) noexcept
-    {
-        return Layout::shape(order);
-    }
-
-    BallGLQGridSpan() noexcept = default;
-    constexpr BallGLQGridSpan(value_type* data, std::size_t order) noexcept:
-        MDSpan<ElementType, 3>(data, Layout::shape(order)), m_order(order) {}
-    constexpr BallGLQGridSpan(
-        std::span<value_type> buffer, std::size_t order) noexcept:
-        MDSpan<ElementType, 3>(buffer.data(), Layout::shape(order)),
-        m_order(order) {}
-
-    /**
-        @brief Order of Zernike expansion.
-    */
-    [[nodiscard]] constexpr std::size_t
-    order() const noexcept { return m_order; }
-    
-    /**
-        @brief Shape of the grid.
-    */
-    [[nodiscard]] constexpr const std::array<std::size_t, 3>&
-    shape() const noexcept { return extents(); }
-
-    /**
-        @brief Flattened view of the underlying buffer.
-    */
-    [[nodiscard]] constexpr std::span<value_type>
-    flatten() const noexcept { return std::span<value_type>(data(), size()); }
-
-    [[nodiscard]] constexpr operator ConstView() const noexcept
-    {
-        return ConstView(data(), size(), extents(), m_order);
-    }
-
-private:
-    friend BallGLQGridSpan<std::remove_const_t<value_type>, Layout>;
-
-    constexpr BallGLQGridSpan(
-        value_type* data, std::size_t size, const std::array<std::size_t, 3>& extents,
-        std::size_t order) noexcept:
-        MDSpan<ElementType, 3>(data, size, extents), m_order(order) {}
-
-    std::size_t m_order{};
-};
+using BallGLQGridSpan = ShapedSpan<ElementType, BallGLQGridShape<LayoutType>>;
 
 /**
     @brief Container for gridded data in spherical coordinates in the unit ball.
@@ -219,113 +161,7 @@ private:
     @tparam LayoutType grid layout
 */
 template <typename ElementType, typename LayoutType = DefaultLayout>
-class BallGLQGrid
-{
-public:
-    using element_type = ElementType;
-    using value_type = std::remove_cvref_t<element_type>;
-    using Layout = LayoutType;
-    using View = BallGLQGridSpan<double>;
-    using ConstView = BallGLQGridSpan<const double>;
-
-    /**
-        @brief Number of grid points.
-
-        @param order order of Zernike expansion
-    */
-    [[nodiscard]] static constexpr std::size_t size(std::size_t order) noexcept
-    {
-        return Layout::size(order);
-    }
-
-    /**
-        @brief Shape of the grid.
-
-        @param order order of Zernike expansion
-    */
-    [[nodiscard]] static constexpr std::array<std::size_t, 3>
-    shape(std::size_t order) noexcept
-    {
-        return Layout::shape(order);
-    }
-
-    BallGLQGrid() = default;
-    explicit BallGLQGrid(std::size_t order):
-        m_data(Layout::size(order)), m_shape(Layout::shape(order)),
-        m_order(order) {}
-
-    /**
-        @brief Order of Zernike expansion.
-    */
-    [[nodiscard]] std::size_t order() const noexcept { return m_order; }
-
-    /**
-        @brief Shape of the grid.
-    */
-    [[nodiscard]] std::array<std::size_t, 3> shape() { return m_shape; }
-
-    /**
-        @brief Flattened view of the underlying buffer.
-    */
-    [[nodiscard]] std::span<const element_type> flatten() const noexcept { return m_data; }
-
-    /**
-        @brief Flattened view of the underlying buffer.
-    */
-    std::span<element_type> flatten() noexcept { return m_data; }
-
-    [[nodiscard]] operator View() noexcept
-    {
-        return View(m_data, m_order);
-    };
-
-    [[nodiscard]] operator ConstView() const noexcept
-    {
-        return ConstView(m_data, m_order);
-    };
-
-    /**
-        @brief Change the size of the grid.
-    */
-    void resize(std::size_t order)
-    {
-        m_data.resize(Layout::size(order));
-        m_shape = Layout::shape(order);
-        m_order = order;
-    }
-
-    [[nodiscard]] element_type operator()(
-        std::size_t i, std::size_t j, std::size_t k) const noexcept
-    {
-        return m_data[m_shape[2]*(m_shape[1]*i + j) + k];
-    }
-
-    [[nodiscard]] element_type& operator()(
-        std::size_t i, std::size_t j, std::size_t k) noexcept
-    {
-        return m_data[m_shape[2]*(m_shape[1]*i + j) + k];
-    }
-private:
-    using Allocator
-        = AlignedAllocator<element_type, typename LayoutType::Alignment>;
-
-    std::vector<element_type, Allocator> m_data{};
-    std::array<std::size_t, 3> m_shape{};
-    std::size_t m_order{};
-};
-
-template <typename T>
-concept ball_glq_grid
-    = std::same_as<
-        std::remove_cvref_t<T>,
-        BallGLQGridSpan<
-            typename std::remove_cvref_t<T>::element_type,
-            typename std::remove_cvref_t<T>::Layout>>
-    || std::same_as<
-        std::remove_cvref_t<T>,
-        BallGLQGrid<
-            typename std::remove_cvref_t<T>::element_type,
-            typename std::remove_cvref_t<T>::Layout>>;
+using BallGLQGrid = ShapedArray<ElementType, BallGLQGridSpan<LayoutType>>;
 
 /**
     @brief Points defining a grid in spherical coordinates in the unit ball.
@@ -348,7 +184,7 @@ public:
         constexpr std::size_t lon_axis = GridLayout::lon_axis;
         constexpr std::size_t lat_axis = GridLayout::lat_axis;
         constexpr std::size_t rad_axis = GridLayout::rad_axis;
-        const auto shape = GridLayout::shape(order);
+        const auto shape = GridLayout::extents(order);
         resize(shape[lon_axis], shape[lat_axis], shape[rad_axis]);
     }
 
@@ -379,16 +215,14 @@ public:
     /**
         @brief Generate Gauss-Legendre quadrature grid values from a function.
 
-        @tparam GridType type of grid
         @tparam FuncType type of function
 
         @param grid grid to place the values in
         @param f function to generate values
     */
-    template <ball_glq_grid GridType, typename FuncType>
-        requires std::same_as<
-            typename std::remove_cvref_t<GridType>::Layout, GridLayout>
-    void generate_values(GridType&& grid, FuncType&& f)
+    template <typename FuncType>
+        requires std::same_as<std::invoke_result_t<FuncType, double, double, double>, double>
+    void generate_values(BallGLQGridSpan<double, GridLayout>&& grid, FuncType&& f)
     {
         resize(grid.order());
 
@@ -418,10 +252,10 @@ public:
         @param f function to generate values
     */
     template <typename FuncType>
+        requires std::same_as<std::invoke_result_t<FuncType, double, double, double>, double>
     [[nodiscard]] auto generate_values(FuncType&& f, std::size_t order)
     {
-        using CodomainType = std::invoke_result_t<FuncType, double, double, double>;
-        BallGLQGrid<CodomainType, GridLayout> grid(order);
+        BallGLQGrid<double, GridLayout> grid(order);
         generate_values(grid, f);
         return grid;
     }

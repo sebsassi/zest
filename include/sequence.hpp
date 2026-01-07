@@ -182,7 +182,9 @@ struct TriangleSequence
 private:
     template <std::size_t N> struct subsequence_helper;
 
-    template <> struct subsequence_helper<1>
+    template <std::size_t N>
+        requires (N == 1)
+    struct subsequence_helper<N>
     {
         using type = StandardLinearSequence<indexing_mode_param>;
     };
@@ -279,7 +281,9 @@ struct EvenTriangleSequence
 private:
     template <std::size_t N> struct subsequence_helper;
 
-    template <> struct subsequence_helper<1>
+    template <std::size_t N>
+        requires (N == 1)
+    struct subsequence_helper<N>
     {
         using type = ParityLinearSequence;
     };
@@ -400,7 +404,9 @@ struct ParityRowTriangleSequence
 private:
     template <std::size_t N> struct subsequence_helper;
 
-    template <> struct subsequence_helper<1>
+    template <std::size_t N>
+        requires (N == 1)
+    struct subsequence_helper<N>
     {
         using type = StandardLinearSequence<indexing_mode_param>;
     };
@@ -517,11 +523,16 @@ struct ZernikeTetrahedralSequence
 private:
     template <std::size_t N> struct subsequence_helper;
 
-    template <> struct subsequence_helper<1>
+    template <std::size_t N>
+        requires (N == 1)
+    struct subsequence_helper<N>
     {
         using type = ParityRowTriangleSequence<indexing_mode_param>;
     };
-    template <> struct subsequence_helper<2>
+
+    template <std::size_t N>
+        requires (N == 2)
+    struct subsequence_helper<N>
     {
         using type = StandardLinearSequence<indexing_mode_param>;
     };

@@ -33,6 +33,7 @@ SOFTWARE.
 #include "associated_legendre_recursion.hpp"
 #include "md_span.hpp"
 #include "radial_zernike_recursion.hpp"
+#include "triangle_spans.hpp"
 #include "zernike_expansion.hpp"
 
 namespace zest
