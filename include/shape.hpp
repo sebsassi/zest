@@ -395,7 +395,7 @@ private:
         requires (S1::rank < N && N < rank)
     struct subshape_helper<N>
     {
-        using type = typename S2::template subshape_type<N>;
+        using type = typename S2::template subshape_type<N - S1::rank>;
     };
 
     template <std::size_t N>
@@ -485,7 +485,7 @@ public:
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] Inds... indices) const noexcept
     {
-        return m_shapes.second;
+        return subshape_type<sizeof...(Inds)>(m_shapes.second);
     }
 
     template <std::integral... Inds>
@@ -495,7 +495,7 @@ public:
     {
         auto impl = [&]<std::size_t... I, typename T>(std::index_sequence<I...>, T index_tuple)
         {
-            return m_shapes.second.subshape(std::get<S1::rank + I>(index_tuple)...);
+            return subshape_type<sizeof...(Inds)>(m_shapes.second.subshape(std::get<S1::rank + I>(index_tuple)...));
         };
         return impl(
             std::make_index_sequence<sizeof...(Inds) - S1::rank>{},
@@ -507,7 +507,7 @@ public:
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] Inds... indices) const noexcept
     {
-        return NullShape{};
+        return subshape_type<sizeof...(Inds)>(NullShape{});
     }
 
     template <std::integral... Inds>
@@ -569,6 +569,8 @@ struct TaggedShape: public ShapeType, public Tags...
     using subshape_type = TaggedShape<typename ShapeType::template subshape_type<N>, Tags...>;
 
     using ShapeType::ShapeType;
+
+    explicit TaggedShape(const ShapeType& other): ShapeType(other) {}
 };
 
 } // namespace zest

@@ -288,7 +288,7 @@ public:
     */
     template <typename FuncType>
         requires std::same_as<std::invoke_result_t<FuncType, double, double>, double>
-    void generate_values(SphereGLQGridSpan<double, GridLayout>& grid, FuncType&& f)
+    void generate_values(SphereGLQGridSpan<double, GridLayout> grid, FuncType&& f)
     {
         resize(grid.order());
 
@@ -329,8 +329,8 @@ public:
         requires std::same_as<std::invoke_result_t<FuncType, double, double>, double>
     auto generate_values(FuncType&& f, std::size_t order)
     {
-        SphereGLQGrid<double, GridLayout> grid(order);
-        generate_values(grid, f);
+        auto grid = SphereGLQGrid<double, GridLayout>(order);
+        generate_values((typename SphereGLQGrid<double, GridLayout>::view)(grid), f);
         return grid;
     }
 
@@ -420,7 +420,7 @@ public:
             m_recursion.generate_real(m_glq_nodes, ass_leg);
         }
 
-        auto shape = grid_layout_type::shape(order);
+        auto shape = grid_layout_type::extents(order);
         m_pocketfft_shape_grid[0] = shape[0];
         m_pocketfft_shape_grid[1] = shape[1];
 
@@ -467,7 +467,7 @@ public:
         m_ffts.resize(grid_layout_type::lat_size(order)*grid_layout_type::fft_size(order));
         m_symm_asymm.resize(grid_layout_type::fft_size(order)*((grid_layout_type::lat_size(order) + 1) >> 1)*2);
 
-        auto shape = grid_layout_type::shape(order);
+        auto shape = grid_layout_type::extents(order);
         m_pocketfft_shape_grid[0] = shape[0];
         m_pocketfft_shape_grid[1] = shape[1];
 
