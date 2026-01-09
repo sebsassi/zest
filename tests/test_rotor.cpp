@@ -57,8 +57,8 @@ bool to_real_is_inverse_of_to_complex()
 
     Expansion reference_expansion = expansion;
 
-    auto complex_expansion = zest::st::to_complex_expansion<zest::st::SHNorm::qm, zest::st::SHPhase::cs>(expansion);
-    zest::st::to_real_expansion<zest::st::SHNorm::geo, zest::st::SHPhase::none>(complex_expansion);
+    auto complex_expansion = zest::encode_as_complex_expansion<zest::st::SHNorm::qm, zest::st::SHPhase::cs>(expansion);
+    zest::decode_as_real_expansion<zest::st::SHNorm::geo, zest::st::SHPhase::none>(complex_expansion);
 
     bool success = true;
     for (std::size_t l = 0; l < order; ++l)

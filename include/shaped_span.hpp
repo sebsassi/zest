@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024, 2025 Sebastian Sassi
+Copyright (c) 2024-2026 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -65,6 +65,7 @@ public:
     constexpr ShapedSpan() = default;
 
     template <typename... ExtentTypes>
+        requires std::constructible_from<shape_type, ExtentTypes...>
     constexpr ShapedSpan(pointer data, const ExtentTypes&... extents):
         m_data(data), m_shape(extents...) {}
 
@@ -74,6 +75,7 @@ public:
         m_data(data), m_shape(shape) {}
 
     template <typename... ExtentTypes>
+        requires std::constructible_from<shape_type, ExtentTypes...>
     constexpr ShapedSpan(std::span<element_type> data, const ExtentTypes&... extents):
         m_data(data.data()), m_shape(extents...) { assert(data.size() == m_shape.size()); }
 
@@ -101,7 +103,7 @@ public:
 
     template <typename NewShapeType>
     [[nodiscard]] constexpr auto
-    reshape(const NewShapeType& shape) const noexcept
+    view_as(const NewShapeType& shape) const noexcept
     {
         assert(shape.size() == m_shape.size());
         return ShapedSpan<element_type, NewShapeType>(m_data, shape);
@@ -136,6 +138,9 @@ public:
 
     [[nodiscard]] constexpr index_range
     indices() const noexcept { return m_shape.indices(); }
+
+    [[nodiscard]] constexpr index_range
+    indices(index_type index) const noexcept { return m_shape.indices(index); }
 
     template <std::integral... Inds>
         requires (sizeof...(Inds) == shape_type::rank)

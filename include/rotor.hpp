@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024, 2025 Sebastian Sassi
+Copyright (c) 2024-2026 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -45,25 +45,6 @@ enum class RotationType
     /** coordinate system is rotated */
     coordinate
 };
-
-/**
-    @brief Translate rotation matrix into corresponding Euler angles.
-
-    @param rot rotation matrix
-
-    @return Euler angles in order alpha, beta, gamma
-*/
-[[nodiscard]] constexpr std::array<double, 3> euler_angles_from_rotation_matrix(
-    const std::array<std::array<double, 3>, 3>& rot) noexcept
-{
-    const double r22_sq = rot[2][2]*rot[2][2];
-    const double beta_y = std::sqrt((1.0 + r22_sq)*(1.0 - r22_sq));
-    return {
-        std::atan2(rot[1][2], rot[0][2]),
-        std::atan2(beta_y, rot[2][2]),
-        std::atan2(rot[2][1], -rot[2][0])
-    };
-}
 
 namespace detail
 {
@@ -136,7 +117,7 @@ public:
 
         for (auto l : expansion.indices(1))
             zest::rotate_l(
-                complex_expansion[l], wigner_d_pi2[l],
+                std::span<std::complex<double>>(complex_expansion[l]), wigner_d_pi2[l],
                 m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
 
         decode_as_real_expansion<sh_norm, sh_phase>(complex_expansion);
@@ -148,7 +129,8 @@ public:
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles, RotationType type)
     {
-        rotate((typename decltype(expansion)::view)(expansion), wigner_d_pi2, euler_angles, type);
+        using ExpansionType = st::SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase>;
+        rotate((typename ExpansionType::view)(expansion), wigner_d_pi2, euler_angles, type);
     }
 
     /**
@@ -183,7 +165,7 @@ public:
 
         for (auto l : expansion.indices(1))
             zest::rotate_l(
-                complex_expansion[l], wigner_d_pi2[l],
+                std::span<std::complex<double>>(complex_expansion[l]), wigner_d_pi2[l],
                 m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
 
         decode_as_real_expansion<sh_norm, sh_phase>(complex_expansion);
@@ -222,7 +204,7 @@ public:
             auto expansion_n = complex_expansion[n];
             for (auto l : expansion_n.indices(1))
                 zest::rotate_l(
-                        expansion_n[l], wigner_d_pi2[l],
+                        std::span<std::complex<double>>(expansion_n[l]), wigner_d_pi2[l],
                         m_exp_gamma, m_exp_beta, m_exp_alpha, m_temp);
         }
 
@@ -235,7 +217,8 @@ public:
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles, RotationType type)
     {
-        rotate((typename decltype(expansion)::view)(expansion), wigner_d_pi2, euler_angles, type);
+        using ExpansionType = zt::ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>;
+        rotate((typename ExpansionType::view)(expansion), wigner_d_pi2, euler_angles, type);
     }
 
     /**
@@ -262,7 +245,7 @@ public:
             m_exp_alpha[l] = std::polar(1.0, -double(l)*angle_rot);
 
         for (auto l : expansion.indices(1))
-            zest::polar_rotate_l(complex_expansion[l], m_exp_alpha);
+            zest::polar_rotate_l(std::span<std::complex<double>>(complex_expansion[l]), m_exp_alpha);
 
         decode_as_real_expansion<sh_norm, sh_phase>(complex_expansion);
     }
@@ -272,7 +255,8 @@ public:
         st::SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase>& expansion,
         double angle, RotationType type)
     {
-        polar_rotate((typename decltype(expansion)::view)(expansion), angle, type);
+        using ExpansionType = st::SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase>;
+        polar_rotate((typename ExpansionType::view)(expansion), angle, type);
     }
 
     /**
@@ -302,7 +286,7 @@ public:
         {
             auto expansion_n = complex_expansion[n];
             for (auto l : expansion_n.indices(1))
-                zest::polar_rotate_l(expansion_n[l], m_exp_alpha);
+                zest::polar_rotate_l(std::span<std::complex<double>>(expansion_n[l]), m_exp_alpha);
         }
 
         decode_as_real_expansion<zernike_norm, sh_norm, sh_phase>(complex_expansion);
@@ -313,7 +297,8 @@ public:
         zt::ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>& expansion,
         double angle, RotationType type)
     {
-        polar_rotate((typename decltype(expansion)::view)(expansion), angle, type);
+        using ExpansionType = zt::ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>;
+        polar_rotate((typename ExpansionType::view)(expansion), angle, type);
     }
 
 private:

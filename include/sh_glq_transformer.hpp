@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024, 2025 Sebastian Sassi
+Copyright (c) 2024-2026 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -202,6 +202,7 @@ template <typename LayoutType>
 class SphereGLQGridShape: public DynamicTensorShape<2>
 {
 public:
+    SphereGLQGridShape() = default;
     SphereGLQGridShape(size_type order):
         DynamicTensorShape<2>(LayoutType::extents(order)), m_order(order) {}
 
@@ -631,7 +632,7 @@ private:
     {
         constexpr std::size_t lon_axis = grid_layout_type::lon_axis;
         constexpr double sh_normalization = normalization<norm>();
-        const double prefactor = sh_normalization*(2.0*std::numbers::pi)/double(values.shape()[lon_axis]);
+        const double prefactor = sh_normalization*(2.0*std::numbers::pi)/double(values.extent(lon_axis));
         pocketfft::r2c(
             m_pocketfft_shape_grid, m_pocketfft_stride_grid, m_pocketfft_stride_fft,
             lon_axis, pocketfft::FORWARD, values.flatten().data(), m_ffts.data(),
@@ -781,8 +782,7 @@ private:
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_ass_leg = m_glq_weights.size();
 
-        std::span coeffs = expansion.flatten();
-        std::ranges::fill(coeffs, std::array<double, 2>{});
+        std::ranges::fill(expansion.flatten(), 0.0);
         if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             AssLegVecSpan<const double> ass_leg(m_ass_leg_grid.data(), num_ass_leg, m_order);
@@ -906,7 +906,7 @@ private:
             {
                 auto expansion_l = expansion[l];
                 auto ass_leg_l = ass_leg[l];
-                std::span<const double> ass_leg_l0 = ass_leg_l[0];
+                auto ass_leg_l0 = ass_leg_l[0];
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + (l & 1)*num_ass_leg*fft_order, num_ass_leg);
                 for (std::size_t i = 0; i < num_ass_leg; ++i)
@@ -918,7 +918,7 @@ private:
 
                 for (auto m : expansion_l.indices(1))
                 {
-                    std::span<const double> ass_leg_lm = ass_leg_l[m];
+                    auto ass_leg_lm = ass_leg_l[m];
                     std::span<std::complex<double>> symm_asymm(
                         m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_ass_leg, num_ass_leg);
                     for (std::size_t i = 0; i < num_ass_leg; ++i)

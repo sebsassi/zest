@@ -23,6 +23,7 @@ SOFTWARE.
 
 #include <cassert>
 #include <cmath>
+#include <span>
 
 namespace
 {
@@ -69,44 +70,43 @@ bool test_ass_leg_real_generates_real_correct_up_to_order_5(double z)
     zest::st::AssociatedLegendreRecursion recursion(order);
 
     zest::st::AssociatedLegendreExpansion<double, sh_norm_param, sh_phase_param> ass_leg(order);
-    auto ass_leg_flat = ass_leg.flatten();
 
     recursion.generate_real(z, ass_leg);
-    bool success = is_close(ass_leg_flat[0], P00, 1.0e-10)
-            && is_close(ass_leg_flat[1], P10, 1.0e-10)
-            && is_close(ass_leg_flat[2], P11, 1.0e-10)
-            && is_close(ass_leg_flat[3], P20, 1.0e-10)
-            && is_close(ass_leg_flat[4], P21, 1.0e-10)
-            && is_close(ass_leg_flat[5], P22, 1.0e-10)
-            && is_close(ass_leg_flat[6], P30, 1.0e-10)
-            && is_close(ass_leg_flat[7], P31, 1.0e-10)
-            && is_close(ass_leg_flat[8], P32, 1.0e-10)
-            && is_close(ass_leg_flat[9], P33, 1.0e-10)
-            && is_close(ass_leg_flat[10], P40, 1.0e-10)
-            && is_close(ass_leg_flat[11], P41, 1.0e-10)
-            && is_close(ass_leg_flat[12], P42, 1.0e-10)
-            && is_close(ass_leg_flat[13], P43, 1.0e-10)
-            && is_close(ass_leg_flat[14], P44, 1.0e-10);
+    bool success = is_close(ass_leg[0, 0], P00, 1.0e-10)
+            && is_close(ass_leg[1, 0], P10, 1.0e-10)
+            && is_close(ass_leg[1, 1], P11, 1.0e-10)
+            && is_close(ass_leg[2, 0], P20, 1.0e-10)
+            && is_close(ass_leg[2, 1], P21, 1.0e-10)
+            && is_close(ass_leg[2, 2], P22, 1.0e-10)
+            && is_close(ass_leg[3, 0], P30, 1.0e-10)
+            && is_close(ass_leg[3, 1], P31, 1.0e-10)
+            && is_close(ass_leg[3, 2], P32, 1.0e-10)
+            && is_close(ass_leg[3, 3], P33, 1.0e-10)
+            && is_close(ass_leg[4, 0], P40, 1.0e-10)
+            && is_close(ass_leg[4, 1], P41, 1.0e-10)
+            && is_close(ass_leg[4, 2], P42, 1.0e-10)
+            && is_close(ass_leg[4, 3], P43, 1.0e-10)
+            && is_close(ass_leg[4, 4], P44, 1.0e-10);
     
     if (success)
         return true;
     else
     {
-        std::printf("P00 %f %f\n", ass_leg_flat[0], P00);
-        std::printf("P10 %f %f\n", ass_leg_flat[1], P10);
-        std::printf("P11 %f %f\n", ass_leg_flat[2], P11);
-        std::printf("P20 %f %f\n", ass_leg_flat[3], P20);
-        std::printf("P21 %f %f\n", ass_leg_flat[4], P21);
-        std::printf("P22 %f %f\n", ass_leg_flat[5], P22);
-        std::printf("P30 %f %f\n", ass_leg_flat[6], P30);
-        std::printf("P31 %f %f\n", ass_leg_flat[7], P31);
-        std::printf("P32 %f %f\n", ass_leg_flat[8], P32);
-        std::printf("P33 %f %f\n", ass_leg_flat[9], P33);
-        std::printf("P40 %f %f\n", ass_leg_flat[10], P40);
-        std::printf("P41 %f %f\n", ass_leg_flat[11], P41);
-        std::printf("P42 %f %f\n", ass_leg_flat[12], P42);
-        std::printf("P43 %f %f\n", ass_leg_flat[13], P43);
-        std::printf("P44 %f %f\n", ass_leg_flat[14], P44);
+        std::printf("P00 %f %f\n", ass_leg[0, 0], P00);
+        std::printf("P10 %f %f\n", ass_leg[1, 0], P10);
+        std::printf("P11 %f %f\n", ass_leg[1, 1], P11);
+        std::printf("P20 %f %f\n", ass_leg[2, 0], P20);
+        std::printf("P21 %f %f\n", ass_leg[2, 1], P21);
+        std::printf("P22 %f %f\n", ass_leg[2, 2], P22);
+        std::printf("P30 %f %f\n", ass_leg[3, 0], P30);
+        std::printf("P31 %f %f\n", ass_leg[3, 1], P31);
+        std::printf("P32 %f %f\n", ass_leg[3, 2], P32);
+        std::printf("P33 %f %f\n", ass_leg[3, 3], P33);
+        std::printf("P40 %f %f\n", ass_leg[4, 0], P40);
+        std::printf("P41 %f %f\n", ass_leg[4, 1], P41);
+        std::printf("P42 %f %f\n", ass_leg[4, 2], P42);
+        std::printf("P43 %f %f\n", ass_leg[4, 3], P43);
+        std::printf("P44 %f %f\n", ass_leg[4, 4], P44);
         return false;
     }
 }
@@ -141,46 +141,44 @@ bool test_ass_leg_real_generates_real_vec_correct_up_to_order_5(double z)
 
     zest::st::AssociatedLegendreRecursion recursion(order);
 
-    zest::st::AssociatedLegendreExpansion<double, sh_norm_param, sh_phase_param, std::dynamic_extent> ass_leg(order);
-    auto ass_leg_flat = ass_leg.flatten();
-
+    zest::st::AssociatedLegendreExpansion<double, sh_norm_param, sh_phase_param, std::dynamic_extent> ass_leg(order, 1UL);
 
     recursion.generate_real(std::array<double, 1>{z}, ass_leg);
-    bool success = is_close(ass_leg_flat[0], P00, 1.0e-10)
-            && is_close(ass_leg_flat[1], P10, 1.0e-10)
-            && is_close(ass_leg_flat[2], P11, 1.0e-10)
-            && is_close(ass_leg_flat[3], P20, 1.0e-10)
-            && is_close(ass_leg_flat[4], P21, 1.0e-10)
-            && is_close(ass_leg_flat[5], P22, 1.0e-10)
-            && is_close(ass_leg_flat[6], P30, 1.0e-10)
-            && is_close(ass_leg_flat[7], P31, 1.0e-10)
-            && is_close(ass_leg_flat[8], P32, 1.0e-10)
-            && is_close(ass_leg_flat[9], P33, 1.0e-10)
-            && is_close(ass_leg_flat[10], P40, 1.0e-10)
-            && is_close(ass_leg_flat[11], P41, 1.0e-10)
-            && is_close(ass_leg_flat[12], P42, 1.0e-10)
-            && is_close(ass_leg_flat[13], P43, 1.0e-10)
-            && is_close(ass_leg_flat[14], P44, 1.0e-10);
+    bool success = is_close(ass_leg[0, 0, 0], P00, 1.0e-10)
+            && is_close(ass_leg[1, 0, 0], P10, 1.0e-10)
+            && is_close(ass_leg[1, 1, 0], P11, 1.0e-10)
+            && is_close(ass_leg[2, 0, 0], P20, 1.0e-10)
+            && is_close(ass_leg[2, 1, 0], P21, 1.0e-10)
+            && is_close(ass_leg[2, 2, 0], P22, 1.0e-10)
+            && is_close(ass_leg[3, 0, 0], P30, 1.0e-10)
+            && is_close(ass_leg[3, 1, 0], P31, 1.0e-10)
+            && is_close(ass_leg[3, 2, 0], P32, 1.0e-10)
+            && is_close(ass_leg[3, 3, 0], P33, 1.0e-10)
+            && is_close(ass_leg[4, 0, 0], P40, 1.0e-10)
+            && is_close(ass_leg[4, 1, 0], P41, 1.0e-10)
+            && is_close(ass_leg[4, 2, 0], P42, 1.0e-10)
+            && is_close(ass_leg[4, 3, 0], P43, 1.0e-10)
+            && is_close(ass_leg[4, 4, 0], P44, 1.0e-10);
     
     if (success)
         return true;
     else
     {
-        std::printf("P00 %f %f\n", ass_leg_flat[0], P00);
-        std::printf("P10 %f %f\n", ass_leg_flat[1], P10);
-        std::printf("P11 %f %f\n", ass_leg_flat[2], P11);
-        std::printf("P20 %f %f\n", ass_leg_flat[3], P20);
-        std::printf("P21 %f %f\n", ass_leg_flat[4], P21);
-        std::printf("P22 %f %f\n", ass_leg_flat[5], P22);
-        std::printf("P30 %f %f\n", ass_leg_flat[6], P30);
-        std::printf("P31 %f %f\n", ass_leg_flat[7], P31);
-        std::printf("P32 %f %f\n", ass_leg_flat[8], P32);
-        std::printf("P33 %f %f\n", ass_leg_flat[9], P33);
-        std::printf("P40 %f %f\n", ass_leg_flat[10], P40);
-        std::printf("P41 %f %f\n", ass_leg_flat[11], P41);
-        std::printf("P42 %f %f\n", ass_leg_flat[12], P42);
-        std::printf("P43 %f %f\n", ass_leg_flat[13], P43);
-        std::printf("P44 %f %f\n", ass_leg_flat[14], P44);
+        std::printf("P00 %f %f\n", ass_leg[0, 0, 0], P00);
+        std::printf("P10 %f %f\n", ass_leg[1, 0, 0], P10);
+        std::printf("P11 %f %f\n", ass_leg[1, 1, 0], P11);
+        std::printf("P20 %f %f\n", ass_leg[2, 0, 0], P20);
+        std::printf("P21 %f %f\n", ass_leg[2, 1, 0], P21);
+        std::printf("P22 %f %f\n", ass_leg[2, 2, 0], P22);
+        std::printf("P30 %f %f\n", ass_leg[3, 0, 0], P30);
+        std::printf("P31 %f %f\n", ass_leg[3, 1, 0], P31);
+        std::printf("P32 %f %f\n", ass_leg[3, 2, 0], P32);
+        std::printf("P33 %f %f\n", ass_leg[3, 3, 0], P33);
+        std::printf("P40 %f %f\n", ass_leg[4, 0, 0], P40);
+        std::printf("P41 %f %f\n", ass_leg[4, 1, 0], P41);
+        std::printf("P42 %f %f\n", ass_leg[4, 2, 0], P42);
+        std::printf("P43 %f %f\n", ass_leg[4, 3, 0], P43);
+        std::printf("P44 %f %f\n", ass_leg[4, 4, 0], P44);
         return false;
     }
 }

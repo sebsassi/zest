@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024, 2025 Sebastian Sassi
+Copyright (c) 2024-2026 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -24,6 +24,7 @@ SOFTWARE.
 #include <cstddef>
 
 #include "shaped_span.hpp"
+#include "shaped_array.hpp"
 #include "triangle_shapes.hpp"
 
 namespace zest
@@ -31,6 +32,9 @@ namespace zest
 
 template <typename ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
 using TriangleSpan = ShapedSpan<ElementType, TriangleShape<indexing_mode_param, Ns...>>;
+
+template <typename ElementType, IndexingMode indexing_mode_param, std::size_t... Ns>
+using TriangleArray = ShapedArray<ElementType, TriangleShape<indexing_mode_param, Ns...>>;
 
 template <typename ElementType, std::size_t... Ns>
 using EvenTriangleSpan = ShapedSpan<ElementType, EvenTriangleShape<Ns...>>;

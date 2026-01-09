@@ -161,7 +161,7 @@ using BallGLQGridSpan = ShapedSpan<ElementType, BallGLQGridShape<LayoutType>>;
     @tparam LayoutType grid layout
 */
 template <typename ElementType, typename LayoutType = DefaultLayout>
-using BallGLQGrid = ShapedArray<ElementType, BallGLQGridSpan<LayoutType>>;
+using BallGLQGrid = ShapedArray<ElementType, BallGLQGridShape<LayoutType>>;
 
 /**
     @brief Points defining a grid in spherical coordinates in the unit ball.
@@ -566,7 +566,7 @@ private:
         constexpr std::size_t lon_axis = GridLayout::lon_axis;
         constexpr double radial_integral_norm = 0.5;
         constexpr double sh_norm = st::normalization<sh_norm_param>();
-        const double fourier_norm = (2.0*std::numbers::pi)/double(values.shape()[lon_axis]);
+        const double fourier_norm = (2.0*std::numbers::pi)/double(values.extent(lon_axis));
         const double prefactor = sh_norm*radial_integral_norm*fourier_norm;
         pocketfft::r2c(
             m_pocketfft_shape_grid, m_pocketfft_stride_grid, m_pocketfft_stride_fft,

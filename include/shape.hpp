@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024, 2025 Sebastian Sassi
+Copyright (c) 2024-2026 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -210,7 +210,7 @@ public:
         m_extents(extents), m_size(size(extents)) {}
 
     [[nodiscard]] static constexpr size_type
-    size(extent_type extents) noexcept { return product(extents); }
+    size(const extent_type& extents) noexcept { return product(extents); }
 
     [[nodiscard]] constexpr size_type
     size() const noexcept { return m_size; }
@@ -317,7 +317,7 @@ public:
     explicit constexpr TensorShape([[maybe_unused]] extent_type extents) {}
 
     [[nodiscard]] static constexpr size_type
-    size([[maybe_unused]] extent_type extents) noexcept { return linear_extent; }
+    size([[maybe_unused]] const extent_type& extents) noexcept { return linear_extent; }
 
     [[nodiscard]] static constexpr size_type
     size() noexcept { return linear_extent; }

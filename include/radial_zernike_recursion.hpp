@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024, 2025 Sebastian Sassi
+Copyright (c) 2024-2026 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -237,7 +237,7 @@ public:
             auto zernike_nm4 = zernike[n - 4];
             for (std::size_t l = n & 1; l <= n - 4; l += 2)
             {
-                const std::size_t ind = zernike.shape(n, l);
+                const std::size_t ind = zernike.shape()(n, l);
                 auto z_nl = zernike_n[l];
                 auto z_nm2l = zernike_nm2[l];
                 auto z_nm4l = zernike_nm4[l];

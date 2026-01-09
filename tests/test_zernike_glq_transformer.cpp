@@ -549,11 +549,11 @@ bool test_glq_backward_transform_evaluates_Z000()
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+    for (std::size_t i = 0; i < grid.extent(0); ++i)
     {
-        for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+        for (std::size_t j = 0; j < grid.extent(1); ++j)
         {
-            for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+            for (std::size_t k = 0; k < grid.extent(2); ++k)
                 if (!is_close(grid(i, j, k), test_grid(i, j, k), tol))
                     success = false;
         }
@@ -562,22 +562,22 @@ bool test_glq_backward_transform_evaluates_Z000()
     if (!success)
     {
         std::printf("test_grid\n");
-        for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+        for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
-            for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+            for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
-                for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+                for (std::size_t k = 0; k < grid.extent(2); ++k)
                     std::printf("%f ", test_grid(i, j, k));
                 std::printf("\n");
             }
             std::printf("\n");
         }
         std::printf("grid\n");
-        for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+        for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
-            for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+            for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
-                for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+                for (std::size_t k = 0; k < grid.extent(2); ++k)
                     std::printf("%f ", grid(i, j, k));
                 std::printf("\n");
             }
@@ -619,11 +619,11 @@ bool test_glq_backward_transform_evaluates_Z110()
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+    for (std::size_t i = 0; i < grid.extent(0); ++i)
     {
-        for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+        for (std::size_t j = 0; j < grid.extent(1); ++j)
         {
-            for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+            for (std::size_t k = 0; k < grid.extent(2); ++k)
                 if (!is_close(grid(i, j, k), test_grid(i, j, k), tol))
                     success = false;
         }
@@ -632,22 +632,22 @@ bool test_glq_backward_transform_evaluates_Z110()
     if (!success)
     {
         std::printf("test_grid\n");
-        for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+        for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
-            for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+            for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
-                for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+                for (std::size_t k = 0; k < grid.extent(2); ++k)
                     std::printf("%f ", test_grid(i, j, k));
                 std::printf("\n");
             }
             std::printf("\n");
         }
         std::printf("grid\n");
-        for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+        for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
-            for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+            for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
-                for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+                for (std::size_t k = 0; k < grid.extent(2); ++k)
                     std::printf("%f ", grid(i, j, k));
                 std::printf("\n");
             }
@@ -689,11 +689,11 @@ bool test_glq_backward_transform_evaluates_Z200()
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+    for (std::size_t i = 0; i < grid.extent(0); ++i)
     {
-        for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+        for (std::size_t j = 0; j < grid.extent(1); ++j)
         {
-            for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+            for (std::size_t k = 0; k < grid.extent(2); ++k)
                 if (!is_close(grid(i, j, k), test_grid(i, j, k), tol))
                     success = false;
         }
@@ -702,22 +702,22 @@ bool test_glq_backward_transform_evaluates_Z200()
     if (!success)
     {
         std::printf("test_grid\n");
-        for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+        for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
-            for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+            for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
-                for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+                for (std::size_t k = 0; k < grid.extent(2); ++k)
                     std::printf("%f ", test_grid(i, j, k));
                 std::printf("\n");
             }
             std::printf("\n");
         }
         std::printf("grid\n");
-        for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+        for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
-            for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+            for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
-                for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+                for (std::size_t k = 0; k < grid.extent(2); ++k)
                     std::printf("%f ", grid(i, j, k));
                 std::printf("\n");
             }
@@ -761,11 +761,11 @@ bool test_glq_backward_transform_evaluates_Z221()
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+    for (std::size_t i = 0; i < grid.extent(0); ++i)
     {
-        for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+        for (std::size_t j = 0; j < grid.extent(1); ++j)
         {
-            for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+            for (std::size_t k = 0; k < grid.extent(2); ++k)
                 if (!is_close(grid(i, j, k), test_grid(i, j, k), tol))
                     success = false;
         }
@@ -774,22 +774,22 @@ bool test_glq_backward_transform_evaluates_Z221()
     if (!success)
     {
         std::printf("test_grid\n");
-        for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+        for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
-            for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+            for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
-                for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+                for (std::size_t k = 0; k < grid.extent(2); ++k)
                     std::printf("%f ", test_grid(i, j, k));
                 std::printf("\n");
             }
             std::printf("\n");
         }
         std::printf("grid\n");
-        for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+        for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
-            for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+            for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
-                for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+                for (std::size_t k = 0; k < grid.extent(2); ++k)
                     std::printf("%f ", grid(i, j, k));
                 std::printf("\n");
             }
@@ -828,11 +828,11 @@ bool test_glq_backward_transform_evaluates_Z33m2()
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+    for (std::size_t i = 0; i < grid.extent(0); ++i)
     {
-        for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+        for (std::size_t j = 0; j < grid.extent(1); ++j)
         {
-            for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+            for (std::size_t k = 0; k < grid.extent(2); ++k)
                 if (!is_close(grid(i, j, k), test_grid(i, j, k), tol))
                     success = false;
         }
@@ -841,22 +841,22 @@ bool test_glq_backward_transform_evaluates_Z33m2()
     if (!success)
     {
         std::printf("test_grid\n");
-        for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+        for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
-            for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+            for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
-                for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+                for (std::size_t k = 0; k < grid.extent(2); ++k)
                     std::printf("%f ", test_grid(i, j, k));
                 std::printf("\n");
             }
             std::printf("\n");
         }
         std::printf("grid\n");
-        for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+        for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
-            for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+            for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
-                for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+                for (std::size_t k = 0; k < grid.extent(2); ++k)
                     std::printf("%f ", grid(i, j, k));
                 std::printf("\n");
             }
@@ -900,11 +900,11 @@ bool test_glq_backward_transform_evaluates_Z531()
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+    for (std::size_t i = 0; i < grid.extent(0); ++i)
     {
-        for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+        for (std::size_t j = 0; j < grid.extent(1); ++j)
         {
-            for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+            for (std::size_t k = 0; k < grid.extent(2); ++k)
                 if (!is_close(grid(i, j, k), test_grid(i, j, k), tol))
                     success = false;
         }
@@ -913,22 +913,22 @@ bool test_glq_backward_transform_evaluates_Z531()
     if (!success)
     {
         std::printf("test_grid\n");
-        for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+        for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
-            for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+            for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
-                for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+                for (std::size_t k = 0; k < grid.extent(2); ++k)
                     std::printf("%f ", test_grid(i, j, k));
                 std::printf("\n");
             }
             std::printf("\n");
         }
         std::printf("grid\n");
-        for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+        for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
-            for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+            for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
-                for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+                for (std::size_t k = 0; k < grid.extent(2); ++k)
                     std::printf("%f ", grid(i, j, k));
                 std::printf("\n");
             }
@@ -968,11 +968,11 @@ bool test_zernike_transform_converges()
     constexpr double tol = 1.0e-13;
 
     bool success = true;
-    for (std::size_t i = 0; i < grid.shape()[0]; ++i)
+    for (std::size_t i = 0; i < grid.extent(0); ++i)
     {
-        for (std::size_t j = 0; j < grid.shape()[1]; ++j)
+        for (std::size_t j = 0; j < grid.extent(1); ++j)
         {
-            for (std::size_t k = 0; k < grid.shape()[2]; ++k)
+            for (std::size_t k = 0; k < grid.extent(2); ++k)
                 if (!is_close(grid(i, j, k), test_grid(i, j, k), tol))
                     success = false;
         }

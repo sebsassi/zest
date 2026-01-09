@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024, 2025 Sebastian Sassi
+Copyright (c) 2024-2026 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -27,8 +27,10 @@ SOFTWARE.
 #include <span>
 #include <vector>
 
+#include "sequence.hpp"
 #include "sh_conventions.hpp"
 #include "sh_expansion.hpp"
+#include "triangle_spans.hpp"
 
 namespace zest::st
 {
@@ -180,12 +182,14 @@ private:
             ass_leg[1, 0] = m_sqrl[3]*z*inv_sqrt_4pi;
 
         std::span<double> ass_leg_flat = ass_leg.flatten();
+        std::span<const double> alm_flat = m_alm.flatten();
+        std::span<const double> blm_flat = m_blm.flatten();
 
         // Calculate P(l,0)
         for (std::size_t l = 2; l < order; ++l)
         {
-            const std::size_t ind = ass_leg.shape(l);
-            ass_leg_flat[ind] = m_alm[ind]*z*ass_leg_flat[ind - l] - m_blm[ind]*ass_leg_flat[ind - 2*l + 1];
+            const std::size_t ind = ass_leg.shape()(l);
+            ass_leg_flat[ind] = alm_flat[ind]*z*ass_leg_flat[ind - l] - blm_flat[ind]*ass_leg_flat[ind - 2*l + 1];
         }
 
         constexpr double underflow_compensation = 1.0e-280;
@@ -216,8 +220,8 @@ private:
             for (std::size_t l = m + 2; l < order; ++l)
             {
                 // P(l,m) = z*a(l,m)*P(l - 1,m) - b(l,m)*P(l - 2,m)
-                const std::size_t ind = ass_leg.shape(l, m);
-                ass_leg_flat[ind] = z*m_alm[ind]*ass_leg_flat[ind - l] - m_blm[ind]*ass_leg_flat[ind - 2*l + 1];
+                const std::size_t ind = ass_leg.shape()(l, m);
+                ass_leg_flat[ind] = z*alm_flat[ind]*ass_leg_flat[ind - l] - blm_flat[ind]*ass_leg_flat[ind - 2*l + 1];
 
                 // Multiplication by `u` for `m <= l <= lmax - 2`
                 ass_leg_flat[ind - 2*l + 1] *= u_scaled;
@@ -242,13 +246,12 @@ private:
         std::span<const double> z, double complex_norm,
         AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent> ass_leg)
     {
-        using AssLegVecSpan = AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>;
         constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
 
         const std::size_t order = ass_leg.order();
         if (order == 0) return;
 
-        assert((z.size() == ass_leg[0, 0].vec_size()));
+        assert((z.size() == ass_leg[0, 0].size()));
 
         for ([[maybe_unused]] auto zi : z)
             assert(std::fabs(zi) <= 1.0);
@@ -279,19 +282,19 @@ private:
                 ass_leg_10[i] = z[i]*(m_sqrl[3]*inv_sqrt_4pi);
         }
 
-        auto ass_leg_linear = ass_leg.linear_view();
         // Calculate P(l,0) for l >= 2
         for (auto l : ass_leg.indices(2))
         {
-            const std::size_t ind = ass_leg.shape(l);
-            auto ass_leg_l0 = ass_leg_linear[ind];
-            auto ass_leg_lm10 = ass_leg_linear[ind - l];
-            auto ass_leg_lm20 = ass_leg_linear[ind - 2*l + 1];
+            auto ass_leg_l0 = ass_leg[l, 0];
+            auto ass_leg_lm10 = ass_leg[l - 1, 0];
+            auto ass_leg_lm20 = ass_leg[l - 2, 0];
+            const double alm_l0 = m_alm[l, 0];
+            const double blm_l0 = m_blm[l, 0];
             // P(l, 0) = z*a(l,m)*P(l - 1, 0) - b(l,m)*P(l - 2, 0)
             for (std::size_t i = 0; i < z.size(); ++i)
             {
-                ass_leg_l0[i] = m_alm[ind]*z[i]*ass_leg_lm10[i]
-                    - m_blm[ind]*ass_leg_lm20[i];
+                ass_leg_l0[i] = alm_l0*z[i]*ass_leg_lm10[i]
+                    - blm_l0*ass_leg_lm20[i];
             }
         }
 
@@ -328,14 +331,15 @@ private:
 
             for (std::size_t l = m + 2; l < order; ++l)
             {
-                const std::size_t ind = AssLegVecSpan::Layout::idx(l, m);
-                auto ass_leg_lm = ass_leg_linear[ind];
-                auto ass_leg_lm1m = ass_leg_linear[ind - l];
-                auto ass_leg_lm2m = ass_leg_linear[ind - 2*l + 1];
+                auto ass_leg_lm = ass_leg[l, m];
+                auto ass_leg_lm1m = ass_leg[l - 1, m];
+                auto ass_leg_lm2m = ass_leg[l - 2, m];
+                const double alm_l0 = m_alm[l, m];
+                const double blm_l0 = m_blm[l, m];
                 // P(l, m) = z*a(l, m)*P(l - 1, m) - b(l, m)*P(l - 2, m)
                 for (std::size_t i = 0; i < z.size(); ++i)
-                    ass_leg_lm[i] = z[i]*m_alm[ind]*ass_leg_lm1m[i]
-                        - m_blm[ind]*ass_leg_lm2m[i];
+                    ass_leg_lm[i] = z[i]*alm_l0*ass_leg_lm1m[i]
+                        - blm_l0*ass_leg_lm2m[i];
 
                 // Multiplication by `u` for `m <= l <= lmax - 2`
                 for (std::size_t i = 0; i < z.size(); ++i)
@@ -365,8 +369,8 @@ private:
     }
 
     std::vector<double> m_sqrl;
-    std::vector<double> m_alm;
-    std::vector<double> m_blm;
+    TriangleArray<double, IndexingMode::zero_based> m_alm;
+    TriangleArray<double, IndexingMode::zero_based> m_blm;
     std::vector<double> m_u_scaled;
     std::vector<double> m_u;
     std::size_t m_max_order{};

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024, 2025 Sebastian Sassi
+Copyright (c) 2024-2026 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -59,8 +59,9 @@ public:
     ShapedArray() = default;
 
     template <typename... ExtentTypes>
+        requires std::constructible_from<shape_type, ExtentTypes...>
     explicit ShapedArray(const ExtentTypes&... extents):
-        m_data(shape_type::size(extents...)), m_shape(extents...) {}
+        m_shape(extents...) { m_data.resize(m_shape.size()); }
 
     explicit ShapedArray(const shape_type& shape):
         m_data(shape.size()), m_shape(shape) {}
@@ -96,6 +97,7 @@ public:
     }
 
     template <typename... ExtentTypes>
+        requires std::constructible_from<shape_type, ExtentTypes...>
     void reshape(const ExtentTypes&... extents)
     {
         reshape(shape_type(extents...));
@@ -103,7 +105,7 @@ public:
 
     template <typename NewShapeType>
     [[nodiscard]] auto
-    reshape(const NewShapeType& shape) noexcept
+    view_as(const NewShapeType& shape) noexcept
     {
         assert(m_shape.size() == shape.size());
         return ShapedSpan<value_type, NewShapeType>(m_data.data(), shape);
@@ -147,7 +149,7 @@ public:
     [[nodiscard]] std::span<value_type, shape_type::linear_extent>
     flatten() noexcept
     {
-        return std::span<const value_type, shape_type::linear_extent>(m_data);
+        return std::span<value_type, shape_type::linear_extent>(m_data);
     }
 
     [[nodiscard]] index_range

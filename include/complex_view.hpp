@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024, 2025 Sebastian Sassi
+Copyright (c) 2024-2026 Sebastian Sassi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
@@ -51,7 +51,7 @@ template <
 >
 constexpr st::ComplexEncodedRealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>
 encode_as_complex_expansion(
-    st::SHSpan<double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>& expansion) noexcept
+    st::SHSpan<double, IndexingMode::zero_based, source_sh_norm, source_sh_phase> expansion) noexcept
 {
     using ExpansionType = st::SHSpan<
         double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>;
@@ -59,7 +59,7 @@ encode_as_complex_expansion(
         std::complex<double>, dest_sh_norm, dest_sh_phase>;
 
     constexpr double sh_norm
-        = st::conversion_const<std::remove_cvref_t<ExpansionType>::shape::sh_norm, dest_sh_norm>();
+        = st::conversion_const<ExpansionType::shape_type::sh_norm, dest_sh_norm>();
     constexpr double cnorm = 1.0/std::numbers::sqrt2;
     constexpr double norm = sh_norm*cnorm;
 
@@ -69,7 +69,7 @@ encode_as_complex_expansion(
         expansion_l[0, 0] *= sh_norm;
         expansion_l[0, 1] *= sh_norm;
 
-        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::shape::sh_phase)
+        if constexpr (dest_sh_phase == ExpansionType::shape_type::sh_phase)
         {
             for (auto m : expansion_l.indices(1))
             {
@@ -100,7 +100,7 @@ encode_as_complex_expansion(
     st::SHExpansion<double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>& expansion) noexcept
 {
     using ExpansionType = st::SHExpansion<double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>;
-    return encode_as_complex_expansion((typename ExpansionType::view)(expansion));
+    return encode_as_complex_expansion<dest_sh_norm, dest_sh_phase>((typename ExpansionType::view)(expansion));
 }
 
 /**
@@ -122,7 +122,7 @@ template <
 >
 constexpr st::SHSpan<double, IndexingMode::zero_based, dest_sh_norm, dest_sh_phase>
 decode_as_real_expansion(
-    st::ComplexEncodedRealSHSpan<std::complex<double>, source_sh_norm, source_sh_phase>& expansion) noexcept
+    st::ComplexEncodedRealSHSpan<std::complex<double>, source_sh_norm, source_sh_phase> expansion) noexcept
 {
     using ExpansionType = st::ComplexEncodedRealSHSpan<
         std::complex<double>, source_sh_norm, source_sh_phase>;
@@ -130,7 +130,7 @@ decode_as_real_expansion(
         double, IndexingMode::zero_based, dest_sh_norm, dest_sh_phase>;
 
     constexpr double sh_norm
-        = st::conversion_const<std::remove_cvref_t<ExpansionType>::shape::sh_norm, dest_sh_norm>();
+        = st::conversion_const<ExpansionType::shape_type::sh_norm, dest_sh_norm>();
     constexpr double cnorm = std::numbers::sqrt2;
     constexpr double norm = sh_norm*cnorm;
 
@@ -142,7 +142,7 @@ decode_as_real_expansion(
         res_l[0, 0] *= sh_norm;
         res_l[0, 1] *= sh_norm;
 
-        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::shape::phase)
+        if constexpr (dest_sh_phase == ExpansionType::shape_type::sh_phase)
         {
             for (auto m : res_l.indices(1))
             {
@@ -182,12 +182,12 @@ template <
     zt::ZernikeNorm dest_zernike_norm, st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase,
     zt::ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
 >
-[[nodiscard]] constexpr zt::ComplexEncodedRealZernikeSpan<
+constexpr zt::ComplexEncodedRealZernikeSpan<
     std::complex<double>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>
 encode_as_complex_expansion(
     zt::ZernikeSpan<
         double, IndexingMode::zero_based, source_zernike_norm,
-        source_sh_norm, source_sh_phase>&
+        source_sh_norm, source_sh_phase>
     expansion) noexcept
 {
     using ExpansionType = zt::ZernikeSpan<
@@ -196,13 +196,13 @@ encode_as_complex_expansion(
     using ReturnType = zt::ComplexEncodedRealZernikeSpan<
         std::complex<double>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>;
 
-    constexpr double shnorm = st::conversion_const<ExpansionType::sh_norm, dest_sh_norm>();
+    constexpr double shnorm = st::conversion_const<ExpansionType::shape_type::sh_norm, dest_sh_norm>();
     constexpr double cnorm = 1.0/std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
     for (auto n : expansion.indices())
     {
-        if constexpr (dest_zernike_norm == ExpansionType::zernike_norm)
+        if constexpr (dest_zernike_norm == ExpansionType::shape_type::zernike_norm)
         {
             auto expansion_n = expansion[n];
             for (auto l : expansion_n.indices())
@@ -211,7 +211,7 @@ encode_as_complex_expansion(
                 expansion_nl[0][0] *= shnorm;
                 expansion_nl[0][1] *= shnorm;
 
-                if constexpr (dest_sh_phase == ExpansionType::sh_phase)
+                if constexpr (dest_sh_phase == ExpansionType::shape_type::sh_phase)
                 {
                     for (auto m : expansion_nl.indices(1))
                     {
@@ -243,7 +243,7 @@ encode_as_complex_expansion(
                 expansion_nl[0][0] *= zshnorm;
                 expansion_nl[0][1] *= zshnorm;
 
-                if constexpr (dest_sh_phase == ExpansionType::sh_phase)
+                if constexpr (dest_sh_phase == ExpansionType::shape_type::sh_phase)
                 {
                     for (auto m : expansion_nl.indices(1))
                     {
@@ -285,12 +285,12 @@ template <
     zt::ZernikeNorm dest_zernike_norm, st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase,
     zt::ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
 >
-[[nodiscard]] constexpr zt::ZernikeSpan<
+constexpr zt::ZernikeSpan<
     double, IndexingMode::zero_based, dest_zernike_norm,
     dest_sh_norm, dest_sh_phase>
 decode_as_real_expansion(
     zt::ComplexEncodedRealZernikeSpan<
-        std::complex<double>, source_zernike_norm, source_sh_norm, source_sh_phase>&
+        std::complex<double>, source_zernike_norm, source_sh_norm, source_sh_phase>
     expansion) noexcept
 {
     using ExpansionType = zt::ComplexEncodedRealZernikeSpan<
@@ -299,7 +299,7 @@ decode_as_real_expansion(
         double, IndexingMode::zero_based, dest_zernike_norm,
         dest_sh_norm, dest_sh_phase>;
 
-    constexpr double shnorm = st::conversion_const<ExpansionType::sh_norm, dest_sh_norm>();
+    constexpr double shnorm = st::conversion_const<ExpansionType::shape_type::sh_norm, dest_sh_norm>();
     constexpr double cnorm = std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
@@ -307,7 +307,7 @@ decode_as_real_expansion(
 
     for (auto n : res.indices())
     {
-        if constexpr (dest_zernike_norm == ExpansionType::zernike_norm)
+        if constexpr (dest_zernike_norm == ExpansionType::shape_type::zernike_norm)
         {
             auto res_n = res[n];
             for (auto l : res_n.indices())
@@ -316,7 +316,7 @@ decode_as_real_expansion(
                 res_nl[0][0] *= shnorm;
                 res_nl[0][1] *= shnorm;
 
-                if constexpr (dest_sh_phase == ExpansionType::sh_phase)
+                if constexpr (dest_sh_phase == ExpansionType::shape_type::sh_phase)
                 {
                     for (auto m : res_nl.indices(1))
                     {
@@ -338,7 +338,7 @@ decode_as_real_expansion(
         }
         else
         {
-            const double znorm = zt::conversion_factor<ExpansionType::zernike_norm, dest_zernike_norm>(n);
+            const double znorm = zt::conversion_factor<ExpansionType::shape_type::zernike_norm, dest_zernike_norm>(n);
             const double zshnorm = shnorm*znorm;
             const double zshcnorm = norm*znorm;
             auto res_n = res[n];
@@ -348,7 +348,7 @@ decode_as_real_expansion(
                 res_nl[0][0] *= zshnorm;
                 res_nl[0][1] *= zshnorm;
 
-                if constexpr (dest_sh_phase == ExpansionType::sh_phase)
+                if constexpr (dest_sh_phase == ExpansionType::shape_type::sh_phase)
                 {
                     for (auto m : res_nl.indices(1))
                     {
@@ -389,14 +389,14 @@ template <
     st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase,
     zt::ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
 >
-[[nodiscard]] constexpr typename zt::ComplexEncodedRealZernikeSpan<
+constexpr typename zt::ComplexEncodedRealZernikeSpan<
     std::complex<double>, source_zernike_norm, dest_sh_norm, dest_sh_phase
 >::template subspan_type<1>
 encode_as_complex_expansion(
     typename zt::ZernikeExpansion<
         double, IndexingMode::zero_based, source_zernike_norm,
         source_sh_norm, source_sh_phase
-    >::template subspan_type<1>& expansion) noexcept
+    >::template subspan_type<1> expansion) noexcept
 {
     using ExpansionType = typename zt::ZernikeExpansion<
             double, IndexingMode::zero_based, source_zernike_norm, source_sh_norm, source_sh_phase
@@ -406,7 +406,7 @@ encode_as_complex_expansion(
         >::template subspan_type<1>;
 
     constexpr double shnorm
-        = st::conversion_const<std::remove_cvref_t<ExpansionType>::norm, dest_sh_norm>();
+        = st::conversion_const<ExpansionType::shape_type::sh_norm, dest_sh_norm>();
     constexpr double cnorm = 1.0/std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
@@ -416,7 +416,7 @@ encode_as_complex_expansion(
         expansion_l[0][0] *= shnorm;
         expansion_l[0][1] *= shnorm;
 
-        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::phase)
+        if constexpr (dest_sh_phase == ExpansionType::shape_type::sh_phase)
         {
             for (auto m : expansion_l.indices(1))
             {
@@ -455,13 +455,13 @@ template <
     st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase, 
     zt::ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
 >
-[[nodiscard]] constexpr typename zt::ZernikeExpansion<
+constexpr typename zt::ZernikeExpansion<
     double, IndexingMode::zero_based, source_zernike_norm, source_sh_norm, source_sh_phase
 >::template subspan_type<1>
 decode_as_real_expansion(
     typename zt::ComplexEncodedRealZernikeSpan<
         std::complex<double>, source_zernike_norm, dest_sh_norm, dest_sh_phase
-    >::template subspan_type<1>& expansion) noexcept
+    >::template subspan_type<1> expansion) noexcept
 {
     using ExpansionType = typename zt::ComplexEncodedRealZernikeSpan<
             std::complex<double>, source_zernike_norm, dest_sh_norm, dest_sh_phase
@@ -471,7 +471,7 @@ decode_as_real_expansion(
         >::template subspan_type<1>;
 
     constexpr double shnorm
-        = st::conversion_const<std::remove_cvref_t<ExpansionType>::norm, dest_sh_norm>();
+        = st::conversion_const<ExpansionType::shape_type::sh_norm, dest_sh_norm>();
     constexpr double cnorm = std::numbers::sqrt2;
     constexpr double norm = shnorm*cnorm;
 
@@ -483,7 +483,7 @@ decode_as_real_expansion(
         res_l[0][0] *= shnorm;
         res_l[0][1] *= shnorm;
 
-        if constexpr (dest_sh_phase == std::remove_cvref_t<ExpansionType>::phase)
+        if constexpr (dest_sh_phase == ExpansionType::shape_type::sh_phase)
         {
             for (auto m : res_l.indices(1))
             {
