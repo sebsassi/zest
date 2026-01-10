@@ -67,7 +67,7 @@ struct LonLatRadLayout
         @param order order of Zernike expansion
     */
     [[nodiscard]] static constexpr std::array<std::size_t, 3>
-    shape(std::size_t order) noexcept
+    extents(std::size_t order) noexcept
     {
         return {lon_size(order), lat_size(order), rad_size(order)};
     }
@@ -135,6 +135,7 @@ template <typename LayoutType>
 class BallGLQGridShape: public DynamicTensorShape<3>
 {
 public:
+    BallGLQGridShape() = default;
     BallGLQGridShape(size_type order):
         DynamicTensorShape<3>(LayoutType::extents(order)), m_order(order) {}
 
@@ -401,10 +402,12 @@ public:
         m_zernike_recursion.generate<zernike_norm_param>(
                 m_rad_glq_nodes, zernike);
 
-        AssLegSpan<double> ass_leg(m_ass_leg_grid, order, m_lat_glq_nodes.size());
+        AssLegSpan<double, std::dynamic_extent>
+        ass_leg(m_ass_leg_grid.data(), order, m_lat_glq_nodes.size());
+
         m_ass_leg_recursion.generate_real(m_lat_glq_nodes, ass_leg);
 
-        auto shape = GridLayout::shape(order);
+        auto shape = GridLayout::extents(order);
         m_pocketfft_shape_grid[0] = shape[0];
         m_pocketfft_shape_grid[1] = shape[1];
         m_pocketfft_shape_grid[2] = shape[2];
@@ -464,7 +467,7 @@ public:
         m_ass_leg_recursion.generate_real(m_lat_glq_nodes, ass_leg);
 
         m_ffts.resize(GridLayout::rad_size(order)*GridLayout::lat_size(order)*GridLayout::fft_size(order));
-        std::array<std::size_t, 3> shape = GridLayout::shape(order);
+        std::array<std::size_t, 3> shape = GridLayout::extents(order);
         m_pocketfft_shape_grid[0] = shape[0];
         m_pocketfft_shape_grid[1] = shape[1];
         m_pocketfft_shape_grid[2] = shape[2];

@@ -41,7 +41,7 @@ std::vector<T> linspace(T start, T stop, std::size_t count)
     const T step = (stop - start)/T(count - 1);
     for (std::size_t i = 0; i < count - 1; ++i)
         res[i] = start + T(i)*step;
-    
+
     res[count - 1] = stop;
 
     return res;
@@ -81,8 +81,7 @@ bool test_glq_forward_transform_expands_Z000()
     zest::zt::GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param> 
     transformer(order);
 
-    zest::zt::ZernikeExpansion expansion
-        = transformer.forward_transform(grid, order);
+    auto expansion = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
 
@@ -158,8 +157,7 @@ bool test_glq_forward_transform_expands_Z200()
     zest::zt::GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param> 
     transformer(order);
 
-    zest::zt::ZernikeExpansion expansion
-        = transformer.forward_transform(grid, order);
+    auto expansion = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
 
@@ -226,7 +224,7 @@ bool test_glq_forward_transform_expands_Z110()
         constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
-        return znorm*shnorm*r*std::sqrt(3.0)*z;
+        return znorm*shnorm*r*std::numbers::sqrt3*z;
     };
 
     zest::zt::BallGLQGridPoints points{};
@@ -234,8 +232,7 @@ bool test_glq_forward_transform_expands_Z110()
     zest::zt::GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param> 
     transformer(order);
 
-    zest::zt::ZernikeExpansion expansion
-        = transformer.forward_transform(grid, order);
+    auto expansion = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
 
@@ -297,7 +294,7 @@ bool test_glq_forward_transform_expands_Z221()
 
     auto function = [](double lon, double colat, double r)
     {
-        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? 
+        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ?
             -1.0 : 1.0;
         constexpr double znorm
             = (zernike_norm_param == zest::zt::ZernikeNorm::normed) ?
@@ -313,8 +310,7 @@ bool test_glq_forward_transform_expands_Z221()
     zest::zt::GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param> 
     transformer(order);
 
-    zest::zt::ZernikeExpansion expansion
-        = transformer.forward_transform(grid, order);
+    auto expansion = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
 
@@ -387,8 +383,7 @@ bool test_glq_forward_transform_expands_Z33m2()
     zest::zt::GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param> 
     transformer(order);
 
-    zest::zt::ZernikeExpansion expansion
-        = transformer.forward_transform(grid, order);
+    auto expansion = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
 
@@ -450,7 +445,7 @@ bool test_glq_forward_transform_expands_Z531()
 
     auto function = [](double lon, double colat, double r)
     {
-        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? 
+        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ?
             -1.0 : 1.0;
         constexpr double znorm
             = (zernike_norm_param == zest::zt::ZernikeNorm::normed) ?
@@ -465,9 +460,8 @@ bool test_glq_forward_transform_expands_Z531()
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
     zest::zt::GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param> 
     transformer(order);
-    
-    zest::zt::ZernikeExpansion expansion
-        = transformer.forward_transform(grid, order);
+
+    auto expansion = transformer.forward_transform(grid, order);
 
     constexpr double reference_coeff = 1.0;
 
@@ -526,7 +520,7 @@ bool test_glq_backward_transform_evaluates_Z000()
     constexpr std::size_t order = 6; 
 
     auto function = [](
-        [[maybe_unused]] double lon, [[maybe_unused]] double colat, 
+        [[maybe_unused]] double lon, [[maybe_unused]] double colat,
         [[maybe_unused]] double r)
     {
         constexpr double znorm
@@ -604,7 +598,7 @@ bool test_glq_backward_transform_evaluates_Z110()
         constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
-        return znorm*shnorm*r*std::sqrt(3.0)*z;
+        return znorm*shnorm*r*std::numbers::sqrt3*z;
     };
 
     zest::zt::BallGLQGridPoints points{};
@@ -664,7 +658,7 @@ bool test_glq_backward_transform_evaluates_Z200()
 {
     constexpr double sqrt7 = 2.6457513110645905905016158;
 
-    constexpr std::size_t order = 6; 
+    constexpr std::size_t order = 6;
 
     auto function = [](
         [[maybe_unused]] double lon, [[maybe_unused]] double colat, double r)
@@ -734,11 +728,11 @@ bool test_glq_backward_transform_evaluates_Z221()
 {
     constexpr double sqrt7 = 2.6457513110645905905016158;
 
-    constexpr std::size_t order = 6; 
+    constexpr std::size_t order = 6;
 
     auto function = [](double lon, double colat, double r)
     {
-        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? 
+        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ?
             -1.0 : 1.0;
         constexpr double znorm
             = (zernike_norm_param == zest::zt::ZernikeNorm::normed) ?
@@ -873,11 +867,11 @@ bool test_glq_backward_transform_evaluates_Z531()
 {
     constexpr double sqrt13 = 3.6055512754639892931192213;
 
-    constexpr std::size_t order = 6; 
+    constexpr std::size_t order = 6;
 
     auto function = [](double lon, double colat, double r)
     {
-        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? 
+        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ?
             -1.0 : 1.0;
         constexpr double znorm
             = (zernike_norm_param == zest::zt::ZernikeNorm::normed) ?

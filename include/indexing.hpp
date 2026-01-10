@@ -31,7 +31,7 @@ namespace zest
 namespace array::detail
 {
 
-template <typename SizeType, std::size_t N, typename IndexType, typename... Inds>
+template <std::integral SizeType, std::size_t N, std::integral IndexType, std::integral... Inds>
     requires (0 <= sizeof...(Inds) && sizeof...(Inds) + 1 <= N)
 [[nodiscard]] constexpr auto
 index(const std::array<SizeType, N>& extents, IndexType ind, Inds... inds) noexcept
@@ -44,6 +44,28 @@ index(const std::array<SizeType, N>& extents, IndexType ind, Inds... inds) noexc
     };
     return impl(std::make_index_sequence<sizeof...(Inds)>{});
 }
+
+// template <std::size_t static_extent, std::size_t... static_extents, std::integral SizeType, std::size_t N, std::integral IndexType, std::integral... Inds>
+// [[nodiscard]] constexpr auto
+// index(const std::array<SizeType, N>& dynamic_extents, IndexType ind, Inds... inds) noexcept
+// {
+//     auto impl = [&]<std::size_t... I>(std::index_sequence<I...>)
+//     {
+//         std::size_t i = (static_extent == std::dynamic_extent) ? 1 : 0;
+//         IndexType res = ind;
+//         ([&]{
+//             if constexpr (static_extents == std::dynamic_extent)
+//             {
+//                 res = res*IndexType(dynamic_extents[i]) + IndexType(inds);
+//                 ++i;
+//             }
+//             else
+//                 res = res*IndexType(static_extents) + IndexType(inds);
+//         }(),...);
+//         return res;
+//     };
+//     return impl(std::make_index_sequence<sizeof...(Inds)>{});
+// }
 
 } // namespace array::detail
 

@@ -165,6 +165,73 @@ private:
     size_type m_size{};
 };
 
+template <std::size_t... static_extents, std::size_t... I, std::size_t N>
+std::array<std::size_t, sizeof...(static_extents)> combine_static_and_dynamic_extents_impl(const std::array<std::size_t, N>& dynamic_extents, std::index_sequence<I...>)
+{
+    std::size_t i = 0;
+    std::array<std::size_t, sizeof...(static_extents)> extents{};
+    ([&](){
+        if (static_extents == std::dynamic_extent)
+        {
+            extents[I] = dynamic_extents[i];
+            ++i;
+        }
+        else
+            extents[I] = static_extents;
+    }(),...);
+    return extents;
+}
+
+template <std::size_t... static_extents, std::size_t N>
+[[nodiscard]] constexpr std::array<std::size_t, sizeof...(static_extents)>
+combine(const std::array<std::size_t, N>& dynamic_extents) noexcept
+{
+    auto impl = [&]<std::size_t... I>(std::index_sequence<I...>)
+    {
+        std::size_t i = 0;
+        std::array<std::size_t, sizeof...(static_extents)> extents{};
+        ([&](){
+            if constexpr (static_extents == std::dynamic_extent)
+            {
+                extents[I] = dynamic_extents[i];
+                ++i;
+            }
+            else
+                extents[I] = static_extents;
+        }(),...);
+        return extents;
+    };
+    return impl(std::make_index_sequence<sizeof...(static_extents)>{});
+}
+
+template <std::size_t... static_extents>
+[[nodiscard]] constexpr std::size_t
+count(std::size_t n) noexcept
+{
+    return ((static_extents == n) + ...);
+}
+
+template <std::size_t... static_extents>
+[[nodiscard]] constexpr std::array<std::size_t, count<static_extents...>(std::dynamic_extent)>
+extract_dynamic(const std::array<std::size_t, sizeof...(static_extents)>& extents)
+{
+    static constexpr std::size_t num_dynamic = count<static_extents...>(std::dynamic_extent);
+    auto impl = [&]<std::size_t... I>(std::index_sequence<I...>)
+    {
+        std::size_t i = 0;
+        std::array<std::size_t, num_dynamic> res{};
+        ([&](){
+            if constexpr (static_extents == std::dynamic_extent)
+            {
+                res[i] = extents[static_extents];
+                ++i;
+            }
+        }(),...);
+        return res;
+    };
+    return impl(std::make_index_sequence<sizeof...(static_extents)>{});
+}
+
 template <std::size_t... Ns>
 class TensorShape
 {
@@ -173,6 +240,7 @@ public:
     using index_type = size_type;
     using index_range = StandardIndexRange<size_type>;
     using extent_type = std::array<size_type, sizeof...(Ns)>;
+    using dynamic_extent_type = std::array<size_type, count<Ns...>(std::dynamic_extent)>;
 
     static constexpr size_type rank = sizeof...(Ns);
     static constexpr std::size_t linear_extent = std::dynamic_extent;
@@ -203,23 +271,64 @@ public:
 
     constexpr TensorShape() = default;
 
-    explicit constexpr TensorShape(size_type extents) requires (rank == 1):
-        m_extents({extents}), m_size(size({extents})) {}
-
     explicit constexpr TensorShape(const extent_type& extents):
         m_extents(extents), m_size(size(extents)) {}
+
+    explicit constexpr TensorShape(const dynamic_extent_type& dynamic_extents):
+        m_extents(combine<Ns...>(dynamic_extents)), m_size(combine<Ns...>(dynamic_extents)) {}
+
+    template <std::integral... SizeTypes>
+        requires (sizeof...(SizeTypes) == rank)
+    explicit constexpr TensorShape(SizeTypes... extents):
+        m_extents(size_type(extents)...), m_size(size({size_type(extents)...})) {}
+
+    template <std::integral... SizeTypes>
+        requires (sizeof...(SizeTypes) == count<Ns...>(std::dynamic_extent))
+    explicit constexpr TensorShape(SizeTypes... dynamic_extents):
+        m_extents(combine<Ns...>(dynamic_extent_type{size_type(dynamic_extents)...})),
+        m_size(combine<Ns...>(dynamic_extent_type{size_type(dynamic_extents)...})) {}
 
     [[nodiscard]] static constexpr size_type
     size(const extent_type& extents) noexcept { return product(extents); }
 
+    [[nodiscard]] static constexpr size_type
+    size(const dynamic_extent_type& dynamic_extents) noexcept { return product(combine<Ns...>(dynamic_extents)); }
+
+    template <std::integral... SizeTypes>
+        requires (sizeof...(SizeTypes) == rank)
+    [[nodiscard]] static constexpr size_type
+    size(SizeTypes... extents) noexcept { return product(extent_type{size_type(extents)...}); }
+
+    template <std::integral... SizeTypes>
+        requires (sizeof...(SizeTypes) == count<Ns...>(std::dynamic_extent))
+    [[nodiscard]] static constexpr size_type
+    size(SizeTypes... dynamic_extents) noexcept
+    {
+        return product(combine<Ns...>(dynamic_extent_type{size_type(dynamic_extents)...}));
+    }
+
     [[nodiscard]] constexpr size_type
     size() const noexcept { return m_size; }
 
-    [[nodiscard]] constexpr extent_type
+    [[nodiscard]] constexpr const extent_type&
     extents() const noexcept { return m_extents; }
+
+    [[nodiscard]] constexpr dynamic_extent_type
+    dynamic_extents() const noexcept { extract_dynamic<Ns...>(m_extents); }
 
     [[nodiscard]] constexpr size_type
     extent(size_type i) const noexcept { return m_extents[i]; }
+
+    template <std::size_t I>
+        requires (I < rank)
+    [[nodiscard]] constexpr size_type
+    extent() const noexcept
+    {
+        if constexpr (static_extents[I] == std::dynamic_extent)
+            return m_extents[I];
+        else
+            return static_extents[I];
+    }
 
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < rank)
@@ -284,6 +393,7 @@ public:
     using index_type = size_type;
     using index_range = StandardIndexRange<size_type>;
     using extent_type = std::array<size_type, sizeof...(Ns)>;
+    using dynamic_extent_type = std::array<size_type, 0>;
 
     static constexpr size_type rank = sizeof...(Ns);
     static constexpr std::size_t linear_extent = product(std::array{Ns...});
@@ -313,20 +423,38 @@ public:
     using subshape_type = subshape_helper<N, std::make_index_sequence<rank - N>>::type;
 
     constexpr TensorShape() = default;
-    explicit constexpr TensorShape([[maybe_unused]] size_type extent) requires (rank == 1) {}
-    explicit constexpr TensorShape([[maybe_unused]] extent_type extents) {}
+    explicit constexpr TensorShape([[maybe_unused]] const extent_type& extents) {}
+    explicit constexpr TensorShape([[maybe_unused]] const dynamic_extent_type& dynamic_extents) {}
+
+    template <std::integral... ExtentTypes>
+        requires (sizeof...(ExtentTypes) == rank)
+    explicit constexpr TensorShape([[maybe_unused]] ExtentTypes... extents) {}
 
     [[nodiscard]] static constexpr size_type
     size([[maybe_unused]] const extent_type& extents) noexcept { return linear_extent; }
 
     [[nodiscard]] static constexpr size_type
+    size([[maybe_unused]] const dynamic_extent_type& dynamic_extents) noexcept { return linear_extent; }
+
+    [[nodiscard]] static constexpr size_type
     size() noexcept { return linear_extent; }
+
+    [[nodiscard]] constexpr dynamic_extent_type
+    dynamic_extents() const noexcept { return {}; }
 
     [[nodiscard]] constexpr extent_type
     extents() const noexcept { return static_extents; }
 
     [[nodiscard]] constexpr size_type
     extent(size_type i) const noexcept { return static_extents[i]; }
+
+    template <std::size_t I>
+        requires (I < rank)
+    [[nodiscard]] constexpr size_type
+    extent() const noexcept
+    {
+        return static_extents[I];
+    }
 
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < rank)

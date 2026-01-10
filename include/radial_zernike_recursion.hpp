@@ -113,7 +113,7 @@ public:
             auto zernike_nm4 = zernike[n - 4];
             for (std::size_t l = n & 1; l <= n - 4; l += 2)
             {
-                const std::size_t ind = zernike.shape(n, l);
+                const std::size_t ind = zernike.shape()(n, l);
                 zernike_n[l] = (m_k2[ind] + m_k1[ind]*r2)*zernike_nm2[l]
                     + m_k3[ind]*zernike_nm4[l];
 
@@ -139,9 +139,10 @@ public:
 
     template <ZernikeNorm zernike_norm>
     void generate(
-        double r, RadialZernikeExpansion<double, zernike_norm> zernike)
+        double r, RadialZernikeExpansion<double, zernike_norm>& zernike)
     {
-        zernike(r, (typename decltype(zernike)::view)(zernike));
+        using ExpansionType = RadialZernikeExpansion<double, zernike_norm>;
+        generate(r, (typename ExpansionType::view)(zernike));
     }
 
     /**
@@ -287,6 +288,14 @@ public:
                 }
             }
         }
+    }
+
+    template <ZernikeNorm zernike_norm>
+    void generate(
+        std::span<const double> r, RadialZernikeExpansion<double, zernike_norm, std::dynamic_extent>& zernike)
+    {
+        using ExpansionType = RadialZernikeExpansion<double, zernike_norm, std::dynamic_extent>;
+        generate(r, (typename ExpansionType::view)(zernike));
     }
 
 

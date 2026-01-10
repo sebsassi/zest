@@ -239,7 +239,7 @@ bool test_radial_zernike_vec_recursion_correct_for_order_1()
     constexpr double R00 = 1.0
         *((zernike_norm_param == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0);
 
-    recursion.generate<zernike_norm_param>(rad, zernike);
+    recursion.generate(rad, zernike);
     bool success = is_close(zernike[0, 0, 0], R00, 1.0e-10)
             && is_close(zernike[0, 0, 1], R00, 1.0e-10)
             && is_close(zernike[0, 0, 2], R00, 1.0e-10)
@@ -307,7 +307,7 @@ bool test_radial_zernike_vec_recursion_generates_correct_up_to_order_7(double r)
 
     zest::zt::RadialZernikeRecursion recursion(order);
 
-    recursion.generate<zernike_norm_param>(x, zernike);
+    recursion.generate(x, zernike);
     bool success = is_close(zernike[0, 0, 0], R00, 1.0e-10)
             && is_close(zernike[1, 1, 0], R11, 1.0e-10)
             && is_close(zernike[2, 0, 0], R20, 1.0e-10)
@@ -388,7 +388,7 @@ bool test_radial_zernike_vec_recursion_end_points_correct_up_to(std::size_t orde
 
     const std::array<double, 2> x = {0.0, 1.0};
     zest::zt::RadialZernikeRecursion recursion(order);
-    recursion.generate<zernike_norm_param>(x, zernike);
+    recursion.generate(x, zernike);
 
     constexpr double tol = 1.0e-13;
     bool success = true;

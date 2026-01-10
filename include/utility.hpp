@@ -203,4 +203,12 @@ product(const std::array<T, N>& arr) noexcept
     return res;
 }
 
+template <typename... Ts>
+    requires (std::is_arithmetic_v<Ts> && ...)
+[[nodiscard]] constexpr auto
+product(Ts... x) noexcept
+{
+    return (x*...);
+}
+
 } // namespace zest
