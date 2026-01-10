@@ -48,7 +48,7 @@ concept has_parity = requires (T x) { { x.parity() } -> std::same_as<Parity>; };
 /**
     @brief Contiguous 1d sequence, which is indexed exactly as you would expect.
 
-    @tparam indexing_mode_param Determines if indexing is symmetric about zero
+    @tparam indexing_mode Determines if indexing is symmetric about zero
     or starts at zero.
 
     With zero based indexing, a sequence to order `n` is indexed as
@@ -69,6 +69,7 @@ struct StandardLinearSequence
     using index_range = std::conditional_t<(indexing_mode_param == IndexingMode::symmetric),
         SymmetricIndexRange<int>, StandardIndexRange<std::size_t>>;
 
+    static constexpr IndexingMode indexing_mode = indexing_mode_param;
     static constexpr size_type rank = 1;
 
     /**
@@ -79,7 +80,7 @@ struct StandardLinearSequence
     [[nodiscard]] static constexpr size_type
     size(size_type order) noexcept
     {
-        if constexpr (indexing_mode_param == IndexingMode::zero_based)
+        if constexpr (indexing_mode == IndexingMode::zero_based)
             return order;
         else
             return 2*order - std::min(1UL, order);

@@ -32,25 +32,25 @@ namespace zest::zt
 */
 enum class ZernikeNorm { normed, unnormed };
 
-template <ZernikeNorm norm_param>
+template <ZernikeNorm norm>
 struct ZernikeTag
 {
-    static constexpr ZernikeNorm zernike_norm = norm_param;
+    static constexpr ZernikeNorm zernike_norm = norm;
 };
 
 /**
     @brief Normalization of Zernike polynomials.
 
-    @tparam zernike_norm_param normalization convention
+    @tparam zernike_norm normalization convention
 
     @return normalization constant
 */
-template <ZernikeNorm zernike_norm_param>
+template <ZernikeNorm zernike_norm>
 [[nodiscard]] constexpr double normalization(std::size_t n) noexcept
 {
-    if constexpr (zernike_norm_param == ZernikeNorm::normed)
+    if constexpr (zernike_norm == ZernikeNorm::normed)
         return 1.0;
-    else if constexpr (zernike_norm_param == ZernikeNorm::unnormed)
+    else if constexpr (zernike_norm == ZernikeNorm::unnormed)
         return double(2*n + 3);
 }
 

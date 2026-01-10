@@ -134,7 +134,20 @@ public:
         double lon, double colat, double r,
         ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>& expansion)
     {
-        generate(lon, colat, r, (typename decltype(expansion)::view)(expansion));
+        using ExpansionType = ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>;
+        generate<indexing_mode, zernike_norm, sh_norm, sh_phase>(
+                lon, colat, r, (typename ExpansionType::view)(expansion));
+    }
+
+    template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+    [[nodiscard]] ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>
+    generate(double lon, double colat, double r, std::size_t order)
+    {
+        using ExpansionType = ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>;
+        ExpansionType expansion{order};
+        generate<indexing_mode, zernike_norm, sh_norm, sh_phase>(
+                lon, colat, r, (typename ExpansionType::view)(expansion));
+        return expansion;
     }
 
 private:

@@ -55,7 +55,7 @@ std::vector<T> linspace(T start, T stop, std::size_t count)
     return res;
 }
 
-template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 bool test_sh_grid_evaluator_does_constant_function()
 {
     constexpr std::size_t order = 6;
@@ -64,7 +64,7 @@ bool test_sh_grid_evaluator_does_constant_function()
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
-        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm;
     };
@@ -74,18 +74,18 @@ bool test_sh_grid_evaluator_does_constant_function()
     std::vector<double> colatitudes = linspace(
             0.0, std::numbers::pi, num_lat);
 
-    std::vector<double> test_grid(num_lon*num_lat);
+    zest::DynamicMDArray<double, 2> test_grid{num_lon, num_lat};
 
     for (std::size_t i = 0; i < num_lon; ++i)
     {
         for (std::size_t j = 0; j < num_lat; ++j)
         {
-            test_grid[i*num_lat + j] = function(
+            test_grid[i, j] = function(
                     longitudes[i], colatitudes[j]);
         }
     }
 
-    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, sh_norm_param, sh_phase_param> expansion(order);
+    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, sh_norm, sh_phase> expansion(order);
 
     expansion[0, 0, 0] = 1.0;
 
@@ -99,7 +99,7 @@ bool test_sh_grid_evaluator_does_constant_function()
     {
         for (std::size_t j = 0; j < num_lat; ++j)
         {
-            if(!is_close(grid[i*num_lat + j], test_grid[i*num_lat + j], tol))
+            if(!is_close(grid[i, j], test_grid[i, j], tol))
                 success = false;
         }
     }
@@ -110,7 +110,7 @@ bool test_sh_grid_evaluator_does_constant_function()
         {
             for (std::size_t j = 0; j < num_lat; ++j)
             {
-                std::printf("%f ", grid[i*num_lat + j]);
+                std::printf("%f ", grid[i, j]);
             }
             std::printf("\n");
         }
@@ -119,7 +119,7 @@ bool test_sh_grid_evaluator_does_constant_function()
     return success;
 }
 
-template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 bool test_sh_grid_evaluator_does_Y10()
 {
     constexpr std::size_t order = 6;
@@ -129,7 +129,7 @@ bool test_sh_grid_evaluator_does_Y10()
     auto function = []([[maybe_unused]] double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm*std::numbers::sqrt3*z;
     };
@@ -139,22 +139,22 @@ bool test_sh_grid_evaluator_does_Y10()
     std::vector<double> colatitudes = linspace(
             0.0, std::numbers::pi, num_lat);
 
-    std::vector<double> test_grid(num_lon*num_lat);
+    zest::DynamicMDArray<double, 2> test_grid{num_lon, num_lat};
 
     for (std::size_t i = 0; i < num_lon; ++i)
     {
         for (std::size_t j = 0; j < num_lat; ++j)
         {
-            test_grid[i*num_lat + j] = function(
+            test_grid[i, j] = function(
                     longitudes[i], colatitudes[j]);
         }
     }
 
-    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, sh_norm_param, sh_phase_param> expansion(order);
+    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, sh_norm, sh_phase> expansion(order);
 
     expansion[1, 0, 0] = 1.0;
 
-    const auto& grid = zest::st::GridEvaluator(order).evaluate(
+    auto grid = zest::st::GridEvaluator(order).evaluate(
             expansion, longitudes, colatitudes);
 
     constexpr double tol = 1.0e-13;
@@ -164,7 +164,7 @@ bool test_sh_grid_evaluator_does_Y10()
     {
         for (std::size_t j = 0; j < num_lat; ++j)
         {
-            if(!is_close(grid[i*num_lat + j], test_grid[i*num_lat + j], tol))
+            if(!is_close(grid[i, j], test_grid[i, j], tol))
                 success = false;
         }
     }
@@ -175,7 +175,7 @@ bool test_sh_grid_evaluator_does_Y10()
         {
             for (std::size_t j = 0; j < num_lat; ++j)
             {
-                std::printf("%f ", grid[i*num_lat + j]);
+                std::printf("%f ", grid[i, j]);
             }
             std::printf("\n");
         }
@@ -185,7 +185,7 @@ bool test_sh_grid_evaluator_does_Y10()
         {
             for (std::size_t j = 0; j < num_lat; ++j)
             {
-                std::printf("%f ", test_grid[i*num_lat + j]);
+                std::printf("%f ", test_grid[i, j]);
             }
             std::printf("\n");
         }
@@ -195,7 +195,7 @@ bool test_sh_grid_evaluator_does_Y10()
     return success;
 }
 
-template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
 {
     constexpr std::size_t order = 6;
@@ -205,8 +205,8 @@ bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
-        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
+        constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
     };
@@ -216,23 +216,23 @@ bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
     std::vector<double> colatitudes = linspace(
             0.0, std::numbers::pi, num_lat);
 
-    std::vector<double> test_grid(num_lon*num_lat);
+    zest::DynamicMDArray<double, 2> test_grid{num_lon, num_lat};
 
     for (std::size_t i = 0; i < num_lon; ++i)
     {
         for (std::size_t j = 0; j < num_lat; ++j)
         {
-            test_grid[i*num_lat + j] = function(
+            test_grid[i, j] = function(
                     longitudes[i], colatitudes[j]);
         }
     }
 
-    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, sh_norm_param, sh_phase_param> expansion(order);
+    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, sh_norm, sh_phase> expansion(order);
 
     expansion[3, 1, 0] = 1.0;
     expansion[4, 3, 1] = 1.0;
 
-    const auto& grid = zest::st::GridEvaluator(order).evaluate(
+    auto grid = zest::st::GridEvaluator(order).evaluate(
             expansion, longitudes, colatitudes);
 
     constexpr double tol = 1.0e-13;
@@ -242,7 +242,7 @@ bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
     {
         for (std::size_t j = 0; j < num_lat; ++j)
         {
-            if(!is_close(grid[i*num_lat + j], test_grid[i*num_lat + j], tol))
+            if(!is_close(grid[i, j], test_grid[i, j], tol))
                 success = false;
         }
     }
@@ -253,7 +253,7 @@ bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
         {
             for (std::size_t j = 0; j < num_lat; ++j)
             {
-                std::printf("%f ", grid[i*num_lat + j]);
+                std::printf("%f ", grid[i, j]);
             }
             std::printf("\n");
         }
@@ -263,7 +263,7 @@ bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
         {
             for (std::size_t j = 0; j < num_lat; ++j)
             {
-                std::printf("%f ", test_grid[i*num_lat + j]);
+                std::printf("%f ", test_grid[i, j]);
             }
             std::printf("\n");
         }
@@ -273,7 +273,7 @@ bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
     return success;
 }
 
-template <zest::zt::ZernikeNorm zernike_norm_param, zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 bool test_zernike_grid_evaluator_does_constant_function()
 {
     constexpr std::size_t order = 6;
@@ -284,8 +284,8 @@ bool test_zernike_grid_evaluator_does_constant_function()
     auto function = []([[maybe_unused]] double r, [[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
         constexpr double znorm
-            = (zernike_norm_param == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0;
-        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
+            = (zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0;
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm;
     };
@@ -294,22 +294,22 @@ bool test_zernike_grid_evaluator_does_constant_function()
     std::vector<double> colatitudes = linspace(0.0, std::numbers::pi, num_lat);
     std::vector<double> radii = linspace(0.0, 1.0, num_rad);
 
-    std::vector<double> test_grid(num_lon*num_lat*num_rad);
+    zest::DynamicMDArray<double, 3> test_grid{num_lon, num_lat, num_rad};
 
     for (std::size_t i = 0; i < num_lon; ++i)
     {
         for (std::size_t j = 0; j < num_lat; ++j)
         {
             for (std::size_t k = 0; k < num_rad; ++k)
-                test_grid[(i*num_lat + j)*num_rad + k] = function(radii[k], longitudes[i], colatitudes[j]);
+                test_grid[i, j, k] = function(radii[k], longitudes[i], colatitudes[j]);
         }
     }
 
-    zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param> expansion(order);
+    zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion(order);
 
     expansion[0, 0, 0, 0] = 1.0;
 
-    const auto& grid = zest::zt::GridEvaluator(order)
+    auto grid = zest::zt::GridEvaluator(order)
         .evaluate(expansion, longitudes, colatitudes, radii);
 
     constexpr double tol = 1.0e-13;
@@ -320,7 +320,7 @@ bool test_zernike_grid_evaluator_does_constant_function()
         for (std::size_t j = 0; j < num_lat; ++j)
         {
             for (std::size_t k = 0; k < num_rad; ++k)
-                if(!is_close(grid[(i*num_lat + j)*num_rad + k], test_grid[(i*num_lat + j)*num_rad + k], tol))
+                if(!is_close(grid[i, j, k], test_grid[i, j, k], tol))
                     success = false;
         }
     }
@@ -332,7 +332,7 @@ bool test_zernike_grid_evaluator_does_constant_function()
             for (std::size_t j = 0; j < num_lat; ++j)
             {
                 for (std::size_t k = 0; k < num_rad; ++k)
-                    std::printf("%f ", grid[(i*num_lat + j)*num_rad + k]);
+                    std::printf("%f ", grid[i, j, k]);
                 std::printf("\n");
             }
             std::printf("\n");
@@ -342,7 +342,7 @@ bool test_zernike_grid_evaluator_does_constant_function()
     return success;
 }
 
-template <zest::zt::ZernikeNorm zernike_norm_param, zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
 {
     constexpr std::size_t order = 6;
@@ -350,17 +350,17 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
     constexpr std::size_t num_lat = 7;
     constexpr std::size_t num_rad = 7;
 
-    std::vector<double> test_grid(num_lon*num_lat*num_rad);
+    zest::DynamicMDArray<double, 3> test_grid{num_lon, num_lat, num_rad};
 
     auto function = [](double r, double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
+        constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
         constexpr double znorm3
-            = (zernike_norm_param == zest::zt::ZernikeNorm::normed) ? 3.0 : 1.0;
+            = (zernike_norm == zest::zt::ZernikeNorm::normed) ? 3.0 : 1.0;
         const double znorm5
-            = (zernike_norm_param == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0;
-        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
+            = (zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0;
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm*(
             znorm3*r*r*r*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon)
@@ -376,16 +376,16 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
         for (std::size_t j = 0; j < num_lat; ++j)
         {
             for (std::size_t k = 0; k < num_rad; ++k)
-                test_grid[(i*num_lat + j)*num_rad + k] = function(radii[k], longitudes[i], colatitudes[j]);
+                test_grid[i, j, k] = function(radii[k], longitudes[i], colatitudes[j]);
         }
     }
 
-    zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param> expansion(order);
+    zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion(order);
 
     expansion[3, 3, 2, 1] = 1.0;
     expansion[5, 3, 1, 0] = 1.0;
 
-    const auto& grid = zest::zt::GridEvaluator(order)
+    auto grid = zest::zt::GridEvaluator(order)
         .evaluate(expansion, longitudes, colatitudes, radii);
 
     constexpr double tol = 1.0e-13;
@@ -396,7 +396,7 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
         for (std::size_t j = 0; j < num_lat; ++j)
         {
             for (std::size_t k = 0; k < num_rad; ++k)
-                if(!is_close(grid[(i*num_lat + j)*num_rad + k], test_grid[(i*num_lat + j)*num_rad + k], tol))
+                if(!is_close(grid[i, j, k], test_grid[i, j, k], tol))
                     success = false;
         }
     }
@@ -409,7 +409,7 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
             for (std::size_t j = 0; j < num_lat; ++j)
             {
                 for (std::size_t k = 0; k < num_rad; ++k)
-                    std::printf("%f ", test_grid[(i*num_lat + j)*num_rad + k]);
+                    std::printf("%f ", test_grid[i, j, k]);
                 std::printf("\n");
             }
             std::printf("\n");
@@ -421,7 +421,7 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
             for (std::size_t j = 0; j < num_lat; ++j)
             {
                 for (std::size_t k = 0; k < num_rad; ++k)
-                    std::printf("%f ", grid[(i*num_lat + j)*num_rad + k]);
+                    std::printf("%f ", grid[i, j, k]);
                 std::printf("\n");
             }
             std::printf("\n");
@@ -431,19 +431,19 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
     return success;
 }
 
-template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 void test_sh_grid_evaluator()
 {
-    assert((test_sh_grid_evaluator_does_constant_function<sh_norm_param, sh_phase_param>()));
-    assert((test_sh_grid_evaluator_does_Y10<sh_norm_param, sh_phase_param>()));
-    assert((test_sh_grid_evaluator_does_Y31_plus_Y4m3<sh_norm_param, sh_phase_param>()));
+    assert((test_sh_grid_evaluator_does_constant_function<sh_norm, sh_phase>()));
+    assert((test_sh_grid_evaluator_does_Y10<sh_norm, sh_phase>()));
+    assert((test_sh_grid_evaluator_does_Y31_plus_Y4m3<sh_norm, sh_phase>()));
 }
 
-template <zest::zt::ZernikeNorm zernike_norm_param, zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 void test_zernike_grid_evaluator()
 {
-    assert((test_zernike_grid_evaluator_does_constant_function<zernike_norm_param, sh_norm_param, sh_phase_param>()));
-    assert((test_zernike_grid_evaluator_does_Z33m2_plus_Z531<zernike_norm_param, sh_norm_param, sh_phase_param>()));
+    assert((test_zernike_grid_evaluator_does_constant_function<zernike_norm, sh_norm, sh_phase>()));
+    assert((test_zernike_grid_evaluator_does_Z33m2_plus_Z531<zernike_norm, sh_norm, sh_phase>()));
 }
 
 } // namespace

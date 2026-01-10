@@ -30,12 +30,22 @@ namespace zest
 {
 
 /**
-    @brief Poor man's mdspan for a non-owning multidimensional array view.
+    @brief A non-owning view of a multidimensional array.
 
-    @tparam ElementType type of array elements
-    @tparam rank_param number of array dimensions
+    @tparam ElementType type of array elements.
+    @tparam Ns Extents of the array.
 */
 template <typename ElementType, std::size_t... Ns>
 using MDSpan = ShapedSpan<ElementType, TensorShape<Ns...>>;
+
+/**
+    @brief A non-owning view of a multidimensional array with all dynamic
+    extents.
+
+    @tparam ElementType type of array elements.
+    @tparam N Number of array dimensions.
+*/
+template <typename ElementType, std::size_t N>
+using DynamicMDSpan = ShapedSpan<ElementType, DynamicTensorShape<N>>;
 
 } // namespace zest

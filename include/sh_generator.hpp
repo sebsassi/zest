@@ -63,18 +63,18 @@ public:
 
         @param lon longitude coordinate
         @param colat colatitude coordinate
-        @param ylm buffer for spherical harmonic values
+        @param expansion buffer for spherical harmonic values
     */
-    template <IndexingMode indexing_mode, SHNorm sh_norm, SHShape sh_phase>
-    void generate(double lon, double colat, SHSpan<double, indexing_mode, sh_norm, sh_phase> ylm)
+    template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
+    void generate(double lon, double colat, SHSpan<double, indexing_mode, sh_norm, sh_phase> expansion)
     {
-        expand(ylm.extents());
+        expand(expansion.order());
 
         const double z = std::sin(colat);
-        AssociatedLegendreSpan<double, sh_norm, sh_phase> ass_leg(m_ass_leg_poly, ylm.order());
+        AssociatedLegendreSpan<double, sh_norm, sh_phase> ass_leg(m_ass_leg_poly, expansion.order());
         m_recursion.generate_real(z, ass_leg);
 
-        for (std::size_t m = 0; m < ylm.order(); ++m)
+        for (std::size_t m = 0; m < expansion.order(); ++m)
         {
             const double angle = double(m)*lon;
             m_cossin[m] = {std::cos(angle), std::sin(angle)};
@@ -82,12 +82,12 @@ public:
 
         for (auto l : ass_leg.indices())
         {
-            auto ylm_l = ylm[l];
+            auto expansion_l = expansion[l];
             auto ass_leg_l = ass_leg[l];
             if constexpr (indexing_mode == IndexingMode::symmetric)
-                ylm_l[0] = ass_leg_l[0];
+                expansion_l[0] = ass_leg_l[0];
             else if constexpr (indexing_mode == IndexingMode::zero_based)
-                ylm_l[0] = {ass_leg_l[0], 0.0};
+                expansion_l[0] = {ass_leg_l[0], 0.0};
 
             for (auto m : ass_leg_l.indices(1))
             {
@@ -95,12 +95,12 @@ public:
 
                 if constexpr (indexing_mode == IndexingMode::symmetric)
                 {
-                    ylm_l[int(m)] = ass_leg_lm*m_cossin[m][0];
-                    ylm_l[-int(m)] = ass_leg_lm*m_cossin[m][1];
+                    expansion_l[int(m)] = ass_leg_lm*m_cossin[m][0];
+                    expansion_l[-int(m)] = ass_leg_lm*m_cossin[m][1];
                 }
                 else if constexpr (indexing_mode == IndexingMode::zero_based)
                 {
-                    ylm_l[m] = {
+                    expansion_l[m] = {
                         ass_leg_lm*m_cossin[m][0],
                         ass_leg_lm*m_cossin[m][1]
                     };
@@ -109,10 +109,23 @@ public:
         }
     }
 
-    template <IndexingMode indexing_mode, SHNorm sh_norm, SHShape sh_phase>
-    void generate(double lon, double colat, SHExpansion<double, indexing_mode, sh_norm, sh_phase>& ylm)
+    template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
+    void generate(double lon, double colat, SHExpansion<double, indexing_mode, sh_norm, sh_phase>& expansion)
     {
-        generate(lon, colat, SHSPan<double, indexing_mode, sh_norm, sh_phase>(ylm));
+        using ExpansionType = SHExpansion<double, indexing_mode, sh_norm, sh_phase>;
+        generate<indexing_mode, sh_norm, sh_phase>(
+                lon, colat, (typename ExpansionType::view)(expansion));
+    }
+
+    template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
+    [[nodiscard]] SHExpansion<double, indexing_mode, sh_norm, sh_phase>
+    generate(double lon, double colat, std::size_t order)
+    {
+        using ExpansionType = SHExpansion<double, indexing_mode, sh_norm, sh_phase>;
+        ExpansionType expansion{order};
+        generate<indexing_mode, sh_norm, sh_phase>(
+                lon, colat, (typename ExpansionType::view)(expansion));
+        return expansion;
     }
 
 private:

@@ -115,7 +115,7 @@ public:
 
     constexpr SequencedShape() = default;
     explicit constexpr SequencedShape(extent_type order):
-        m_order(order), m_size(size(order)) {}
+        m_order{order}, m_size{size(order)} {}
 
     [[nodiscard]] static constexpr size_type
     size(extent_type order) noexcept { return sequence_type::size(order); }
@@ -151,36 +151,19 @@ public:
     operator()(Inds... indices) const noexcept { return sequence_type::index(index_type(indices)...); }
 
     [[nodiscard]] constexpr index_range
-    indices() const noexcept { return index_range(m_order); }
+    indices() const noexcept { return index_range(index_type(m_order)); }
 
     [[nodiscard]] constexpr index_range
     indices(index_type index) const noexcept
     {
         assert(index < order());
-        return index_range(index, index_type(m_order));
+        return index_range(index, index_type(index_type(m_order)));
     }
 
 private:
     extent_type m_order{};
     size_type m_size{};
 };
-
-template <std::size_t... static_extents, std::size_t... I, std::size_t N>
-std::array<std::size_t, sizeof...(static_extents)> combine_static_and_dynamic_extents_impl(const std::array<std::size_t, N>& dynamic_extents, std::index_sequence<I...>)
-{
-    std::size_t i = 0;
-    std::array<std::size_t, sizeof...(static_extents)> extents{};
-    ([&](){
-        if (static_extents == std::dynamic_extent)
-        {
-            extents[I] = dynamic_extents[i];
-            ++i;
-        }
-        else
-            extents[I] = static_extents;
-    }(),...);
-    return extents;
-}
 
 template <std::size_t... static_extents, std::size_t N>
 [[nodiscard]] constexpr std::array<std::size_t, sizeof...(static_extents)>
@@ -243,6 +226,7 @@ public:
     using dynamic_extent_type = std::array<size_type, count<Ns...>(std::dynamic_extent)>;
 
     static constexpr size_type rank = sizeof...(Ns);
+    static constexpr size_type dynamic_rank = count<Ns...>(std::dynamic_extent);
     static constexpr std::size_t linear_extent = std::dynamic_extent;
     static constexpr std::array<std::size_t, sizeof...(Ns)> static_extents = {Ns...};
 
@@ -272,27 +256,32 @@ public:
     constexpr TensorShape() = default;
 
     explicit constexpr TensorShape(const extent_type& extents):
-        m_extents(extents), m_size(size(extents)) {}
+        m_extents{extents}, m_size{size(extents)} {}
 
-    explicit constexpr TensorShape(const dynamic_extent_type& dynamic_extents):
-        m_extents(combine<Ns...>(dynamic_extents)), m_size(combine<Ns...>(dynamic_extents)) {}
+    explicit constexpr TensorShape(const dynamic_extent_type& dynamic_extents)
+        requires (dynamic_rank != rank):
+        m_extents{combine<Ns...>(dynamic_extents)},
+        m_size{size(combine<Ns...>(dynamic_extents))} {}
 
     template <std::integral... SizeTypes>
         requires (sizeof...(SizeTypes) == rank)
     explicit constexpr TensorShape(SizeTypes... extents):
-        m_extents(size_type(extents)...), m_size(size({size_type(extents)...})) {}
+        m_extents{size_type(extents)...}, m_size{size({size_type(extents)...})} {}
 
     template <std::integral... SizeTypes>
-        requires (sizeof...(SizeTypes) == count<Ns...>(std::dynamic_extent))
+        requires ((sizeof...(SizeTypes) == dynamic_rank) && (dynamic_rank != rank))
     explicit constexpr TensorShape(SizeTypes... dynamic_extents):
-        m_extents(combine<Ns...>(dynamic_extent_type{size_type(dynamic_extents)...})),
-        m_size(combine<Ns...>(dynamic_extent_type{size_type(dynamic_extents)...})) {}
+        m_extents{combine<Ns...>(dynamic_extent_type{size_type(dynamic_extents)...})},
+        m_size{size(combine<Ns...>(dynamic_extent_type{size_type(dynamic_extents)...}))} {}
 
     [[nodiscard]] static constexpr size_type
     size(const extent_type& extents) noexcept { return product(extents); }
 
     [[nodiscard]] static constexpr size_type
-    size(const dynamic_extent_type& dynamic_extents) noexcept { return product(combine<Ns...>(dynamic_extents)); }
+    size(const dynamic_extent_type& dynamic_extents) noexcept requires (dynamic_rank != rank)
+    {
+        return product(combine<Ns...>(dynamic_extents));
+    }
 
     template <std::integral... SizeTypes>
         requires (sizeof...(SizeTypes) == rank)
@@ -351,14 +340,14 @@ public:
         return array::detail::index(m_extents, index_type(indices)...);
     }
 
-    [[nodiscard]] constexpr index_range
-    indices() const noexcept { return index_range(m_extents[0]); }
+    [[nodiscard]] constexpr auto
+    indices() const noexcept { return index_range(index_type(m_extents[0])); }
 
-    [[nodiscard]] constexpr index_range
+    [[nodiscard]] constexpr auto
     indices(index_type index) const noexcept
     {
         assert(index < extent(0));
-        return index_range(m_extents[0]);
+        return index_range(index, index_type(m_extents[0]));
     }
 
 private:
@@ -477,14 +466,14 @@ public:
         return array::detail::index(static_extents, index_type(indices)...);
     }
 
-    [[nodiscard]] constexpr index_range
-    indices() const noexcept { return index_range(static_extents[0]); }
+    [[nodiscard]] constexpr auto
+    indices() const noexcept { return index_range(index_type(static_extents[0])); }
 
-    [[nodiscard]] constexpr index_range
+    [[nodiscard]] constexpr auto
     indices(index_type index) const noexcept
     {
         assert(index < extent(0));
-        return index_range(index, static_extents[0]);
+        return index_range(index, index_type(static_extents[0]));
     }
 };
 
@@ -543,21 +532,21 @@ public:
     template <typename E1, typename E2>
         requires std::constructible_from<S1, E1> && std::constructible_from<S2, E2>
     constexpr CompositeShape(const E1& first_extents, const E2& second_extents):
-        m_shapes(S1{first_extents}, S2{second_extents}) {}
+        m_shapes{S1{first_extents}, S2{second_extents}} {}
 
     template <typename E>
         requires std::constructible_from<S1, E>
     explicit constexpr CompositeShape(const E& first_extents)
         requires (S1::linear_extent == std::dynamic_extent
             && S2::linear_extent != std::dynamic_extent):
-        m_shapes(S1{first_extents}, S2{}) {}
+        m_shapes{S1{first_extents}, S2{}} {}
 
     template <typename E>
         requires std::constructible_from<S2, E>
     explicit constexpr CompositeShape(const E& second_extents)
         requires (S1::linear_extent != std::dynamic_extent
             && S2::linear_extent == std::dynamic_extent):
-        m_shapes(S1{}, S2{second_extents}) {}
+        m_shapes{S1{}, S2{second_extents}} {}
 
     constexpr CompositeShape(const S1& s1, const S2& s2): m_shapes(s1, s2) {}
 

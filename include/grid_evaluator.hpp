@@ -29,6 +29,7 @@ SOFTWARE.
 #include <span>
 #include <vector>
 
+#include "md_array.hpp"
 #include "sh_expansion.hpp"
 #include "associated_legendre_recursion.hpp"
 #include "md_span.hpp"
@@ -99,17 +100,17 @@ public:
         @param longitudes longitude values defining the grid points.
         @param colatitudes colatitude values defining the grid points.
 
-        @return `std::vector` containing values of the expansion on the grid.
-        The values are ordered as a 2D array with shape `{longitudes.size(),
-        colatitudes.size()}` in row-major order.
+        @return Two dimensional array containing values of the expansion on the
+        grid with shape `{longitudes.size(), colatitudes.size()}` in row-major
+        order.
     */
     template <SHNorm sh_norm, SHPhase sh_phase>
-    [[nodiscard]] std::vector<double> evaluate(
+    [[nodiscard]] DynamicMDArray<double, 2> evaluate(
         SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes)
     {
         if (longitudes.size() == 0 || colatitudes.size() == 0)
-            return std::vector<double>{};
+            return {};
 
         const std::size_t order = expansion.order();
         resize(order, longitudes.size(), colatitudes.size());
@@ -128,26 +129,28 @@ public:
 
         sum_l(expansion);
 
-        std::vector<double> res(m_lon_size*m_lat_size);
-        sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_extent>(res.data(), {m_lon_size, m_lat_size}), order);
+        DynamicMDArray<double, 2> res{m_lon_size, m_lat_size};
+        sum_m(res, order);
 
         return res;
     }
 
     template <SHNorm sh_norm, SHPhase sh_phase>
-    [[nodiscard]] std::vector<double> evaluate(
+    [[nodiscard]] DynamicMDArray<double, 2> evaluate(
         SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes)
     {
-        return evaluate((typename decltype(expansion)::const_view)(expansion), longitudes, colatitudes);
+        using ExpansionType = SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase>;
+        return evaluate((typename ExpansionType::const_view)(expansion), longitudes, colatitudes);
     }
 
     template <SHNorm sh_norm, SHPhase sh_phase>
-    [[nodiscard]] std::vector<double> evaluate(
+    [[nodiscard]] DynamicMDArray<double, 2> evaluate(
         const SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase>& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes)
     {
-        return evaluate((typename decltype(expansion)::const_view)(expansion), longitudes, colatitudes);
+        using ExpansionType = SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase>;
+        return evaluate((typename ExpansionType::const_view)(expansion), longitudes, colatitudes);
     }
 
 private:
@@ -177,7 +180,7 @@ private:
         }
     }
 
-    void sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_extent> values, std::size_t order) noexcept;
+    void sum_m(DynamicMDSpan<double, 2> values, std::size_t order) noexcept;
 
     st::AssociatedLegendreRecursion m_ass_leg_recursion;
     std::vector<double> m_ass_leg_grid;
@@ -241,21 +244,20 @@ public:
         @param colatitudes colatitude values defining the grid points.
         @param radii radius values defining the grid points.
 
-        @return `std::vector` containing values of the expansion on the grid.
-        The values are ordered as a 3D array with shape `{longitudes.size(),
-        colatitudes.size(), radii.size()}` in row-major order.
+        @return Three dimensional array containing values of the expansion on
+        the grid with shape `{longitudes.size(), colatitudes.size(),
+        radii.size()}` in row-major order.
     */
     template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
-    [[nodiscard]] std::vector<double> evaluate(
+    [[nodiscard]] DynamicMDArray<double, 3> evaluate(
         ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
     {
         if (longitudes.size() == 0 || colatitudes.size() == 0 || radii.size() == 0)
-            return std::vector<double>{};
+            return {};
 
         const std::size_t order = expansion.order();
         resize(order, longitudes.size(), colatitudes.size(), radii.size());
-
 
         RadialZernikeSpan<double, zernike_norm, std::dynamic_extent>
         zernike(m_zernike_grid, order, m_rad_size);
@@ -271,33 +273,34 @@ public:
         m_ass_leg_recursion.generate_real(m_cos_colat, ass_leg);
 
         MDSpan<double, std::dynamic_extent, std::dynamic_extent, 2> cossin_lon(
-                m_cossin_lon_grid.data(), {order, m_lon_size, 2});
+                m_cossin_lon_grid.data(), std::array{order, m_lon_size});
         zest::detail::recursive_trig(cossin_lon, longitudes);
 
         sum_n(expansion);
         sum_l(order);
 
-        std::vector<double> res(m_lon_size*m_lat_size*m_rad_size);
-        sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>(
-                res.data(), {m_lon_size, m_lat_size, m_rad_size}), order);
+        DynamicMDArray<double, 3> res{m_lon_size, m_lat_size, m_rad_size};
+        sum_m(res, order);
 
         return res;
     }
 
     template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
-    [[nodiscard]] std::vector<double> evaluate(
+    [[nodiscard]] DynamicMDArray<double, 3> evaluate(
         ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
     {
-        return evaluate((typename decltype(expansion)::const_view)(expansion), longitudes, colatitudes, radii);
+        using ExpansionType = ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>;
+        return evaluate((typename ExpansionType::const_view)(expansion), longitudes, colatitudes, radii);
     }
 
     template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
-    [[nodiscard]] std::vector<double> evaluate(
-        const ZernikeExpansion<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>& expansion,
+    [[nodiscard]] DynamicMDArray<double, 3> evaluate(
+        const ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
     {
-        return evaluate((typename decltype(expansion)::const_view)(expansion), longitudes, colatitudes, radii);
+        using ExpansionType = ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>;
+        return evaluate((typename ExpansionType::const_view)(expansion), longitudes, colatitudes, radii);
     }
 
 private:
@@ -311,7 +314,7 @@ private:
         std::ranges::fill(m_flm_grid, 0.0);
 
         TriangleSpan<double, IndexingMode::zero_based, 2, std::dynamic_extent>
-        flm(m_flm_grid, order, std::array<std::size_t, 2>{2, m_rad_size});
+        flm(m_flm_grid, order, std::array{2UL, m_rad_size});
 
         for (auto n : expansion.indices())
         {
@@ -325,7 +328,7 @@ private:
                 for (auto m : expansion_nl.indices())
                 {
                     auto flm_lm = flm_l[m];
-                    const std::array<double, 2> coeff = expansion_nl[m];
+                    auto coeff = expansion_nl[m];
                     for (std::size_t i = 0; i < m_rad_size; ++i)
                     {
                         flm_lm[i, 0] += zernike_nl[i]*coeff[0];
@@ -338,7 +341,7 @@ private:
 
     void sum_l(std::size_t order) noexcept;
 
-    void sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent> values, std::size_t order) noexcept;
+    void sum_m(DynamicMDSpan<double, 3> values, std::size_t order) noexcept;
 
     RadialZernikeRecursion m_zernike_recursion;
     st::AssociatedLegendreRecursion m_ass_leg_recursion;

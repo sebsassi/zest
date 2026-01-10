@@ -90,7 +90,7 @@ public:
         std::span<double> parameters_view(parameters.begin(), model.extent(1));
 
         // Copy because dgels_ will modify data
-        std::ranges::copy(std::span<const double>(model), m_model_data.begin());
+        std::ranges::copy(model.flatten(), m_model_data.begin());
         std::ranges::copy(data_view, m_data.begin());
 
         dgels_wrapper(model.extents());

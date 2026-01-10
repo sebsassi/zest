@@ -126,10 +126,10 @@ void GridEvaluator::resize(
     m_lat_size = lat_size;
 }
 
-void GridEvaluator::sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_extent> values, std::size_t order) noexcept
+void GridEvaluator::sum_m(DynamicMDSpan<double, 2> values, std::size_t order) noexcept
 {
     MDSpan<const double, std::dynamic_extent, std::dynamic_extent, 2>
-    cossin_lon(m_cossin_lon_grid.data(), {order, m_lon_size, 2});
+    cossin_lon(m_cossin_lon_grid.data(), std::array{order, m_lon_size});
 
     for (std::size_t m = 0; m < order; ++m)
     {
@@ -214,7 +214,7 @@ void GridEvaluator::sum_l(std::size_t order) noexcept
 
     std::ranges::fill(m_fm_grid, std::array<double, 2>{});
     MDSpan<std::array<double, 2>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
-    fm(m_fm_grid.data(), {order, m_lat_size, m_rad_size});
+    fm(m_fm_grid.data(), std::array{order, m_lat_size, m_rad_size});
 
     for (auto l : flm.indices())
     {
@@ -240,13 +240,13 @@ void GridEvaluator::sum_l(std::size_t order) noexcept
     }
 }
 
-void GridEvaluator::sum_m(MDSpan<double, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent> values, std::size_t order) noexcept
+void GridEvaluator::sum_m(DynamicMDSpan<double, 3> values, std::size_t order) noexcept
 {
     MDSpan<const double, std::dynamic_extent, std::dynamic_extent, 2>
-    cossin_lon(m_cossin_lon_grid.data(), {order, m_lon_size, 2});
+    cossin_lon(m_cossin_lon_grid.data(), std::array{order, m_lon_size});
 
-    MDSpan<const std::array<double, 2>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
-    fm(m_fm_grid.data(), {order, m_lat_size, m_rad_size});
+    DynamicMDSpan<const std::array<double, 2>, 3>
+    fm(m_fm_grid.data(), std::array{order, m_lat_size, m_rad_size});
 
     for (std::size_t m = 0; m < order; ++m)
     {

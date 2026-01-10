@@ -42,26 +42,26 @@ enum class SHNorm
     qm
 };
 
-template <SHNorm norm_param, SHPhase phase_param>
+template <SHNorm norm, SHPhase phase>
 struct SHTag
 {
-    static constexpr SHNorm sh_norm = norm_param;
-    static constexpr SHPhase sh_phase = phase_param;
+    static constexpr SHNorm sh_norm = norm;
+    static constexpr SHPhase sh_phase = phase;
 };
 
 /**
     @brief Normalization constant of spherical harmonics coefficients.
 
-    @tparam sh_norm_param normalization convention
+    @tparam sh_norm normalization convention
 
     @return normalization constant
 */
-template <SHNorm sh_norm_param>
+template <SHNorm sh_norm>
 [[nodiscard]] constexpr double normalization() noexcept
 {
-    if constexpr (sh_norm_param == SHNorm::qm)
+    if constexpr (sh_norm == SHNorm::qm)
         return 1.0;
-    else if constexpr (sh_norm_param == SHNorm::geo)
+    else if constexpr (sh_norm == SHNorm::geo)
         return 1.0/(4.0*std::numbers::pi);
 }
 

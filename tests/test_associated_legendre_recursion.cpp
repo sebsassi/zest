@@ -39,12 +39,12 @@ constexpr bool is_close(
     return std::fabs(a[0] - b[0]) < tol && std::fabs(a[1] - b[1]) < tol;
 }
 
-template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 bool test_ass_leg_real_generates_real_correct_up_to_order_5(double z)
 {
     constexpr std::size_t order = 5;
-    constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
-    constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
+    constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
+    constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
         0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double P00 = shnorm;
@@ -69,7 +69,7 @@ bool test_ass_leg_real_generates_real_correct_up_to_order_5(double z)
 
     zest::st::AssociatedLegendreRecursion recursion(order);
 
-    zest::st::AssociatedLegendreExpansion<double, sh_norm_param, sh_phase_param> ass_leg(order);
+    zest::st::AssociatedLegendreExpansion<double, sh_norm, sh_phase> ass_leg(order);
 
     recursion.generate_real(z, ass_leg);
     bool success = is_close(ass_leg[0, 0], P00, 1.0e-10)
@@ -111,12 +111,12 @@ bool test_ass_leg_real_generates_real_correct_up_to_order_5(double z)
     }
 }
 
-template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 bool test_ass_leg_real_generates_real_vec_correct_up_to_order_5(double z)
 {
     constexpr std::size_t order = 5;
-    constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
-    constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
+    constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
+    constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
         0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double P00 = shnorm;
@@ -141,7 +141,7 @@ bool test_ass_leg_real_generates_real_vec_correct_up_to_order_5(double z)
 
     zest::st::AssociatedLegendreRecursion recursion(order);
 
-    zest::st::AssociatedLegendreExpansion<double, sh_norm_param, sh_phase_param, std::dynamic_extent> ass_leg(order, 1UL);
+    zest::st::AssociatedLegendreExpansion<double, sh_norm, sh_phase, std::dynamic_extent> ass_leg(order, 1UL);
 
     recursion.generate_real(std::array<double, 1>{z}, ass_leg);
     bool success = is_close(ass_leg[0, 0, 0], P00, 1.0e-10)
@@ -183,18 +183,18 @@ bool test_ass_leg_real_generates_real_vec_correct_up_to_order_5(double z)
     }
 }
 
-template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 void test_ass_leg_recursion()
 {
-    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<sh_norm_param, sh_phase_param>(1.0)));
-    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<sh_norm_param, sh_phase_param>(-1.0)));
-    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<sh_norm_param, sh_phase_param>(0.0)));
-    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<sh_norm_param, sh_phase_param>(0.9741683087648949)));
+    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<sh_norm, sh_phase>(1.0)));
+    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<sh_norm, sh_phase>(-1.0)));
+    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<sh_norm, sh_phase>(0.0)));
+    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<sh_norm, sh_phase>(0.9741683087648949)));
 
-    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<sh_norm_param, sh_phase_param>(1.0)));
-    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<sh_norm_param, sh_phase_param>(-1.0)));
-    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<sh_norm_param, sh_phase_param>(0.0)));
-    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<sh_norm_param, sh_phase_param>(0.9741683087648949)));
+    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<sh_norm, sh_phase>(1.0)));
+    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<sh_norm, sh_phase>(-1.0)));
+    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<sh_norm, sh_phase>(0.0)));
+    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<sh_norm, sh_phase>(0.9741683087648949)));
 }
 
 } // namespace

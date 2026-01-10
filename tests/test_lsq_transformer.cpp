@@ -21,6 +21,7 @@ SOFTWARE.
 */
 #include "lsq_transformer.hpp"
 #include "sequence.hpp"
+#include "sh_generator.hpp"
 
 #include <random>
 #include <cmath>
@@ -40,13 +41,13 @@ constexpr bool is_close(
     return std::fabs(a[0] - b[0]) < tol && std::fabs(a[1] - b[1]) < tol;
 }
 
-template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 bool test_real_sh_generator_generates_correct_up_to_order_5(
     double lon, double lat)
 {
     constexpr std::size_t order = 5;
-    constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
-    constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
+    constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
+    constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
         0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double z = std::sin(lat);
@@ -80,82 +81,76 @@ bool test_real_sh_generator_generates_correct_up_to_order_5(
     const double Y43 = phase*shnorm*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::cos(3.0*lon);
     const double Y44 = shnorm*std::sqrt(315.0/64.0)*(1.0 - z*z)*(1.0 - z*z)*std::cos(4.0*lon);
 
-    zest::st::RealSHGenerator generator(order);
+    auto expansion = zest::st::RealSHGenerator{}
+        .generate<zest::IndexingMode::symmetric, sh_norm, sh_phase>(lon, lat, order);
 
-    using Expansion = zest::st::SHExpansion<double, zest::IndexingMode::symmetric, sh_norm_param, sh_phase_param>;
-    Expansion ylm(order);
-
-    auto ylm_flat = ylm.flatten();
-
-    generator.generate(lon, lat, ylm);
-
-    bool success = is_close(ylm_flat[0], Y00, 1.0e-10)
-            && is_close(ylm_flat[1], Y1m1, 1.0e-10)
-            && is_close(ylm_flat[2], Y10, 1.0e-10)
-            && is_close(ylm_flat[3], Y11, 1.0e-10)
-            && is_close(ylm_flat[4], Y2m2, 1.0e-10)
-            && is_close(ylm_flat[5], Y2m1, 1.0e-10)
-            && is_close(ylm_flat[6], Y20, 1.0e-10)
-            && is_close(ylm_flat[7], Y21, 1.0e-10)
-            && is_close(ylm_flat[8], Y22, 1.0e-10)
-            && is_close(ylm_flat[9], Y3m3, 1.0e-10)
-            && is_close(ylm_flat[10], Y3m2, 1.0e-10)
-            && is_close(ylm_flat[11], Y3m1, 1.0e-10)
-            && is_close(ylm_flat[12], Y30, 1.0e-10)
-            && is_close(ylm_flat[13], Y31, 1.0e-10)
-            && is_close(ylm_flat[14], Y32, 1.0e-10)
-            && is_close(ylm_flat[15], Y33, 1.0e-10)
-            && is_close(ylm_flat[16], Y4m4, 1.0e-10)
-            && is_close(ylm_flat[17], Y4m3, 1.0e-10)
-            && is_close(ylm_flat[18], Y4m2, 1.0e-10)
-            && is_close(ylm_flat[19], Y4m1, 1.0e-10)
-            && is_close(ylm_flat[20], Y40, 1.0e-10)
-            && is_close(ylm_flat[21], Y41, 1.0e-10)
-            && is_close(ylm_flat[22], Y42, 1.0e-10)
-            && is_close(ylm_flat[23], Y43, 1.0e-10)
-            && is_close(ylm_flat[24], Y44, 1.0e-10);
+    bool success = is_close(expansion[0, 0], Y00, 1.0e-10)
+            && is_close(expansion[1, -1], Y1m1, 1.0e-10)
+            && is_close(expansion[1, 0], Y10, 1.0e-10)
+            && is_close(expansion[2, 1], Y11, 1.0e-10)
+            && is_close(expansion[2, -2], Y2m2, 1.0e-10)
+            && is_close(expansion[2, -1], Y2m1, 1.0e-10)
+            && is_close(expansion[2, 0], Y20, 1.0e-10)
+            && is_close(expansion[2, 1], Y21, 1.0e-10)
+            && is_close(expansion[2, 2], Y22, 1.0e-10)
+            && is_close(expansion[3, -3], Y3m3, 1.0e-10)
+            && is_close(expansion[3, -2], Y3m2, 1.0e-10)
+            && is_close(expansion[3, -1], Y3m1, 1.0e-10)
+            && is_close(expansion[3, 0], Y30, 1.0e-10)
+            && is_close(expansion[3, 1], Y31, 1.0e-10)
+            && is_close(expansion[3, 2], Y32, 1.0e-10)
+            && is_close(expansion[3, 3], Y33, 1.0e-10)
+            && is_close(expansion[4, -4], Y4m4, 1.0e-10)
+            && is_close(expansion[4, -3], Y4m3, 1.0e-10)
+            && is_close(expansion[4, -2], Y4m2, 1.0e-10)
+            && is_close(expansion[4, -1], Y4m1, 1.0e-10)
+            && is_close(expansion[4, 0], Y40, 1.0e-10)
+            && is_close(expansion[4, 1], Y41, 1.0e-10)
+            && is_close(expansion[4, 2], Y42, 1.0e-10)
+            && is_close(expansion[4, 3], Y43, 1.0e-10)
+            && is_close(expansion[4, 4], Y44, 1.0e-10);
     
     if (success)
         return true;
     else
     {
-        std::printf("Y00 %f %f\n", ylm_flat[0], Y00);
-        std::printf("Y1m1 %f %f\n", ylm_flat[1], Y1m1);
-        std::printf("Y10 %f %f\n", ylm_flat[2], Y10);
-        std::printf("Y11 %f %f\n", ylm_flat[3], Y11);
-        std::printf("Y2m2 %f %f\n", ylm_flat[4], Y2m2);
-        std::printf("Y2m1 %f %f\n", ylm_flat[5], Y2m1);
-        std::printf("Y20 %f %f\n", ylm_flat[6], Y20);
-        std::printf("Y21 %f %f\n", ylm_flat[7], Y21);
-        std::printf("Y22 %f %f\n", ylm_flat[8], Y22);
-        std::printf("Y3m3 %f %f\n", ylm_flat[9], Y3m3);
-        std::printf("Y3m2 %f %f\n", ylm_flat[10], Y3m2);
-        std::printf("Y3m1 %f %f\n", ylm_flat[11], Y3m1);
-        std::printf("Y30 %f %f\n", ylm_flat[12], Y30);
-        std::printf("Y31 %f %f\n", ylm_flat[13], Y31);
-        std::printf("Y32 %f %f\n", ylm_flat[14], Y32);
-        std::printf("Y33 %f %f\n", ylm_flat[15], Y33);
-        std::printf("Y4m4 %f %f\n", ylm_flat[16], Y4m4);
-        std::printf("Y4m3 %f %f\n", ylm_flat[17], Y4m3);
-        std::printf("Y4m2 %f %f\n", ylm_flat[18], Y4m2);
-        std::printf("Y4m1 %f %f\n", ylm_flat[19], Y4m1);
-        std::printf("Y40 %f %f\n", ylm_flat[20], Y40);
-        std::printf("Y41 %f %f\n", ylm_flat[21], Y41);
-        std::printf("Y42 %f %f\n", ylm_flat[22], Y42);
-        std::printf("Y43 %f %f\n", ylm_flat[23], Y43);
-        std::printf("Y44 %f %f\n", ylm_flat[24], Y44);
+        std::printf("Y00 %f %f\n", expansion[0, 0], Y00);
+        std::printf("Y1m1 %f %f\n", expansion[1, -1], Y1m1);
+        std::printf("Y10 %f %f\n", expansion[1, 0], Y10);
+        std::printf("Y11 %f %f\n", expansion[1, 1], Y11);
+        std::printf("Y2m2 %f %f\n", expansion[2, -2], Y2m2);
+        std::printf("Y2m1 %f %f\n", expansion[2, -1], Y2m1);
+        std::printf("Y20 %f %f\n", expansion[2, 0], Y20);
+        std::printf("Y21 %f %f\n", expansion[2, 1], Y21);
+        std::printf("Y22 %f %f\n", expansion[2, 2], Y22);
+        std::printf("Y3m3 %f %f\n", expansion[3, -3], Y3m3);
+        std::printf("Y3m2 %f %f\n", expansion[3, -2], Y3m2);
+        std::printf("Y3m1 %f %f\n", expansion[3, -1], Y3m1);
+        std::printf("Y30 %f %f\n", expansion[3, 0], Y30);
+        std::printf("Y31 %f %f\n", expansion[3, 1], Y31);
+        std::printf("Y32 %f %f\n", expansion[3, 2], Y32);
+        std::printf("Y33 %f %f\n", expansion[3, 3], Y33);
+        std::printf("Y4m4 %f %f\n", expansion[4, -4], Y4m4);
+        std::printf("Y4m3 %f %f\n", expansion[4, -3], Y4m3);
+        std::printf("Y4m2 %f %f\n", expansion[4, -2], Y4m2);
+        std::printf("Y4m1 %f %f\n", expansion[4, -1], Y4m1);
+        std::printf("Y40 %f %f\n", expansion[4, 0], Y40);
+        std::printf("Y41 %f %f\n", expansion[4, 1], Y41);
+        std::printf("Y42 %f %f\n", expansion[4, 2], Y42);
+        std::printf("Y43 %f %f\n", expansion[4, 3], Y43);
+        std::printf("Y44 %f %f\n", expansion[4, 4], Y44);
         return false;
     }
 }
 
-template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::IndexingMode indexing_mode, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 bool test_lsq_geo_expansion_expands_Y00()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm;
     };
@@ -179,50 +174,83 @@ bool test_lsq_geo_expansion_expands_Y00()
 
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
+    auto expansion = transformer.transform<indexing_mode, sh_norm, sh_phase>(values, lat, lon, order);
 
-    const auto& coeffs = expansion.flatten();
+    const double reference_coeff = 1.0;
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (auto l : expansion.indices())
     {
-        if (i == 0)
+        auto expansion_l = expansion[l];
+        for (auto m : expansion_l.indices())
         {
-            if (is_close(coeffs[i][0], 1.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
+            if constexpr (indexing_mode == zest::IndexingMode::zero_based)
+            {
+                if (l == 0 && m == 0)
+                {
+                    if (is_close(expansion[l, m, 0], reference_coeff, tol)
+                            && is_close(expansion[l, m, 1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion[l, m, 0], 0.0, tol)
+                            && is_close(expansion[l, m, 1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
             else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            {
+                if (l == 0 && m == 0)
+                {
+                    if (is_close(expansion[l, m], reference_coeff, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion[l, m], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
         }
     }
 
     if (!success)
     {
-        for (const auto& coeff : expansion.flatten())
-            std::printf("%f %f\n", coeff[0], coeff[1]);
+        for (auto l : expansion.indices())
+        {
+            auto expansion_l = expansion[l];
+            for (auto m : expansion_l.indices())
+            {
+                if constexpr (indexing_mode == zest::IndexingMode::zero_based)
+                    std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
+                else
+                    std::printf("%d %d %f %f\n", l, m, expansion[l, m], expansion[l, m]);
+            }
+        }
     }
     return success;
 }
 
-template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::IndexingMode indexing_mode, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 bool test_lsq_geo_expansion_expands_Y21()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
-        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
+        constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
@@ -246,50 +274,83 @@ bool test_lsq_geo_expansion_expands_Y21()
 
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
+    auto expansion = transformer.transform<indexing_mode, sh_norm, sh_phase>(values, lat, lon, order);
 
-    const auto& coeffs = expansion.flatten();
+    const double reference_coeff = 1.0;
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (auto l : expansion.indices())
     {
-        if (i == 4)
+        auto expansion_l = expansion[l];
+        for (auto m : expansion_l.indices())
         {
-            if (is_close(coeffs[i][0], 1.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
+            if constexpr (indexing_mode == zest::IndexingMode::zero_based)
+            {
+                if (l == 2 && m == 1)
+                {
+                    if (is_close(expansion[l, m, 0], reference_coeff, tol)
+                            && is_close(expansion[l, m, 1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion[l, m, 0], 0.0, tol)
+                            && is_close(expansion[l, m, 1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
             else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            {
+                if (l == 2 && m == 1)
+                {
+                    if (is_close(expansion[l, m], reference_coeff, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion[l, m], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
         }
     }
 
     if (!success)
     {
-        for (const auto& coeff : expansion.flatten())
-            std::printf("%f %f\n", coeff[0], coeff[1]);
+        for (auto l : expansion.indices())
+        {
+            auto expansion_l = expansion[l];
+            for (auto m : expansion_l.indices())
+            {
+                if constexpr (indexing_mode == zest::IndexingMode::zero_based)
+                    std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
+                else
+                    std::printf("%d %d %f %f\n", l, m, expansion[l, m], expansion[l, m]);
+            }
+        }
     }
     return success;
 }
 
-template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::IndexingMode indexing_mode, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 bool test_lsq_geo_expansion_expands_Y31()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
-        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
+        constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
@@ -314,50 +375,83 @@ bool test_lsq_geo_expansion_expands_Y31()
 
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
+    auto expansion = transformer.transform<indexing_mode, sh_norm, sh_phase>(values, lat, lon, order);
 
-    const auto& coeffs = expansion.flatten();
+    const double reference_coeff = 1.0;
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (auto l : expansion.indices())
     {
-        if (i == 7)
+        auto expansion_l = expansion[l];
+        for (auto m : expansion_l.indices())
         {
-            if (is_close(coeffs[i][0], 1.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
+            if constexpr (indexing_mode == zest::IndexingMode::zero_based)
+            {
+                if (l == 3 && m == 1)
+                {
+                    if (is_close(expansion[l, m, 0], reference_coeff, tol)
+                            && is_close(expansion[l, m, 1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion[l, m, 0], 0.0, tol)
+                            && is_close(expansion[l, m, 1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
             else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            {
+                if (l == 3 && m == 1)
+                {
+                    if (is_close(expansion[l, m], reference_coeff, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion[l, m], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
         }
     }
 
     if (!success)
     {
-        for (const auto& coeff : expansion.flatten())
-            std::printf("%f %f\n", coeff[0], coeff[1]);
+        for (auto l : expansion.indices())
+        {
+            auto expansion_l = expansion[l];
+            for (auto m : expansion_l.indices())
+            {
+                if constexpr (indexing_mode == zest::IndexingMode::zero_based)
+                    std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
+                else
+                    std::printf("%d %d %f %f\n", l, m, expansion[l, m], expansion[l, m]);
+            }
+        }
     }
     return success;
 }
 
-template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::IndexingMode indexing_mode, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 bool test_lsq_geo_expansion_expands_Y4m3()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
-        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
+        constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
     };
@@ -382,50 +476,83 @@ bool test_lsq_geo_expansion_expands_Y4m3()
 
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
+    auto expansion = transformer.transform<indexing_mode, sh_norm, sh_phase>(values, lat, lon, order);
 
-    const auto& coeffs = expansion.flatten();
+    const double reference_coeff = 1.0;
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (auto l : expansion.indices())
     {
-        if (i == 13)
+        auto expansion_l = expansion[l];
+        for (auto m : expansion_l.indices())
         {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 1.0, tol))
-                success = success && true;
+            if constexpr (indexing_mode == zest::IndexingMode::zero_based)
+            {
+                if (l == 4 && m == 3)
+                {
+                    if (is_close(expansion[l, m, 0], 0.0, tol)
+                            && is_close(expansion[l, m, 1], reference_coeff, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion[l, m, 0], 0.0, tol)
+                            && is_close(expansion[l, m, 1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
             else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            {
+                if (l == 4 && m == -3)
+                {
+                    if (is_close(expansion[l, m], reference_coeff, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion[l, m], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
         }
     }
 
     if (!success)
     {
-        for (const auto& coeff : expansion.flatten())
-            std::printf("%f %f\n", coeff[0], coeff[1]);
+        for (auto l : expansion.indices())
+        {
+            auto expansion_l = expansion[l];
+            for (auto m : expansion_l.indices())
+            {
+                if constexpr (indexing_mode == zest::IndexingMode::zero_based)
+                    std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
+                else
+                    std::printf("%d %d %f %f\n", l, m, expansion[l, m], expansion[l, m]);
+            }
+        }
     }
     return success;
 }
 
-template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::IndexingMode indexing_mode, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
 {
     constexpr std::size_t order = 6; 
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double z)
     {
-        constexpr double phase = (sh_phase_param == zest::st::SHPhase::none) ? -1.0 : 1.0;
-        constexpr double shnorm = (sh_norm_param == zest::st::SHNorm::qm) ?
+        constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
     };
@@ -450,67 +577,112 @@ bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
 
     zest::st::LSQTransformer transformer(order);
 
-    auto expansion = transformer.transform<sh_norm_param, sh_phase_param>(values, lat, lon, order);
+    auto expansion = transformer.transform<indexing_mode, sh_norm, sh_phase>(values, lat, lon, order);
 
-    const auto& coeffs = expansion.flatten();
+    const double reference_coeff = 1.0;
 
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t i = 0; i < coeffs.size(); ++i)
+    for (auto l : expansion.indices())
     {
-        if (i == 7)
+        auto expansion_l = expansion[l];
+        for (auto m : expansion_l.indices())
         {
-            if (is_close(coeffs[i][0], 1.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
+            if constexpr (indexing_mode == zest::IndexingMode::zero_based)
+            {
+                if (l == 3 && m == 1)
+                {
+                    if (is_close(expansion[l, m, 0], reference_coeff, tol)
+                            && is_close(expansion[l, m, 1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else if (l == 4 && m == 3)
+                {
+                    if (is_close(expansion[l, m, 0], 0.0, tol)
+                            && is_close(expansion[l, m, 1], reference_coeff, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion[l, m, 0], 0.0, tol)
+                            && is_close(expansion[l, m, 1], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
             else
-                success = success && false;
-        }
-        else if (i == 13)
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 1.0, tol))
-                success = success && true;
-            else
-                success = success && false;
-        }
-        else
-        {
-            if (is_close(coeffs[i][0], 0.0, tol)
-                    && is_close(coeffs[i][1], 0.0, tol))
-                success = success && true;
-            else
-                success = success && false;
+            {
+                if (l == 3 && m == 1)
+                {
+                    if (is_close(expansion[l, m], reference_coeff, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else if (l == 4 && m == -3)
+                {
+                    if (is_close(expansion[l, m], reference_coeff, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+                else
+                {
+                    if (is_close(expansion[l, m], 0.0, tol))
+                        success = success && true;
+                    else
+                        success = success && false;
+                }
+            }
         }
     }
 
     if (!success)
     {
-        for (const auto& coeff : expansion.flatten())
-            std::printf("%f %f\n", coeff[0], coeff[1]);
+        for (auto l : expansion.indices())
+        {
+            auto expansion_l = expansion[l];
+            for (auto m : expansion_l.indices())
+            {
+                if constexpr (indexing_mode == zest::IndexingMode::zero_based)
+                    std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
+                else
+                    std::printf("%d %d %f %f\n", l, m, expansion[l, m], expansion[l, m]);
+            }
+        }
     }
     return success;
 }
 
-template <zest::st::SHNorm sh_norm_param, zest::st::SHPhase sh_phase_param>
+template <zest::IndexingMode indexing_mode, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
 void test_lsq()
 {
-    assert((test_real_sh_generator_generates_correct_up_to_order_5<sh_norm_param, sh_phase_param>(0.0, 0.0)));
+    assert((test_real_sh_generator_generates_correct_up_to_order_5<sh_norm, sh_phase>(0.0, 0.0)));
 
-    assert((test_lsq_geo_expansion_expands_Y00<sh_norm_param, sh_phase_param>()));
-    assert((test_lsq_geo_expansion_expands_Y21<sh_norm_param, sh_phase_param>()));
-    assert((test_lsq_geo_expansion_expands_Y31<sh_norm_param, sh_phase_param>()));
-    assert((test_lsq_geo_expansion_expands_Y4m3<sh_norm_param, sh_phase_param>()));
-    assert((test_lsq_geo_expansion_expands_Y31_plus_Y4m3<sh_norm_param, sh_phase_param>()));
+    assert((test_lsq_geo_expansion_expands_Y00<indexing_mode, sh_norm, sh_phase>()));
+    assert((test_lsq_geo_expansion_expands_Y21<indexing_mode, sh_norm, sh_phase>()));
+    assert((test_lsq_geo_expansion_expands_Y31<indexing_mode, sh_norm, sh_phase>()));
+    assert((test_lsq_geo_expansion_expands_Y4m3<indexing_mode, sh_norm, sh_phase>()));
+    assert((test_lsq_geo_expansion_expands_Y31_plus_Y4m3<indexing_mode, sh_norm, sh_phase>()));
 }
 
 } // namespace
 
 int main()
 {
-    test_lsq<zest::st::SHNorm::geo, zest::st::SHPhase::none>();
-    test_lsq<zest::st::SHNorm::geo, zest::st::SHPhase::cs>();
-    test_lsq<zest::st::SHNorm::qm, zest::st::SHPhase::none>();
-    test_lsq<zest::st::SHNorm::qm, zest::st::SHPhase::cs>();
+    test_lsq<zest::IndexingMode::symmetric, zest::st::SHNorm::geo, zest::st::SHPhase::none>();
+    test_lsq<zest::IndexingMode::symmetric, zest::st::SHNorm::geo, zest::st::SHPhase::cs>();
+    test_lsq<zest::IndexingMode::symmetric, zest::st::SHNorm::qm, zest::st::SHPhase::none>();
+    test_lsq<zest::IndexingMode::symmetric, zest::st::SHNorm::qm, zest::st::SHPhase::cs>();
+
+    test_lsq<zest::IndexingMode::zero_based, zest::st::SHNorm::geo, zest::st::SHPhase::none>();
+    test_lsq<zest::IndexingMode::zero_based, zest::st::SHNorm::geo, zest::st::SHPhase::cs>();
+    test_lsq<zest::IndexingMode::zero_based, zest::st::SHNorm::qm, zest::st::SHPhase::none>();
+    test_lsq<zest::IndexingMode::zero_based, zest::st::SHNorm::qm, zest::st::SHPhase::cs>();
 }

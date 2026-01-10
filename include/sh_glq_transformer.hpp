@@ -387,8 +387,8 @@ public:
     template <typename T>
     using sh_span_type = SHSpan<T, IndexingMode::zero_based, sh_norm_param, sh_phase_param>;
 
-    static constexpr SHNorm norm = sh_norm_param;
-    static constexpr SHPhase phase = sh_phase_param;
+    static constexpr SHNorm sh_norm = sh_norm_param;
+    static constexpr SHPhase sh_phase = sh_phase_param;
 
     GLQTransformer(): 
         m_pocketfft_shape_grid(2),
@@ -491,7 +491,7 @@ public:
     */
     void forward_transform(
         SphereGLQGridSpan<const double, grid_layout_type> values,
-        SHSpan<double, IndexingMode::zero_based, norm, phase> expansion)
+        SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase> expansion)
     {
         resize(values.order());
 
@@ -501,7 +501,7 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        SHSpan<double, IndexingMode::zero_based, norm, phase> truncated_expansion(expansion.data(), min_order);
+        SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase> truncated_expansion(expansion.data(), min_order);
 
         integrate_latitudinal(truncated_expansion);
     }
@@ -514,14 +514,14 @@ public:
         @param values values on the spherical quadrature grid
     */
     void backward_transform(
-        SHSpan<const double, IndexingMode::zero_based, norm, phase> expansion,
+        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
         SphereGLQGridSpan<double, grid_layout_type> values)
     {
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        SHSpan<const double, IndexingMode::zero_based, norm, phase> truncated_expansion(expansion.data(), min_order);
+        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> truncated_expansion(expansion.data(), min_order);
 
         sum_l(truncated_expansion);
         symm_asymm_to_fft();
@@ -542,10 +542,10 @@ public:
     */
     template <zt::ZernikeNorm zernike_norm>
     void backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, norm, phase>::template const_subspan_type<1>& expansion,
+        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subspan_type<1>& expansion,
         SphereGLQGridSpan<double, grid_layout_type> values)
     {
-        using ExpansionType = typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, norm, phase>::template const_subspan_type<1>;
+        using ExpansionType = typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subspan_type<1>;
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
@@ -559,7 +559,7 @@ public:
 
     template <zt::ZernikeNorm zernike_norm>
     void backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, norm, phase>::template subspan_type<1>& expansion,
+        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template subspan_type<1>& expansion,
         SphereGLQGridSpan<double, grid_layout_type> values)
     {
         backward_transform((typename decltype(expansion)::const_view)(expansion), values);
@@ -572,11 +572,11 @@ public:
         @param values values on the spherical quadrature grid
         @param order order of expansion
     */
-    [[nodiscard]] SHExpansion<double, IndexingMode::zero_based, norm, phase>
+    [[nodiscard]] SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase>
     forward_transform(
         SphereGLQGridSpan<const double, grid_layout_type> values, std::size_t order)
     {
-        SHExpansion<double, IndexingMode::zero_based, norm, phase> expansion(order);
+        SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase> expansion(order);
         forward_transform(values, expansion);
         return expansion;
     }
@@ -589,7 +589,7 @@ public:
         @param expansion coefficients of the expansion
     */
     [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
-        SHSpan<const double, IndexingMode::zero_based, norm, phase> expansion, std::size_t order)
+        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion, std::size_t order)
     {
         SphereGLQGrid<double, grid_layout_type> grid(order);
         backward_transform(expansion, grid);
@@ -610,7 +610,7 @@ public:
     */
     template <zt::ZernikeNorm zernike_norm>
     [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, norm, phase>::template const_subspan_type<1>& expansion,
+        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subspan_type<1>& expansion,
         std::size_t order)
     {
         SphereGLQGrid<double, grid_layout_type> grid(order);
@@ -620,7 +620,7 @@ public:
 
     template <zt::ZernikeNorm zernike_norm>
     [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, norm, phase>::template subspan_type<1>& expansion,
+        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template subspan_type<1>& expansion,
         std::size_t order)
     {
         return backward_transform((typename decltype(expansion)::const_view)(expansion), order);
@@ -631,7 +631,7 @@ private:
         SphereGLQGridSpan<const double, grid_layout_type> values)
     {
         constexpr std::size_t lon_axis = grid_layout_type::lon_axis;
-        constexpr double sh_normalization = normalization<norm>();
+        constexpr double sh_normalization = normalization<sh_norm>();
         const double prefactor = sh_normalization*(2.0*std::numbers::pi)/double(values.extent(lon_axis));
         pocketfft::r2c(
             m_pocketfft_shape_grid, m_pocketfft_stride_grid, m_pocketfft_stride_fft,
@@ -777,7 +777,7 @@ private:
     }
 
     void integrate_latitudinal(
-        SHSpan<double, IndexingMode::zero_based, norm, phase> expansion) noexcept
+        SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase> expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_ass_leg = m_glq_weights.size();
@@ -863,7 +863,7 @@ private:
     }
 
     void sum_l(
-        SHSpan<const double, IndexingMode::zero_based, norm, phase> expansion) noexcept
+        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_ass_leg = m_glq_weights.size();
@@ -935,7 +935,7 @@ private:
 
     template <zt::ZernikeNorm zernike_norm>
     void sum_l(
-        typename zt::ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, norm, phase>::template const_subshape_type<1>& expansion) noexcept
+        typename zt::ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subshape_type<1>& expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_ass_leg = m_glq_weights.size();
@@ -1148,7 +1148,17 @@ template <
 class SHTransformer
 {
 public:
-    using GridLayout = GridLayoutType;
+    using grid_layout_type = GridLayoutType;
+
+    template <typename T>
+    using grid_span_type = SphereGLQGridSpan<T, grid_layout_type>;
+
+    template <typename T>
+    using sh_span_type = SHSpan<T, IndexingMode::zero_based, sh_norm_param, sh_phase_param>;
+
+    static constexpr SHNorm sh_norm = sh_norm_param;
+    static constexpr SHPhase sh_phase = sh_phase_param;
+
     SHTransformer() = default;
     explicit SHTransformer(std::size_t order):
         m_grid(order), m_points(order), m_transformer(order) {}
@@ -1256,9 +1266,9 @@ public:
     }
 
 private:
-    SphereGLQGrid<double, GridLayout> m_grid;
-    SphereGLQGridPoints<GridLayout> m_points;
-    GLQTransformer<sh_norm_param, sh_phase_param, GridLayout> m_transformer;
+    SphereGLQGrid<double, grid_layout_type> m_grid;
+    SphereGLQGridPoints<grid_layout_type> m_points;
+    GLQTransformer<sh_norm_param, sh_phase_param, grid_layout_type> m_transformer;
 };
 
 /**

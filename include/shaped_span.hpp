@@ -67,27 +67,27 @@ public:
     template <typename... ExtentTypes>
         requires std::constructible_from<shape_type, ExtentTypes...>
     constexpr ShapedSpan(pointer data, const ExtentTypes&... extents):
-        m_data(data), m_shape(extents...) {}
+        m_data{data}, m_shape{extents...} {}
 
     constexpr ShapedSpan(pointer data, const shape_type::extent_type& extents):
-        m_data(data), m_shape(extents) {}
+        m_data{data}, m_shape{extents} {}
     constexpr ShapedSpan(pointer data, const shape_type& shape):
-        m_data(data), m_shape(shape) {}
+        m_data{data}, m_shape{shape} {}
 
     template <typename... ExtentTypes>
         requires std::constructible_from<shape_type, ExtentTypes...>
     constexpr ShapedSpan(std::span<element_type> data, const ExtentTypes&... extents):
-        m_data(data.data()), m_shape(extents...) { assert(data.size() == m_shape.size()); }
+        m_data{data.data()}, m_shape{extents...} { assert(data.size() == m_shape.size()); }
 
     constexpr ShapedSpan(std::span<element_type> data, const shape_type::extent_type& extents):
-        m_data(data.data()), m_shape(extents) { assert(data.size() == m_shape.size()); }
+        m_data{data.data()}, m_shape{extents} { assert(data.size() == m_shape.size()); }
     constexpr ShapedSpan(std::span<element_type> data, const shape_type& shape):
-        m_data(data.data()), m_shape(shape) { assert(data.size() == m_shape.size()); }
+        m_data{data.data()}, m_shape{shape} { assert(data.size() == m_shape.size()); }
 
     template <shaped_contiguous_buffer T>
         requires std::same_as<typename T::shape_type, shape_type>
     constexpr ShapedSpan(const T& shaped_buffer):
-        m_data(shaped_buffer.data()), m_shape(shaped_buffer.shape()) {}
+        m_data{shaped_buffer.data()}, m_shape{shaped_buffer.shape()} {}
 
     [[nodiscard]] constexpr operator
     const_view() const noexcept { return const_view(m_data, m_shape); }

@@ -222,9 +222,9 @@ public:
     end() const noexcept { return iterator{end_param}; }
 };
 
-template <std::integral IndexType, IndexType begin_param, IndexType end_param>
+template <std::integral IndexType, IndexType begin, IndexType end>
 using StaticStandardIndexRange = StaticBasicIndexRange<
-    IndexType, begin_param, end_param, IndexType{1}>;
+    IndexType, begin, end, IndexType{1}>;
 
 template <std::integral IndexType>
 using SingleIndexRange = StaticBasicIndexRange<

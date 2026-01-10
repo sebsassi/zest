@@ -362,25 +362,25 @@ private:
     using RadZerShape = RadialZernikeShape<zernike_norm_param>;
 
 public:
-    using GridLayout = GridLayoutType;
+    using grid_layout_type = GridLayoutType;
 
     static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
     static constexpr st::SHNorm sh_norm = sh_norm_param;
-    static constexpr st::SHPhase phase = sh_phase_param;
+    static constexpr st::SHPhase sh_phase = sh_phase_param;
 
     GLQTransformer():
         m_pocketfft_shape_grid(3), m_pocketfft_stride_grid(3), 
         m_pocketfft_stride_fft(3) {};
     explicit GLQTransformer(std::size_t order):
         m_zernike_recursion(order), m_ass_leg_recursion(order),
-        m_rad_glq_nodes(GridLayout::rad_size(order)),
-        m_rad_glq_weights(GridLayout::rad_size(order)),
-        m_lat_glq_nodes(GridLayout::lat_size(order)),
-        m_lat_glq_weights(GridLayout::lat_size(order)),
-        m_zernike_grid(GridLayout::rad_size(order)*RadZerShape::size(order)),
-        m_ass_leg_grid(GridLayout::lat_size(order)*AssLegShape::size(order)),
-        m_flm_grid(GridLayout::rad_size(order)*AssLegShape::size(order)),
-        m_ffts(GridLayout::rad_size(order)*GridLayout::lat_size(order)*GridLayout::fft_size(order)),
+        m_rad_glq_nodes(grid_layout_type::rad_size(order)),
+        m_rad_glq_weights(grid_layout_type::rad_size(order)),
+        m_lat_glq_nodes(grid_layout_type::lat_size(order)),
+        m_lat_glq_weights(grid_layout_type::lat_size(order)),
+        m_zernike_grid(grid_layout_type::rad_size(order)*RadZerShape::size(order)),
+        m_ass_leg_grid(grid_layout_type::lat_size(order)*AssLegShape::size(order)),
+        m_flm_grid(grid_layout_type::rad_size(order)*AssLegShape::size(order)),
+        m_ffts(grid_layout_type::rad_size(order)*grid_layout_type::lat_size(order)*grid_layout_type::fft_size(order)),
         m_pocketfft_shape_grid(3),
         m_pocketfft_stride_grid(3),
         m_pocketfft_stride_fft(3),
@@ -407,7 +407,7 @@ public:
 
         m_ass_leg_recursion.generate_real(m_lat_glq_nodes, ass_leg);
 
-        auto shape = GridLayout::extents(order);
+        auto shape = grid_layout_type::extents(order);
         m_pocketfft_shape_grid[0] = shape[0];
         m_pocketfft_shape_grid[1] = shape[1];
         m_pocketfft_shape_grid[2] = shape[2];
@@ -416,7 +416,7 @@ public:
         m_pocketfft_stride_grid[1] = long(shape[2]*sizeof(double));
         m_pocketfft_stride_grid[2] = sizeof(double);
 
-        auto fft_stride = GridLayout::fft_stride(order);
+        auto fft_stride = grid_layout_type::fft_stride(order);
         m_pocketfft_stride_fft[0] = long(fft_stride[0]*sizeof(std::complex<double>));
         m_pocketfft_stride_fft[1] = long(fft_stride[1]*sizeof(std::complex<double>));
         m_pocketfft_stride_fft[2] = long(fft_stride[2]*sizeof(std::complex<double>));
@@ -437,10 +437,10 @@ public:
         m_ass_leg_recursion.expand(order);
         m_zernike_recursion.expand(order);
 
-        m_rad_glq_nodes.resize(GridLayout::rad_size(order));
-        m_rad_glq_weights.resize(GridLayout::rad_size(order));
-        m_lat_glq_nodes.resize(GridLayout::lat_size(order));
-        m_lat_glq_weights.resize(GridLayout::lat_size(order));
+        m_rad_glq_nodes.resize(grid_layout_type::rad_size(order));
+        m_rad_glq_weights.resize(grid_layout_type::rad_size(order));
+        m_lat_glq_nodes.resize(grid_layout_type::lat_size(order));
+        m_lat_glq_weights.resize(grid_layout_type::lat_size(order));
 
         gl::gl_nodes_and_weights<gl::UnpackedLayout, gl::GLNodeStyle::cos>(
                 m_rad_glq_nodes, m_rad_glq_weights,
@@ -452,7 +452,7 @@ public:
         for (auto& node : m_rad_glq_nodes)
             node = 0.5*(1.0 + node);
 
-        m_zernike_grid.resize(GridLayout::rad_size(order)*RadialZernikeShape<zernike_norm>::size(order));
+        m_zernike_grid.resize(grid_layout_type::rad_size(order)*RadialZernikeShape<zernike_norm>::size(order));
 
         RadZerSpan<double, std::dynamic_extent>
         zernike(m_zernike_grid, order, m_rad_glq_nodes.size());
@@ -460,14 +460,14 @@ public:
         m_zernike_recursion.generate<zernike_norm_param>(
                 m_rad_glq_nodes, zernike);
 
-        m_ass_leg_grid.resize(GridLayout::lat_size(order)*AssLegShape::size(order));
-        m_flm_grid.resize(GridLayout::rad_size(order)*AssLegShape::size(order));
+        m_ass_leg_grid.resize(grid_layout_type::lat_size(order)*AssLegShape::size(order));
+        m_flm_grid.resize(grid_layout_type::rad_size(order)*AssLegShape::size(order));
 
         AssLegSpan<double, std::dynamic_extent> ass_leg(m_ass_leg_grid, order, m_lat_glq_nodes.size());
         m_ass_leg_recursion.generate_real(m_lat_glq_nodes, ass_leg);
 
-        m_ffts.resize(GridLayout::rad_size(order)*GridLayout::lat_size(order)*GridLayout::fft_size(order));
-        std::array<std::size_t, 3> shape = GridLayout::extents(order);
+        m_ffts.resize(grid_layout_type::rad_size(order)*grid_layout_type::lat_size(order)*grid_layout_type::fft_size(order));
+        std::array<std::size_t, 3> shape = grid_layout_type::extents(order);
         m_pocketfft_shape_grid[0] = shape[0];
         m_pocketfft_shape_grid[1] = shape[1];
         m_pocketfft_shape_grid[2] = shape[2];
@@ -476,7 +476,7 @@ public:
         m_pocketfft_stride_grid[1] = long(shape[2]*sizeof(double));
         m_pocketfft_stride_grid[2] = sizeof(double);
 
-        std::array<std::size_t, 3> fft_stride = GridLayout::fft_stride(order);
+        std::array<std::size_t, 3> fft_stride = grid_layout_type::fft_stride(order);
         m_pocketfft_stride_fft[0] = long(fft_stride[0]*sizeof(std::complex<double>));
         m_pocketfft_stride_fft[1] = long(fft_stride[1]*sizeof(std::complex<double>));
         m_pocketfft_stride_fft[2] = long(fft_stride[2]*sizeof(std::complex<double>));
@@ -491,8 +491,8 @@ public:
         @param expansion coefficients of the expansion
     */
     void forward_transform(
-        BallGLQGridSpan<const double, GridLayout> values,
-        ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, phase> expansion)
+        BallGLQGridSpan<const double, grid_layout_type> values,
+        ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion)
     {
         resize(values.order());
 
@@ -502,7 +502,7 @@ public:
         std::size_t min_order = std::min(expansion.order(), values.order());
         integrate_latitudinal(min_order);
 
-        ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, phase>
+        ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>
         truncated_expansion(expansion.data(), min_order);
 
         integrate_radial(truncated_expansion);
@@ -515,14 +515,14 @@ public:
         @param values values on the ball quadrature grid
     */
     void backward_transform(
-        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, phase> expansion,
-        BallGLQGridSpan<double, GridLayout> values)
+        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
+        BallGLQGridSpan<double, grid_layout_type> values)
     {
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, phase>
+        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>
         truncated_expansion(expansion.data(), min_order);
 
         sum_n(truncated_expansion);
@@ -536,10 +536,10 @@ public:
         @param values values on the ball quadrature grid
         @param order order of expansion
     */
-    [[nodiscard]] ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, phase>
-    forward_transform(BallGLQGridSpan<const double, GridLayout> values, std::size_t order)
+    [[nodiscard]] ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>
+    forward_transform(BallGLQGridSpan<const double, grid_layout_type> values, std::size_t order)
     {
-        ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, phase>
+        ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>
         expansion(order);
 
         forward_transform(values, expansion);
@@ -552,21 +552,21 @@ public:
         @param values values on the ball quadrature grid
         @param expansion coefficients of the expansion
     */
-    [[nodiscard]] BallGLQGrid<double, GridLayout>
+    [[nodiscard]] BallGLQGrid<double, grid_layout_type>
     backward_transform(
-        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, phase> expansion,
+        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
         std::size_t order)
     {
-        BallGLQGrid<double, GridLayout> grid(order);
+        BallGLQGrid<double, grid_layout_type> grid(order);
         backward_transform(expansion, grid);
         return grid;
     }
 
 private:
     void integrate_longitudinal(
-        BallGLQGridSpan<const double, GridLayout> values)
+        BallGLQGridSpan<const double, grid_layout_type> values)
     {
-        constexpr std::size_t lon_axis = GridLayout::lon_axis;
+        constexpr std::size_t lon_axis = grid_layout_type::lon_axis;
         constexpr double radial_integral_norm = 0.5;
         constexpr double sh_norm = st::normalization<sh_norm_param>();
         const double fourier_norm = (2.0*std::numbers::pi)/double(values.extent(lon_axis));
@@ -581,12 +581,12 @@ private:
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
         const std::size_t lat_glq_size = m_lat_glq_weights.size();
-        const std::size_t fft_order = GridLayout::fft_size(m_order);
+        const std::size_t fft_order = grid_layout_type::fft_size(m_order);
 
         MDSpan<std::complex<double>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
-        fft(m_ffts.data(), {fft_order, lat_glq_size, rad_glq_size});
+        fft(m_ffts.data(), fft_order, lat_glq_size, rad_glq_size);
 
-        if constexpr (std::same_as<GridLayout, LonLatRadLayout<typename GridLayout::Alignment>>)
+        if constexpr (std::same_as<grid_layout_type, LonLatRadLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t m = 0; m < fft_order; ++m)
             {
@@ -637,19 +637,19 @@ private:
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
         const std::size_t lat_glq_size = m_lat_glq_weights.size();
-        const std::size_t fft_order = GridLayout::fft_size(m_order);
-        std::ranges::fill(m_flm_grid, std::array<double, 2>{});
+        const std::size_t fft_order = grid_layout_type::fft_size(m_order);
+        std::ranges::fill(m_flm_grid, 0.0);
 
-        st::SHSpan<double, IndexingMode::zero_based, sh_norm, phase, std::dynamic_extent>
-        flm(m_flm_grid, min_order, rad_glq_size);
+        st::SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase, std::dynamic_extent>
+        flm(m_flm_grid.data(), min_order, rad_glq_size);
 
         AssLegSpan<const double, std::dynamic_extent>
         ass_leg(m_ass_leg_grid, min_order, m_lat_glq_nodes.size());
 
         MDSpan<const std::complex<double>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
-        fft(m_ffts.data(), {fft_order, lat_glq_size, rad_glq_size});
+        fft(m_ffts.data(), fft_order, lat_glq_size, rad_glq_size);
 
-        if constexpr (std::same_as<GridLayout, LonLatRadLayout<typename GridLayout::Alignment>>)
+        if constexpr (std::same_as<grid_layout_type, LonLatRadLayout<typename grid_layout_type::Alignment>>)
         {
             for (auto l : flm.indices())
             {
@@ -676,18 +676,18 @@ private:
     }
 
     void integrate_radial(
-        ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, phase> expansion) noexcept
+        ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion) noexcept
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
-        std::ranges::fill(expansion.flatten(), std::array<double, 2>{});
+        std::ranges::fill(expansion.flatten(), 0.0);
 
-        st::SHSpan<double, IndexingMode::zero_based, sh_norm, phase, std::dynamic_extent>
+        st::SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase, std::dynamic_extent>
         flm(m_flm_grid, m_order, rad_glq_size);
 
         RadialZernikeSpan<const double, zernike_norm, std::dynamic_extent>
         zernike(m_zernike_grid, m_order, m_rad_glq_nodes.size());
 
-        if constexpr (std::same_as<GridLayout, LonLatRadLayout<typename GridLayout::Alignment>>)
+        if constexpr (std::same_as<grid_layout_type, LonLatRadLayout<typename grid_layout_type::Alignment>>)
         {
             for (auto n : expansion.indices())
             {
@@ -722,15 +722,15 @@ private:
     }
 
     void sum_n(
-        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, phase> expansion) noexcept
+        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion) noexcept
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
-        std::ranges::fill(m_flm_grid, std::array<double, 2>{});
+        std::ranges::fill(m_flm_grid, 0.0);
 
         RadialZernikeSpan<const double, zernike_norm, std::dynamic_extent>
         zernike(m_zernike_grid, expansion.order(), m_rad_glq_nodes.size());
 
-        st::SHSpan<double, IndexingMode::zero_based, sh_norm, phase, std::dynamic_extent>
+        st::SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase, std::dynamic_extent>
         flm(m_flm_grid, expansion.order(), rad_glq_size);
 
         for (auto n : expansion.indices())
@@ -759,10 +759,10 @@ private:
     {
         const std::size_t lat_glq_size = m_lat_glq_weights.size();
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
-        const std::size_t fft_order = GridLayout::fft_size(m_order);
+        const std::size_t fft_order = grid_layout_type::fft_size(m_order);
 
-        st::SHSpan<double, IndexingMode::zero_based, sh_norm, phase, std::dynamic_extent>
-        flm(m_flm_grid, min_order, rad_glq_size);
+        st::SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase, std::dynamic_extent>
+        flm(m_flm_grid.data(), min_order, rad_glq_size);
 
         RadialZernikeSpan<const double, zernike_norm, std::dynamic_extent>
         ass_leg(m_ass_leg_grid, m_order, m_lat_glq_nodes.size());
@@ -770,7 +770,7 @@ private:
         std::ranges::fill(m_ffts, std::complex<double>{});
 
         MDSpan<std::complex<double>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
-        fft(m_ffts.data(), {fft_order, lat_glq_size, rad_glq_size});
+        fft(m_ffts.data(), fft_order, lat_glq_size, rad_glq_size);
 
         for (auto l : flm.indices())
         {
@@ -797,9 +797,9 @@ private:
         }
     }
 
-    void sum_m(BallGLQGridSpan<double, GridLayout> values)
+    void sum_m(BallGLQGridSpan<double, grid_layout_type> values)
     {
-        constexpr std::size_t lon_axis = GridLayout::lon_axis;
+        constexpr std::size_t lon_axis = grid_layout_type::lon_axis;
         constexpr double prefactor = 1.0;
         pocketfft::c2r(
             m_pocketfft_shape_grid, m_pocketfft_stride_fft, m_pocketfft_stride_grid,
@@ -815,7 +815,7 @@ private:
     std::vector<double> m_lat_glq_weights;
     std::vector<double> m_zernike_grid;
     std::vector<double> m_ass_leg_grid;
-    std::vector<std::array<double, 2>> m_flm_grid;
+    std::vector<double> m_flm_grid;
     std::vector<std::complex<double>> m_ffts;
     std::vector<std::size_t> m_pocketfft_shape_grid;
     std::vector<std::ptrdiff_t> m_pocketfft_stride_grid;
@@ -920,7 +920,12 @@ template <ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase 
 class ZernikeTransformer
 {
 public:
-    using GridLayout = GridLayoutType;
+    using grid_layout_type = GridLayoutType;
+
+    static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
+    static constexpr st::SHNorm sh_norm = sh_norm_param;
+    static constexpr st::SHPhase sh_phase = sh_phase_param;
+
     ZernikeTransformer() = default;
     explicit ZernikeTransformer(std::size_t order):
         m_grid(order), m_points(order), m_transformer(order) {}
@@ -1043,9 +1048,9 @@ public:
     }
 
 private:
-    BallGLQGrid<double, GridLayout> m_grid;
-    BallGLQGridPoints<GridLayout> m_points;
-    GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param, GridLayout> m_transformer;
+    BallGLQGrid<double, grid_layout_type> m_grid;
+    BallGLQGridPoints<grid_layout_type> m_points;
+    GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param, grid_layout_type> m_transformer;
 };
 
 /**
