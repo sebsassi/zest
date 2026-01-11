@@ -194,6 +194,7 @@ concatenate(const T& tuple_like_t, const S& tuple_like_s) noexcept
 }
 
 template <typename T, std::size_t N>
+    requires (N > 0)
 [[nodiscard]] constexpr T
 product(const std::array<T, N>& arr) noexcept
 {
@@ -201,6 +202,13 @@ product(const std::array<T, N>& arr) noexcept
     for (std::size_t i = 1; i < N; ++i)
         res *= arr[i];
     return res;
+}
+
+template <typename T>
+[[nodiscard]] constexpr T
+product([[maybe_unused]] const std::array<T, 0>& arr) noexcept
+{
+    return T{};
 }
 
 template <typename... Ts>

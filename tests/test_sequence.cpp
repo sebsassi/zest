@@ -259,7 +259,7 @@ bool test_parity_row_triangle_sequence_index_first_zero_based(std::size_t n)
 {
     using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::zero_based>;
 
-    return Sequence::index(0) == Sequence::index(n, 0);
+    return Sequence::index(n) == Sequence::index(n, 0);
 }
 
 template <std::size_t N>
@@ -348,7 +348,7 @@ bool test_zernike_tetrahedral_sequence_index_first_zero_based(std::size_t n)
 {
     using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::zero_based>;
 
-    return Sequence::index(n) == Sequence::index(n, 0, 0);
+    return Sequence::index(n) == Sequence::index(n, n & 1, 0);
 }
 
 template <std::size_t N>
@@ -396,7 +396,7 @@ bool test_zernike_tetrahedral_sequence_index_first_symmetric(int n)
 {
         using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::symmetric>;
 
-    return Sequence::index(n) == Sequence::index(n, 0, 0);
+    return Sequence::index(n) == Sequence::index(n, n & 1, (~n & 1) - 1);
 }
 
 template <std::size_t N>
@@ -426,8 +426,9 @@ int main()
     assert(test_standard_linear_sequence_size<zest::IndexingMode::zero_based>(7, 7));
 
     assert(test_standard_linear_sequence_size<zest::IndexingMode::symmetric>(0, 0));
-    assert(test_standard_linear_sequence_size<zest::IndexingMode::symmetric>(1, 3));
-    assert(test_standard_linear_sequence_size<zest::IndexingMode::symmetric>(7, 15));
+    assert(test_standard_linear_sequence_size<zest::IndexingMode::symmetric>(1, 1));
+    assert(test_standard_linear_sequence_size<zest::IndexingMode::symmetric>(2, 3));
+    assert(test_standard_linear_sequence_size<zest::IndexingMode::symmetric>(7, 13));
 
     assert(test_standard_linear_sequence_index_zero_based(0, 0));
     assert(test_standard_linear_sequence_index_zero_based(1, 1));
@@ -454,8 +455,8 @@ int main()
     assert(test_parity_linear_sequence_size(2, 1));
     assert(test_parity_linear_sequence_size(3, 2));
     assert(test_parity_linear_sequence_size(4, 2));
-    assert(test_parity_linear_sequence_size(5, 4));
-    assert(test_parity_linear_sequence_size(6, 4));
+    assert(test_parity_linear_sequence_size(5, 3));
+    assert(test_parity_linear_sequence_size(6, 3));
 
     assert(test_parity_linear_sequence_index(0, 0));
     assert(test_parity_linear_sequence_index(1, 0));
@@ -475,7 +476,7 @@ int main()
     assert(test_triangle_sequence_size<zest::IndexingMode::zero_based>(0, 0));
     assert(test_triangle_sequence_size<zest::IndexingMode::zero_based>(1, 1));
     assert(test_triangle_sequence_size<zest::IndexingMode::zero_based>(2, 3));
-    assert(test_triangle_sequence_size<zest::IndexingMode::zero_based>(7, 21));
+    assert(test_triangle_sequence_size<zest::IndexingMode::zero_based>(7, 28));
 
     assert(test_triangle_sequence_size<zest::IndexingMode::symmetric>(0, 0));
     assert(test_triangle_sequence_size<zest::IndexingMode::symmetric>(1, 1));
@@ -563,11 +564,11 @@ int main()
 
     assert(test_even_triangle_sequence_index_range(0, std::array<std::size_t, 0>{}));
     assert(test_even_triangle_sequence_index_range(1, std::array<std::size_t, 1>{0}));
-    assert(test_even_triangle_sequence_index_range(2, std::array<std::size_t, 1>{1}));
-    assert(test_even_triangle_sequence_index_range(3, std::array<std::size_t, 2>{0, 2}));
-    assert(test_even_triangle_sequence_index_range(4, std::array<std::size_t, 2>{1, 3}));
-    assert(test_even_triangle_sequence_index_range(7, std::array<std::size_t, 4>{0, 2, 4, 6}));
-    assert(test_even_triangle_sequence_index_range(8, std::array<std::size_t, 4>{1, 3, 5, 7}));
+    assert(test_even_triangle_sequence_index_range(2, std::array<std::size_t, 2>{0, 1}));
+    assert(test_even_triangle_sequence_index_range(3, std::array<std::size_t, 3>{0, 1, 2}));
+    assert(test_even_triangle_sequence_index_range(4, std::array<std::size_t, 4>{0, 1, 2, 3}));
+    assert(test_even_triangle_sequence_index_range(7, std::array<std::size_t, 7>{0, 1, 2, 3, 4, 5, 6}));
+    assert(test_even_triangle_sequence_index_range(8, std::array<std::size_t, 8>{0, 1, 2, 3, 4, 5, 6, 7}));
 
     assert(test_parity_row_triangle_sequence_size_zero_based(0, 0));
     assert(test_parity_row_triangle_sequence_size_zero_based(1, 1));
@@ -589,12 +590,12 @@ int main()
     assert(test_parity_row_triangle_sequence_index_both_zero_based(3, 3, 5));
     assert(test_parity_row_triangle_sequence_index_both_zero_based(4, 0, 4));
     assert(test_parity_row_triangle_sequence_index_both_zero_based(4, 4, 8));
-    assert(test_parity_row_triangle_sequence_index_both_zero_based(5, 0, 5));
-    assert(test_parity_row_triangle_sequence_index_both_zero_based(5, 5, 10));
+    assert(test_parity_row_triangle_sequence_index_both_zero_based(5, 0, 6));
+    assert(test_parity_row_triangle_sequence_index_both_zero_based(5, 5, 11));
     assert(test_parity_row_triangle_sequence_index_both_zero_based(6, 0, 9));
     assert(test_parity_row_triangle_sequence_index_both_zero_based(6, 6, 15));
-    assert(test_parity_row_triangle_sequence_index_both_zero_based(7, 0, 11));
-    assert(test_parity_row_triangle_sequence_index_both_zero_based(7, 7, 18));
+    assert(test_parity_row_triangle_sequence_index_both_zero_based(7, 0, 12));
+    assert(test_parity_row_triangle_sequence_index_both_zero_based(7, 7, 19));
 
     assert(test_parity_row_triangle_sequence_index_first_zero_based(0));
     assert(test_parity_row_triangle_sequence_index_first_zero_based(1));
@@ -616,9 +617,9 @@ int main()
     assert(test_parity_row_triangle_sequence_size_symmetric(1, 1));
     assert(test_parity_row_triangle_sequence_size_symmetric(2, 3));
     assert(test_parity_row_triangle_sequence_size_symmetric(3, 6));
-    assert(test_parity_row_triangle_sequence_size_symmetric(4, 8));
+    assert(test_parity_row_triangle_sequence_size_symmetric(4, 10));
     assert(test_parity_row_triangle_sequence_size_symmetric(5, 15));
-    assert(test_parity_row_triangle_sequence_size_symmetric(6, 19));
+    assert(test_parity_row_triangle_sequence_size_symmetric(6, 21));
 
     assert(test_parity_row_triangle_sequence_index_both_symmetric(0, 0, 0));
     assert(test_parity_row_triangle_sequence_index_both_symmetric(1, -1, 0));
@@ -656,10 +657,10 @@ int main()
     assert(test_zernike_tetrahedral_sequence_size_zero_based(0, 0));
     assert(test_zernike_tetrahedral_sequence_size_zero_based(1, 1));
     assert(test_zernike_tetrahedral_sequence_size_zero_based(2, 3));
-    assert(test_zernike_tetrahedral_sequence_size_zero_based(3, 4));
-    assert(test_zernike_tetrahedral_sequence_size_zero_based(4, 10));
-    assert(test_zernike_tetrahedral_sequence_size_zero_based(5, 19));
-    assert(test_zernike_tetrahedral_sequence_size_zero_based(6, 31));
+    assert(test_zernike_tetrahedral_sequence_size_zero_based(3, 7));
+    assert(test_zernike_tetrahedral_sequence_size_zero_based(4, 13));
+    assert(test_zernike_tetrahedral_sequence_size_zero_based(5, 22));
+    assert(test_zernike_tetrahedral_sequence_size_zero_based(6, 34));
 
     assert(test_zernike_tetrahedral_sequence_index_all_zero_based(0, 0, 0, 0));
     assert(test_zernike_tetrahedral_sequence_index_all_zero_based(1, 1, 0, 1));
@@ -730,7 +731,7 @@ int main()
     assert(test_zernike_tetrahedral_sequence_index_all_symmetric(3, 1, -1, 10));
     assert(test_zernike_tetrahedral_sequence_index_all_symmetric(3, 1, 1, 12));
     assert(test_zernike_tetrahedral_sequence_index_all_symmetric(3, 3, -3, 13));
-    assert(test_zernike_tetrahedral_sequence_index_all_symmetric(3, 3, -3, 19));
+    assert(test_zernike_tetrahedral_sequence_index_all_symmetric(3, 3, 3, 19));
     assert(test_zernike_tetrahedral_sequence_index_all_symmetric(4, 0, 0, 20));
     assert(test_zernike_tetrahedral_sequence_index_all_symmetric(4, 2, -2, 21));
     assert(test_zernike_tetrahedral_sequence_index_all_symmetric(4, 2, 2, 25));

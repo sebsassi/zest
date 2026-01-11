@@ -74,7 +74,7 @@ bool test_parity_index_range_even()
     std::array<std::size_t, 5> reference = {0, 2, 4, 6, 8};
     bool success = true;
     std::size_t j = 0;
-    for (std::size_t i : zest::ParityIndexRange<std::size_t>{10})
+    for (std::size_t i : zest::ParityIndexRange<std::size_t>{9})
     {
         success = success && (i == reference[j]);
         ++j;
@@ -82,7 +82,7 @@ bool test_parity_index_range_even()
 
     if (!success)
     {
-        for (std::size_t i : zest::StandardIndexRange<std::size_t>{10})
+        for (std::size_t i : zest::StandardIndexRange<std::size_t>{9})
             std::printf("%lu ", i);
     }
 
@@ -94,7 +94,7 @@ bool test_parity_index_range_odd()
     std::array<std::size_t, 5> reference = {1, 3, 5, 7, 9};
     bool success = true;
     std::size_t j = 0;
-    for (std::size_t i : zest::ParityIndexRange<std::size_t>{11})
+    for (std::size_t i : zest::ParityIndexRange<std::size_t>{10})
     {
         success = success && (i == reference[j]);
         ++j;
@@ -102,7 +102,7 @@ bool test_parity_index_range_odd()
 
     if (!success)
     {
-        for (std::size_t i : zest::StandardIndexRange<std::size_t>{11})
+        for (std::size_t i : zest::StandardIndexRange<std::size_t>{10})
             std::printf("%lu ", i);
     }
 

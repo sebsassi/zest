@@ -130,14 +130,14 @@ public:
         @brief Increment index by multiple strides.
     */
     constexpr IndexIterator& operator+=(index_type n) noexcept
-    { m_index += n; return *this; }
+    { m_index += n*stride; return *this; }
 
 
     /**
         @brief Decrement index by multiple strides.
     */
     constexpr IndexIterator& operator-=(index_type n) noexcept
-    { m_index += n; return *this; }
+    { m_index += n*stride; return *this; }
 
     /**
         @brief Add `n` strides to index.
@@ -189,7 +189,7 @@ public:
     using iterator = IndexIterator<index_type, stride_param>;
 
     explicit constexpr BasicIndexRange(index_type begin, index_type end):
-        m_begin(begin), m_end(end) {}
+        m_begin(std::min(begin, end)), m_end(end) {}
 
     /**
         @brief Iterator to the beginning of the range.
@@ -273,21 +273,21 @@ public:
     using iterator = BasicIndexRange<IndexType, IndexType{2}>::iterator;
 
     /**
-        @brief Constructs a range of indices `[end % 2, end)`.
+        @brief Constructs a range of indices `[(end + 1) % 2, end + 1)`.
 
         @param end end of index range
     */
     explicit constexpr ParityIndexRange(index_type end):
-        BasicIndexRange<index_type, index_type{2}>(end & 1, end) {}
+        BasicIndexRange<index_type, index_type{2}>((end + 1) & 1, end + 1) {}
 
     /**
-        @brief Constructs a range of indices `[2*floor(begin/2) + end % 2, end)`.
+        @brief Constructs a range of indices `[2*floor(begin/2) + (end + 1) % 2, end + 1)`.
 
         @param begin start of index range
         @param end end of index range
     */
     explicit constexpr ParityIndexRange(index_type begin, index_type end):
-        BasicIndexRange<index_type, index_type{2}>((begin & ~1UL) + (end & 1), end) {}
+        BasicIndexRange<index_type, index_type{2}>((begin & ~1UL) + ((end + 1) & 1), end + 1) {}
 };
 
 /**
