@@ -22,6 +22,7 @@ SOFTWARE.
 #include "zernike_glq_transformer.hpp"
 
 #include <cassert>
+#include <print>
 
 namespace
 {
@@ -88,24 +89,26 @@ bool test_glq_forward_transform_expands_Z000()
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t n = 0; n < order; ++n)
+    for (auto n : expansion.indices())
     {
-        for (std::size_t l = n & 1; l <= n; l += 2)
+        auto expansion_n = expansion[n];
+        for (auto l : expansion_n.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
+            auto expansion_nl = expansion_n[l];
+            for (auto m : expansion_nl.indices())
             {
                 if (n == 0 && l == 0 && m == 0)
                 {
-                    if (is_close(expansion(n,l,m)[0], reference_coeff, tol)
-                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                    if (is_close(expansion_nl[m, 0], reference_coeff, tol)
+                            && is_close(expansion_nl[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion(n,l,m)[0], 0.0, tol)
-                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                    if (is_close(expansion_nl[m, 0], 0.0, tol)
+                            && is_close(expansion_nl[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -116,15 +119,17 @@ bool test_glq_forward_transform_expands_Z000()
 
     if (!success)
     {
-        for (std::size_t n = 0; n <= order; ++n)
+        for (auto n : expansion.indices())
         {
-            for (std::size_t l = n & 1; l <= n; l += 2)
+            auto expansion_n = expansion[n];
+            for (auto l : expansion_n.indices())
             {
-                for (std::size_t m = 0; m <= l; ++m)
+                auto expansion_nl = expansion_n[l];
+                for (auto m : expansion_nl.indices())
                 {
-                    std::printf(
-                            "(%lu,%lu,%lu) %f %f\n", n, l, m,
-                            expansion(n,l,m)[0], expansion(n,l,m)[1]);
+                    std::println(
+                            "({}, {}, {}) {} {}", n, l, m,
+                            expansion_nl[m, 0], expansion_nl[m, 1]);
                 }
             }
         }
@@ -164,24 +169,26 @@ bool test_glq_forward_transform_expands_Z200()
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t n = 0; n < order; ++n)
+    for (auto n : expansion.indices())
     {
-        for (std::size_t l = n & 1; l <= n; l += 2)
+        auto expansion_n = expansion[n];
+        for (auto l : expansion_n.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
+            auto expansion_nl = expansion_n[l];
+            for (auto m : expansion_nl.indices())
             {
                 if (n == 2 && l == 0 && m == 0)
                 {
-                    if (is_close(expansion(n,l,m)[0], reference_coeff, tol)
-                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                    if (is_close(expansion_nl[m, 0], reference_coeff, tol)
+                            && is_close(expansion_nl[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion(n,l,m)[0], 0.0, tol)
-                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                    if (is_close(expansion_nl[m, 0], 0.0, tol)
+                            && is_close(expansion_nl[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -192,15 +199,17 @@ bool test_glq_forward_transform_expands_Z200()
 
     if (!success)
     {
-        for (std::size_t n = 0; n <= order; ++n)
+        for (auto n : expansion.indices())
         {
-            for (std::size_t l = n & 1; l <= n; l += 2)
+            auto expansion_n = expansion[n];
+            for (auto l : expansion_n.indices())
             {
-                for (std::size_t m = 0; m <= l; ++m)
+                auto expansion_nl = expansion_n[l];
+                for (auto m : expansion_nl.indices())
                 {
-                    std::printf(
-                            "(%lu,%lu,%lu) %f %f\n", n, l, m,
-                            expansion(n,l,m)[0], expansion(n,l,m)[1]);
+                    std::println(
+                            "({}, {}, {}) {} {}", n, l, m,
+                            expansion_nl[m, 0], expansion_nl[m, 1]);
                 }
             }
         }
@@ -239,24 +248,26 @@ bool test_glq_forward_transform_expands_Z110()
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t n = 0; n < order; ++n)
+    for (auto n : expansion.indices())
     {
-        for (std::size_t l = n & 1; l < n; l += 2)
+        auto expansion_n = expansion[n];
+        for (auto l : expansion_n.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
+            auto expansion_nl = expansion_n[l];
+            for (auto m : expansion_nl.indices())
             {
                 if (n == 1 && l == 1 && m == 0)
                 {
-                    if (is_close(expansion(n,l,m)[0], reference_coeff, tol)
-                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                    if (is_close(expansion_nl[m, 0], reference_coeff, tol)
+                            && is_close(expansion_nl[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion(n,l,m)[0], 0.0, tol)
-                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                    if (is_close(expansion_nl[m, 0], 0.0, tol)
+                            && is_close(expansion_nl[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -267,15 +278,17 @@ bool test_glq_forward_transform_expands_Z110()
 
     if (!success)
     {
-        for (std::size_t n = 0; n < order; ++n)
+        for (auto n : expansion.indices())
         {
-            for (std::size_t l = n & 1; l <= n; l += 2)
+            auto expansion_n = expansion[n];
+            for (auto l : expansion_n.indices())
             {
-                for (std::size_t m = 0; m <= l; ++m)
+                auto expansion_nl = expansion_n[l];
+                for (auto m : expansion_nl.indices())
                 {
-                    std::printf(
-                            "(%lu,%lu,%lu) %f %f\n", n, l, m,
-                            expansion(n,l,m)[0], expansion(n,l,m)[1]);
+                    std::println(
+                            "({}, {}, {}) {} {}", n, l, m,
+                            expansion_nl[m, 0], expansion_nl[m, 1]);
                 }
             }
         }
@@ -317,24 +330,26 @@ bool test_glq_forward_transform_expands_Z221()
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t n = 0; n < order; ++n)
+    for (auto n : expansion.indices())
     {
-        for (std::size_t l = n & 1; l <= n; l += 2)
+        auto expansion_n = expansion[n];
+        for (auto l : expansion_n.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
+            auto expansion_nl = expansion_n[l];
+            for (auto m : expansion_nl.indices())
             {
                 if (n == 2 && l == 2 && m == 1)
                 {
-                    if (is_close(expansion(n,l,m)[0], reference_coeff, tol)
-                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                    if (is_close(expansion_nl[m, 0], reference_coeff, tol)
+                            && is_close(expansion_nl[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion(n,l,m)[0], 0.0, tol)
-                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                    if (is_close(expansion_nl[m, 0], 0.0, tol)
+                            && is_close(expansion_nl[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -345,15 +360,17 @@ bool test_glq_forward_transform_expands_Z221()
 
     if (!success)
     {
-        for (std::size_t n = 0; n <= order; ++n)
+        for (auto n : expansion.indices())
         {
-            for (std::size_t l = n & 1; l <= n; l += 2)
+            auto expansion_n = expansion[n];
+            for (auto l : expansion_n.indices())
             {
-                for (std::size_t m = 0; m <= l; ++m)
+                auto expansion_nl = expansion_n[l];
+                for (auto m : expansion_nl.indices())
                 {
-                    std::printf(
-                            "(%lu,%lu,%lu) %f %f\n", n, l, m,
-                            expansion(n,l,m)[0], expansion(n,l,m)[1]);
+                    std::println(
+                            "({}, {}, {}) {} {}", n, l, m,
+                            expansion_nl[m, 0], expansion_nl[m, 1]);
                 }
             }
         }
@@ -390,24 +407,26 @@ bool test_glq_forward_transform_expands_Z33m2()
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t n = 0; n < order; ++n)
+    for (auto n : expansion.indices())
     {
-        for (std::size_t l = n & 1; l <= n; l += 2)
+        auto expansion_n = expansion[n];
+        for (auto l : expansion_n.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
+            auto expansion_nl = expansion_n[l];
+            for (auto m : expansion_nl.indices())
             {
                 if (n == 3 && l == 3 && m == 2)
                 {
-                    if (is_close(expansion(n,l,m)[0], 0.0, tol)
-                            && is_close(expansion(n,l,m)[1], reference_coeff, tol))
+                    if (is_close(expansion_nl[m, 0], 0.0, tol)
+                            && is_close(expansion_nl[m, 1], reference_coeff, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion(n,l,m)[0], 0.0, tol)
-                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                    if (is_close(expansion_nl[m, 0], 0.0, tol)
+                            && is_close(expansion_nl[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -418,15 +437,17 @@ bool test_glq_forward_transform_expands_Z33m2()
 
     if (!success)
     {
-        for (std::size_t n = 0; n <= order; ++n)
+        for (auto n : expansion.indices())
         {
-            for (std::size_t l = n & 1; l <= n; l += 2)
+            auto expansion_n = expansion[n];
+            for (auto l : expansion_n.indices())
             {
-                for (std::size_t m = 0; m <= l; ++m)
+                auto expansion_nl = expansion_n[l];
+                for (auto m : expansion_nl.indices())
                 {
-                    std::printf(
-                            "(%lu,%lu,%lu) %f %f\n", n, l, m,
-                            expansion(n,l,m)[0], expansion(n,l,m)[1]);
+                    std::println(
+                            "({}, {}, {}) {} {}", n, l, m,
+                            expansion_nl[m, 0], expansion_nl[m, 1]);
                 }
             }
         }
@@ -468,24 +489,26 @@ bool test_glq_forward_transform_expands_Z531()
     constexpr double tol = 1.0e-10;
 
     bool success = true;
-    for (std::size_t n = 0; n < order; ++n)
+    for (auto n : expansion.indices())
     {
-        for (std::size_t l = n & 1; l <= n; l += 2)
+        auto expansion_n = expansion[n];
+        for (auto l : expansion_n.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
+            auto expansion_nl = expansion_n[l];
+            for (auto m : expansion_nl.indices())
             {
                 if (n == 5 && l == 3 && m == 1)
                 {
-                    if (is_close(expansion(n,l,m)[0], reference_coeff, tol)
-                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                    if (is_close(expansion_nl[m, 0], reference_coeff, tol)
+                            && is_close(expansion_nl[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion(n,l,m)[0], 0.0, tol)
-                            && is_close(expansion(n,l,m)[1], 0.0, tol))
+                    if (is_close(expansion_nl[m, 0], 0.0, tol)
+                            && is_close(expansion_nl[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -496,15 +519,17 @@ bool test_glq_forward_transform_expands_Z531()
 
     if (!success)
     {
-        for (std::size_t n = 0; n <= order; ++n)
+        for (auto n : expansion.indices())
         {
-            for (std::size_t l = n & 1; l <= n; l += 2)
+            auto expansion_n = expansion[n];
+            for (auto l : expansion_n.indices())
             {
-                for (std::size_t m = 0; m <= l; ++m)
+                auto expansion_nl = expansion_n[l];
+                for (auto m : expansion_nl.indices())
                 {
-                    std::printf(
-                            "(%lu,%lu,%lu) %f %f\n", n, l, m,
-                            expansion(n,l,m)[0], expansion(n,l,m)[1]);
+                    std::println(
+                            "({}, {}, {}) {} {}", n, l, m,
+                            expansion_nl[m, 0], expansion_nl[m, 1]);
                 }
             }
         }
@@ -548,34 +573,34 @@ bool test_glq_backward_transform_evaluates_Z000()
         for (std::size_t j = 0; j < grid.extent(1); ++j)
         {
             for (std::size_t k = 0; k < grid.extent(2); ++k)
-                if (!is_close(grid(i, j, k), test_grid(i, j, k), tol))
+                if (!is_close(grid[i, j, k], test_grid[i, j, k], tol))
                     success = false;
         }
     }
 
     if (!success)
     {
-        std::printf("test_grid\n");
+        std::println("test_grid");
         for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
             for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
                 for (std::size_t k = 0; k < grid.extent(2); ++k)
-                    std::printf("%f ", test_grid(i, j, k));
-                std::printf("\n");
+                    std::print("{} ", test_grid[i, j, k]);
+                std::println("");
             }
-            std::printf("\n");
+            std::println("");
         }
-        std::printf("grid\n");
+        std::println("grid");
         for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
             for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
                 for (std::size_t k = 0; k < grid.extent(2); ++k)
-                    std::printf("%f ", grid(i, j, k));
-                std::printf("\n");
+                    std::print("{} ", grid[i, j, k]);
+                std::println("");
             }
-            std::printf("\n");
+            std::println("");
         }
     }
     return success;
@@ -618,34 +643,34 @@ bool test_glq_backward_transform_evaluates_Z110()
         for (std::size_t j = 0; j < grid.extent(1); ++j)
         {
             for (std::size_t k = 0; k < grid.extent(2); ++k)
-                if (!is_close(grid(i, j, k), test_grid(i, j, k), tol))
+                if (!is_close(grid[i, j, k], test_grid[i, j, k], tol))
                     success = false;
         }
     }
 
     if (!success)
     {
-        std::printf("test_grid\n");
+        std::println("test_grid");
         for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
             for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
                 for (std::size_t k = 0; k < grid.extent(2); ++k)
-                    std::printf("%f ", test_grid(i, j, k));
-                std::printf("\n");
+                    std::print("{} ", test_grid[i, j, k]);
+                std::println("");
             }
-            std::printf("\n");
+            std::println("");
         }
-        std::printf("grid\n");
+        std::println("grid");
         for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
             for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
                 for (std::size_t k = 0; k < grid.extent(2); ++k)
-                    std::printf("%f ", grid(i, j, k));
-                std::printf("\n");
+                    std::print("{} ", grid[i, j, k]);
+                std::println("");
             }
-            std::printf("\n");
+            std::println("");
         }
     }
     return success;
@@ -688,34 +713,34 @@ bool test_glq_backward_transform_evaluates_Z200()
         for (std::size_t j = 0; j < grid.extent(1); ++j)
         {
             for (std::size_t k = 0; k < grid.extent(2); ++k)
-                if (!is_close(grid(i, j, k), test_grid(i, j, k), tol))
+                if (!is_close(grid[i, j, k], test_grid[i, j, k], tol))
                     success = false;
         }
     }
 
     if (!success)
     {
-        std::printf("test_grid\n");
+        std::println("test_grid");
         for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
             for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
                 for (std::size_t k = 0; k < grid.extent(2); ++k)
-                    std::printf("%f ", test_grid(i, j, k));
-                std::printf("\n");
+                    std::print("{} ", test_grid[i, j, k]);
+                std::println("");
             }
-            std::printf("\n");
+            std::println("");
         }
-        std::printf("grid\n");
+        std::println("grid");
         for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
             for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
                 for (std::size_t k = 0; k < grid.extent(2); ++k)
-                    std::printf("%f ", grid(i, j, k));
-                std::printf("\n");
+                    std::print("{} ", grid[i, j, k]);
+                std::println("");
             }
-            std::printf("\n");
+            std::println("");
         }
     }
     return success;
@@ -760,34 +785,34 @@ bool test_glq_backward_transform_evaluates_Z221()
         for (std::size_t j = 0; j < grid.extent(1); ++j)
         {
             for (std::size_t k = 0; k < grid.extent(2); ++k)
-                if (!is_close(grid(i, j, k), test_grid(i, j, k), tol))
+                if (!is_close(grid[i, j, k], test_grid[i, j, k], tol))
                     success = false;
         }
     }
 
     if (!success)
     {
-        std::printf("test_grid\n");
+        std::println("test_grid");
         for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
             for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
                 for (std::size_t k = 0; k < grid.extent(2); ++k)
-                    std::printf("%f ", test_grid(i, j, k));
-                std::printf("\n");
+                    std::print("{} ", test_grid[i, j, k]);
+                std::println("");
             }
-            std::printf("\n");
+            std::println("");
         }
-        std::printf("grid\n");
+        std::println("grid");
         for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
             for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
                 for (std::size_t k = 0; k < grid.extent(2); ++k)
-                    std::printf("%f ", grid(i, j, k));
-                std::printf("\n");
+                    std::print("{} ", grid[i, j, k]);
+                std::println("");
             }
-            std::printf("\n");
+            std::println("");
         }
     }
     return success;
@@ -827,34 +852,34 @@ bool test_glq_backward_transform_evaluates_Z33m2()
         for (std::size_t j = 0; j < grid.extent(1); ++j)
         {
             for (std::size_t k = 0; k < grid.extent(2); ++k)
-                if (!is_close(grid(i, j, k), test_grid(i, j, k), tol))
+                if (!is_close(grid[i, j, k], test_grid[i, j, k], tol))
                     success = false;
         }
     }
 
     if (!success)
     {
-        std::printf("test_grid\n");
+        std::println("test_grid");
         for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
             for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
                 for (std::size_t k = 0; k < grid.extent(2); ++k)
-                    std::printf("%f ", test_grid(i, j, k));
-                std::printf("\n");
+                    std::print("{} ", test_grid[i, j, k]);
+                std::println("");
             }
-            std::printf("\n");
+            std::println("");
         }
-        std::printf("grid\n");
+        std::println("grid");
         for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
             for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
                 for (std::size_t k = 0; k < grid.extent(2); ++k)
-                    std::printf("%f ", grid(i, j, k));
-                std::printf("\n");
+                    std::print("{} ", grid[i, j, k]);
+                std::println("");
             }
-            std::printf("\n");
+            std::println("");
         }
     }
     return success;
@@ -899,34 +924,34 @@ bool test_glq_backward_transform_evaluates_Z531()
         for (std::size_t j = 0; j < grid.extent(1); ++j)
         {
             for (std::size_t k = 0; k < grid.extent(2); ++k)
-                if (!is_close(grid(i, j, k), test_grid(i, j, k), tol))
+                if (!is_close(grid[i, j, k], test_grid[i, j, k], tol))
                     success = false;
         }
     }
 
     if (!success)
     {
-        std::printf("test_grid\n");
+        std::println("test_grid");
         for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
             for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
                 for (std::size_t k = 0; k < grid.extent(2); ++k)
-                    std::printf("%f ", test_grid(i, j, k));
-                std::printf("\n");
+                    std::print("{} ", test_grid[i, j, k]);
+                std::println("");
             }
-            std::printf("\n");
+            std::println("");
         }
-        std::printf("grid\n");
+        std::println("grid");
         for (std::size_t i = 0; i < grid.extent(0); ++i)
         {
             for (std::size_t j = 0; j < grid.extent(1); ++j)
             {
                 for (std::size_t k = 0; k < grid.extent(2); ++k)
-                    std::printf("%f ", grid(i, j, k));
-                std::printf("\n");
+                    std::print("{} ", grid[i, j, k]);
+                std::println("");
             }
-            std::printf("\n");
+            std::println("");
         }
     }
     return success;
@@ -967,7 +992,7 @@ bool test_zernike_transform_converges()
         for (std::size_t j = 0; j < grid.extent(1); ++j)
         {
             for (std::size_t k = 0; k < grid.extent(2); ++k)
-                if (!is_close(grid(i, j, k), test_grid(i, j, k), tol))
+                if (!is_close(grid[i, j, k], test_grid[i, j, k], tol))
                     success = false;
         }
     }

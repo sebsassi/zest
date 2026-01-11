@@ -26,6 +26,7 @@ SOFTWARE.
 #include <span>
 #include <vector>
 
+#include "triangle_spans.hpp"
 #include "zernike_expansion.hpp"
 
 namespace zest::zt
@@ -108,14 +109,15 @@ public:
 
         for (auto n : zernike.indices(4))
         {
+            auto k1_n = m_k1[n];
+            auto k2_n = m_k2[n];
+            auto k3_n = m_k3[n];
             auto zernike_n = zernike[n];
             auto zernike_nm2 = zernike[n - 2];
             auto zernike_nm4 = zernike[n - 4];
             for (std::size_t l = n & 1; l <= n - 4; l += 2)
             {
-                const std::size_t ind = zernike.shape()(n, l);
-                zernike_n[l] = (m_k2[ind] + m_k1[ind]*r2)*zernike_nm2[l]
-                    + m_k3[ind]*zernike_nm4[l];
+                zernike_n[l] = (k2_n[l] + k1_n[l]*r2)*zernike_nm2[l] + k3_n[l]*zernike_nm4[l];
 
                 if constexpr (zernike_norm == ZernikeNorm::normed)
                     zernike_nm4[l] *= m_norms[n - 4];
@@ -233,18 +235,22 @@ public:
 
         for (std::size_t n = 4; n < order; ++n)
         {
+            auto k1_n = m_k1[n];
+            auto k2_n = m_k2[n];
+            auto k3_n = m_k3[n];
             auto zernike_n = zernike[n];
             auto zernike_nm2 = zernike[n - 2];
             auto zernike_nm4 = zernike[n - 4];
             for (std::size_t l = n & 1; l <= n - 4; l += 2)
             {
-                const std::size_t ind = zernike.shape()(n, l);
+                const double k1_nl = k1_n[l];
+                const double k2_nl = k2_n[l];
+                const double k3_nl = k3_n[l];
                 auto z_nl = zernike_n[l];
                 auto z_nm2l = zernike_nm2[l];
                 auto z_nm4l = zernike_nm4[l];
                 for (std::size_t i = 0; i < z_nl.size(); ++i)
-                    z_nl[i] = (m_k2[ind] + m_k1[ind]*z_22[i])*z_nm2l[i]
-                        + m_k3[ind]*z_nm4l[i];
+                    z_nl[i] = (k2_nl + k1_nl*z_22[i])*z_nm2l[i] + k3_nl*z_nm4l[i];
 
                 if constexpr (zernike_norm == ZernikeNorm::normed)
                 {
@@ -301,9 +307,9 @@ public:
 
 private:
     std::vector<double> m_norms;
-    std::vector<double> m_k1;
-    std::vector<double> m_k2;
-    std::vector<double> m_k3;
+    EvenTriangleArray<double> m_k1;
+    EvenTriangleArray<double> m_k2;
+    EvenTriangleArray<double> m_k3;
     std::size_t m_max_order{};
 };
 

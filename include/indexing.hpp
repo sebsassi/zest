@@ -22,8 +22,11 @@ SOFTWARE.
 #pragma once
 
 #include <array>
+#include <cassert>
 #include <concepts>
 #include <cstddef>
+
+#include "utility.hpp"
 
 namespace zest
 {
@@ -38,9 +41,13 @@ index(const std::array<SizeType, N>& extents, IndexType ind, Inds... inds) noexc
 {
     auto impl = [&]<std::size_t... I>(std::index_sequence<I...>)
     {
+        assert(ind < IndexType(extents[0]) && ((IndexType(inds) < IndexType(extents[1 + I])) && ...));
         IndexType res = ind;
         ([&]{ res = res*IndexType(extents[1 + I]) + IndexType(inds); }(), ...);
-        return res;
+        if constexpr (sizeof...(Inds) + 1 == N)
+            return res;
+        else
+            return product(take_last<N - sizeof...(Inds) - 1>(extents))*res;
     };
     return impl(std::make_index_sequence<sizeof...(Inds)>{});
 }
@@ -278,7 +285,7 @@ public:
         @param end end of index range
     */
     explicit constexpr ParityIndexRange(index_type end):
-        BasicIndexRange<index_type, index_type{2}>((end + 1) & 1, end + 1) {}
+        BasicIndexRange<index_type, index_type{2}>(1 & (end + 1), end + 1) {}
 
     /**
         @brief Constructs a range of indices `[2*floor(begin/2) + (end + 1) % 2, end + 1)`.
@@ -287,7 +294,7 @@ public:
         @param end end of index range
     */
     explicit constexpr ParityIndexRange(index_type begin, index_type end):
-        BasicIndexRange<index_type, index_type{2}>((begin & ~1UL) + ((end + 1) & 1), end + 1) {}
+        BasicIndexRange<index_type, index_type{2}>(begin + (1 & (begin ^ (end + 1))), end + 1) {}
 };
 
 /**

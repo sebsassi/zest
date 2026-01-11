@@ -156,7 +156,6 @@ public:
     [[nodiscard]] constexpr index_range
     indices(index_type index) const noexcept
     {
-        assert(index < order());
         return index_range(index, index_type(index_type(m_order)));
     }
 
@@ -346,7 +345,6 @@ public:
     [[nodiscard]] constexpr auto
     indices(index_type index) const noexcept
     {
-        assert(index < extent(0));
         return index_range(index, index_type(m_extents[0]));
     }
 
@@ -472,7 +470,6 @@ public:
     [[nodiscard]] constexpr auto
     indices(index_type index) const noexcept
     {
-        assert(index < extent(0));
         return index_range(index, index_type(static_extents[0]));
     }
 };

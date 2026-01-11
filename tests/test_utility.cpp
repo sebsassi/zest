@@ -109,7 +109,7 @@ int main()
     assert(test_concatenate(std::tuple{0}, std::tuple{}, std::tuple{0}));
     assert(test_concatenate(std::tuple{0, 0.0}, std::tuple{0UL, "", 0.0F}, std::tuple{0, 0.0, 0UL, "", 0.0F}));
 
-    assert(test_product(std::array<std::size_t, 0>{}, 0));
+    assert(test_product(std::array<std::size_t, 0>{}, 1));
     assert(test_product(std::array<std::size_t, 1>{1}, 1));
     assert(test_product(std::array<std::size_t, 5>{1, 2, 3, 4, 5}, 120));
 }

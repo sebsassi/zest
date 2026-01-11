@@ -104,7 +104,7 @@ public:
     template <SHNorm sh_norm, SHPhase sh_phase>
     void generate_real(
         std::span<const double> z,
-        AssociatedLegendreExpansion<double, sh_norm, sh_phase, std::dynamic_extent> ass_leg)
+        AssociatedLegendreExpansion<double, sh_norm, sh_phase, std::dynamic_extent>& ass_leg)
     {
         return generate_impl(
             z, std::numbers::sqrt2,
@@ -123,7 +123,7 @@ public:
         return generate_impl(z, 1.0, ass_leg);
     }
     template <SHNorm sh_norm, SHPhase sh_phase>
-    void generate_complex(double z, AssociatedLegendreExpansion<double, sh_norm, sh_phase> ass_leg)
+    void generate_complex(double z, AssociatedLegendreExpansion<double, sh_norm, sh_phase>& ass_leg)
     {
         return generate_impl(z, 1.0, AssociatedLegendreSpan<double, sh_norm, sh_phase>(ass_leg));
     }

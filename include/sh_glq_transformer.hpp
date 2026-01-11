@@ -25,6 +25,7 @@ SOFTWARE.
 #include <complex>
 #include <concepts>
 #include <cstddef>
+#include <functional>
 #include <span>
 #include <type_traits>
 #include <vector>
@@ -301,7 +302,7 @@ public:
                 for (std::size_t j = 0; j < m_longitudes.size(); ++j)
                 {
                     const double lon = m_longitudes[j];
-                    grid[i, j] = f(lon, colatitude);
+                    grid[i, j] = std::forward<FuncType>(f)(lon, colatitude);
                 }
             }
         }
@@ -313,10 +314,25 @@ public:
                 for (std::size_t j = 0; j < m_glq_nodes.size(); ++j)
                 {
                     const double colatitude = m_glq_nodes[j];
-                    grid[i, j] = f(lon, colatitude);
+                    grid[i, j] = std::forward<FuncType>(f)(lon, colatitude);
                 }
             }
         }
+    }
+
+    /**
+        @brief Generate Gauss-Legendre quadrature grid values from a function.
+
+        @tparam FuncType type of function
+
+        @param grid grid to place the values in
+        @param f function to generate values
+    */
+    template <typename FuncType>
+        requires std::same_as<std::invoke_result_t<FuncType, double, double>, double>
+    void generate_values(SphereGLQGrid<double, GridLayout>& grid, FuncType&& f)
+    {
+        generate_values((typename SphereGLQGrid<double, GridLayout>::view)(grid), std::forward<FuncType>(f));
     }
 
     /**
@@ -331,7 +347,7 @@ public:
     auto generate_values(FuncType&& f, std::size_t order)
     {
         auto grid = SphereGLQGrid<double, GridLayout>(order);
-        generate_values((typename SphereGLQGrid<double, GridLayout>::view)(grid), f);
+        generate_values((typename SphereGLQGrid<double, GridLayout>::view)(grid), std::forward<FuncType>(f));
         return grid;
     }
 
@@ -542,7 +558,7 @@ public:
     */
     template <zt::ZernikeNorm zernike_norm>
     void backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subspan_type<1>& expansion,
+        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subspan_type<1> expansion,
         SphereGLQGridSpan<double, grid_layout_type> values)
     {
         using ExpansionType = typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subspan_type<1>;
@@ -559,7 +575,7 @@ public:
 
     template <zt::ZernikeNorm zernike_norm>
     void backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template subspan_type<1>& expansion,
+        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template subspan_type<1> expansion,
         SphereGLQGridSpan<double, grid_layout_type> values)
     {
         backward_transform((typename decltype(expansion)::const_view)(expansion), values);
@@ -610,7 +626,7 @@ public:
     */
     template <zt::ZernikeNorm zernike_norm>
     [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subspan_type<1>& expansion,
+        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subspan_type<1> expansion,
         std::size_t order)
     {
         SphereGLQGrid<double, grid_layout_type> grid(order);
@@ -620,7 +636,7 @@ public:
 
     template <zt::ZernikeNorm zernike_norm>
     [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template subspan_type<1>& expansion,
+        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template subspan_type<1> expansion,
         std::size_t order)
     {
         return backward_transform((typename decltype(expansion)::const_view)(expansion), order);
@@ -935,7 +951,7 @@ private:
 
     template <zt::ZernikeNorm zernike_norm>
     void sum_l(
-        typename zt::ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subshape_type<1>& expansion) noexcept
+        typename zt::ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subshape_type<1> expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_ass_leg = m_glq_weights.size();
@@ -1189,7 +1205,7 @@ public:
         SHSpan<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param> expansion)
     {
         resize(expansion.order());
-        m_points.generate_values(m_grid, std::forward(f));
+        m_points.generate_values(m_grid, std::forward<FuncType>(f));
         m_transformer.forward_transform(m_grid, expansion);
     }
 
@@ -1209,7 +1225,7 @@ public:
     transform(FuncType&& f, std::size_t order)
     {
         resize(order);
-        m_points.generate_values(m_grid, std::forward(f));
+        m_points.generate_values(m_grid, std::forward<FuncType>(f));
         return m_transformer.forward_transform(m_grid, order);
     }
 
@@ -1232,7 +1248,7 @@ public:
             const std::array<double, 3> x = {
                 scolat*std::cos(lon), scolat*std::sin(lon), std::cos(colat)
             };
-            return f(x);
+            return std::forward<FuncType>(f)(x);
         };
         resize(expansion.order());
         m_points.generate_values(m_grid, f_spherical);
@@ -1258,7 +1274,7 @@ public:
             const std::array<double, 3> x = {
                 scolat*std::cos(lon), scolat*std::sin(lon), std::cos(colat)
             };
-            return f(x);
+            return std::forward<FuncType>(f)(x);
         };
         resize(order);
         m_points.generate_values(m_grid, f_spherical);

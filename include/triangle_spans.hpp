@@ -39,4 +39,7 @@ using TriangleArray = ShapedArray<ElementType, TriangleShape<indexing_mode_param
 template <typename ElementType, std::size_t... Ns>
 using EvenTriangleSpan = ShapedSpan<ElementType, EvenTriangleShape<Ns...>>;
 
+template <typename ElementType, std::size_t... Ns>
+using EvenTriangleArray = ShapedArray<ElementType, EvenTriangleShape<Ns...>>;
+
 } // namespace zest

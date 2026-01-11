@@ -23,6 +23,7 @@ SOFTWARE.
 
 #include <cassert>
 #include <cmath>
+#include <print>
 #include <span>
 
 namespace
@@ -31,12 +32,6 @@ namespace
 constexpr bool is_close(double a, double b, double tol)
 {
     return std::fabs(a - b) < tol;
-}
-
-constexpr bool is_close(
-    std::array<double, 2> a, std::array<double, 2> b, double tol)
-{
-    return std::fabs(a[0] - b[0]) < tol && std::fabs(a[1] - b[1]) < tol;
 }
 
 template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
@@ -87,26 +82,26 @@ bool test_ass_leg_real_generates_real_correct_up_to_order_5(double z)
             && is_close(ass_leg[4, 2], P42, 1.0e-10)
             && is_close(ass_leg[4, 3], P43, 1.0e-10)
             && is_close(ass_leg[4, 4], P44, 1.0e-10);
-    
+
     if (success)
         return true;
     else
     {
-        std::printf("P00 %f %f\n", ass_leg[0, 0], P00);
-        std::printf("P10 %f %f\n", ass_leg[1, 0], P10);
-        std::printf("P11 %f %f\n", ass_leg[1, 1], P11);
-        std::printf("P20 %f %f\n", ass_leg[2, 0], P20);
-        std::printf("P21 %f %f\n", ass_leg[2, 1], P21);
-        std::printf("P22 %f %f\n", ass_leg[2, 2], P22);
-        std::printf("P30 %f %f\n", ass_leg[3, 0], P30);
-        std::printf("P31 %f %f\n", ass_leg[3, 1], P31);
-        std::printf("P32 %f %f\n", ass_leg[3, 2], P32);
-        std::printf("P33 %f %f\n", ass_leg[3, 3], P33);
-        std::printf("P40 %f %f\n", ass_leg[4, 0], P40);
-        std::printf("P41 %f %f\n", ass_leg[4, 1], P41);
-        std::printf("P42 %f %f\n", ass_leg[4, 2], P42);
-        std::printf("P43 %f %f\n", ass_leg[4, 3], P43);
-        std::printf("P44 %f %f\n", ass_leg[4, 4], P44);
+        std::println("P00 {} {}", ass_leg[0, 0], P00);
+        std::println("P10 {} {}", ass_leg[1, 0], P10);
+        std::println("P11 {} {}", ass_leg[1, 1], P11);
+        std::println("P20 {} {}", ass_leg[2, 0], P20);
+        std::println("P21 {} {}", ass_leg[2, 1], P21);
+        std::println("P22 {} {}", ass_leg[2, 2], P22);
+        std::println("P30 {} {}", ass_leg[3, 0], P30);
+        std::println("P31 {} {}", ass_leg[3, 1], P31);
+        std::println("P32 {} {}", ass_leg[3, 2], P32);
+        std::println("P33 {} {}", ass_leg[3, 3], P33);
+        std::println("P40 {} {}", ass_leg[4, 0], P40);
+        std::println("P41 {} {}", ass_leg[4, 1], P41);
+        std::println("P42 {} {}", ass_leg[4, 2], P42);
+        std::println("P43 {} {}", ass_leg[4, 3], P43);
+        std::println("P44 {} {}", ass_leg[4, 4], P44);
         return false;
     }
 }
@@ -159,26 +154,26 @@ bool test_ass_leg_real_generates_real_vec_correct_up_to_order_5(double z)
             && is_close(ass_leg[4, 2, 0], P42, 1.0e-10)
             && is_close(ass_leg[4, 3, 0], P43, 1.0e-10)
             && is_close(ass_leg[4, 4, 0], P44, 1.0e-10);
-    
+
     if (success)
         return true;
     else
     {
-        std::printf("P00 %f %f\n", ass_leg[0, 0, 0], P00);
-        std::printf("P10 %f %f\n", ass_leg[1, 0, 0], P10);
-        std::printf("P11 %f %f\n", ass_leg[1, 1, 0], P11);
-        std::printf("P20 %f %f\n", ass_leg[2, 0, 0], P20);
-        std::printf("P21 %f %f\n", ass_leg[2, 1, 0], P21);
-        std::printf("P22 %f %f\n", ass_leg[2, 2, 0], P22);
-        std::printf("P30 %f %f\n", ass_leg[3, 0, 0], P30);
-        std::printf("P31 %f %f\n", ass_leg[3, 1, 0], P31);
-        std::printf("P32 %f %f\n", ass_leg[3, 2, 0], P32);
-        std::printf("P33 %f %f\n", ass_leg[3, 3, 0], P33);
-        std::printf("P40 %f %f\n", ass_leg[4, 0, 0], P40);
-        std::printf("P41 %f %f\n", ass_leg[4, 1, 0], P41);
-        std::printf("P42 %f %f\n", ass_leg[4, 2, 0], P42);
-        std::printf("P43 %f %f\n", ass_leg[4, 3, 0], P43);
-        std::printf("P44 %f %f\n", ass_leg[4, 4, 0], P44);
+        std::println("P00 {} {}", ass_leg[0, 0, 0], P00);
+        std::println("P10 {} {}", ass_leg[1, 0, 0], P10);
+        std::println("P11 {} {}", ass_leg[1, 1, 0], P11);
+        std::println("P20 {} {}", ass_leg[2, 0, 0], P20);
+        std::println("P21 {} {}", ass_leg[2, 1, 0], P21);
+        std::println("P22 {} {}", ass_leg[2, 2, 0], P22);
+        std::println("P30 {} {}", ass_leg[3, 0, 0], P30);
+        std::println("P31 {} {}", ass_leg[3, 1, 0], P31);
+        std::println("P32 {} {}", ass_leg[3, 2, 0], P32);
+        std::println("P33 {} {}", ass_leg[3, 3, 0], P33);
+        std::println("P40 {} {}", ass_leg[4, 0, 0], P40);
+        std::println("P41 {} {}", ass_leg[4, 1, 0], P41);
+        std::println("P42 {} {}", ass_leg[4, 2, 0], P42);
+        std::println("P43 {} {}", ass_leg[4, 3, 0], P43);
+        std::println("P44 {} {}", ass_leg[4, 4, 0], P44);
         return false;
     }
 }

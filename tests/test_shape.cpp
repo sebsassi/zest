@@ -22,41 +22,72 @@ SOFTWARE.
 
 #include "shape.hpp"
 #include "sequence.hpp"
+#include <print>
 
 namespace
 {
 
-bool test_sequenced_shape_zernike_tetrahedral_sequence_subshape_matches_call_operator()
+bool test_sequenced_shape_zernike_tetrahedral_sequence_subshape_matches_call_operator(std::size_t n, std::size_t l, std::size_t m)
 {
     using Shape = zest::SequencedShape<zest::ZernikeTetrahedralSequence<zest::IndexingMode::zero_based>>;
 
-    auto shape = Shape(20);
-    return shape(0, 0, 0) == shape.subshape(0, 0)(0) && shape(0, 0, 0) == shape.subshape(0)(0, 0) && shape(0, 0, 0) == shape.subshape(0).subshape(0)(0)
-        && shape(2, 2, 1) == shape.subshape(2, 2)(1) && shape(2, 2, 1) == shape.subshape(2)(2, 1) && shape(2, 2, 1) == shape.subshape(2).subshape(2)(1)
-        && shape(3, 3, 3) == shape.subshape(3, 3)(3) && shape(3, 3, 3) == shape.subshape(3)(3, 3) && shape(3, 3, 3) == shape.subshape(3).subshape(3)(3)
-        && shape(4, 2, 0) == shape.subshape(4, 2)(0) && shape(4, 2, 0) == shape.subshape(4)(2, 0) && shape(4, 2, 0) == shape.subshape(4).subshape(2)(0);
+    assert(m <= l && l <= n && (n - l) % 2 == 0);
+
+    const auto shape = Shape(n + 1);
+    const bool res = shape(n, l, m) == shape(n, l) + shape.subshape(n, l)(m)
+            && shape(n, l, m) == shape(n) + shape.subshape(n)(l, m)
+            && shape(n, l, m) == shape(n) + shape.subshape(n)(l) + shape.subshape(n).subshape(l)(m);
+    if (!res)
+    {
+        std::println("({}, {}, {}) = {}", n, l, m, shape(n, l, m));
+        std::println("({}, {})({}) = {}", n, l, m, shape(n, l) + shape.subshape(n, l)(m));
+        std::println("({})({}, {}) = {}", n, l, m, shape(n) + shape.subshape(n)(l, m));
+        std::println("({})({})({}) = {}", n, l, m, shape(n) + shape.subshape(n)(l) + shape.subshape(n).subshape(l)(m));
+    }
+
+    return res;
 }
 
-bool test_static_tensor_shape_3d_subshape_matches_call_operator()
+template <std::size_t I, std::size_t K, std::size_t J>
+bool test_static_tensor_shape_3d_subshape_matches_call_operator(std::size_t i, std::size_t j, std::size_t k)
 {
-    using Shape = zest::TensorShape<7, 8, 9>;
+    using Shape = zest::TensorShape<I, J, K>;
 
-    auto shape = Shape{};
-    return shape(0, 0, 0) == shape.subshape(0, 0)(0) && shape(0, 0, 0) == shape.subshape(0)(0, 0) && shape(0, 0, 0) == shape.subshape(0).subshape(0)(0)
-        && shape(3, 0, 0) == shape.subshape(3, 0)(0) && shape(3, 0, 0) == shape.subshape(3)(0, 0) && shape(3, 0, 0) == shape.subshape(3).subshape(0)(0)
-        && shape(0, 2, 5) == shape.subshape(0, 2)(5) && shape(0, 2, 5) == shape.subshape(0)(2, 5) && shape(0, 2, 5) == shape.subshape(0).subshape(2)(5)
-        && shape(4, 6, 7) == shape.subshape(4, 6)(7) && shape(4, 6, 7) == shape.subshape(4)(6, 7) && shape(4, 6, 7) == shape.subshape(4).subshape(6)(7);
+    assert(i < I && j < J && k < K);
+
+    const auto shape = Shape{};
+    const bool res = shape(i, j, k) == shape(i, j) + shape.subshape(i, j)(k)
+            && shape(i, j, k) == shape(i) + shape.subshape(i)(j, k)
+            && shape(i, j, k) == shape(i) + shape.subshape(i)(j) + shape.subshape(i).subshape(j)(k);
+    if (!res)
+    {
+        std::println("({}, {}, {}) = {}", i, j, k, shape(i, j, k));
+        std::println("({}, {})({}) = {}", i, j, k, shape(i, j) + shape.subshape(i, j)(k));
+        std::println("({})({}, {}) = {}", i, j, k, shape(i) + shape.subshape(i)(j, k));
+        std::println("({})({})({}) = {}", i, j, k, shape(i) + shape.subshape(i)(j) + shape.subshape(i).subshape(j)(k));
+    }
+
+    return res;
 }
 
-bool test_dynamic_tensor_shape_3d_subshape_matches_call_operator()
+template <std::size_t I, std::size_t K, std::size_t J>
+bool test_dynamic_tensor_shape_3d_subshape_matches_call_operator(std::size_t i, std::size_t j, std::size_t k)
 {
     using Shape = zest::TensorShape<std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>;
 
-    auto shape = Shape{};
-    return shape(0, 0, 0) == shape.subshape(0, 0)(0) && shape(0, 0, 0) == shape.subshape(0)(0, 0) && shape(0, 0, 0) == shape.subshape(0).subshape(0)(0)
-        && shape(3, 0, 0) == shape.subshape(3, 0)(0) && shape(3, 0, 0) == shape.subshape(3)(0, 0) && shape(3, 0, 0) == shape.subshape(3).subshape(0)(0)
-        && shape(0, 2, 5) == shape.subshape(0, 2)(5) && shape(0, 2, 5) == shape.subshape(0)(2, 5) && shape(0, 2, 5) == shape.subshape(0).subshape(2)(5)
-        && shape(4, 6, 7) == shape.subshape(4, 6)(7) && shape(4, 6, 7) == shape.subshape(4)(6, 7) && shape(4, 6, 7) == shape.subshape(4).subshape(6)(7);
+    const auto shape = Shape{I, J, K};
+    const bool res = shape(i, j, k) == shape(i, j) + shape.subshape(i, j)(k)
+            && shape(i, j, k) == shape(i) + shape.subshape(i)(j, k)
+            && shape(i, j, k) == shape(i) + shape.subshape(i)(j) + shape.subshape(i).subshape(j)(k);
+    if (!res)
+    {
+        std::println("({}, {}, {}) = {}", i, j, k, shape(i, j, k));
+        std::println("({}, {})({}) = {}", i, j, k, shape(i, j) + shape.subshape(i, j)(k));
+        std::println("({})({}, {}) = {}", i, j, k, shape(i) + shape.subshape(i)(j, k));
+        std::println("({})({})({}) = {}", i, j, k, shape(i) + shape.subshape(i)(j) + shape.subshape(i).subshape(j)(k));
+    }
+
+    return res;
 }
 
 bool test_composite_shape_call_operator_is_like_shape_of_shapes()
@@ -74,26 +105,51 @@ bool test_composite_shape_call_operator_is_like_shape_of_shapes()
         && shape(2, 3, 4, 5) == shape2.size()*shape1(2, 3) + shape2(4, 5);
 }
 
-bool test_composite_shape_subshape_matches_call_operator()
+template <std::size_t I, std::size_t J, std::size_t K, std::size_t L>
+bool test_composite_shape_subshape_matches_call_operator(std::size_t i, std::size_t j, std::size_t k, std::size_t l)
 {
-    using Shape1 = zest::TensorShape<3, 4>;
-    using Shape2 = zest::TensorShape<5, 6>;
+    using Shape1 = zest::TensorShape<I, J>;
+    using Shape2 = zest::TensorShape<K, L>;
     using Shape = zest::CompositeShape<Shape1, Shape2>;
 
-    auto shape = Shape{};
-    return shape(0, 0, 0, 0) == shape.subshape(0)(0, 0, 0) && shape(0, 0, 0, 0) == shape.subshape(0, 0)(0, 0) && shape(0, 0, 0, 0) == shape.subshape(0, 0, 0)(0)
-        && shape(2, 3, 0, 0) == shape.subshape(2)(3, 0, 0) && shape(2, 3, 0, 0) == shape.subshape(2, 3)(0, 0) && shape(2, 3, 0, 0) == shape.subshape(2, 3, 0)(0)
-        && shape(0, 0, 4, 5) == shape.subshape(0)(0, 4, 5) && shape(0, 0, 4, 5) == shape.subshape(0, 0)(4, 5) && shape(0, 0, 4, 5) == shape.subshape(0, 0, 4)(5)
-        && shape(2, 3, 4, 5) == shape.subshape(2)(3, 4, 5) && shape(2, 3, 4, 5) == shape.subshape(2, 3)(4, 5) && shape(2, 3, 4, 5) == shape.subshape(2, 3, 4)(5);
+    const auto shape = Shape{};
+    const bool res = shape(i, j, k, l) == shape(i) + shape.subshape(i)(j, k, l)
+            && shape(i, j, k, l) == shape(i, j) + shape.subshape(i, j)(k, l)
+            && shape(i, j, k, l) == shape(i, j, k) + shape.subshape(i, j, k)(l);
+    if (!res)
+    {
+        std::println("({}, {}, {}, {}) = {}", i, j, k, l, shape(i, j, k, l));
+        std::println("({})({}, {}, {}) = {}", i, j, k, l, shape(i) + shape.subshape(i)(j, k, l));
+        std::println("({}, {})({}, {}) = {}", i, j, k, l, shape(i, j) + shape.subshape(i, j)(k, l));
+        std::println("({}, {}, {})({}) = {}", i, j, k, l, shape(i, j, k) + shape.subshape(i, j, k)(l));
+    }
+
+    return res;
 }
 
 } // namespace
 
 int main()
 {
-    assert(test_sequenced_shape_zernike_tetrahedral_sequence_subshape_matches_call_operator());
-    assert(test_static_tensor_shape_3d_subshape_matches_call_operator());
-    assert(test_dynamic_tensor_shape_3d_subshape_matches_call_operator());
+    assert(test_sequenced_shape_zernike_tetrahedral_sequence_subshape_matches_call_operator(0, 0, 0));
+    assert(test_sequenced_shape_zernike_tetrahedral_sequence_subshape_matches_call_operator(2, 2, 1));
+    assert(test_sequenced_shape_zernike_tetrahedral_sequence_subshape_matches_call_operator(3, 3, 3));
+    assert(test_sequenced_shape_zernike_tetrahedral_sequence_subshape_matches_call_operator(4, 2, 0));
+
+    assert((test_static_tensor_shape_3d_subshape_matches_call_operator<7, 8, 9>(0, 0, 0)));
+    assert((test_static_tensor_shape_3d_subshape_matches_call_operator<7, 8, 9>(3, 0, 0)));
+    assert((test_static_tensor_shape_3d_subshape_matches_call_operator<7, 8, 9>(0, 2, 5)));
+    assert((test_static_tensor_shape_3d_subshape_matches_call_operator<7, 8, 9>(4, 6, 7)));
+
+    assert((test_dynamic_tensor_shape_3d_subshape_matches_call_operator<7, 8, 9>(0, 0, 0)));
+    assert((test_dynamic_tensor_shape_3d_subshape_matches_call_operator<7, 8, 9>(3, 0, 0)));
+    assert((test_dynamic_tensor_shape_3d_subshape_matches_call_operator<7, 8, 9>(0, 2, 5)));
+    assert((test_dynamic_tensor_shape_3d_subshape_matches_call_operator<7, 8, 9>(4, 6, 7)));
+
     assert(test_composite_shape_call_operator_is_like_shape_of_shapes());
-    assert(test_composite_shape_subshape_matches_call_operator());
+
+    assert((test_composite_shape_subshape_matches_call_operator<7, 8, 9, 10>(0, 0, 0, 0)));
+    assert((test_composite_shape_subshape_matches_call_operator<7, 8, 9, 10>(2, 3, 0, 0)));
+    assert((test_composite_shape_subshape_matches_call_operator<7, 8, 9, 10>(0, 0, 4, 5)));
+    assert((test_composite_shape_subshape_matches_call_operator<7, 8, 9, 10>(2, 3, 4, 5)));
 }

@@ -223,7 +223,7 @@ public:
     */
     template <typename FuncType>
         requires std::same_as<std::invoke_result_t<FuncType, double, double, double>, double>
-    void generate_values(BallGLQGridSpan<double, GridLayout>&& grid, FuncType&& f)
+    void generate_values(BallGLQGridSpan<double, GridLayout> grid, FuncType&& f)
     {
         resize(grid.order());
 
@@ -238,11 +238,26 @@ public:
                     for (std::size_t k = 0; k < m_rad_glq_nodes.size(); ++k)
                     {
                         const double r = m_rad_glq_nodes[k];
-                        grid(i, j, k) = f(lon, colatitude, r);
+                        grid(i, j, k) = std::forward<FuncType>(f)(lon, colatitude, r);
                     }
                 }
             }
         }
+    }
+
+    /**
+        @brief Generate Gauss-Legendre quadrature grid values from a function.
+
+        @tparam FuncType type of function
+
+        @param grid grid to place the values in
+        @param f function to generate values
+    */
+    template <typename FuncType>
+        requires std::same_as<std::invoke_result_t<FuncType, double, double, double>, double>
+    void generate_values(BallGLQGrid<double, GridLayout>& grid, FuncType&& f)
+    {
+        generate_values((typename BallGLQGrid<double, GridLayout>::view)(grid), std::forward<FuncType>(f));
     }
 
     /**
@@ -257,7 +272,7 @@ public:
     [[nodiscard]] auto generate_values(FuncType&& f, std::size_t order)
     {
         BallGLQGrid<double, GridLayout> grid(order);
-        generate_values(grid, f);
+        generate_values((typename BallGLQGrid<double, GridLayout>::view)(grid), std::forward<FuncType>(f));
         return grid;
     }
 
@@ -379,7 +394,7 @@ public:
         m_lat_glq_weights(grid_layout_type::lat_size(order)),
         m_zernike_grid(grid_layout_type::rad_size(order)*RadZerShape::size(order)),
         m_ass_leg_grid(grid_layout_type::lat_size(order)*AssLegShape::size(order)),
-        m_flm_grid(grid_layout_type::rad_size(order)*AssLegShape::size(order)),
+        m_flm_grid(grid_layout_type::rad_size(order)*AssLegShape::size(order)*2),
         m_ffts(grid_layout_type::rad_size(order)*grid_layout_type::lat_size(order)*grid_layout_type::fft_size(order)),
         m_pocketfft_shape_grid(3),
         m_pocketfft_stride_grid(3),
@@ -452,7 +467,7 @@ public:
         for (auto& node : m_rad_glq_nodes)
             node = 0.5*(1.0 + node);
 
-        m_zernike_grid.resize(grid_layout_type::rad_size(order)*RadialZernikeShape<zernike_norm>::size(order));
+        m_zernike_grid.resize(grid_layout_type::rad_size(order)*RadZerShape::size(order));
 
         RadZerSpan<double, std::dynamic_extent>
         zernike(m_zernike_grid, order, m_rad_glq_nodes.size());
@@ -461,7 +476,7 @@ public:
                 m_rad_glq_nodes, zernike);
 
         m_ass_leg_grid.resize(grid_layout_type::lat_size(order)*AssLegShape::size(order));
-        m_flm_grid.resize(grid_layout_type::rad_size(order)*AssLegShape::size(order));
+        m_flm_grid.resize(grid_layout_type::rad_size(order)*AssLegShape::size(order)*2);
 
         AssLegSpan<double, std::dynamic_extent> ass_leg(m_ass_leg_grid, order, m_lat_glq_nodes.size());
         m_ass_leg_recursion.generate_real(m_lat_glq_nodes, ass_leg);
@@ -640,7 +655,7 @@ private:
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         std::ranges::fill(m_flm_grid, 0.0);
 
-        st::SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase, std::dynamic_extent>
+        AssLegSpan<double, std::dynamic_extent, 2>
         flm(m_flm_grid.data(), min_order, rad_glq_size);
 
         AssLegSpan<const double, std::dynamic_extent>
@@ -681,10 +696,10 @@ private:
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
         std::ranges::fill(expansion.flatten(), 0.0);
 
-        st::SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase, std::dynamic_extent>
+        AssLegSpan<const double, std::dynamic_extent, 2>
         flm(m_flm_grid, m_order, rad_glq_size);
 
-        RadialZernikeSpan<const double, zernike_norm, std::dynamic_extent>
+        RadZerSpan<const double, std::dynamic_extent>
         zernike(m_zernike_grid, m_order, m_rad_glq_nodes.size());
 
         if constexpr (std::same_as<grid_layout_type, LonLatRadLayout<typename grid_layout_type::Alignment>>)
@@ -727,10 +742,10 @@ private:
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
         std::ranges::fill(m_flm_grid, 0.0);
 
-        RadialZernikeSpan<const double, zernike_norm, std::dynamic_extent>
-        zernike(m_zernike_grid, expansion.order(), m_rad_glq_nodes.size());
+        RadZerSpan<const double, std::dynamic_extent>
+        zernike(m_zernike_grid, expansion.order(), rad_glq_size);
 
-        st::SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase, std::dynamic_extent>
+        AssLegSpan<double, std::dynamic_extent, 2>
         flm(m_flm_grid, expansion.order(), rad_glq_size);
 
         for (auto n : expansion.indices())
@@ -761,10 +776,10 @@ private:
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
 
-        st::SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase, std::dynamic_extent>
+        AssLegSpan<const double, std::dynamic_extent, 2>
         flm(m_flm_grid.data(), min_order, rad_glq_size);
 
-        RadialZernikeSpan<const double, zernike_norm, std::dynamic_extent>
+        AssLegSpan<const double, std::dynamic_extent>
         ass_leg(m_ass_leg_grid, m_order, m_lat_glq_nodes.size());
 
         std::ranges::fill(m_ffts, std::complex<double>{});
@@ -780,18 +795,16 @@ private:
             {
                 auto flm_lm = flm_l[m];
                 auto ass_leg_lm = ass_leg_l[m];
-                const double m_factor = (m > 0) ? 0.5 : 1.0;
+                const double half_or_one = (m > 0) ? 0.5 : 1.0;
 
                 auto fft_m = fft[m];
                 for (std::size_t i = 0; i < lat_glq_size; ++i)
                 {
                     const double ass_leg_lm_i = ass_leg_lm[i];
-                    const double weight = m_factor*ass_leg_lm_i;
+                    const double weight = half_or_one*ass_leg_lm_i;
                     auto fft_mi = fft_m[i];
                     for (std::size_t j = 0; j < rad_glq_size; ++j)
-                    {
-                        fft_mi[j] += std::complex<double>{weight*flm_lm[j][0], -weight*flm_lm[j][1]};
-                    }
+                        fft_mi[j] += std::complex<double>{weight*flm_lm[j, 0], -weight*flm_lm[j, 1]};
                 }
             }
         }
@@ -957,7 +970,7 @@ public:
         ZernikeSpan<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
-            return f(lon, colat, r*radius);
+            return std::forward<FuncType>(f)(lon, colat, r*radius);
         };
         resize(expansion.order());
         m_points.generate_values(m_grid, f_scaled);
@@ -981,7 +994,7 @@ public:
     transform(FuncType&& f, double radius, std::size_t order)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
-            return f(lon, colat, r*radius);
+            return std::forward<FuncType>(f)(lon, colat, r*radius);
         };
         resize(order);
         m_points.generate_values(m_grid, f_scaled);
@@ -1010,7 +1023,7 @@ public:
                 rad*scolat*std::cos(lon), rad*scolat*std::sin(lon),
                 rad*std::cos(colat)
             };
-            return f(x);
+            return std::forward<FuncType>(f)(x);
         };
         resize(expansion.order());
         m_points.generate_values(m_grid, f_scaled);
@@ -1040,7 +1053,7 @@ public:
                 rad*scolat*std::cos(lon), rad*scolat*std::sin(lon),
                 rad*std::cos(colat)
             };
-            return f(x);
+            return std::forward<FuncType>(f)(x);
         };
         resize(order);
         m_points.generate_values(m_grid, f_scaled);
