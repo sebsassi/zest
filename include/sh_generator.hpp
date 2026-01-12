@@ -70,7 +70,7 @@ public:
     {
         expand(expansion.order());
 
-        const double z = std::sin(colat);
+        const double z = std::cos(colat);
         AssociatedLegendreSpan<double, sh_norm, sh_phase> ass_leg(m_ass_leg_poly, expansion.order());
         m_recursion.generate_real(z, ass_leg);
 
@@ -82,12 +82,15 @@ public:
 
         for (auto l : ass_leg.indices())
         {
-            auto expansion_l = expansion[l];
-            auto ass_leg_l = ass_leg[l];
+            const auto expansion_l = expansion[l];
+            const auto ass_leg_l = ass_leg[l];
             if constexpr (indexing_mode == IndexingMode::symmetric)
                 expansion_l[0] = ass_leg_l[0];
             else if constexpr (indexing_mode == IndexingMode::zero_based)
-                expansion_l[0] = {ass_leg_l[0], 0.0};
+            {
+                expansion_l[0, 0] = ass_leg_l[0];
+                expansion_l[0, 1] = 0.0;
+            }
 
             for (auto m : ass_leg_l.indices(1))
             {
@@ -100,10 +103,8 @@ public:
                 }
                 else if constexpr (indexing_mode == IndexingMode::zero_based)
                 {
-                    expansion_l[m] = {
-                        ass_leg_lm*m_cossin[m][0],
-                        ass_leg_lm*m_cossin[m][1]
-                    };
+                    expansion_l[m, 0] = ass_leg_lm*m_cossin[m][0];
+                    expansion_l[m, 1] = ass_leg_lm*m_cossin[m][1];
                 }
             }
         }

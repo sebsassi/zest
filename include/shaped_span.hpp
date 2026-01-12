@@ -22,6 +22,7 @@ SOFTWARE.
 #pragma once
 
 #include <cassert>
+#include <concepts>
 #include <cstddef>
 #include <span>
 
@@ -88,6 +89,11 @@ public:
         requires std::same_as<typename T::shape_type, shape_type>
     constexpr ShapedSpan(const T& shaped_buffer):
         m_data{shaped_buffer.data()}, m_shape{shaped_buffer.shape()} {}
+
+    template <typename... ExtentTypes>
+        requires std::constructible_from<shape_type, ExtentTypes...>
+    [[nodiscard]] static constexpr size_type
+    size(ExtentTypes... extents) noexcept { return shape_type::size(extents...); }
 
     [[nodiscard]] constexpr operator
     const_view() const noexcept { return const_view(m_data, m_shape); }

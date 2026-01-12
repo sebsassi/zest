@@ -66,14 +66,11 @@ public:
 
         m_sh_gen.expand(expansion.order());
 
-        m_sh_values.reshape(data.size(), expansion.size());
+        m_sh_values.reshape(data.size(), FitExpansion::size(expansion.order()));
 
         for (size_t i = 0; i < data.size(); ++i)
-        {
-            FitExpansion fit_expansion(m_sh_values[i].flatten(), expansion.order());
             m_sh_gen.generate<IndexingMode::symmetric, sh_norm, sh_phase>(
-                lon[i], colat[i], fit_expansion);
-        }
+                lon[i], colat[i], FitExpansion(m_sh_values[i].flatten(), expansion.order()));
 
         m_coeffs.resize(m_sh_values.extent(1));
         m_fitter(m_sh_values, m_coeffs, data);
@@ -160,7 +157,7 @@ public:
 
         m_zernike_gen.expand(expansion.order());
 
-        m_zernike_values.reshape(data.size(), expansion.size());
+        m_zernike_values.reshape(data.size(), FitExpansion::size(expansion.order()));
 
         for (size_t i = 0; i < data.size(); ++i)
         {

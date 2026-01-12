@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "triangle_spans.hpp"
+#include "triangle_shapes.hpp"
 #include "zernike_generator.hpp"
 
 namespace zest::zt

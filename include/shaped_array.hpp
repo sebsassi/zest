@@ -66,6 +66,11 @@ public:
     explicit ShapedArray(const shape_type& shape):
         m_data(shape.size()), m_shape(shape) {}
 
+    template <typename... ExtentTypes>
+        requires std::constructible_from<shape_type, ExtentTypes...>
+    [[nodiscard]] static constexpr size_type
+    size(ExtentTypes... extents) noexcept { return shape_type::size(extents...); }
+
     [[nodiscard]] operator
     view() noexcept { return view(m_data.data(), m_shape); }
 
