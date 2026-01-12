@@ -86,7 +86,7 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "BUILD_TESTING": "ON",
-                "CMAKE_CXX_FLAGS_INIT": "-O0 -g -Wall -Wextra -Wpedantic -Wconversion -Werror -fconcepts-diagnoistics-depth=3"
+                "CMAKE_CXX_FLAGS_INIT": "-O0 -g -Wall -Wextra -Wpedantic -Wconversion -Werror -fsanitize=address"
             }
         },
         {
@@ -98,7 +98,7 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "BUILD_TESTING": "ON",
-                "CMAKE_CXX_FLAGS_INIT": "-g -Wall -Wextra -Wpedantic -Wconversion -Werror -fconcepts-diagnostics-depth=3"
+                "CMAKE_CXX_FLAGS_INIT": "-g -Wall -Wextra -Wpedantic -Wconversion -Werror -fsanitize=address"
             }
         }
     ]

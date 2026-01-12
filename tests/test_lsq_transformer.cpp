@@ -23,9 +23,10 @@ SOFTWARE.
 #include "sequence.hpp"
 #include "sh_generator.hpp"
 
-#include <random>
-#include <cmath>
 #include <cassert>
+#include <cmath>
+#include <print>
+#include <random>
 
 namespace
 {
@@ -53,10 +54,10 @@ bool test_real_sh_generator_generates_correct_up_to_order_5(
     const double z = std::sin(lat);
     const double Y00 = shnorm;
 
-    const double Y1m1 = phase*shnorm*std::sqrt(3.0)*std::sqrt(1.0 - z*z)*std::sin(lon);
-    const double Y10 = shnorm*std::sqrt(3.0)*z;
-    const double Y11 = phase*shnorm*std::sqrt(3.0)*std::sqrt(1.0 - z*z)*std::cos(lon);
-    
+    const double Y1m1 = phase*shnorm*std::numbers::sqrt3*std::sqrt(1.0 - z*z)*std::sin(lon);
+    const double Y10 = shnorm*std::numbers::sqrt3*z;
+    const double Y11 = phase*shnorm*std::numbers::sqrt3*std::sqrt(1.0 - z*z)*std::cos(lon);
+
     const double Y2m2 = shnorm*std::sqrt(15.0/4.0)*(1.0 - z*z)*std::sin(2.0*lon);
     const double Y2m1 = phase*shnorm*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::sin(lon);
     const double Y20 = shnorm*std::sqrt(5.0/4.0)*(3.0*z*z - 1.0);
@@ -87,7 +88,7 @@ bool test_real_sh_generator_generates_correct_up_to_order_5(
     bool success = is_close(expansion[0, 0], Y00, 1.0e-10)
             && is_close(expansion[1, -1], Y1m1, 1.0e-10)
             && is_close(expansion[1, 0], Y10, 1.0e-10)
-            && is_close(expansion[2, 1], Y11, 1.0e-10)
+            && is_close(expansion[1, 1], Y11, 1.0e-10)
             && is_close(expansion[2, -2], Y2m2, 1.0e-10)
             && is_close(expansion[2, -1], Y2m1, 1.0e-10)
             && is_close(expansion[2, 0], Y20, 1.0e-10)
@@ -109,36 +110,36 @@ bool test_real_sh_generator_generates_correct_up_to_order_5(
             && is_close(expansion[4, 2], Y42, 1.0e-10)
             && is_close(expansion[4, 3], Y43, 1.0e-10)
             && is_close(expansion[4, 4], Y44, 1.0e-10);
-    
+
     if (success)
         return true;
     else
     {
-        std::printf("Y00 %f %f\n", expansion[0, 0], Y00);
-        std::printf("Y1m1 %f %f\n", expansion[1, -1], Y1m1);
-        std::printf("Y10 %f %f\n", expansion[1, 0], Y10);
-        std::printf("Y11 %f %f\n", expansion[1, 1], Y11);
-        std::printf("Y2m2 %f %f\n", expansion[2, -2], Y2m2);
-        std::printf("Y2m1 %f %f\n", expansion[2, -1], Y2m1);
-        std::printf("Y20 %f %f\n", expansion[2, 0], Y20);
-        std::printf("Y21 %f %f\n", expansion[2, 1], Y21);
-        std::printf("Y22 %f %f\n", expansion[2, 2], Y22);
-        std::printf("Y3m3 %f %f\n", expansion[3, -3], Y3m3);
-        std::printf("Y3m2 %f %f\n", expansion[3, -2], Y3m2);
-        std::printf("Y3m1 %f %f\n", expansion[3, -1], Y3m1);
-        std::printf("Y30 %f %f\n", expansion[3, 0], Y30);
-        std::printf("Y31 %f %f\n", expansion[3, 1], Y31);
-        std::printf("Y32 %f %f\n", expansion[3, 2], Y32);
-        std::printf("Y33 %f %f\n", expansion[3, 3], Y33);
-        std::printf("Y4m4 %f %f\n", expansion[4, -4], Y4m4);
-        std::printf("Y4m3 %f %f\n", expansion[4, -3], Y4m3);
-        std::printf("Y4m2 %f %f\n", expansion[4, -2], Y4m2);
-        std::printf("Y4m1 %f %f\n", expansion[4, -1], Y4m1);
-        std::printf("Y40 %f %f\n", expansion[4, 0], Y40);
-        std::printf("Y41 %f %f\n", expansion[4, 1], Y41);
-        std::printf("Y42 %f %f\n", expansion[4, 2], Y42);
-        std::printf("Y43 %f %f\n", expansion[4, 3], Y43);
-        std::printf("Y44 %f %f\n", expansion[4, 4], Y44);
+        std::println("Y00 {} {}", expansion[0, 0], Y00);
+        std::println("Y1m1 {} {}", expansion[1, -1], Y1m1);
+        std::println("Y10 {} {}", expansion[1, 0], Y10);
+        std::println("Y11 {} {}", expansion[1, 1], Y11);
+        std::println("Y2m2 {} {}", expansion[2, -2], Y2m2);
+        std::println("Y2m1 {} {}", expansion[2, -1], Y2m1);
+        std::println("Y20 {} {}", expansion[2, 0], Y20);
+        std::println("Y21 {} {}", expansion[2, 1], Y21);
+        std::println("Y22 {} {}", expansion[2, 2], Y22);
+        std::println("Y3m3 {} {}", expansion[3, -3], Y3m3);
+        std::println("Y3m2 {} {}", expansion[3, -2], Y3m2);
+        std::println("Y3m1 {} {}", expansion[3, -1], Y3m1);
+        std::println("Y30 {} {}", expansion[3, 0], Y30);
+        std::println("Y31 {} {}", expansion[3, 1], Y31);
+        std::println("Y32 {} {}", expansion[3, 2], Y32);
+        std::println("Y33 {} {}", expansion[3, 3], Y33);
+        std::println("Y4m4 {} {}", expansion[4, -4], Y4m4);
+        std::println("Y4m3 {} {}", expansion[4, -3], Y4m3);
+        std::println("Y4m2 {} {}", expansion[4, -2], Y4m2);
+        std::println("Y4m1 {} {}", expansion[4, -1], Y4m1);
+        std::println("Y40 {} {}", expansion[4, 0], Y40);
+        std::println("Y41 {} {}", expansion[4, 1], Y41);
+        std::println("Y42 {} {}", expansion[4, 2], Y42);
+        std::println("Y43 {} {}", expansion[4, 3], Y43);
+        std::println("Y44 {} {}", expansion[4, 4], Y44);
         return false;
     }
 }
@@ -190,16 +191,16 @@ bool test_lsq_geo_expansion_expands_Y00()
             {
                 if (l == 0 && m == 0)
                 {
-                    if (is_close(expansion[l, m, 0], reference_coeff, tol)
-                            && is_close(expansion[l, m, 1], 0.0, tol))
+                    if (is_close(expansion_l[m, 0], reference_coeff, tol)
+                            && is_close(expansion_l[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion[l, m, 0], 0.0, tol)
-                            && is_close(expansion[l, m, 1], 0.0, tol))
+                    if (is_close(expansion_l[m, 0], 0.0, tol)
+                            && is_close(expansion_l[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -209,14 +210,14 @@ bool test_lsq_geo_expansion_expands_Y00()
             {
                 if (l == 0 && m == 0)
                 {
-                    if (is_close(expansion[l, m], reference_coeff, tol))
+                    if (is_close(expansion_l[m], reference_coeff, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion[l, m], 0.0, tol))
+                    if (is_close(expansion_l[m], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -233,9 +234,9 @@ bool test_lsq_geo_expansion_expands_Y00()
             for (auto m : expansion_l.indices())
             {
                 if constexpr (indexing_mode == zest::IndexingMode::zero_based)
-                    std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
+                    std::println("{} {} {} {}", l, m, expansion_l[m, 0], expansion_l[m, 1]);
                 else
-                    std::printf("%d %d %f %f\n", l, m, expansion[l, m], expansion[l, m]);
+                    std::println("{} {} {}", l, m, expansion_l[m]);
             }
         }
     }
@@ -290,16 +291,16 @@ bool test_lsq_geo_expansion_expands_Y21()
             {
                 if (l == 2 && m == 1)
                 {
-                    if (is_close(expansion[l, m, 0], reference_coeff, tol)
-                            && is_close(expansion[l, m, 1], 0.0, tol))
+                    if (is_close(expansion_l[m, 0], reference_coeff, tol)
+                            && is_close(expansion_l[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion[l, m, 0], 0.0, tol)
-                            && is_close(expansion[l, m, 1], 0.0, tol))
+                    if (is_close(expansion_l[m, 0], 0.0, tol)
+                            && is_close(expansion_l[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -309,14 +310,14 @@ bool test_lsq_geo_expansion_expands_Y21()
             {
                 if (l == 2 && m == 1)
                 {
-                    if (is_close(expansion[l, m], reference_coeff, tol))
+                    if (is_close(expansion_l[m], reference_coeff, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion[l, m], 0.0, tol))
+                    if (is_close(expansion_l[m], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -333,9 +334,9 @@ bool test_lsq_geo_expansion_expands_Y21()
             for (auto m : expansion_l.indices())
             {
                 if constexpr (indexing_mode == zest::IndexingMode::zero_based)
-                    std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
+                    std::println("{} {} {} {}", l, m, expansion_l[m, 0], expansion_l[m, 1]);
                 else
-                    std::printf("%d %d %f %f\n", l, m, expansion[l, m], expansion[l, m]);
+                    std::println("{} {} {}", l, m, expansion_l[m]);
             }
         }
     }
@@ -391,16 +392,16 @@ bool test_lsq_geo_expansion_expands_Y31()
             {
                 if (l == 3 && m == 1)
                 {
-                    if (is_close(expansion[l, m, 0], reference_coeff, tol)
-                            && is_close(expansion[l, m, 1], 0.0, tol))
+                    if (is_close(expansion_l[m, 0], reference_coeff, tol)
+                            && is_close(expansion_l[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion[l, m, 0], 0.0, tol)
-                            && is_close(expansion[l, m, 1], 0.0, tol))
+                    if (is_close(expansion_l[m, 0], 0.0, tol)
+                            && is_close(expansion_l[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -410,14 +411,14 @@ bool test_lsq_geo_expansion_expands_Y31()
             {
                 if (l == 3 && m == 1)
                 {
-                    if (is_close(expansion[l, m], reference_coeff, tol))
+                    if (is_close(expansion_l[m], reference_coeff, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion[l, m], 0.0, tol))
+                    if (is_close(expansion_l[m], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -434,9 +435,9 @@ bool test_lsq_geo_expansion_expands_Y31()
             for (auto m : expansion_l.indices())
             {
                 if constexpr (indexing_mode == zest::IndexingMode::zero_based)
-                    std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
+                    std::println("{} {} {} {}", l, m, expansion_l[m, 0], expansion_l[m, 1]);
                 else
-                    std::printf("%d %d %f %f\n", l, m, expansion[l, m], expansion[l, m]);
+                    std::println("{} {} {}", l, m, expansion_l[m]);
             }
         }
     }
@@ -492,16 +493,16 @@ bool test_lsq_geo_expansion_expands_Y4m3()
             {
                 if (l == 4 && m == 3)
                 {
-                    if (is_close(expansion[l, m, 0], 0.0, tol)
-                            && is_close(expansion[l, m, 1], reference_coeff, tol))
+                    if (is_close(expansion_l[m, 0], 0.0, tol)
+                            && is_close(expansion_l[m, 1], reference_coeff, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion[l, m, 0], 0.0, tol)
-                            && is_close(expansion[l, m, 1], 0.0, tol))
+                    if (is_close(expansion_l[m, 0], 0.0, tol)
+                            && is_close(expansion_l[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -511,14 +512,14 @@ bool test_lsq_geo_expansion_expands_Y4m3()
             {
                 if (l == 4 && m == -3)
                 {
-                    if (is_close(expansion[l, m], reference_coeff, tol))
+                    if (is_close(expansion_l[m], reference_coeff, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion[l, m], 0.0, tol))
+                    if (is_close(expansion_l[m], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -535,9 +536,9 @@ bool test_lsq_geo_expansion_expands_Y4m3()
             for (auto m : expansion_l.indices())
             {
                 if constexpr (indexing_mode == zest::IndexingMode::zero_based)
-                    std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
+                    std::println("{} {} {} {}", l, m, expansion_l[m, 0], expansion_l[m, 1]);
                 else
-                    std::printf("%d %d %f %f\n", l, m, expansion[l, m], expansion[l, m]);
+                    std::println("{} {} {}", l, m, expansion_l[m]);
             }
         }
     }
@@ -593,24 +594,24 @@ bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
             {
                 if (l == 3 && m == 1)
                 {
-                    if (is_close(expansion[l, m, 0], reference_coeff, tol)
-                            && is_close(expansion[l, m, 1], 0.0, tol))
+                    if (is_close(expansion_l[m, 0], reference_coeff, tol)
+                            && is_close(expansion_l[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else if (l == 4 && m == 3)
                 {
-                    if (is_close(expansion[l, m, 0], 0.0, tol)
-                            && is_close(expansion[l, m, 1], reference_coeff, tol))
+                    if (is_close(expansion_l[m, 0], 0.0, tol)
+                            && is_close(expansion_l[m, 1], reference_coeff, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion[l, m, 0], 0.0, tol)
-                            && is_close(expansion[l, m, 1], 0.0, tol))
+                    if (is_close(expansion_l[m, 0], 0.0, tol)
+                            && is_close(expansion_l[m, 1], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -620,21 +621,21 @@ bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
             {
                 if (l == 3 && m == 1)
                 {
-                    if (is_close(expansion[l, m], reference_coeff, tol))
+                    if (is_close(expansion_l[m], reference_coeff, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else if (l == 4 && m == -3)
                 {
-                    if (is_close(expansion[l, m], reference_coeff, tol))
+                    if (is_close(expansion_l[m], reference_coeff, tol))
                         success = success && true;
                     else
                         success = success && false;
                 }
                 else
                 {
-                    if (is_close(expansion[l, m], 0.0, tol))
+                    if (is_close(expansion_l[m], 0.0, tol))
                         success = success && true;
                     else
                         success = success && false;
@@ -651,9 +652,9 @@ bool test_lsq_geo_expansion_expands_Y31_plus_Y4m3()
             for (auto m : expansion_l.indices())
             {
                 if constexpr (indexing_mode == zest::IndexingMode::zero_based)
-                    std::printf("%lu %lu %f %f\n", l, m, expansion[l, m, 0], expansion[l, m, 1]);
+                    std::println("{} {} {} {}", l, m, expansion_l[m, 0], expansion_l[m, 1]);
                 else
-                    std::printf("%d %d %f %f\n", l, m, expansion[l, m], expansion[l, m]);
+                    std::println("{} {} {}", l, m, expansion_l[m]);
             }
         }
     }

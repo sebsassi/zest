@@ -427,7 +427,7 @@ public:
 
         if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
-            AssLegVecSpan<double> ass_leg(m_ass_leg_grid.data(), m_glq_nodes.size(), order);
+            AssLegVecSpan<double> ass_leg(m_ass_leg_grid, m_glq_nodes.size(), order);
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
                 m_recursion.generate_real(m_glq_nodes[i], ass_leg[i]);
         }
@@ -471,7 +471,7 @@ public:
 
         if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
-            AssLegVecSpan<double> ass_leg(m_ass_leg_grid.data(), m_glq_nodes.size(), order);
+            AssLegVecSpan<double> ass_leg(m_ass_leg_grid, m_glq_nodes.size(), order);
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
                 m_recursion.generate_real(m_glq_nodes[i], ass_leg[i]);
         }
@@ -517,7 +517,8 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase> truncated_expansion(expansion.data(), min_order);
+        SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase>
+        truncated_expansion(expansion.flatten(), min_order);
 
         integrate_latitudinal(truncated_expansion);
     }
@@ -537,7 +538,8 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> truncated_expansion(expansion.data(), min_order);
+        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase>
+        truncated_expansion(expansion.flatten(), min_order);
 
         sum_l(truncated_expansion);
         symm_asymm_to_fft();
@@ -566,7 +568,7 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        ExpansionType truncated_expansion(expansion.data(), min_order);
+        ExpansionType truncated_expansion(expansion.flatten(), min_order);
 
         sum_l(truncated_expansion);
         symm_asymm_to_fft();
@@ -801,7 +803,7 @@ private:
         std::ranges::fill(expansion.flatten(), 0.0);
         if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
-            AssLegVecSpan<const double> ass_leg(m_ass_leg_grid.data(), num_ass_leg, m_order);
+            AssLegVecSpan<const double> ass_leg(m_ass_leg_grid, num_ass_leg, m_order);
             for (std::size_t i = 0; i < num_ass_leg; ++i)
             {
                 auto ass_leg_i = ass_leg[i];
@@ -821,7 +823,7 @@ private:
         }
         else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            AssLegSpan<const double, std::dynamic_extent> ass_leg(m_ass_leg_grid.data(), m_order, num_ass_leg);
+            AssLegSpan<const double, std::dynamic_extent> ass_leg(m_ass_leg_grid, m_order, num_ass_leg);
             for (auto l : expansion.indices())
             {
                 auto expansion_l = expansion[l];
@@ -888,7 +890,7 @@ private:
 
         if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
-            AssLegVecSpan<const double> ass_leg(m_ass_leg_grid.data(), num_ass_leg, m_order);
+            AssLegVecSpan<const double> ass_leg(m_ass_leg_grid, num_ass_leg, m_order);
             for (std::size_t i = 0; i < num_ass_leg; ++i)
             {
                 std::span<std::complex<double>> symm_asymm(
@@ -960,7 +962,7 @@ private:
 
         if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
-            AssLegVecSpan<const double> ass_leg(m_ass_leg_grid.data(), num_ass_leg, m_order);
+            AssLegVecSpan<const double> ass_leg(m_ass_leg_grid, num_ass_leg, m_order);
             for (std::size_t i = 0; i < num_ass_leg; ++i)
             {
                 std::span<std::complex<double>> symm_asymm(

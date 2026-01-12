@@ -30,10 +30,10 @@ SOFTWARE.
 #include <vector>
 
 #include "md_array.hpp"
-#include "sh_expansion.hpp"
 #include "associated_legendre_recursion.hpp"
 #include "md_span.hpp"
 #include "radial_zernike_recursion.hpp"
+#include "sh_expansion.hpp"
 #include "triangle_spans.hpp"
 #include "zernike_expansion.hpp"
 
@@ -124,7 +124,7 @@ public:
         m_ass_leg_recursion.generate_real(m_cos_colat, ass_leg);
 
         MDSpan<double, std::dynamic_extent, std::dynamic_extent, 2> cossin_lon(
-            m_cossin_lon_grid.data(), std::array<std::size_t, 3>{order, m_lon_size, 2});
+            m_cossin_lon_grid, std::array<std::size_t, 3>{order, m_lon_size, 2});
         zest::detail::recursive_trig(cossin_lon, longitudes);
 
         sum_l(expansion);
@@ -313,8 +313,8 @@ private:
 
         std::ranges::fill(m_flm_grid, 0.0);
 
-        TriangleSpan<double, IndexingMode::zero_based, 2, std::dynamic_extent>
-        flm(m_flm_grid, order, std::array{2UL, m_rad_size});
+        TriangleSpan<double, IndexingMode::zero_based, std::dynamic_extent, 2>
+        flm(m_flm_grid, order, m_rad_size);
 
         for (auto n : expansion.indices())
         {

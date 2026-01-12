@@ -418,7 +418,7 @@ public:
                 m_rad_glq_nodes, zernike);
 
         AssLegSpan<double, std::dynamic_extent>
-        ass_leg(m_ass_leg_grid.data(), order, m_lat_glq_nodes.size());
+        ass_leg(m_ass_leg_grid, order, m_lat_glq_nodes.size());
 
         m_ass_leg_recursion.generate_real(m_lat_glq_nodes, ass_leg);
 
@@ -518,7 +518,7 @@ public:
         integrate_latitudinal(min_order);
 
         ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>
-        truncated_expansion(expansion.data(), min_order);
+        truncated_expansion(expansion.flatten(), min_order);
 
         integrate_radial(truncated_expansion);
     }
@@ -538,7 +538,7 @@ public:
         std::size_t min_order = std::min(expansion.order(), values.order());
 
         ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>
-        truncated_expansion(expansion.data(), min_order);
+        truncated_expansion(expansion.flatten(), min_order);
 
         sum_n(truncated_expansion);
         sum_l(min_order);
@@ -599,7 +599,7 @@ private:
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
 
         MDSpan<std::complex<double>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
-        fft(m_ffts.data(), fft_order, lat_glq_size, rad_glq_size);
+        fft(m_ffts, fft_order, lat_glq_size, rad_glq_size);
 
         if constexpr (std::same_as<grid_layout_type, LonLatRadLayout<typename grid_layout_type::Alignment>>)
         {
@@ -656,13 +656,13 @@ private:
         std::ranges::fill(m_flm_grid, 0.0);
 
         AssLegSpan<double, std::dynamic_extent, 2>
-        flm(m_flm_grid.data(), min_order, rad_glq_size);
+        flm(m_flm_grid, min_order, rad_glq_size);
 
         AssLegSpan<const double, std::dynamic_extent>
         ass_leg(m_ass_leg_grid, min_order, m_lat_glq_nodes.size());
 
         MDSpan<const std::complex<double>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
-        fft(m_ffts.data(), fft_order, lat_glq_size, rad_glq_size);
+        fft(m_ffts, fft_order, lat_glq_size, rad_glq_size);
 
         if constexpr (std::same_as<grid_layout_type, LonLatRadLayout<typename grid_layout_type::Alignment>>)
         {
@@ -777,7 +777,7 @@ private:
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
 
         AssLegSpan<const double, std::dynamic_extent, 2>
-        flm(m_flm_grid.data(), min_order, rad_glq_size);
+        flm(m_flm_grid, min_order, rad_glq_size);
 
         AssLegSpan<const double, std::dynamic_extent>
         ass_leg(m_ass_leg_grid, m_order, m_lat_glq_nodes.size());
@@ -785,7 +785,7 @@ private:
         std::ranges::fill(m_ffts, std::complex<double>{});
 
         MDSpan<std::complex<double>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
-        fft(m_ffts.data(), fft_order, lat_glq_size, rad_glq_size);
+        fft(m_ffts, fft_order, lat_glq_size, rad_glq_size);
 
         for (auto l : flm.indices())
         {

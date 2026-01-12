@@ -70,7 +70,7 @@ public:
 
         for (size_t i = 0; i < data.size(); ++i)
         {
-            FitExpansion fit_expansion(m_sh_values[i].data(), expansion.order());
+            FitExpansion fit_expansion(m_sh_values[i].flatten(), expansion.order());
             m_sh_gen.generate<IndexingMode::symmetric, sh_norm, sh_phase>(
                 lon[i], colat[i], fit_expansion);
         }
@@ -84,7 +84,7 @@ public:
         }
         else
         {
-            FitExpansion coeffs(m_coeffs.data(), expansion.order());
+            FitExpansion coeffs(m_coeffs, expansion.order());
             for (auto l : expansion.indices())
             {
                 auto expansion_l = expansion[l];
@@ -164,7 +164,7 @@ public:
 
         for (size_t i = 0; i < data.size(); ++i)
         {
-            FitExpansion fit_expansion(m_zernike_values[i].data(), expansion.order());
+            FitExpansion fit_expansion(m_zernike_values[i].flatten(), expansion.order());
             m_zernike_gen.generate<IndexingMode::symmetric, zernike_norm, sh_norm, sh_phase>(
                 r[i], lon[i], colat[i], fit_expansion);
         }
@@ -178,7 +178,7 @@ public:
         }
         else
         {
-            FitExpansion coeffs(m_coeffs.data(), expansion.order());
+            FitExpansion coeffs(m_coeffs, expansion.order());
             for (auto n : expansion.indices())
             {
                 auto expansion_n = expansion[n];
