@@ -39,22 +39,22 @@ namespace zest::zt
 
     @tparam ElementType Type of elements in the view.
     @tparam zernike_norm Zernike function normalization convention.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... Ns>
+template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... inner_extents>
 using RadialZernikeSpan = ShapedSpan<
-    ElementType, RadialZernikeShape<zernike_norm, Ns...>>;
+    ElementType, RadialZernikeShape<zernike_norm, inner_extents...>>;
 
 /**
     @brief A container of 3D radial Zernike polynomial data.
 
     @tparam ElementType Type of elements in the view.
     @tparam zernike_norm Zernike function normalization convention.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... Ns>
+template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... inner_extents>
 using RadialZernikeExpansion = ShapedArray<
-    ElementType, RadialZernikeShape<zernike_norm, Ns...>>;
+    ElementType, RadialZernikeShape<zernike_norm, inner_extents...>>;
 
 /**
     @brief A non-owning view of multidimensional arrays of 3D radial Zernike
@@ -62,11 +62,11 @@ using RadialZernikeExpansion = ShapedArray<
 
     @tparam ElementType Type of elements in the view.
     @tparam zernike_norm Zernike function normalization convention.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an outer multidimensional array structure.
 */
-template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... Ns>
+template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... outer_extents>
 using RadialZernikeTensorSpan = ShapedSpan<
-    ElementType, RadialZernikeTensorShape<zernike_norm, Ns...>>;
+    ElementType, RadialZernikeTensorShape<zernike_norm, outer_extents...>>;
 
 /**
     @brief A non-owning view of a vector of 3D radial Zernike polynomial data.
@@ -84,11 +84,11 @@ using RadialZernikeVectorSpan = RadialZernikeTensorSpan<
 
     @tparam ElementType Type of elements in the view.
     @tparam zernike_norm Zernike function normalization convention.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... Ns>
+template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... outer_extents>
 using RadialZernikeExpansionTensor = ShapedArray<
-    ElementType, RadialZernikeTensorShape<zernike_norm, Ns...>>;
+    ElementType, RadialZernikeTensorShape<zernike_norm, outer_extents...>>;
 
 /**
     @brief A container for storing a vector of 3D radial Zernike polynomial
@@ -109,14 +109,14 @@ using RadialZernikeExpansionVector = RadialZernikeExpansionTensor<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam sh_norm Spherical harmonic normalization convention.
     @tparam sh_phase Spherical harmonic phase convention.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
     typename ElementType, IndexingMode indexing_mode, ZernikeNorm zernike_norm,
-    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... Ns
+    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... inner_extents
 >
 using ZernikeSpan = ShapedSpan<
-    ElementType, ZernikeShape<indexing_mode, zernike_norm, sh_norm, sh_phase, Ns...>>;
+    ElementType, ZernikeShape<indexing_mode, zernike_norm, sh_norm, sh_phase, inner_extents...>>;
 
 /**
     @brief Convenient alias for `ZernikeSpan` with unnormalized Zernike
@@ -124,12 +124,12 @@ using ZernikeSpan = ShapedSpan<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... inner_extents>
 using ZernikeSpanAcoustics = ZernikeSpan<
     ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none,
-    Ns...>;
+    inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeSpan` with orthonormal Zernike
@@ -137,12 +137,12 @@ using ZernikeSpanAcoustics = ZernikeSpan<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... inner_extents>
 using ZernikeSpanNormalAcoustics = ZernikeSpan<
     ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none,
-    Ns...>;
+    inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeSpan` with unnormalized Zernike
@@ -150,12 +150,12 @@ using ZernikeSpanNormalAcoustics = ZernikeSpan<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... inner_extents>
 using ZernikeSpanQM = ZernikeSpan<
     ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs,
-    Ns...>;
+    inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeSpan` with orthonormal Zernike
@@ -163,12 +163,12 @@ using ZernikeSpanQM = ZernikeSpan<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... inner_extents>
 using ZernikeSpanNormalQM = ZernikeSpan<
     ElementType, indexing_mode, ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs,
-    Ns...>;
+    inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeSpan` with unnormalized Zernike
@@ -176,12 +176,12 @@ using ZernikeSpanNormalQM = ZernikeSpan<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... inner_extents>
 using ZernikeSpanGeo = ZernikeSpan<
     ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none,
-    Ns...>;
+    inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeSpan` with orthonormal Zernike
@@ -189,12 +189,12 @@ using ZernikeSpanGeo = ZernikeSpan<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... inner_extents>
 using ZernikeSpanNormalGeo = ZernikeSpan<
     ElementType, indexing_mode, ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none,
-    Ns...>;
+    inner_extents...>;
 
 /**
     @brief A container for Zernike function data.
@@ -204,15 +204,15 @@ using ZernikeSpanNormalGeo = ZernikeSpan<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam sh_norm Spherical harmonic normalization convention.
     @tparam sh_phase Spherical harmonic phase convention.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
     typename ElementType, IndexingMode indexing_mode, ZernikeNorm zernike_norm,
-    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... Ns
+    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... inner_extents
 >
 using ZernikeExpansion = ShapedArray<
     ElementType, ZernikeShape<indexing_mode, zernike_norm,
-    sh_norm, sh_phase, Ns...>>;
+    sh_norm, sh_phase, inner_extents...>>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with unnormalized Zernike
@@ -220,12 +220,12 @@ using ZernikeExpansion = ShapedArray<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... inner_extents>
 using ZernikeExpansionAcoustics = ZernikeExpansion<
     ElementType, indexing_mode, ZernikeNorm::unnormed,
-    st::SHNorm::qm, st::SHPhase::none, Ns...>;
+    st::SHNorm::qm, st::SHPhase::none, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with orthnormal Zernike
@@ -233,68 +233,68 @@ using ZernikeExpansionAcoustics = ZernikeExpansion<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... inner_extents>
 using ZernikeExpansionNormalAcoustics = ZernikeExpansion<
     ElementType, indexing_mode, ZernikeNorm::normed,
-    st::SHNorm::qm, st::SHPhase::none, Ns...>;
+    st::SHNorm::qm, st::SHPhase::none, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with unnormalized Zernike
     functions, orthonormal spherical harmonics, and Condon-Shortley phase.
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam inner_extents extents of an inner multidimensional array structure
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... inner_extents>
 using ZernikeExpansionQM = ZernikeExpansion<
     ElementType, indexing_mode, ZernikeNorm::unnormed,
-    st::SHNorm::qm, st::SHPhase::cs, Ns...>;
+    st::SHNorm::qm, st::SHPhase::cs, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with orthonormal Zernike
     functions, orthonormal spherical harmonics, and Condon-Shortley phase.
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam inner_extents extents of an inner multidimensional array structure
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... inner_extents>
 using ZernikeExpansionNormalQM = ZernikeExpansion<
     ElementType, indexing_mode, ZernikeNorm::normed,
-    st::SHNorm::qm, st::SHPhase::cs, Ns...>;
+    st::SHNorm::qm, st::SHPhase::cs, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with unnormalized Zernike
     functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam inner_extents extents of an inner multidimensional array structure
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... inner_extents>
 using ZernikeExpansionGeo = ZernikeExpansion<
     ElementType, indexing_mode, ZernikeNorm::unnormed,
-    st::SHNorm::geo, st::SHPhase::none, Ns...>;
+    st::SHNorm::geo, st::SHPhase::none, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with orthonormal Zernike
     functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam inner_extents extents of an inner multidimensional array structure
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... inner_extents>
 using ZernikeExpansionNormalGeo = ZernikeExpansion<
     ElementType, indexing_mode, ZernikeNorm::normed,
-    st::SHNorm::geo, st::SHPhase::none, Ns...>;
+    st::SHNorm::geo, st::SHPhase::none, inner_extents...>;
 
 /**
     @brief A non-owning view of a multidimensional array pf 3D Zernike function
@@ -305,14 +305,14 @@ using ZernikeExpansionNormalGeo = ZernikeExpansion<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam sh_norm Spherical harmonic normalization convention.
     @tparam sh_phase Spherical harmonic phase convention.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <
     typename ElementType, IndexingMode indexing_mode, ZernikeNorm zernike_norm,
-    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... Ns
+    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... outer_extents
 >
 using ZernikeTensorSpan = ShapedSpan<
-    ElementType, ZernikeTensorShape<indexing_mode, zernike_norm, sh_norm, sh_phase, Ns...>>;
+    ElementType, ZernikeTensorShape<indexing_mode, zernike_norm, sh_norm, sh_phase, outer_extents...>>;
 
 /**
     @brief Convenient alias for `ZernikeTensorSpan` with unnormalized Zernike
@@ -320,12 +320,12 @@ using ZernikeTensorSpan = ShapedSpan<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... outer_extents>
 using ZernikeTensorSpanAcoustics = ZernikeTensorSpan<
     ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none,
-    Ns...>;
+    outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeTensorSpan` with orthonormal Zernike
@@ -333,12 +333,12 @@ using ZernikeTensorSpanAcoustics = ZernikeTensorSpan<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... outer_extents>
 using ZernikeTensorSpanNormalAcoustics = ZernikeTensorSpan<
     ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none,
-    Ns...>;
+    outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeTensorSpan` with unnormalized Zernike
@@ -346,12 +346,12 @@ using ZernikeTensorSpanNormalAcoustics = ZernikeTensorSpan<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... outer_extents>
 using ZernikeTensorSpanQM = ZernikeTensorSpan<
     ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs,
-    Ns...>;
+    outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeTensorSpan` with orthonormal Zernike
@@ -359,12 +359,12 @@ using ZernikeTensorSpanQM = ZernikeTensorSpan<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... outer_extents>
 using ZernikeTensorSpanNormalQM = ZernikeTensorSpan<
     ElementType, indexing_mode, ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs,
-    Ns...>;
+    outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeTensorSpan` with unnormalized Zernike
@@ -372,12 +372,12 @@ using ZernikeTensorSpanNormalQM = ZernikeTensorSpan<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... outer_extents>
 using ZernikeTensorSpanGeo = ZernikeTensorSpan<
     ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none,
-    Ns...>;
+    outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeTensorSpan` with orthonormal Zernike
@@ -385,12 +385,12 @@ using ZernikeTensorSpanGeo = ZernikeTensorSpan<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... outer_extents>
 using ZernikeTensorSpanNormalGeo = ZernikeTensorSpan<
     ElementType, indexing_mode, ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none,
-    Ns...>;
+    outer_extents...>;
 
 /**
     @brief A non-owning view of a vector of 3D Zernike function data.
@@ -482,14 +482,14 @@ using ZernikeVectorSpanNormalGeo = ZernikeVectorSpan<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam sh_norm Spherical harmonic normalization convention.
     @tparam sh_phase Spherical harmonic phase convention.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <
     typename ElementType, IndexingMode indexing_mode, ZernikeNorm zernike_norm,
-    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... Ns
+    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... outer_extents
 >
 using ZernikeExpansionTensor = ShapedArray<
-    ElementType, ZernikeTensorShape<indexing_mode, zernike_norm, sh_norm, sh_phase, Ns...>>;
+    ElementType, ZernikeTensorShape<indexing_mode, zernike_norm, sh_norm, sh_phase, outer_extents...>>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionTensor` with unnormalized Zernike
@@ -497,12 +497,12 @@ using ZernikeExpansionTensor = ShapedArray<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... outer_extents>
 using ZernikeExpansionTensorAcoustics = ZernikeExpansionTensor<
     ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none,
-    Ns...>;
+    outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionTensor` with orthnormal Zernike
@@ -510,12 +510,12 @@ using ZernikeExpansionTensorAcoustics = ZernikeExpansionTensor<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... outer_extents>
 using ZernikeExpansionTensorNormalAcoustics = ZernikeExpansionTensor<
     ElementType, indexing_mode, ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none,
-    Ns...>;
+    outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionTensor` with unnormalized Zernike
@@ -523,12 +523,12 @@ using ZernikeExpansionTensorNormalAcoustics = ZernikeExpansionTensor<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... outer_extents>
 using ZernikeExpansionTensorQM = ZernikeExpansionTensor<
     ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs,
-    Ns...>;
+    outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionTensor` with orthonormal Zernike
@@ -536,26 +536,26 @@ using ZernikeExpansionTensorQM = ZernikeExpansionTensor<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... outer_extents>
 using ZernikeExpansionTensorNormalQM = ZernikeExpansionTensor<
     ElementType, indexing_mode, ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs,
-    Ns...>;
+    outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionTensor` with unnormalized Zernike
     functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam outer_extents extents of an inner multidimensional array structure
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... outer_extents>
 using ZernikeExpansionTensorGeo = ZernikeExpansionTensor<
     ElementType, indexing_mode, ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none,
-    Ns...>;
+    outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionTensor` with orthonormal Zernike
@@ -563,12 +563,12 @@ using ZernikeExpansionTensorGeo = ZernikeExpansionTensor<
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, IndexingMode indexing_mode, std::size_t... Ns>
+template <typename ElementType, IndexingMode indexing_mode, std::size_t... outer_extents>
 using ZernikeExpansionTensorNormalGeo = ZernikeExpansionTensor<
     ElementType, indexing_mode, ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none,
-    Ns...>;
+    outer_extents...>;
 
 /**
     @brief A container for a vector of Zernike function data.
@@ -611,7 +611,7 @@ using ZernikeExpansionVectorNormalAcoustics = ZernikeExpansionVector<
 /**
     @brief Convenient alias for `ZernikeExpansionVector` with unnormalized Zernike
     functions, orthonormal spherical harmonics, and Condon-Shortley phase.
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam outer_extents extents of an inner multidimensional array structure
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
@@ -634,7 +634,7 @@ using ZernikeExpansionVectorNormalQM = ZernikeExpansionVector<
 /**
     @brief Convenient alias for `ZernikeExpansionVector` with unnormalized Zernike
     functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam outer_extents extents of an inner multidimensional array structure
 
     @tparam ElementType Type of elements in the view.
     @tparam indexing_mode Determines azimuthal index order.
@@ -662,13 +662,13 @@ using ZernikeExpansionVectorNormalGeo = ZernikeExpansionVector<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam sh_norm Spherical harmonic normalization convention.
     @tparam sh_phase Spherical harmonic phase convention.
-    @tparam Ns Extents representing inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
     typename ElementType, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase,
-    std::size_t... Ns
+    std::size_t... inner_extents
 >
 using ComplexEncodedRealZernikeSpan = ShapedSpan<
-    ElementType, ZernikeNonnegativeShape<zernike_norm, sh_norm, sh_phase, Ns...>>;
+    ElementType, ZernikeNonnegativeShape<zernike_norm, sh_norm, sh_phase, inner_extents...>>;
 
 } // namespace zest::zt

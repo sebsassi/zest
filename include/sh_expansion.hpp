@@ -35,60 +35,56 @@ namespace zest::st
 /**
     @brief A non-owning view of associated Legendre function data.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam sh_norm normalization convention of the spherical harmonics
-    @tparam sh_phase phase convention of the spherical harmonics
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam sh_norm Normalization convention of the spherical harmonics.
+    @tparam sh_phase phase Convention of the spherical harmonics.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, SHNorm sh_norm, SHPhase sh_phase,
-    std::size_t... Ns
+    std::size_t... inner_extents
 >
 using AssociatedLegendreSpan = ShapedSpan<
-    ElementType, AssociatedLegendreShape<sh_norm, sh_phase, Ns...>>;
+    ElementType, AssociatedLegendreShape<sh_norm, sh_phase, inner_extents...>>;
 
 /**
     @brief A container for associated Legendre function data.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam sh_norm normalization convention of the spherical harmonics
-    @tparam sh_phase phase convention of the spherical harmonics
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam sh_norm Normalization convention of the spherical harmonics.
+    @tparam sh_phase Phase convention of the spherical harmonics.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, SHNorm sh_norm, SHPhase sh_phase,
-    std::size_t... Ns
+    std::size_t... inner_extents
 >
 using AssociatedLegendreExpansion = ShapedArray<
-    ElementType, AssociatedLegendreShape<sh_norm, sh_phase, Ns...>>;
+    ElementType, AssociatedLegendreShape<sh_norm, sh_phase, inner_extents...>>;
 
 /**
     @brief A non-owning view of a multidimensional array of associated Legendre
     function data.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam sh_norm normalization convention of the spherical harmonics
-    @tparam sh_phase phase convention of the spherical harmonics
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam sh_norm Normalization convention of the spherical harmonics.
+    @tparam sh_phase Phase convention of the spherical harmonics.
+    @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, SHNorm sh_norm, SHPhase sh_phase,
-    std::size_t... Ns
+    std::size_t... outer_extents
 >
 using AssociatedLegendreTensorSpan = ShapedSpan<
-    ElementType, AssociatedLegendreTensorShape<sh_norm, sh_phase, Ns...>>;
+    ElementType, AssociatedLegendreTensorShape<sh_norm, sh_phase, outer_extents...>>;
 
 /**
     @brief A non-owning view of a vector of associated Legendre
     function data.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam sh_norm normalization convention of the spherical harmonics
-    @tparam sh_phase phase convention of the spherical harmonics
+    @tparam ElementType Type of elements.
+    @tparam sh_norm Normalization convention of the spherical harmonics.
+    @tparam sh_phase Phase convention of the spherical harmonics.
 */
 template <
     complex_or_real_float ElementType, SHNorm sh_norm, SHPhase sh_phase
@@ -97,33 +93,30 @@ using AssociatedLegendreVectorSpan = AssociatedLegendreTensorSpan<
     ElementType, sh_norm, sh_phase, std::dynamic_extent>;
 
 /**
-    @brief A container for a multidimensional array of associated Legendre function data.
+    @brief A container for a multidimensional array of associated Legendre
+    function data.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam sh_norm normalization convention of the spherical harmonics
-    @tparam sh_phase phase convention of the spherical harmonics
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam sh_norm Normalization convention of the spherical harmonics.
+    @tparam sh_phase Phase convention of the spherical harmonics.
+    @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, SHNorm sh_norm, SHPhase sh_phase,
-    std::size_t... Ns
+    std::size_t... outer_extents
 >
 using AssociatedLegendreExpansionTensor = ShapedArray<
-    ElementType, AssociatedLegendreTensorShape<sh_norm, sh_phase, Ns...>>;
+    ElementType, AssociatedLegendreTensorShape<sh_norm, sh_phase, outer_extents...>>;
 
 /**
     @brief A container for a vector of associated Legendre function data.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam sh_norm normalization convention of the spherical harmonics
-    @tparam sh_phase phase convention of the spherical harmonics
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam sh_norm Normalization convention of the spherical harmonics.
+    @tparam sh_phase Phase convention of the spherical harmonics.
 */
 template <
-    complex_or_real_float ElementType, SHNorm sh_norm, SHPhase sh_phase,
-    std::size_t... Ns
+    complex_or_real_float ElementType, SHNorm sh_norm, SHPhase sh_phase
 >
 using AssociatedLegendreExpansionVector = AssociatedLegendreExpansionTensor<
     ElementType, sh_norm, sh_phase, std::dynamic_extent>;
@@ -131,55 +124,55 @@ using AssociatedLegendreExpansionVector = AssociatedLegendreExpansionTensor<
 /**
     @brief A non-owning view of spherical harmonic data.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam sh_norm normalization convention of the spherical harmonics
-    @tparam sh_phase phase convention of the spherical harmonics
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements
+    @tparam indexing_mode Determines azimuthal index order
+    @tparam sh_norm Normalization convention of the spherical harmonics
+    @tparam sh_phase Phase convention of the spherical harmonics
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    SHNorm sh_norm, SHPhase sh_phase, std::size_t... Ns
+    SHNorm sh_norm, SHPhase sh_phase, std::size_t... inner_extents
 >
 using SHSpan = ShapedSpan<
-    ElementType, SHShape<indexing_mode, sh_norm, sh_phase, Ns...>>;
+    ElementType, SHShape<indexing_mode, sh_norm, sh_phase, inner_extents...>>;
 
 /**
     @brief Convenient alias for `SHSpan` with orthonormal spherical harmonics
     and no Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    std::size_t... Ns
+    std::size_t... inner_extents
 >
 using SHSpanAcoustics = SHSpan<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::none, Ns...>;
+    ElementType, indexing_mode, SHNorm::qm, SHPhase::none, inner_extents...>;
 /**
     @brief Convenient alias for `SHSpan` with orthonormal spherical harmonics
     with Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    std::size_t... Ns
+    std::size_t... inner_extents
 >
 using SHSpanQM = SHSpan<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::cs, Ns...>;
+    ElementType, indexing_mode, SHNorm::qm, SHPhase::cs, inner_extents...>;
 
 /**
     @brief Convenient alias for `SHSpan` with 4-pi normal spherical harmonics
     and no Condon-Shortley phase
 
     @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam indexing_mode determines azimuthal index order
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
@@ -191,132 +184,132 @@ using SHSpanGeo = SHSpan<
 /**
     @brief A container for spherical harmonic data.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam sh_norm normalization convention of the spherical harmonics
-    @tparam sh_phase phase convention of the spherical harmonics
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam sh_norm Normalization convention of the spherical harmonics.
+    @tparam sh_phase Phase convention of the spherical harmonics.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    SHNorm sh_norm, SHPhase sh_phase, std::size_t... Ns
+    SHNorm sh_norm, SHPhase sh_phase, std::size_t... inner_extents
 >
 using SHExpansion = ShapedArray<
-    ElementType, SHShape<indexing_mode, sh_norm, sh_phase, Ns...>>;
+    ElementType, SHShape<indexing_mode, sh_norm, sh_phase, inner_extents...>>;
 
 /**
     @brief Convenient alias for `SHExpansion` with orthonormal spherical
     harmonics and no Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    std::size_t... Ns
+    std::size_t... inner_extents
 >
 using SHExpansionAcoustics = SHExpansion<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::none, Ns...>;
+    ElementType, indexing_mode, SHNorm::qm, SHPhase::none, inner_extents...>;
 
 /**
     @brief Convenient alias for `SHExpansion` with orthonormal spherical
     harmonics with Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    std::size_t... Ns
+    std::size_t... inner_extents
 >
 using SHExpansionQM = SHExpansion<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::cs, Ns...>;
+    ElementType, indexing_mode, SHNorm::qm, SHPhase::cs, inner_extents...>;
 
 /**
     @brief Convenient alias for `SHExpansion` with 4-pi normal spherical
     harmonics and no Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    std::size_t... Ns
+    std::size_t... inner_extents
 >
 using SHExpansionGeo = SHExpansion<
-    ElementType, indexing_mode, SHNorm::geo, SHPhase::none, Ns...>;
+    ElementType, indexing_mode, SHNorm::geo, SHPhase::none, inner_extents...>;
 
 /**
     @brief A non-owning view of a multidimensional array of spherical harmonic
     data.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam sh_norm normalization convention of the spherical harmonics
-    @tparam sh_phase phase convention of the spherical harmonics
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam sh_norm Normalization convention of the spherical harmonics.
+    @tparam sh_phase Phase convention of the spherical harmonics.
+    @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    SHNorm sh_norm, SHPhase sh_phase, std::size_t... Ns
+    SHNorm sh_norm, SHPhase sh_phase, std::size_t... outer_extents
 >
 using SHTensorSpan = ShapedSpan<
-    ElementType, SHShape<indexing_mode, sh_norm, sh_phase, Ns...>>;
+    ElementType, SHShape<indexing_mode, sh_norm, sh_phase, outer_extents...>>;
 
 /**
     @brief Convenient alias for `SHTensorSpan` with orthonormal spherical
     harmonics and no Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    std::size_t... Ns
+    std::size_t... outer_extents
 >
 using SHTensorSpanAcoustics = SHTensorSpan<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::none, Ns...>;
+    ElementType, indexing_mode, SHNorm::qm, SHPhase::none, outer_extents...>;
 /**
     @brief Convenient alias for `SHTensorSpan` with orthonormal spherical
     harmonics with Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    std::size_t... Ns
+    std::size_t... outer_extents
 >
 using SHTensorSpanQM = SHTensorSpan<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::cs, Ns...>;
+    ElementType, indexing_mode, SHNorm::qm, SHPhase::cs, outer_extents...>;
 
 /**
     @brief Convenient alias for `SHTensorSpan` with 4-pi normal spherical
     harmonics and no Condon-Shortley phase
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    std::size_t... Ns
+    std::size_t... outer_extents
 >
 using SHTensorSpanGeo = SHTensorSpan<
-    ElementType, indexing_mode, SHNorm::geo, SHPhase::none, Ns...>;
+    ElementType, indexing_mode, SHNorm::geo, SHPhase::none, outer_extents...>;
 
 /**
     @brief A non-owning view of a vector of spherical harmonic data.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam sh_norm normalization convention of the spherical harmonics
-    @tparam sh_phase phase convention of the spherical harmonics
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam sh_norm Normalization convention of the spherical harmonics.
+    @tparam sh_phase Phase convention of the spherical harmonics.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
@@ -329,8 +322,8 @@ using SHVectorSpan = SHTensorSpan<
     @brief Convenient alias for `SHVectorSpan` with orthonormal spherical
     harmonics and no Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode
@@ -341,8 +334,8 @@ using SHVectorSpanAcoustics = SHVectorSpan<
     @brief Convenient alias for `SHVectorSpan` with orthonormal spherical
     harmonics with Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode
@@ -354,8 +347,8 @@ using SHVectorSpanQM = SHVectorSpan<
     @brief Convenient alias for `SHVectorSpan` with 4-pi normal spherical
     harmonics and no Condon-Shortley phase
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode
@@ -366,71 +359,71 @@ using SHVectorSpanGeo = SHVectorSpan<
 /**
     @brief A container for a multidimensional array of spherical harmonic data.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam sh_norm normalization convention of the spherical harmonics
-    @tparam sh_phase phase convention of the spherical harmonics
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam sh_norm Normalization convention of the spherical harmonics.
+    @tparam sh_phase Phase convention of the spherical harmonics.
+    @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    SHNorm sh_norm, SHPhase sh_phase, std::size_t... Ns
+    SHNorm sh_norm, SHPhase sh_phase, std::size_t... outer_extents
 >
 using SHExpansionTensor = ShapedArray<
-    ElementType, SHShape<indexing_mode, sh_norm, sh_phase, Ns...>>;
+    ElementType, SHShape<indexing_mode, sh_norm, sh_phase, outer_extents...>>;
 
 /**
     @brief Convenient alias for `SHExpansionTensor` with orthonormal spherical
     harmonics and no Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements
+    @tparam indexing_mode Determines azimuthal index order
+    @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    std::size_t... Ns
+    std::size_t... outer_extents
 >
 using SHExpansionTensorAcoustics = SHExpansionTensor<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::none, Ns...>;
+    ElementType, indexing_mode, SHNorm::qm, SHPhase::none, outer_extents...>;
 
 /**
     @brief Convenient alias for `SHExpansionTensor` with orthonormal spherical
     harmonics with Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements
+    @tparam indexing_mode Determines azimuthal index order
+    @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    std::size_t... Ns
+    std::size_t... outer_extents
 >
 using SHExpansionTensorQM = SHExpansionTensor<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::cs, Ns...>;
+    ElementType, indexing_mode, SHNorm::qm, SHPhase::cs, outer_extents...>;
 
 /**
     @brief Convenient alias for `SHExpansionTensor` with 4-pi normal spherical
     harmonics and no Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
-    std::size_t... Ns
+    std::size_t... outer_extents
 >
 using SHExpansionTensorGeo = SHExpansionTensor<
-    ElementType, indexing_mode, SHNorm::geo, SHPhase::none, Ns...>;
+    ElementType, indexing_mode, SHNorm::geo, SHPhase::none, outer_extents...>;
 
 /**
     @brief A container for a vector of spherical harmonic data.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
-    @tparam sh_norm normalization convention of the spherical harmonics
-    @tparam sh_phase phase convention of the spherical harmonics
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam sh_norm Normalization convention of the spherical harmonics.
+    @tparam sh_phase Phase convention of the spherical harmonics.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode,
@@ -443,8 +436,8 @@ using SHExpansionVector = SHExpansionTensor<
     @brief Convenient alias for `SHExpansionVector` with orthonormal spherical
     harmonics and no Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode
@@ -456,8 +449,8 @@ using SHExpansionVectorAcoustics = SHExpansionVector<
     @brief Convenient alias for `SHExpansionVector` with orthonormal spherical
     harmonics with Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode
@@ -469,8 +462,8 @@ using SHExpansionVectorQM = SHExpansionVector<
     @brief Convenient alias for `SHExpansionVector` with 4-pi normal spherical
     harmonics and no Condon-Shortley phase.
 
-    @tparam ElementType type of elements
-    @tparam IndexingMode determines azimuthal index order
+    @tparam ElementType Type of elements.
+    @tparam indexing_mode Determines azimuthal index order.
 */
 template <
     complex_or_real_float ElementType, IndexingMode indexing_mode
@@ -482,10 +475,9 @@ using SHExpansionVectorGeo = SHExpansionVector<
     @brief A non-owning view for storing real spherical harmonic data encoded
     as complex numbers.
 
-    @tparam ElementType type of elements
-    @tparam sh_norm normalization convention of the spherical harmonics
-    @tparam sh_phase phase convention of the spherical harmonics
-    @tparam Ns extents representing inner multidimensional array structure
+    @tparam ElementType Type of elements.
+    @tparam sh_norm Normalization convention of the spherical harmonics.
+    @tparam sh_phase Phase convention of the spherical harmonics.
 */
 template <complex_float ElementType, SHNorm sh_norm, SHPhase sh_phase>
 using ComplexEncodedRealSHSpan = ShapedSpan<

@@ -60,12 +60,6 @@ concept complex_or_real_float
 template <typename T>
 concept tag_type = (std::is_empty_v<T> && std::is_aggregate_v<T>);
 
-template <typename T, tag_type... Tags>
-struct Tag: public T, public Tags...
-{
-    using T::T;
-};
-
 namespace detail
 {
 

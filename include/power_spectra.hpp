@@ -76,8 +76,8 @@ template <typename ExpansionTypeA, typename ExpansionTypeB>
 void cross_power_spectrum(ExpansionTypeA&& a, ExpansionTypeA&& b, std::span<double> out)
 {
     cross_power_spectrum(
-        ExpansionTypeA::const_view(std::forward(a)),
-        ExpansionTypeB::const_view(std::forward(b)),
+        ExpansionTypeA::const_view(std::forward<ExpansionTypeA>(a)),
+        ExpansionTypeB::const_view(std::forward<ExpansionTypeB>(b)),
         out);
 }
 
@@ -106,8 +106,8 @@ template <typename ExpansionTypeA, typename ExpansionTypeB>
 cross_power_spectrum(ExpansionTypeA&& a, ExpansionTypeA&& b)
 {
     return cross_power_spectrum(
-        ExpansionTypeA::const_view(std::forward(a)),
-        ExpansionTypeB::const_view(std::forward(b)));
+        ExpansionTypeA::const_view(std::forward<ExpansionTypeA>(a)),
+        ExpansionTypeB::const_view(std::forward<ExpansionTypeB>(b)));
 }
 
 /**
@@ -247,7 +247,8 @@ power_spectrum(
     ZernikeSpan<double, indexing_mode, zernike_norm, sh_norm, sh_phase> expansion,
     RadialZernikeSpan<double, zernike_norm> out) noexcept
 {
-    power_spectrum((typename decltype(expansion)::const_view)(expansion), out);
+    using ExpansionType = ZernikeSpan<double, indexing_mode, zernike_norm, sh_norm, sh_phase>;
+    power_spectrum((typename ExpansionType::const_view)(expansion), out);
 }
 
 template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
@@ -256,7 +257,8 @@ power_spectrum(
     const ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>& expansion,
     RadialZernikeSpan<double, zernike_norm> out) noexcept
 {
-    power_spectrum((typename decltype(expansion)::const_view)(expansion), out);
+    using ExpansionType = ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>;
+    power_spectrum((typename ExpansionType::const_view)(expansion), out);
 }
 
 /**
@@ -283,7 +285,8 @@ template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_no
 power_spectrum(
     ZernikeSpan<double, indexing_mode, zernike_norm, sh_norm, sh_phase> expansion)
 {
-    return power_spectrum((typename decltype(expansion)::const_view)(expansion));
+    using ExpansionType = ZernikeSpan<double, indexing_mode, zernike_norm, sh_norm, sh_phase>;
+    return power_spectrum((typename ExpansionType::const_view)(expansion));
 }
 
 template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
@@ -291,7 +294,8 @@ template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_no
 power_spectrum(
     const ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>& expansion)
 {
-    return power_spectrum((typename decltype(expansion)::const_view)(expansion));
+    using ExpansionType = ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>;
+    return power_spectrum((typename ExpansionType::const_view)(expansion));
 }
 
 } // namespace zt

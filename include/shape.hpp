@@ -164,6 +164,9 @@ private:
     size_type m_size{};
 };
 
+namespace detail
+{
+
 template <std::size_t... static_extents, std::size_t N>
 [[nodiscard]] constexpr std::array<std::size_t, sizeof...(static_extents)>
 combine(const std::array<std::size_t, N>& dynamic_extents) noexcept
@@ -190,7 +193,7 @@ template <std::size_t... static_extents>
 [[nodiscard]] constexpr std::size_t
 count(std::size_t n) noexcept
 {
-    return ((static_extents == n) + ...);
+    return (std::size_t(static_extents == n) + ...);
 }
 
 template <std::size_t... static_extents>
@@ -214,20 +217,22 @@ extract_dynamic(const std::array<std::size_t, sizeof...(static_extents)>& extent
     return impl(std::make_index_sequence<sizeof...(static_extents)>{});
 }
 
-template <std::size_t... Ns>
+} // namespace detail
+
+template <std::size_t... extent_params>
 class TensorShape
 {
 public:
     using size_type = std::size_t;
     using index_type = size_type;
     using index_range = StandardIndexRange<size_type>;
-    using extent_type = std::array<size_type, sizeof...(Ns)>;
-    using dynamic_extent_type = std::array<size_type, count<Ns...>(std::dynamic_extent)>;
+    using extent_type = std::array<size_type, sizeof...(extent_params)>;
+    using dynamic_extent_type = std::array<size_type, count<extent_params...>(std::dynamic_extent)>;
 
-    static constexpr size_type rank = sizeof...(Ns);
-    static constexpr size_type dynamic_rank = count<Ns...>(std::dynamic_extent);
+    static constexpr size_type rank = sizeof...(extent_params);
+    static constexpr size_type dynamic_rank = detail::count<extent_params...>(std::dynamic_extent);
     static constexpr std::size_t linear_extent = std::dynamic_extent;
-    static constexpr std::array<std::size_t, sizeof...(Ns)> static_extents = {Ns...};
+    static constexpr std::array<std::size_t, sizeof...(extent_params)> static_extents = {extent_params...};
 
 private:
     template <std::size_t N, typename T>
@@ -259,8 +264,8 @@ public:
 
     explicit constexpr TensorShape(const dynamic_extent_type& dynamic_extents)
         requires (dynamic_rank != rank):
-        m_extents{combine<Ns...>(dynamic_extents)},
-        m_size{size(combine<Ns...>(dynamic_extents))} {}
+        m_extents{detail::combine<extent_params...>(dynamic_extents)},
+        m_size{size(detail::combine<extent_params...>(dynamic_extents))} {}
 
     template <std::integral... SizeTypes>
         requires (sizeof...(SizeTypes) == rank)
@@ -270,8 +275,8 @@ public:
     template <std::integral... SizeTypes>
         requires ((sizeof...(SizeTypes) == dynamic_rank) && (dynamic_rank != rank))
     explicit constexpr TensorShape(SizeTypes... dynamic_extents):
-        m_extents{combine<Ns...>(dynamic_extent_type{size_type(dynamic_extents)...})},
-        m_size{size(combine<Ns...>(dynamic_extent_type{size_type(dynamic_extents)...}))} {}
+        m_extents{detail::combine<extent_params...>(dynamic_extent_type{size_type(dynamic_extents)...})},
+        m_size{size(detail::combine<extent_params...>(dynamic_extent_type{size_type(dynamic_extents)...}))} {}
 
     [[nodiscard]] static constexpr size_type
     size(const extent_type& extents) noexcept { return product(extents); }
@@ -279,7 +284,7 @@ public:
     [[nodiscard]] static constexpr size_type
     size(const dynamic_extent_type& dynamic_extents) noexcept requires (dynamic_rank != rank)
     {
-        return product(combine<Ns...>(dynamic_extents));
+        return product(detail::combine<extent_params...>(dynamic_extents));
     }
 
     template <std::integral... SizeTypes>
@@ -288,11 +293,11 @@ public:
     size(SizeTypes... extents) noexcept { return product(extent_type{size_type(extents)...}); }
 
     template <std::integral... SizeTypes>
-        requires (sizeof...(SizeTypes) == count<Ns...>(std::dynamic_extent))
+        requires (sizeof...(SizeTypes) == detail::count<extent_params...>(std::dynamic_extent))
     [[nodiscard]] static constexpr size_type
     size(SizeTypes... dynamic_extents) noexcept
     {
-        return product(combine<Ns...>(dynamic_extent_type{size_type(dynamic_extents)...}));
+        return product(detail::combine<extent_params...>(dynamic_extent_type{size_type(dynamic_extents)...}));
     }
 
     [[nodiscard]] constexpr size_type
@@ -302,7 +307,7 @@ public:
     extents() const noexcept { return m_extents; }
 
     [[nodiscard]] constexpr dynamic_extent_type
-    dynamic_extents() const noexcept { extract_dynamic<Ns...>(m_extents); }
+    dynamic_extents() const noexcept { detail::extract_dynamic<extent_params...>(m_extents); }
 
     [[nodiscard]] constexpr size_type
     extent(size_type i) const noexcept { return m_extents[i]; }
@@ -359,32 +364,32 @@ namespace detail
 template <typename T>
 struct DynamicTensorShapeHelper;
 
-template <std::size_t... Ns>
-struct DynamicTensorShapeHelper<std::index_sequence<Ns...>>
+template <std::size_t... extent_params>
+struct DynamicTensorShapeHelper<std::index_sequence<extent_params...>>
 {
-    using type = TensorShape<(std::dynamic_extent + 0*Ns)...>;
+    using type = TensorShape<(std::dynamic_extent + 0*extent_params)...>;
 };
 
 } // namespace detail
 
-template <std::size_t N>
+template <std::size_t rank>
 using DynamicTensorShape
-    = detail::DynamicTensorShapeHelper<std::make_index_sequence<N>>::type;
+    = detail::DynamicTensorShapeHelper<std::make_index_sequence<rank>>::type;
 
-template <std::size_t... Ns>
-    requires ((Ns != std::dynamic_extent) && ...)
-class TensorShape<Ns...>
+template <std::size_t... extent_params>
+    requires ((extent_params != std::dynamic_extent) && ...)
+class TensorShape<extent_params...>
 {
 public:
     using size_type = std::size_t;
     using index_type = size_type;
     using index_range = StandardIndexRange<size_type>;
-    using extent_type = std::array<size_type, sizeof...(Ns)>;
+    using extent_type = std::array<size_type, sizeof...(extent_params)>;
     using dynamic_extent_type = std::array<size_type, 0>;
 
-    static constexpr size_type rank = sizeof...(Ns);
-    static constexpr std::size_t linear_extent = product(std::array{Ns...});
-    static constexpr extent_type static_extents = std::array{Ns...};
+    static constexpr size_type rank = sizeof...(extent_params);
+    static constexpr std::size_t linear_extent = product(std::array{extent_params...});
+    static constexpr extent_type static_extents = std::array{extent_params...};
 
 private:
     template <std::size_t N, typename T>
@@ -664,14 +669,14 @@ private:
     std::pair<S1, S2> m_shapes{};
 };
 
-template <typename SequenceType, std::size_t... Ns>
-using TensorSequenceShape = std::conditional_t<(sizeof...(Ns) > 0),
-    CompositeShape<SequencedShape<SequenceType>, TensorShape<Ns...>>,
+template <typename SequenceType, std::size_t... extent_params>
+using TensorSequenceShape = std::conditional_t<(sizeof...(extent_params) > 0),
+    CompositeShape<SequencedShape<SequenceType>, TensorShape<extent_params...>>,
     SequencedShape<SequenceType>>;
 
-template <typename SequenceType, std::size_t... Ns>
-using SequenceTensorShape = std::conditional_t<(sizeof...(Ns) > 0),
-    CompositeShape<TensorShape<Ns...>, SequencedShape<SequenceType>>,
+template <typename SequenceType, std::size_t... extent_params>
+using SequenceTensorShape = std::conditional_t<(sizeof...(extent_params) > 0),
+    CompositeShape<TensorShape<extent_params...>, SequencedShape<SequenceType>>,
     SequencedShape<SequenceType>>;
 
 template <typename ShapeType, tag_type... Tags>

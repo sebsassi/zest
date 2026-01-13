@@ -35,7 +35,7 @@ namespace zest
     @tparam T type of elements of the matrix
 */
 template <typename T>
-using MatrixSpan = MDSpan<T, std::dynamic_extent, std::dynamic_extent>;
+using MatrixSpan = DynamicMDSpan<T, 2>;
 
 /*
     @brief A container representing a matrix.
@@ -43,6 +43,6 @@ using MatrixSpan = MDSpan<T, std::dynamic_extent, std::dynamic_extent>;
     @tparam T type of elements of the matrix
 */
 template <typename T>
-using Matrix = MDArray<T, std::dynamic_extent, std::dynamic_extent>;
+using Matrix = DynamicMDArray<T, 2>;
 
 } // namespace zest

@@ -33,19 +33,19 @@ namespace zest
     @brief A multidimensional array container.
 
     @tparam ElementType Type of array elements.
-    @tparam Ns Extents of the array.
+    @tparam extents Extents of the array.
 */
-template <typename ElementType, std::size_t... Ns>
-using MDArray = ShapedArray<ElementType, TensorShape<Ns...>>;
+template <typename ElementType, std::size_t... extents>
+using MDArray = ShapedArray<ElementType, TensorShape<extents...>>;
 
 
 /**
     @brief A multidimensional array container with all dynamic extents.
 
     @tparam ElementType Type of array elements.
-    @tparam N Number of array dimensions.
+    @tparam rank Number of array dimensions.
 */
-template <typename ElementType, std::size_t N>
-using DynamicMDArray = ShapedArray<ElementType, DynamicTensorShape<N>>;
+template <typename ElementType, std::size_t rank>
+using DynamicMDArray = ShapedArray<ElementType, DynamicTensorShape<rank>>;
 
 } // namespace zest

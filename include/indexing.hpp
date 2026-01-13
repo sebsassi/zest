@@ -34,20 +34,20 @@ namespace zest
 namespace array::detail
 {
 
-template <std::integral SizeType, std::size_t N, std::integral IndexType, std::integral... Inds>
-    requires (0 <= sizeof...(Inds) && sizeof...(Inds) + 1 <= N)
+template <std::integral SizeType, std::size_t rank, std::integral IndexType, std::integral... Inds>
+    requires (0 <= sizeof...(Inds) && sizeof...(Inds) + 1 <= rank)
 [[nodiscard]] constexpr auto
-index(const std::array<SizeType, N>& extents, IndexType ind, Inds... inds) noexcept
+index(const std::array<SizeType, rank>& extents, IndexType ind, Inds... inds) noexcept
 {
     auto impl = [&]<std::size_t... I>(std::index_sequence<I...>)
     {
         assert(ind < IndexType(extents[0]) && ((IndexType(inds) < IndexType(extents[1 + I])) && ...));
         IndexType res = ind;
         ([&]{ res = res*IndexType(extents[1 + I]) + IndexType(inds); }(), ...);
-        if constexpr (sizeof...(Inds) + 1 == N)
+        if constexpr (sizeof...(Inds) + 1 == rank)
             return res;
         else
-            return product(take_last<N - sizeof...(Inds) - 1>(extents))*res;
+            return product(take_last<rank - sizeof...(Inds) - 1>(extents))*res;
     };
     return impl(std::make_index_sequence<sizeof...(Inds)>{});
 }

@@ -50,7 +50,7 @@ namespace detail
 {
 
 [[nodiscard]] constexpr std::array<double, 3> convert(
-    std::array<double, 3> euler_angles, RotationType convention) noexcept
+    const std::array<double, 3>& euler_angles, RotationType convention) noexcept
 {
     const auto& [alpha, beta, gamma] = euler_angles;
 

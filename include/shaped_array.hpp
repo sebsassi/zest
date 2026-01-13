@@ -69,7 +69,7 @@ public:
     template <typename... ExtentTypes>
         requires std::constructible_from<shape_type, ExtentTypes...>
     [[nodiscard]] static constexpr size_type
-    size(ExtentTypes... extents) noexcept { return shape_type::size(extents...); }
+    size(const ExtentTypes&... extents) noexcept { return shape_type::size(extents...); }
 
     [[nodiscard]] operator
     view() noexcept { return view(m_data.data(), m_shape); }

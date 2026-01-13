@@ -32,85 +32,85 @@ namespace zest::zt
 {
 
 /**
-    @brief Shape representing an efficient layout of 3D radial Zernike
+    @brief Shape of an efficient layout of 3D radial Zernike
     polynomials, tagged with normalization conventions.
 
     @tparam zernike_norm Zernike function normalization conventions.
-    @tparam Ns Extents representing an inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <ZernikeNorm zernike_norm, std::size_t... Ns>
+template <ZernikeNorm zernike_norm, std::size_t... inner_extents>
 using RadialZernikeShape = TaggedShape<
-    TensorSequenceShape<EvenTriangleSequence, Ns...>, ZernikeTag<zernike_norm>>;
+    TensorSequenceShape<EvenTriangleSequence, inner_extents...>, ZernikeTag<zernike_norm>>;
 
 /**
-    @brief Shape representing an efficient layout of a multidimensional array
+    @brief Shape of an efficient layout of a multidimensional array
     of 3D radial Zernike polynomial sequences, tagged with normalization
     conventions.
 
     @tparam zernike_norm Zernike function normalization convention.
-    @tparam Ns Extents representing the outer multidimensional array structure.
+    @tparam outer_extents Extents of an outer multidimensional array structure.
 */
-template <ZernikeNorm zernike_norm, std::size_t... Ns>
+template <ZernikeNorm zernike_norm, std::size_t... outer_extents>
 using RadialZernikeTensorShape = TaggedShape<
-    SequenceTensorShape<EvenTriangleSequence, Ns...>, ZernikeTag<zernike_norm>>;
+    SequenceTensorShape<EvenTriangleSequence, outer_extents...>, ZernikeTag<zernike_norm>>;
 
 /**
-    @brief Shape representing an efficient layout of 3D Zernike functions,
+    @brief Shape of an efficient layout of 3D Zernike functions,
     tagged with normalizaton and phase conventions.
 
     @tparam indexing_mode Determines azimuthal index layout.
     @tparam zernike_norm Radial Zernike function normalization convention.
     @tparam sh_norm Spherical harmonic normalization convention.
     @tparam sh_phase Spherical harmonic phase convention.
-    @tparam Ns Extents representing an inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
     IndexingMode indexing_mode, ZernikeNorm zernike_norm,
-    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... Ns
+    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... inner_extents
 >
 using ZernikeShape = TaggedShape<
     std::conditional_t<(indexing_mode == IndexingMode::symmetric), 
-        TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode>, Ns...>,
-        TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode>, 2, Ns...>>,
+        TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode>, inner_extents...>,
+        TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode>, 2, inner_extents...>>,
     ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>>;
 
 /**
-    @brief Shape representing an efficient layout of a multidimensional array
+    @brief Shape of an efficient layout of a multidimensional array
     of 3D Zernike functions, tagged with normalization and phase conventions.
 
     @tparam indexing_mode Determines azimuthal index layout.
     @tparam zernike_norm Radial Zernike function normalization convention.
     @tparam sh_norm Spherical harmonic normalization convention.
     @tparam sh_phase Spherical harmonic phase convention.
-    @tparam Ns Extents representing an inner multidimensional array structure.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <
     IndexingMode indexing_mode, ZernikeNorm zernike_norm,
-    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... Ns
+    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... outer_extents
 >
 using ZernikeTensorShape = TaggedShape<
     std::conditional_t<(indexing_mode == IndexingMode::symmetric),
-        SequenceTensorShape<ZernikeTetrahedralSequence<indexing_mode>, Ns...>,
+        SequenceTensorShape<ZernikeTetrahedralSequence<indexing_mode>, outer_extents...>,
         CompositeShape<
-            TensorShape<Ns...>,
+            TensorShape<outer_extents...>,
             TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode>, 2>>>,
         ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>>;
 
 /**
-    @brief Shape representing an efficient layout of 3D Zernike functions with
+    @brief Shape of an efficient layout of 3D Zernike functions with
     only nonnegative azimuthal indices, tagged with normalization and phase
     conventions.
 
     @tparam zernike_norm Radial Zernike function normalization convention.
     @tparam sh_norm Spherical harmonic normalization convention.
     @tparam sh_phase Spherical harmonic phase convention.
-    @tparam Ns Extents representing an inner multidimensional array structure.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... Ns
+    ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... inner_extents
 >
 using ZernikeNonnegativeShape = TaggedShape<
-    TensorSequenceShape<ZernikeTetrahedralSequence<IndexingMode::zero_based>, Ns...>,
+    TensorSequenceShape<ZernikeTetrahedralSequence<IndexingMode::zero_based>, inner_extents...>,
     ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>>;
 
 } // namespace zest::zt
