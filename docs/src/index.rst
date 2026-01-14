@@ -12,5 +12,6 @@ zest -- **Ze**\ rnike and **s**\ pherical **t**\ ransforms
 
    getting_started
    introduction
+   shaped
    anatomy
    reference
