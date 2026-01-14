@@ -34,10 +34,16 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 add_library(zest 
-    src/lsq_transformer.cpp src/associated_legendre_recursion.cpp
-    src/power_spectra.cpp src/sh_generator.cpp src/zernike_generator.cpp src/wignerd_collection.cpp
-    src/rotor.cpp src/linearfit.cpp src/grid_evaluator.cpp
-    src/sh_glq_transformer.cpp src/zernike_glq_transformer.cpp src/radial_zernike_recursion.cpp
+    src/associated_legendre_recursion.cpp
+    src/power_spectra.cpp
+    src/sh_generator.cpp
+    src/zernike_generator.cpp
+    src/wignerd_collection.cpp
+    src/rotor.cpp
+    src/grid_evaluator.cpp
+    src/sh_glq_transformer.cpp
+    src/zernike_glq_transformer.cpp
+    src/radial_zernike_recursion.cpp
 )
 
 target_include_directories(zest
@@ -85,11 +91,6 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zest
     COMPONENT Devel
 )
-
-find_package(lapack)
-if(NOT lapack_FOUND)
-    message(NOTICE "LAPACK not found: linear least squares fits will not work without LAPACK")
-endif()
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
     enable_testing()

@@ -39,8 +39,3 @@ create_test(test_zernike_glq_transformer)
 create_test(test_rotor)
 create_test(test_grid_evaluator)
 create_test(test_sh_generator)
-
-find_package(lapack CONFIG)
-if(lapack_FOUND)
-    create_test(test_lsq_transformer lapack gfortran)
-endif()
