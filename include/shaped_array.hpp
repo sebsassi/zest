@@ -89,10 +89,10 @@ public:
         return ShapedSpan<value_type, typename shape_type::untag>(m_data, m_shape);
     }
 
-    [[nodiscard]] explicit operator
+    [[nodiscard]] explicit(shape_type::rank != 1) operator
     std::span<value_type>() noexcept { return flatten(); }
 
-    [[nodiscard]] explicit operator
+    [[nodiscard]] explicit(shape_type::rank != 1) operator
     std::span<const value_type>() const noexcept { return flatten(); }
 
     void reshape(const shape_type& shape)

@@ -104,7 +104,7 @@ public:
         return ShapedSpan<element_type, typename shape_type::untag>(m_data, m_shape);
     }
 
-    [[nodiscard]] explicit constexpr operator
+    [[nodiscard]] explicit(shape_type::rank != 1) constexpr operator
     std::span<value_type>() const noexcept { return flatten(); }
 
     template <typename NewShapeType>
