@@ -227,7 +227,7 @@ public:
     using index_type = size_type;
     using index_range = StandardIndexRange<size_type>;
     using extent_type = std::array<size_type, sizeof...(extent_params)>;
-    using dynamic_extent_type = std::array<size_type, count<extent_params...>(std::dynamic_extent)>;
+    using dynamic_extent_type = std::array<size_type, detail::count<extent_params...>(std::dynamic_extent)>;
 
     static constexpr size_type rank = sizeof...(extent_params);
     static constexpr size_type dynamic_rank = detail::count<extent_params...>(std::dynamic_extent);
