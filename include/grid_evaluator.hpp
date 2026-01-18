@@ -33,8 +33,11 @@ SOFTWARE.
 #include "associated_legendre_recursion.hpp"
 #include "md_span.hpp"
 #include "radial_zernike_recursion.hpp"
+#include "sequence.hpp"
+#include "sh_concepts.hpp"
 #include "sh_expansion.hpp"
 #include "triangle_spans.hpp"
+#include "zernike_concepts.hpp"
 #include "zernike_expansion.hpp"
 
 namespace zest
@@ -104,9 +107,10 @@ public:
         grid with shape `{longitudes.size(), colatitudes.size()}` in row-major
         order.
     */
-    template <SHNorm sh_norm, SHPhase sh_phase>
+    template <sh_expansion<IndexingMode::zero_based> ExpansionType>
+        requires std::floating_point<value_type_of<ExpansionType>>
     [[nodiscard]] DynamicMDArray<double, 2> evaluate(
-        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
+        const ExpansionType& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes)
     {
         if (longitudes.size() == 0 || colatitudes.size() == 0)
@@ -117,6 +121,9 @@ public:
 
         for (std::size_t i = 0; i < m_lat_size; ++i)
             m_cos_colat[i] = std::cos(colatitudes[i]);
+
+        constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
+        constexpr st::SHPhase sh_phase = sh_norm_of<ExpansionType>();
 
         AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>
         ass_leg(m_ass_leg_grid, order, m_lat_size);
@@ -135,28 +142,14 @@ public:
         return res;
     }
 
-    template <SHNorm sh_norm, SHPhase sh_phase>
-    [[nodiscard]] DynamicMDArray<double, 2> evaluate(
-        SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
-        std::span<const double> longitudes, std::span<const double> colatitudes)
-    {
-        using ExpansionType = SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase>;
-        return evaluate((typename ExpansionType::const_view)(expansion), longitudes, colatitudes);
-    }
-
-    template <SHNorm sh_norm, SHPhase sh_phase>
-    [[nodiscard]] DynamicMDArray<double, 2> evaluate(
-        const SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase>& expansion,
-        std::span<const double> longitudes, std::span<const double> colatitudes)
-    {
-        using ExpansionType = SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase>;
-        return evaluate((typename ExpansionType::const_view)(expansion), longitudes, colatitudes);
-    }
-
 private:
-    template <SHNorm sh_norm, SHPhase sh_phase>
-    void sum_l(SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion) noexcept
+    template <sh_expansion<IndexingMode::zero_based> ExpansionType>
+        requires std::floating_point<value_type_of<ExpansionType>>
+    void sum_l(const ExpansionType& expansion) noexcept
     {
+        constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
+        constexpr st::SHPhase sh_phase = sh_norm_of<ExpansionType>();
+
         AssociatedLegendreSpan<const double, sh_norm, sh_phase, std::dynamic_extent>
         ass_leg(m_ass_leg_grid, expansion.order(), m_lat_size);
         for (auto l : expansion.indices())
@@ -248,9 +241,10 @@ public:
         the grid with shape `{longitudes.size(), colatitudes.size(),
         radii.size()}` in row-major order.
     */
-    template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+    template <zernike_expansion<IndexingMode::zero_based> ExpansionType>
+        requires std::floating_point<value_type_of<ExpansionType>>
     [[nodiscard]] DynamicMDArray<double, 3> evaluate(
-        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
+        const ExpansionType& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
     {
         if (longitudes.size() == 0 || colatitudes.size() == 0 || radii.size() == 0)
@@ -258,6 +252,10 @@ public:
 
         const std::size_t order = expansion.order();
         resize(order, longitudes.size(), colatitudes.size(), radii.size());
+
+        constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
+        constexpr st::SHPhase sh_phase = sh_norm_of<ExpansionType>();
+        constexpr zt::ZernikeNorm zernike_norm = zernike_norm_of<ExpansionType>();
 
         RadialZernikeSpan<double, zernike_norm, std::dynamic_extent>
         zernike(m_zernike_grid, order, m_rad_size);
@@ -285,28 +283,13 @@ public:
         return res;
     }
 
-    template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
-    [[nodiscard]] DynamicMDArray<double, 3> evaluate(
-        ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
-        std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
-    {
-        using ExpansionType = ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>;
-        return evaluate((typename ExpansionType::const_view)(expansion), longitudes, colatitudes, radii);
-    }
-
-    template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
-    [[nodiscard]] DynamicMDArray<double, 3> evaluate(
-        const ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>& expansion,
-        std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
-    {
-        using ExpansionType = ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>;
-        return evaluate((typename ExpansionType::const_view)(expansion), longitudes, colatitudes, radii);
-    }
-
 private:
-    template <ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
-    void sum_n(ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion) noexcept
+    template <zernike_expansion<IndexingMode::zero_based> ExpansionType>
+        requires std::floating_point<value_type_of<ExpansionType>>
+    void sum_n(const ExpansionType& expansion) noexcept
     {
+        constexpr zt::ZernikeNorm zernike_norm = zernike_norm_of<ExpansionType>();
+
         const std::size_t order = expansion.order();
         RadialZernikeSpan<const double, zernike_norm, std::dynamic_extent>
         zernike(m_zernike_grid, order, m_rad_size);

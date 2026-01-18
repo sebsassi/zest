@@ -40,6 +40,20 @@ enum class IndexingMode
     zero_based // Index from `0` to `n`, inclusive.
 };
 
+template <IndexingMode indexing_mode_param>
+struct IndexingModeTag
+{
+    static constexpr IndexingMode indexing_mode = indexing_mode_param;
+};
+
+template <typename T>
+concept indexing_mode_tagged = std::derived_from<
+    std::remove_cvref_t<T>,
+    IndexingModeTag<std::remove_cvref_t<T>::indexing_mode>>;
+
+template <indexing_mode_tagged T>
+consteval IndexingMode indexing_mode_of() { return std::remove_cvref_t<T>::indexing_mode; }
+
 enum class Parity { even = 0, odd = 1 };
 
 template <typename T>

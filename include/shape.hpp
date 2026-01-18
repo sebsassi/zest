@@ -483,6 +483,8 @@ template <typename S1, typename S2>
 class CompositeShape
 {
 public:
+    using first_component_type = S1;
+    using second_component_type = S2;
     using size_type = typename S1::size_type;
     using index_type = typename S1::index_type;
     using index_range = typename S1::index_range;

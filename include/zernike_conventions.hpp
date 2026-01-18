@@ -38,6 +38,14 @@ struct ZernikeTag
     static constexpr ZernikeNorm zernike_norm = norm;
 };
 
+template <typename T>
+concept zernike_tagged = std::derived_from<
+    std::remove_cvref_t<T>,
+    ZernikeTag<std::remove_cvref_t<T>::zernike_norm>>;
+
+template <zernike_tagged T>
+consteval ZernikeNorm sh_norm_of() { return std::remove_cvref_t<T>::zernike_norm; }
+
 /**
     @brief Normalization of Zernike polynomials.
 

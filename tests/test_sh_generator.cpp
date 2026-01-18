@@ -71,8 +71,7 @@ bool test_real_sh_generator_generates_correct_up_to_order_5_symmetric(
     const double Y43 = phase*shnorm*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::cos(3.0*lon);
     const double Y44 = shnorm*std::sqrt(315.0/64.0)*(1.0 - z*z)*(1.0 - z*z)*std::cos(4.0*lon);
 
-    auto expansion = zest::st::RealSHGenerator{}
-        .generate<zest::IndexingMode::symmetric, sh_norm, sh_phase>(lon, colat, order);
+    auto expansion = zest::st::RealSHGenerator{}.generate(lon, colat, order);
 
     bool success = is_close(expansion[0, 0], Y00, 1.0e-10)
             && is_close(expansion[1, -1], Y1m1, 1.0e-10)
@@ -173,8 +172,7 @@ bool test_real_sh_generator_generates_correct_up_to_order_5_zero_based(
     const double Y43 = phase*shnorm*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::cos(3.0*lon);
     const double Y44 = shnorm*std::sqrt(315.0/64.0)*(1.0 - z*z)*(1.0 - z*z)*std::cos(4.0*lon);
 
-    auto expansion = zest::st::RealSHGenerator{}
-        .generate<zest::IndexingMode::zero_based, sh_norm, sh_phase>(lon, colat, order);
+    auto expansion = zest::st::RealSHGenerator{}.generate(lon, colat, order);
 
     bool success = is_close(expansion[0, 0, 0], Y00, 1.0e-10)
             && is_close(expansion[1, 1, 1], Y1m1, 1.0e-10)

@@ -903,24 +903,6 @@ using GLQTransformerNormalGeo
         ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
 
 /**
-    @brief Function concept taking Cartesian coordinates as inputs.
-*/
-template <typename Func>
-concept cartesian_function = requires (Func f, std::array<double, 3> x)
-{
-    { f(x) } -> std::same_as<double>;
-};
-
-/**
-    @brief Function concept taking spherical coordinates as inputs.
-*/
-template <typename Func>
-concept spherical_function = requires (Func f, double lon, double colat, double r)
-{
-    { f(lon, colat, r) } -> std::same_as<double>;
-};
-
-/**
     @brief High-level interface for taking Zernike transforms of functions on
     balls of arbitrary radii.
 
@@ -964,7 +946,7 @@ public:
         @param radius radius of the ball `f` is defined on
         @param expansion buffer to store the expansion
     */
-    template <spherical_function FuncType>
+    template <ball_function FuncType>
     void transform(
         FuncType&& f, double radius,
         ZernikeSpan<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
@@ -989,7 +971,7 @@ public:
 
         @returns Zernike expansion
     */
-    template <spherical_function FuncType>
+    template <ball_function FuncType>
     [[nodiscard]] ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param>
     transform(FuncType&& f, double radius, std::size_t order)
     {

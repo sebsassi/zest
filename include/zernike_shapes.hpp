@@ -72,7 +72,7 @@ using ZernikeShape = TaggedShape<
     std::conditional_t<(indexing_mode == IndexingMode::symmetric), 
         TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode>, inner_extents...>,
         TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode>, 2, inner_extents...>>,
-    ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>>;
+    ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>, IndexingModeTag<indexing_mode>>;
 
 /**
     @brief Shape of an efficient layout of a multidimensional array
@@ -94,7 +94,7 @@ using ZernikeTensorShape = TaggedShape<
         CompositeShape<
             TensorShape<outer_extents...>,
             TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode>, 2>>>,
-        ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>>;
+        ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>, IndexingModeTag<indexing_mode>>;
 
 /**
     @brief Shape of an efficient layout of 3D Zernike functions with
@@ -111,6 +111,6 @@ template <
 >
 using ZernikeNonnegativeShape = TaggedShape<
     TensorSequenceShape<ZernikeTetrahedralSequence<IndexingMode::zero_based>, inner_extents...>,
-    ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>>;
+    ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>, IndexingModeTag<IndexingMode::zero_based>>;
 
 } // namespace zest::zt

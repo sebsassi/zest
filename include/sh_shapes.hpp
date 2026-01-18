@@ -40,7 +40,8 @@ namespace zest::st
 */
 template <SHNorm sh_norm, SHPhase sh_phase, std::size_t... inner_extents>
 using AssociatedLegendreShape = TaggedShape<
-    TriangleShape<IndexingMode::zero_based, inner_extents...>, SHTag<sh_norm, sh_phase>>;
+    TriangleShape<IndexingMode::zero_based, inner_extents...>,
+    SHTag<sh_norm, sh_phase>, IndexingModeTag<IndexingMode::zero_based>>;
 
 /**
     @brief Shape representing an efficient layout of a multidimensional array
@@ -53,7 +54,8 @@ using AssociatedLegendreShape = TaggedShape<
 */
 template <SHNorm sh_norm, SHPhase sh_phase, std::size_t... outer_extents>
 using AssociatedLegendreTensorShape = TaggedShape<
-    TriangleTensorShape<IndexingMode::zero_based, outer_extents...>, SHTag<sh_norm, sh_phase>>;
+    TriangleTensorShape<IndexingMode::zero_based, outer_extents...>,
+    SHTag<sh_norm, sh_phase>, IndexingModeTag<IndexingMode::zero_based>>;
 
 /**
     @brief Tagged shape representing layout and conventions of spherical
@@ -72,7 +74,7 @@ using SHShape = TaggedShape<
     std::conditional_t<(indexing_mode == IndexingMode::symmetric),
         TriangleShape<indexing_mode, inner_extents...>,
         TriangleShape<indexing_mode, 2, inner_extents...>>,
-    SHTag<sh_norm, sh_phase>>;
+    SHTag<sh_norm, sh_phase>, IndexingModeTag<indexing_mode>>;
 
 /**
     @brief Shape representing an efficient layout of a multidimensional array of
@@ -93,7 +95,7 @@ using SHTensorShape = TaggedShape<
         CompositeShape<
             TensorShape<outer_extents...>,
             TriangleShape<indexing_mode, 2>>>,
-    SHTag<sh_norm, sh_phase>>;
+    SHTag<sh_norm, sh_phase>, IndexingModeTag<indexing_mode>>;
 
 
 } // namespace zest::st

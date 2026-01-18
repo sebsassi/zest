@@ -21,6 +21,7 @@ SOFTWARE.
 */
 #pragma once
 
+#include <concepts>
 #include <numbers>
 
 namespace zest::st
@@ -48,6 +49,17 @@ struct SHTag
     static constexpr SHNorm sh_norm = norm;
     static constexpr SHPhase sh_phase = phase;
 };
+
+template <typename T>
+concept sh_tagged = std::derived_from<
+    std::remove_cvref_t<T>,
+    SHTag<std::remove_cvref_t<T>::sh_norm, std::remove_cvref_t<T>::sh_phase>>;
+
+template <sh_tagged T>
+consteval SHNorm sh_norm_of() { return std::remove_cvref_t<T>::sh_norm; }
+
+template <sh_tagged T>
+consteval SHPhase sh_phase_of() { return std::remove_cvref_t<T>::sh_phase; }
 
 /**
     @brief Normalization constant of spherical harmonics coefficients.

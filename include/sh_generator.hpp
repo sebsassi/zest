@@ -24,6 +24,8 @@ SOFTWARE.
 #include <vector>
 
 #include "associated_legendre_recursion.hpp"
+#include "sequence.hpp"
+#include "sh_concepts.hpp"
 #include "sh_expansion.hpp"
 
 namespace zest::st
@@ -65,16 +67,23 @@ public:
         @param colat colatitude coordinate
         @param expansion buffer for spherical harmonic values
     */
-    template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
-    void generate(double lon, double colat, SHSpan<double, indexing_mode, sh_norm, sh_phase> expansion)
+    template <any_complete_sh_expansion ExpansionType>
+        requires std::floating_point<value_type_of<ExpansionType>>
+    void generate(double lon, double colat, ExpansionType&& expansion)
     {
         expand(expansion.order());
 
+        constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
+        constexpr st::SHPhase sh_phase = sh_norm_of<ExpansionType>();
+        constexpr IndexingMode indexing_mode = indexing_mode_of<ExpansionType>();
+
         const double z = std::cos(colat);
-        AssociatedLegendreSpan<double, sh_norm, sh_phase> ass_leg(m_ass_leg_poly, expansion.order());
+        AssociatedLegendreSpan<double, sh_norm, sh_phase>
+        ass_leg(m_ass_leg_poly, std::forward<ExpansionType>(expansion).order());
+
         m_recursion.generate_real(z, ass_leg);
 
-        for (std::size_t m = 0; m < expansion.order(); ++m)
+        for (std::size_t m = 0; m < std::forward<ExpansionType>(expansion).order(); ++m)
         {
             const double angle = double(m)*lon;
             m_cossin[m] = {std::cos(angle), std::sin(angle)};
@@ -82,7 +91,7 @@ public:
 
         for (auto l : ass_leg.indices())
         {
-            const auto expansion_l = expansion[l];
+            const auto expansion_l = std::forward<ExpansionType>(expansion)[l];
             const auto ass_leg_l = ass_leg[l];
             if constexpr (indexing_mode == IndexingMode::symmetric)
                 expansion_l[0] = ass_leg_l[0];
@@ -108,25 +117,6 @@ public:
                 }
             }
         }
-    }
-
-    template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
-    void generate(double lon, double colat, SHExpansion<double, indexing_mode, sh_norm, sh_phase>& expansion)
-    {
-        using ExpansionType = SHExpansion<double, indexing_mode, sh_norm, sh_phase>;
-        generate<indexing_mode, sh_norm, sh_phase>(
-                lon, colat, (typename ExpansionType::view)(expansion));
-    }
-
-    template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
-    [[nodiscard]] SHExpansion<double, indexing_mode, sh_norm, sh_phase>
-    generate(double lon, double colat, std::size_t order)
-    {
-        using ExpansionType = SHExpansion<double, indexing_mode, sh_norm, sh_phase>;
-        ExpansionType expansion{order};
-        generate<indexing_mode, sh_norm, sh_phase>(
-                lon, colat, (typename ExpansionType::view)(expansion));
-        return expansion;
     }
 
 private:

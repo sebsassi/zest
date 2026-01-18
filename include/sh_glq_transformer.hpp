@@ -34,6 +34,7 @@ SOFTWARE.
 #include "gauss_legendre.hpp"
 #include "sh_expansion.hpp"
 #include "sphere_glq_grid.hpp"
+#include "utility_concepts.hpp"
 #include "zernike_expansion.hpp"
 
 namespace zest::st
@@ -800,24 +801,6 @@ using GLQTransformerQM
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerGeo
     = GLQTransformer<SHNorm::geo, SHPhase::none, GridLayout>;
-
-/**
-    @brief Function concept taking Cartesian coordinates as inputs.
-*/
-template <typename Func>
-concept cartesian_function = requires (Func f, std::array<double, 3> x)
-{
-    { f(x) } -> std::same_as<double>;
-};
-
-/**
-    @brief Function concept taking spherical angles as inputs.
-*/
-template <typename Func>
-concept spherical_function = requires (Func f, double lon, double colat)
-{
-    { f(lon, colat) } -> std::same_as<double>;
-};
 
 /**
     @brief High-level interface for taking SH transforms of functions on balls

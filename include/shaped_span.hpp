@@ -27,16 +27,10 @@ SOFTWARE.
 #include <span>
 
 #include "utility.hpp"
+#include "utility_concepts.hpp"
 
 namespace zest
 {
-
-template <typename T>
-concept shaped_contiguous_buffer = requires (T x)
-    {
-        { x.data() } -> std::same_as<typename T::pointer>;
-        { x.shape() } -> std::same_as<const typename T::shape_type>;
-    };
 
 template <typename ElementType, typename ShapeType>
 class ShapedSpan
@@ -87,8 +81,9 @@ public:
 
     template <shaped_contiguous_buffer T>
         requires std::same_as<typename T::shape_type, shape_type>
-    constexpr ShapedSpan(const T& shaped_buffer):
-        m_data{shaped_buffer.data()}, m_shape{shaped_buffer.shape()} {}
+    constexpr ShapedSpan(T&& shaped_buffer):
+        m_data{std::forward<T>(shaped_buffer).data()},
+        m_shape{std::forward<T>(shaped_buffer).shape()} {}
 
     template <typename... ExtentTypes>
         requires std::constructible_from<shape_type, ExtentTypes...>
@@ -115,7 +110,7 @@ public:
         return ShapedSpan<element_type, NewShapeType>(m_data, shape);
     }
 
-    [[nodiscard]] constexpr const ShapeType&
+    [[nodiscard]] constexpr const shape_type&
     shape() const noexcept { return m_shape; }
 
     [[nodiscard]] constexpr size_type

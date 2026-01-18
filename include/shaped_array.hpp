@@ -124,7 +124,7 @@ public:
         return ShapedSpan<const value_type, NewShapeType>(m_data.data(), shape);
     }
 
-    [[nodiscard]] const ShapeType&
+    [[nodiscard]] const shape_type&
     shape() const noexcept { return m_shape; }
 
     [[nodiscard]] size_type
@@ -159,6 +159,9 @@ public:
 
     [[nodiscard]] index_range
     indices() const noexcept { return m_shape.indices(); }
+
+    [[nodiscard]] index_range
+    indices(index_type index) const noexcept { return m_shape.indices(index); }
 
     template <std::integral... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
