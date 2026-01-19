@@ -257,7 +257,7 @@ template <
     SHNorm sh_norm, SHPhase sh_phase, std::size_t... outer_extents
 >
 using SHTensorSpan = ShapedSpan<
-    ElementType, SHShape<indexing_mode, sh_norm, sh_phase, outer_extents...>>;
+    ElementType, SHTensorShape<indexing_mode, sh_norm, sh_phase, outer_extents...>>;
 
 /**
     @brief Convenient alias for `SHTensorSpan` with orthonormal spherical
@@ -370,7 +370,7 @@ template <
     SHNorm sh_norm, SHPhase sh_phase, std::size_t... outer_extents
 >
 using SHExpansionTensor = ShapedArray<
-    ElementType, SHShape<indexing_mode, sh_norm, sh_phase, outer_extents...>>;
+    ElementType, SHTensorShape<indexing_mode, sh_norm, sh_phase, outer_extents...>>;
 
 /**
     @brief Convenient alias for `SHExpansionTensor` with orthonormal spherical

@@ -189,8 +189,7 @@ struct TriangleSequence
     using index_type = std::conditional_t<indexing_mode_param == IndexingMode::symmetric,
         int, std::size_t>;
     using size_type = std::size_t;
-    using index_range = std::conditional_t<(indexing_mode_param == IndexingMode::symmetric),
-        SymmetricIndexRange<int>, StandardIndexRange<std::size_t>>;
+    using index_range = StandardIndexRange<index_type>;
 
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
     static constexpr size_type rank = 2;

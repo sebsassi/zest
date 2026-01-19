@@ -533,8 +533,8 @@ int main()
 
     assert(test_triangle_sequence_index_range_symmetric(0, std::array<int, 0>{}));
     assert(test_triangle_sequence_index_range_symmetric(1, std::array<int, 1>{0}));
-    assert(test_triangle_sequence_index_range_symmetric(2, std::array<int, 3>{-1, 0, 1}));
-    assert(test_triangle_sequence_index_range_symmetric(7, std::array<int, 15>{-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6}));
+    assert(test_triangle_sequence_index_range_symmetric(2, std::array<int, 2>{0, 1}));
+    assert(test_triangle_sequence_index_range_symmetric(7, std::array<int, 7>{0, 1, 2, 3, 4, 5, 6}));
 
     assert(test_even_triangle_sequence_size(0, 0));
     assert(test_even_triangle_sequence_size(1, 1));

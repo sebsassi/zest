@@ -24,12 +24,16 @@ SOFTWARE.
 #include <concepts>
 #include <type_traits>
 
+#include "indexing.hpp"
 #include "sequence.hpp"
 #include "sh_conventions.hpp"
 #include "shape.hpp"
 #include "utility_concepts.hpp"
 
-namespace zest::st
+namespace zest
+{
+
+namespace st
 {
 
 template <typename T, IndexingMode indexing_mode>
@@ -54,10 +58,20 @@ concept any_sh_shape = sh_shape<T, indexing_mode_of<T>()>;
 template <typename T, IndexingMode indexing_mode>
 concept complete_sh_shape
     = sh_shape<T, indexing_mode>
-    && std::same_as<typename std::remove_cvref_t<T>::index_range, StandardIndexRange<std::size_t>>;
+    && std::same_as<
+        typename std::remove_cvref_t<T>::index_range,
+        StandardIndexRange<typename std::remove_cvref_t<T>::index_type>>;
 
 template <typename T>
 concept any_complete_sh_shape = complete_sh_shape<T, indexing_mode_of<T>()>;
+
+template <typename T, IndexingMode indexing_mode>
+concept zernike_sh_subshape
+    = sh_shape<T, indexing_mode>
+    && std::same_as<typename std::remove_cvref_t<T>::index_range, ParityIndexRange<std::size_t>>;
+
+template <typename T>
+concept any_zernike_sh_subshape = zernike_sh_subshape<T, indexing_mode_of<T>()>;
 
 template <typename T, IndexingMode indexing_mode>
 concept sh_expansion
@@ -69,6 +83,11 @@ concept complete_sh_expansion
     = shaped_contiguous_buffer<T>
     && complete_sh_shape<typename std::remove_cvref_t<T>::shape_type, indexing_mode>;
 
+template <typename T, IndexingMode indexing_mode>
+concept zernike_sh_subspan
+    = shaped_contiguous_buffer<T>
+    && zernike_sh_subshape<typename std::remove_cvref_t<T>::shape_type, indexing_mode>;
+
 template <typename T>
 concept any_sh_expansion
     = shaped_contiguous_buffer<T>
@@ -79,22 +98,16 @@ concept any_complete_sh_expansion
     = shaped_contiguous_buffer<T>
     && any_complete_sh_shape<typename std::remove_cvref_t<T>::shape_type>;
 
+template <typename T, IndexingMode indexing_mode>
+concept any_zernike_sh_subspan
+    = shaped_contiguous_buffer<T>
+    && any_zernike_sh_subshape<typename std::remove_cvref_t<T>::shape_type>;
+
 template <typename T, typename S>
 concept compatible_with = any_sh_expansion<T> && any_sh_expansion<S>
         && (std::remove_cvref_t<T>::shape_type::sh_norm == std::remove_cvref_t<S>::shape_type::sh_norm)
         && (std::remove_cvref_t<T>::shape_type::sh_norm == std::remove_cvref_t<S>::shape_type::sh_norm)
         && (std::remove_cvref_t<T>::shape_type::indexing_mode == std::remove_cvref_t<S>::shape_type::indexing_mode);
-
-} // namespace zest::st
-
-namespace zest
-{
-
-template <st::any_sh_expansion T>
-[[nodiscard]] consteval IndexingMode indexing_mode_of()
-{
-    return std::remove_cvref_t<T>::shape_type::indexing_mode;
-}
 
 template <st::any_sh_expansion T>
 [[nodiscard]] consteval st::SHNorm sh_norm_of()
@@ -106,6 +119,14 @@ template <st::any_sh_expansion T>
 [[nodiscard]] consteval st::SHPhase sh_phase_of()
 {
     return std::remove_cvref_t<T>::shape_type::sh_phase;
+}
+
+} // namespace st
+
+template <st::any_sh_expansion T>
+[[nodiscard]] consteval IndexingMode indexing_mode_of()
+{
+    return std::remove_cvref_t<T>::shape_type::indexing_mode;
 }
 
 } // namespace zest

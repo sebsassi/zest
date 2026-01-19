@@ -59,7 +59,7 @@ template <sh_tagged T>
 consteval SHNorm sh_norm_of() { return std::remove_cvref_t<T>::sh_norm; }
 
 template <sh_tagged T>
-consteval SHPhase sh_phase_of() { return std::remove_cvref_t<T>::sh_phase; }
+consteval SHNorm sh_phase_of() { return std::remove_cvref_t<T>::sh_norm; }
 
 /**
     @brief Normalization constant of spherical harmonics coefficients.

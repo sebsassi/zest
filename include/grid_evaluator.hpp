@@ -123,7 +123,7 @@ public:
             m_cos_colat[i] = std::cos(colatitudes[i]);
 
         constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
-        constexpr st::SHPhase sh_phase = sh_norm_of<ExpansionType>();
+        constexpr st::SHPhase sh_phase = sh_phase_of<ExpansionType>();
 
         AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>
         ass_leg(m_ass_leg_grid, order, m_lat_size);
@@ -148,7 +148,7 @@ private:
     void sum_l(const ExpansionType& expansion) noexcept
     {
         constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
-        constexpr st::SHPhase sh_phase = sh_norm_of<ExpansionType>();
+        constexpr st::SHPhase sh_phase = sh_phase_of<ExpansionType>();
 
         AssociatedLegendreSpan<const double, sh_norm, sh_phase, std::dynamic_extent>
         ass_leg(m_ass_leg_grid, expansion.order(), m_lat_size);
@@ -253,8 +253,8 @@ public:
         const std::size_t order = expansion.order();
         resize(order, longitudes.size(), colatitudes.size(), radii.size());
 
-        constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
-        constexpr st::SHPhase sh_phase = sh_norm_of<ExpansionType>();
+        constexpr st::SHNorm sh_norm = st::sh_norm_of<ExpansionType>();
+        constexpr st::SHPhase sh_phase = st::sh_phase_of<ExpansionType>();
         constexpr zt::ZernikeNorm zernike_norm = zernike_norm_of<ExpansionType>();
 
         RadialZernikeSpan<double, zernike_norm, std::dynamic_extent>

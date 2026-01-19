@@ -32,6 +32,8 @@ SOFTWARE.
 
 #include "associated_legendre_recursion.hpp"
 #include "gauss_legendre.hpp"
+#include "sequence.hpp"
+#include "sh_concepts.hpp"
 #include "sh_expansion.hpp"
 #include "sphere_glq_grid.hpp"
 #include "utility_concepts.hpp"
@@ -226,29 +228,22 @@ public:
         @note A spherical harmonic expansion has even/odd parity if the first
         index of all nonzero coefficients has even/odd parity.
     */
-    template <zt::ZernikeNorm zernike_norm>
+    template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
+        requires (st::sh_norm_of<ExpansionType>() == sh_norm)
+            && (st::sh_phase_of<ExpansionType>() == sh_phase)
     void backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subspan_type<1> expansion,
-        SphereGLQGridSpan<double, grid_layout_type> values)
+        const ExpansionType& expansion, SphereGLQGridSpan<double, grid_layout_type> values)
     {
-        using ExpansionType = typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subspan_type<1>;
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        ExpansionType truncated_expansion(expansion.flatten(), min_order);
+        typename std::remove_cvref_t<ExpansionType>::const_view
+        truncated_expansion(expansion.flatten(), min_order);
 
         sum_l(truncated_expansion);
         symm_asymm_to_fft();
         sum_m(values);
-    }
-
-    template <zt::ZernikeNorm zernike_norm>
-    void backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template subspan_type<1> expansion,
-        SphereGLQGridSpan<double, grid_layout_type> values)
-    {
-        backward_transform((typename decltype(expansion)::const_view)(expansion), values);
     }
 
     /**
@@ -275,7 +270,8 @@ public:
         @param expansion coefficients of the expansion
     */
     [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
-        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion, std::size_t order)
+        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
+        std::size_t order)
     {
         SphereGLQGrid<double, grid_layout_type> grid(order);
         backward_transform(expansion, grid);
@@ -294,22 +290,15 @@ public:
         @note A spherical harmonic expansion has even/odd parity if the first
         index of all nonzero coefficients has even/odd parity.
     */
-    template <zt::ZernikeNorm zernike_norm>
-    [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subspan_type<1> expansion,
-        std::size_t order)
+    template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
+        requires (st::sh_norm_of<ExpansionType>() == sh_norm)
+            && (st::sh_phase_of<ExpansionType>() == sh_phase)
+    [[nodiscard]] SphereGLQGrid<double, grid_layout_type>
+    backward_transform(const ExpansionType& expansion, std::size_t order)
     {
         SphereGLQGrid<double, grid_layout_type> grid(order);
         backward_transform(expansion, grid);
         return grid;
-    }
-
-    template <zt::ZernikeNorm zernike_norm>
-    [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
-        typename zt::ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template subspan_type<1> expansion,
-        std::size_t order)
-    {
-        return backward_transform((typename decltype(expansion)::const_view)(expansion), order);
     }
 
 private:
@@ -619,9 +608,10 @@ private:
         }
     }
 
-    template <zt::ZernikeNorm zernike_norm>
-    void sum_l(
-        typename zt::ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>::template const_subshape_type<1> expansion) noexcept
+    template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
+        requires (st::sh_norm_of<ExpansionType>() == sh_norm)
+            && (st::sh_phase_of<ExpansionType>() == sh_phase)
+    void sum_l(const ExpansionType& expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_ass_leg = m_glq_weights.size();

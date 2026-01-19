@@ -112,8 +112,8 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
-        constexpr st::SHPhase sh_phase = sh_phase_of<ExpansionType>();
+        constexpr st::SHNorm sh_norm = st::sh_norm_of<ExpansionType>();
+        constexpr st::SHPhase sh_phase = st::sh_phase_of<ExpansionType>();
 
         auto complex_expansion = encode_as_complex_expansion<sh_norm, sh_phase>(std::forward<ExpansionType>(expansion));
 
@@ -151,9 +151,9 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
-        constexpr st::SHPhase sh_phase = sh_phase_of<ExpansionType>();
-        constexpr zt::ZernikeNorm zernike_norm = zernike_norm_of<ExpansionType>();
+        constexpr st::SHNorm sh_norm = st::sh_norm_of<ExpansionType>();
+        constexpr st::SHPhase sh_phase = st::sh_phase_of<ExpansionType>();
+        constexpr zt::ZernikeNorm zernike_norm = zt::zernike_norm_of<ExpansionType>();
 
         auto complex_expansion = encode_as_complex_expansion<zernike_norm, sh_norm, sh_phase>(std::forward<ExpansionType>(expansion));
 
@@ -187,8 +187,8 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
-        constexpr st::SHPhase sh_phase = sh_phase_of<ExpansionType>();
+        constexpr st::SHNorm sh_norm = st::sh_norm_of<ExpansionType>();
+        constexpr st::SHPhase sh_phase = st::sh_phase_of<ExpansionType>();
 
         auto complex_expansion = encode_as_complex_expansion<sh_norm, sh_phase>(std::forward<ExpansionType>(expansion));
 
@@ -218,9 +218,9 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
-        constexpr st::SHPhase sh_phase = sh_phase_of<ExpansionType>();
-        constexpr zt::ZernikeNorm zernike_norm = zernike_norm_of<ExpansionType>();
+        constexpr st::SHNorm sh_norm = st::sh_norm_of<ExpansionType>();
+        constexpr st::SHPhase sh_phase = st::sh_phase_of<ExpansionType>();
+        constexpr zt::ZernikeNorm zernike_norm = zt::zernike_norm_of<ExpansionType>();
 
         auto complex_expansion = encode_as_complex_expansion<zernike_norm, sh_norm, sh_phase>(std::forward<ExpansionType>(expansion));
 

@@ -268,6 +268,23 @@ encode_as_complex_expansion(
     return ReturnType(as_complex_span(expansion.flatten()), expansion.order());
 }
 
+template <
+    zt::ZernikeNorm dest_zernike_norm, st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase,
+    zt::ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
+>
+constexpr zt::ComplexEncodedRealZernikeSpan<std::complex<double>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>
+encode_as_complex_expansion(
+    zt::ZernikeExpansion<
+        double, IndexingMode::zero_based,
+        source_zernike_norm, source_sh_norm, source_sh_phase>&
+    expansion) noexcept
+{
+    using ExpansionType = zt::ZernikeExpansion<
+        double, IndexingMode::zero_based, source_zernike_norm,
+        source_sh_norm, source_sh_phase>;
+    return encode_as_complex_expansion<dest_zernike_norm, dest_sh_norm, dest_sh_phase>((typename ExpansionType::view)(expansion));
+}
+
 /**
     @brief Convert complex Zernike expansion of a real function to a real Zernike expansion.
 

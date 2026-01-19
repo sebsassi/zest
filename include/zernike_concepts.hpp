@@ -28,7 +28,10 @@ SOFTWARE.
 #include "utility_concepts.hpp"
 #include "zernike_conventions.hpp"
 
-namespace zest::zt
+namespace zest
+{
+
+namespace zt
 {
 
 template <typename T, IndexingMode indexing_mode>
@@ -58,16 +61,22 @@ concept compatible_with = any_zernike_expansion<T> && any_zernike_expansion<S>
         && (std::remove_cvref_t<T>::shape_type::zernike_norm == std::remove_cvref_t<S>::shape_type::zernike_norm)
         && (std::remove_cvref_t<T>::shape_type::indexing_mode == std::remove_cvref_t<S>::shape_type::indexing_mode);
 
-} // namespace zest::zt
-
-namespace zest
+template <zt::any_zernike_expansion T>
+[[nodiscard]] consteval zt::ZernikeNorm zernike_norm_of()
 {
+    return std::remove_cvref_t<T>::shape_type::zernike_norm;
+}
+
+} // namespace zt
 
 template <zt::any_zernike_expansion T>
 [[nodiscard]] consteval IndexingMode indexing_mode_of()
 {
     return std::remove_cvref_t<T>::shape_type::indexing_mode;
 }
+
+namespace st
+{
 
 template <zt::any_zernike_expansion T>
 [[nodiscard]] consteval st::SHNorm sh_norm_of()
@@ -81,10 +90,6 @@ template <zt::any_zernike_expansion T>
     return std::remove_cvref_t<T>::shape_type::sh_phase;
 }
 
-template <zt::any_zernike_expansion T>
-[[nodiscard]] consteval zt::ZernikeNorm zernike_norm_of()
-{
-    return std::remove_cvref_t<T>::shape_type::zernike_norm;
-}
+} // namespace st
 
 } // namespace zest

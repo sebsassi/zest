@@ -26,6 +26,7 @@ SOFTWARE.
 #include "associated_legendre_recursion.hpp"
 #include "sequence.hpp"
 #include "sh_concepts.hpp"
+#include "sh_conventions.hpp"
 #include "sh_expansion.hpp"
 
 namespace zest::st
@@ -74,7 +75,7 @@ public:
         expand(expansion.order());
 
         constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
-        constexpr st::SHPhase sh_phase = sh_norm_of<ExpansionType>();
+        constexpr st::SHPhase sh_phase = sh_phase_of<ExpansionType>();
         constexpr IndexingMode indexing_mode = indexing_mode_of<ExpansionType>();
 
         const double z = std::cos(colat);
@@ -117,6 +118,15 @@ public:
                 }
             }
         }
+    }
+
+    template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
+    [[nodiscard]] SHExpansion<double, indexing_mode, sh_norm, sh_phase>
+    generate(double lon, double colat, std::size_t order)
+    {
+        SHExpansion<double, indexing_mode, sh_norm, sh_phase> expansion{order};
+        generate(lon, colat, expansion);
+        return expansion;
     }
 
 private:
