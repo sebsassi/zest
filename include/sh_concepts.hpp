@@ -55,8 +55,20 @@ concept sh_shape
 template <typename T>
 concept associated_legendre_shape
     = sh_tagged<T> && indexing_mode_tagged<T>
-    && (indexing_mode_of<T> == IndexingMode::zero_based)
+    && (indexing_mode_of<T>() == IndexingMode::zero_based)
     && std::same_as<remove_tags<typename std::remove_cvref_t<T>::template subshape_type<2>>, NullShape>;
+
+template <typename T>
+concept complete_associated_legendre_shape
+    = associated_legendre_shape<T>
+    && std::same_as<
+        typename std::remove_cvref_t<T>::index_range,
+        StandardIndexRange<typename std::remove_cvref_t<T>::index_type>>;
+
+template <typename T>
+concept parity_associated_legendre_shape
+    = associated_legendre_shape<T>
+    && std::same_as<typename std::remove_cvref_t<T>::index_range, ParityIndexRange<std::size_t>>;
 
 template <typename T>
 concept any_sh_shape = sh_shape<T, indexing_mode_of<T>()>;
@@ -78,6 +90,10 @@ concept zernike_sh_subshape
 
 template <typename T>
 concept any_zernike_sh_subshape = zernike_sh_subshape<T, indexing_mode_of<T>()>;
+
+template <typename T>
+concept sh_buffer
+    = sh_tagged<typename std::remove_cvref_t<T>::shape_type> && shaped_contiguous_buffer<T>;
 
 template <typename T, IndexingMode indexing_mode>
 concept sh_expansion
@@ -113,7 +129,13 @@ template <typename T>
 concept complex_encoded_real_sh_expansion
     = shaped_contiguous_buffer<T>
     && complex_float<typename std::remove_cvref_t<T>::value_type>
-    && associated_legendre_shape<typename std::remove_cvref_t<T>::shape_type>;
+    && complete_associated_legendre_shape<typename std::remove_cvref_t<T>::shape_type>;
+
+template <typename T>
+concept complex_encoded_zernike_sh_subspan
+    = shaped_contiguous_buffer<T>
+    && complex_float<typename std::remove_cvref_t<T>::value_type>
+    && parity_associated_legendre_shape<T>;
 
 template <typename T, typename S>
 concept compatible_with = any_sh_expansion<T> && any_sh_expansion<S>
@@ -121,13 +143,13 @@ concept compatible_with = any_sh_expansion<T> && any_sh_expansion<S>
         && (std::remove_cvref_t<T>::shape_type::sh_norm == std::remove_cvref_t<S>::shape_type::sh_norm)
         && (std::remove_cvref_t<T>::shape_type::indexing_mode == std::remove_cvref_t<S>::shape_type::indexing_mode);
 
-template <st::any_sh_expansion T>
+template <st::sh_buffer T>
 [[nodiscard]] consteval st::SHNorm sh_norm_of()
 {
     return std::remove_cvref_t<T>::shape_type::sh_norm;
 }
 
-template <st::any_sh_expansion T>
+template <st::sh_buffer T>
 [[nodiscard]] consteval st::SHPhase sh_phase_of()
 {
     return std::remove_cvref_t<T>::shape_type::sh_phase;
@@ -135,7 +157,7 @@ template <st::any_sh_expansion T>
 
 } // namespace st
 
-template <st::any_sh_expansion T>
+template <st::sh_buffer T>
 [[nodiscard]] consteval IndexingMode indexing_mode_of()
 {
     return std::remove_cvref_t<T>::shape_type::indexing_mode;

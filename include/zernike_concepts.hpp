@@ -46,8 +46,13 @@ concept any_zernike_shape = zernike_shape<T, indexing_mode_of<T>()>;
 template <typename T>
 concept zernike_nonnegative_shape
     = st::sh_tagged<T> && zernike_tagged<T> && indexing_mode_tagged<T>
-    && (indexing_mode_of<T> == IndexingMode::zero_based)
+    && (indexing_mode_of<T>() == IndexingMode::zero_based)
     && std::same_as<remove_tags<typename std::remove_cvref_t<T>::template subshape_type<3>>, NullShape>;
+
+template <typename T>
+concept zernike_buffer
+    = zernike_tagged<typename std::remove_cvref_t<T>::shape_type>
+    && shaped_contiguous_buffer<T>;
 
 template <typename T, IndexingMode indexing_mode>
 concept zernike_expansion
@@ -72,7 +77,7 @@ concept compatible_with = any_zernike_expansion<T> && any_zernike_expansion<S>
         && (std::remove_cvref_t<T>::shape_type::zernike_norm == std::remove_cvref_t<S>::shape_type::zernike_norm)
         && (std::remove_cvref_t<T>::shape_type::indexing_mode == std::remove_cvref_t<S>::shape_type::indexing_mode);
 
-template <zt::any_zernike_expansion T>
+template <zt::zernike_buffer T>
 [[nodiscard]] consteval zt::ZernikeNorm zernike_norm_of()
 {
     return std::remove_cvref_t<T>::shape_type::zernike_norm;
@@ -80,27 +85,10 @@ template <zt::any_zernike_expansion T>
 
 } // namespace zt
 
-template <zt::any_zernike_expansion T>
+template <zt::zernike_buffer T>
 [[nodiscard]] consteval IndexingMode indexing_mode_of()
 {
     return std::remove_cvref_t<T>::shape_type::indexing_mode;
 }
-
-namespace st
-{
-
-template <zt::any_zernike_expansion T>
-[[nodiscard]] consteval st::SHNorm sh_norm_of()
-{
-    return std::remove_cvref_t<T>::shape_type::sh_norm;
-}
-
-template <zt::any_zernike_expansion T>
-[[nodiscard]] consteval st::SHPhase sh_phase_of()
-{
-    return std::remove_cvref_t<T>::shape_type::sh_phase;
-}
-
-} // namespace st
 
 } // namespace zest
