@@ -53,6 +53,12 @@ concept sh_shape
         typename std::remove_cvref_t<T>::template subshape_type<1>, indexing_mode>;
 
 template <typename T>
+concept associated_legendre_shape
+    = sh_tagged<T> && indexing_mode_tagged<T>
+    && (indexing_mode_of<T> == IndexingMode::zero_based)
+    && std::same_as<remove_tags<typename std::remove_cvref_t<T>::template subshape_type<2>>, NullShape>;
+
+template <typename T>
 concept any_sh_shape = sh_shape<T, indexing_mode_of<T>()>;
 
 template <typename T, IndexingMode indexing_mode>
@@ -102,6 +108,12 @@ template <typename T, IndexingMode indexing_mode>
 concept any_zernike_sh_subspan
     = shaped_contiguous_buffer<T>
     && any_zernike_sh_subshape<typename std::remove_cvref_t<T>::shape_type>;
+
+template <typename T>
+concept complex_encoded_real_sh_expansion
+    = shaped_contiguous_buffer<T>
+    && complex_float<typename std::remove_cvref_t<T>::value_type>
+    && associated_legendre_shape<typename std::remove_cvref_t<T>::shape_type>;
 
 template <typename T, typename S>
 concept compatible_with = any_sh_expansion<T> && any_sh_expansion<S>

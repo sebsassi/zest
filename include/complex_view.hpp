@@ -22,10 +22,13 @@ SOFTWARE.
 #pragma once
 
 #include <complex>
+#include <utility>
 
 #include "array_complex_view.hpp"
+#include "sh_concepts.hpp"
 #include "sh_conventions.hpp"
 #include "sh_expansion.hpp"
+#include "zernike_concepts.hpp"
 #include "zernike_conventions.hpp"
 #include "zernike_expansion.hpp"
 
@@ -46,61 +49,30 @@ namespace zest
     @note IMPORTANT: This function modifies the input data! The output is just
     a new view over the same data.
 */
-template <
-    st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
->
-constexpr st::ComplexEncodedRealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>
-encode_as_complex_expansion(
-    st::SHSpan<double, IndexingMode::zero_based, source_sh_norm, source_sh_phase> expansion) noexcept
+template <st::complete_sh_expansion<IndexingMode::zero_based> ExpansionType>
+    requires std::same_as<typename std::remove_cvref_t<ExpansionType>::value_type, double>
+constexpr st::ComplexEncodedRealSHSpan<
+    std::complex<double>, st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()>
+encode_as_complex_expansion(ExpansionType&& expansion) noexcept
 {
-    using ExpansionType = st::SHSpan<
-        double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>;
     using ReturnType = st::ComplexEncodedRealSHSpan<
-        std::complex<double>, dest_sh_norm, dest_sh_phase>;
+        std::complex<double>, st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()>;
 
-    constexpr double sh_norm
-        = st::conversion_const<ExpansionType::shape_type::sh_norm, dest_sh_norm>();
     constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
-    constexpr double shcnorm = sh_norm*complex_conversion_norm;
 
-    for (auto l : expansion.indices())
+    for (auto l : std::forward<ExpansionType>(expansion).indices())
     {
-        auto expansion_l = expansion[l];
-        expansion_l[0, 0] *= sh_norm;
-        expansion_l[0, 1] *= sh_norm;
-
-        if constexpr (dest_sh_phase == source_sh_phase)
+        auto expansion_l = std::forward<ExpansionType>(expansion)[l];
+        for (auto m : expansion_l.indices(1))
         {
-            for (auto m : expansion_l.indices(1))
-            {
-                expansion_l[m, 0] *= shcnorm;
-                expansion_l[m, 1] *= -shcnorm;
-            }
-        }
-        else
-        {
-            double prefactor = shcnorm;
-            for (auto m : expansion_l.indices(1))
-            {
-                prefactor *= -1.0;
-                expansion_l[m, 0] *= prefactor;
-                expansion_l[m, 1] *= -prefactor;
-            }
+            expansion_l[m, 0] *= complex_conversion_norm;
+            expansion_l[m, 1] *= -complex_conversion_norm;
         }
     }
 
-    return ReturnType(as_complex_span(expansion.flatten()), expansion.order());
-}
-
-template <
-    st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
->
-constexpr st::ComplexEncodedRealSHSpan<std::complex<double>, dest_sh_norm, dest_sh_phase>
-encode_as_complex_expansion(
-    st::SHExpansion<double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>& expansion) noexcept
-{
-    using ExpansionType = st::SHExpansion<double, IndexingMode::zero_based, source_sh_norm, source_sh_phase>;
-    return encode_as_complex_expansion<dest_sh_norm, dest_sh_phase>((typename ExpansionType::view)(expansion));
+    return ReturnType(
+            as_complex_span(std::forward<ExpansionType>(expansion).flatten()),
+            std::forward<ExpansionType>(expansion).order());
 }
 
 /**
@@ -117,48 +89,29 @@ encode_as_complex_expansion(
     @note IMPORTANT: This function modifies the input data! The output is just
     a new view over the same data.
 */
-template <
-    st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
->
-constexpr st::SHSpan<double, IndexingMode::zero_based, dest_sh_norm, dest_sh_phase>
-decode_as_real_expansion(
-    st::ComplexEncodedRealSHSpan<std::complex<double>, source_sh_norm, source_sh_phase> expansion) noexcept
+template <st::complex_encoded_real_sh_expansion ExpansionType>
+constexpr st::SHSpan<
+    double, IndexingMode::zero_based,
+    st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()>
+decode_as_real_expansion(ExpansionType&& expansion) noexcept
 {
-    using ExpansionType = st::ComplexEncodedRealSHSpan<
-        std::complex<double>, source_sh_norm, source_sh_phase>;
     using ReturnType = st::SHSpan<
-        double, IndexingMode::zero_based, dest_sh_norm, dest_sh_phase>;
+        double, IndexingMode::zero_based,
+        st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()>;
 
-    constexpr double sh_norm
-        = st::conversion_const<ExpansionType::shape_type::sh_norm, dest_sh_norm>();
     constexpr double complex_conversion_norm = std::numbers::sqrt2;
-    constexpr double shcnorm = sh_norm*complex_conversion_norm;
 
-    ReturnType res(as_float_span(expansion.flatten()), expansion.order());
+    ReturnType res(
+            as_float_span(std::forward<ExpansionType>(expansion).flatten()),
+            std::forward<ExpansionType>(expansion).order());
 
     for (auto l : res.indices())
     {
         auto res_l = res[l];
-        res_l[0, 0] *= sh_norm;
-        res_l[0, 1] *= sh_norm;
-
-        if constexpr (dest_sh_phase == source_sh_phase)
+        for (auto m : res_l.indices(1))
         {
-            for (auto m : res_l.indices(1))
-            {
-                res_l[m, 0] *= shcnorm;
-                res_l[m, 1] *= -shcnorm;
-            }
-        }
-        else
-        {
-            double prefactor = shcnorm;
-            for (auto m : res_l.indices(1))
-            {
-                prefactor *= -1.0;
-                res_l[m, 0] *= prefactor;
-                res_l[m, 1] *= -prefactor;
-            }
+            res_l[m, 0] *= complex_conversion_norm;
+            res_l[m, 1] *= -complex_conversion_norm;
         }
     }
 
@@ -178,111 +131,37 @@ decode_as_real_expansion(
 
     @note This function modifies the input data and merely produces a new view over the same data.
 */
-template <
-    zt::ZernikeNorm dest_zernike_norm, st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase,
-    zt::ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
->
+template <zt::zernike_expansion<IndexingMode::zero_based> ExpansionType>
+    requires std::same_as<typename std::remove_cvref_t<ExpansionType>::value_type, double>
 constexpr zt::ComplexEncodedRealZernikeSpan<
-    std::complex<double>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>
-encode_as_complex_expansion(
-    zt::ZernikeSpan<
-        double, IndexingMode::zero_based, source_zernike_norm,
-        source_sh_norm, source_sh_phase>
-    expansion) noexcept
+    std::complex<double>, zt::zernike_norm_of<ExpansionType>(),
+    st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()>
+encode_as_complex_expansion(ExpansionType&& expansion) noexcept
 {
-    using ExpansionType = zt::ZernikeSpan<
-        double, IndexingMode::zero_based, source_zernike_norm,
-        source_sh_norm, source_sh_phase>;
     using ReturnType = zt::ComplexEncodedRealZernikeSpan<
-        std::complex<double>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>;
+        std::complex<double>, zt::zernike_norm_of<ExpansionType>(),
+        st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()>;
 
-    constexpr double shnorm = st::conversion_const<ExpansionType::shape_type::sh_norm, dest_sh_norm>();
     constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
-    constexpr double shcnorm = shnorm*complex_conversion_norm;
 
-    for (auto n : expansion.indices())
+    for (auto n : std::forward<ExpansionType>(expansion).indices())
     {
-        if constexpr (dest_zernike_norm == source_zernike_norm)
+        auto expansion_n = std::forward<ExpansionType>(expansion)[n];
+        for (auto l : expansion_n.indices())
         {
-            auto expansion_n = expansion[n];
-            for (auto l : expansion_n.indices())
-            {
-                auto expansion_nl = expansion_n[l];
-                expansion_nl[0][0] *= shnorm;
-                expansion_nl[0][1] *= shnorm;
+            auto expansion_nl = expansion_n[l];
 
-                if constexpr (dest_sh_phase == source_sh_phase)
-                {
-                    for (auto m : expansion_nl.indices(1))
-                    {
-                        expansion_nl[m][0] *= shcnorm;
-                        expansion_nl[m][1] *= -shcnorm;
-                    }
-                }
-                else
-                {
-                    double prefactor = shcnorm;
-                    for (auto m : expansion_nl.indices(1))
-                    {
-                        prefactor *= -1.0;
-                        expansion_nl[m][0] *= prefactor;
-                        expansion_nl[m][1] *= -prefactor;
-                    }
-                }
-            }
-        }
-        else
-        {
-            const double znorm = zt::conversion_factor<ExpansionType::zernike_norm, dest_zernike_norm>(n);
-            const double zshnorm = shnorm*znorm;
-            const double zshcnorm = shcnorm*znorm;
-            auto expansion_n = expansion[n];
-            for (auto l : expansion_n.indices())
+            for (auto m : expansion_nl.indices(1))
             {
-                auto expansion_nl = expansion_n[l];
-                expansion_nl[0][0] *= zshnorm;
-                expansion_nl[0][1] *= zshnorm;
-
-                if constexpr (dest_sh_phase == source_sh_phase)
-                {
-                    for (auto m : expansion_nl.indices(1))
-                    {
-                        expansion_nl[m][0] *= zshcnorm;
-                        expansion_nl[m][1] *= -zshcnorm;
-                    }
-                }
-                else
-                {
-                    double prefactor = zshcnorm;
-                    for (auto m : expansion_nl.indices(1))
-                    {
-                        prefactor *= -1.0;
-                        expansion_nl[m][0] *= prefactor;
-                        expansion_nl[m][1] *= -prefactor;
-                    }
-                }
+                expansion_nl[m][0] *= complex_conversion_norm;
+                expansion_nl[m][1] *= -complex_conversion_norm;
             }
         }
     }
 
-    return ReturnType(as_complex_span(expansion.flatten()), expansion.order());
-}
-
-template <
-    zt::ZernikeNorm dest_zernike_norm, st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase,
-    zt::ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
->
-constexpr zt::ComplexEncodedRealZernikeSpan<std::complex<double>, dest_zernike_norm, dest_sh_norm, dest_sh_phase>
-encode_as_complex_expansion(
-    zt::ZernikeExpansion<
-        double, IndexingMode::zero_based,
-        source_zernike_norm, source_sh_norm, source_sh_phase>&
-    expansion) noexcept
-{
-    using ExpansionType = zt::ZernikeExpansion<
-        double, IndexingMode::zero_based, source_zernike_norm,
-        source_sh_norm, source_sh_phase>;
-    return encode_as_complex_expansion<dest_zernike_norm, dest_sh_norm, dest_sh_phase>((typename ExpansionType::view)(expansion));
+    return ReturnType(
+            as_complex_span(std::forward<ExpansionType>(expansion).flatten()),
+            std::forward<ExpansionType>(expansion).order());
 }
 
 /**
@@ -298,91 +177,34 @@ encode_as_complex_expansion(
 
     @note This function modifies the input data and merely produces a new view over the same data.
 */
-template <
-    zt::ZernikeNorm dest_zernike_norm, st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase,
-    zt::ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
->
+template <zt::complex_encoded_real_zernike_expansion ExpansionType>
 constexpr zt::ZernikeSpan<
-    double, IndexingMode::zero_based, dest_zernike_norm,
-    dest_sh_norm, dest_sh_phase>
-decode_as_real_expansion(
-    zt::ComplexEncodedRealZernikeSpan<
-        std::complex<double>, source_zernike_norm, source_sh_norm, source_sh_phase>
-    expansion) noexcept
+    double, IndexingMode::zero_based, zt::zernike_norm_of<ExpansionType>(),
+    st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()>
+decode_as_real_expansion(ExpansionType&& expansion) noexcept
 {
-    using ExpansionType = zt::ComplexEncodedRealZernikeSpan<
-        std::complex<double>, source_zernike_norm, source_sh_norm, source_sh_phase>;
     using ReturnType = zt::ZernikeSpan<
-        double, IndexingMode::zero_based, dest_zernike_norm,
-        dest_sh_norm, dest_sh_phase>;
+        double, IndexingMode::zero_based, zt::zernike_norm_of<ExpansionType>(),
+        st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()>;
 
-    constexpr double shnorm = st::conversion_const<ExpansionType::shape_type::sh_norm, dest_sh_norm>();
     constexpr double complex_conversion_norm = std::numbers::sqrt2;
-    constexpr double shcnorm = shnorm*complex_conversion_norm;
+    constexpr double shcnorm = complex_conversion_norm;
 
-    ReturnType res(as_float_span(expansion.flatten()), expansion.order());
+    ReturnType res(
+            as_float_span(std::forward<ExpansionType>(expansion).flatten()),
+            std::forward<ExpansionType>(expansion).order());
 
     for (auto n : res.indices())
     {
-        if constexpr (dest_zernike_norm == source_zernike_norm)
+        auto res_n = res[n];
+        for (auto l : res_n.indices())
         {
-            auto res_n = res[n];
-            for (auto l : res_n.indices())
-            {
-                auto res_nl = res_n[l];
-                res_nl[0][0] *= shnorm;
-                res_nl[0][1] *= shnorm;
+            auto res_nl = res_n[l];
 
-                if constexpr (dest_sh_phase == source_sh_phase)
-                {
-                    for (auto m : res_nl.indices(1))
-                    {
-                        res_nl[m][0] *= shcnorm;
-                        res_nl[m][1] *= -shcnorm;
-                    }
-                }
-                else
-                {
-                    double prefactor = shcnorm;
-                    for (auto m : res_nl.indices(1))
-                    {
-                        prefactor *= -1.0;
-                        res_nl[m][0] *= prefactor;
-                        res_nl[m][1] *= -prefactor;
-                    }
-                }
-            }
-        }
-        else
-        {
-            const double znorm = zt::conversion_factor<source_zernike_norm, dest_zernike_norm>(n);
-            const double zshnorm = shnorm*znorm;
-            const double zshcnorm = shcnorm*znorm;
-            auto res_n = res[n];
-            for (auto l : res_n.indices())
+            for (auto m : res_nl.indices(1))
             {
-                auto res_nl = res_n[l];
-                res_nl[0][0] *= zshnorm;
-                res_nl[0][1] *= zshnorm;
-
-                if constexpr (dest_sh_phase == source_sh_phase)
-                {
-                    for (auto m : res_nl.indices(1))
-                    {
-                        res_nl[m][0] *= zshcnorm;
-                        res_nl[m][1] *= -zshcnorm;
-                    }
-                }
-                else
-                {
-                    double prefactor = zshcnorm;
-                    for (auto m : res_nl.indices(1))
-                    {
-                        prefactor *= -1.0;
-                        res_nl[m][0] *= prefactor;
-                        res_nl[m][1] *= -prefactor;
-                    }
-                }
+                res_nl[m][0] *= complex_conversion_norm;
+                res_nl[m][1] *= -complex_conversion_norm;
             }
         }
     }
@@ -402,66 +224,35 @@ decode_as_real_expansion(
 
     @note This function modifies the input data and merely produces a new view over the same data.
 */
-template <
-    zt::ZernikeNorm dest_zernike_norm, st::SHNorm dest_sh_norm, st::SHPhase dest_sh_phase,
-    zt::ZernikeNorm source_zernike_norm, st::SHNorm source_sh_norm, st::SHPhase source_sh_phase
->
+template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
+    requires std::same_as<typename std::remove_cvref_t<ExpansionType>::value_type, double>
 constexpr typename zt::ComplexEncodedRealZernikeSpan<
-    std::complex<double>, source_zernike_norm, dest_sh_norm, dest_sh_phase
+    std::complex<double>, zt::zernike_norm_of<ExpansionType>(),
+    st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()
 >::template subspan_type<1>
-encode_as_complex_expansion(
-    typename zt::ZernikeExpansion<
-        double, IndexingMode::zero_based, source_zernike_norm,
-        source_sh_norm, source_sh_phase
-    >::template subspan_type<1> expansion) noexcept
+encode_as_complex_expansion(ExpansionType&& expansion) noexcept
 {
-    using ExpansionType = typename zt::ZernikeExpansion<
-            double, IndexingMode::zero_based, source_zernike_norm, source_sh_norm, source_sh_phase
-        >::template subspan_type<1>;
     using ReturnType = typename zt::ComplexEncodedRealZernikeSpan<
-            std::complex<double>, dest_zernike_norm, dest_sh_norm, dest_sh_phase
+            std::complex<double>, zt::zernike_norm_of<ExpansionType>(),
+            st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()
         >::template subspan_type<1>;
 
-    constexpr double shnorm
-        = st::conversion_const<source_sh_norm, dest_sh_norm>();
     constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
-    constexpr double shcnorm = shnorm*complex_conversion_norm;
 
-    // NOTE: When `expansion.order() == 0`, the argument becomes `0 - 1`.
-    // But this is fine because this operation is well-defined for unsigned
-    // integers, and the result is never used for anything, because there will
-    // be zero loop iterations.
-    const double znorm = zt::conversion_factor<source_zernike_norm, dest_zernike_norm>(expansion.order() - 1UL);
-    const double zshnorm = shnorm*znorm;
-    const double zshcnorm = shcnorm*znorm;
-
-    for (auto l : expansion.indices())
+    for (auto l : std::forward<ExpansionType>(expansion).indices())
     {
         auto expansion_l = expansion[l];
-        expansion_l[0][0] *= zshnorm;
-        expansion_l[0][1] *= zshnorm;
 
-        if constexpr (dest_sh_phase == source_sh_phase)
+        for (auto m : expansion_l.indices(1))
         {
-            for (auto m : expansion_l.indices(1))
-            {
-                expansion_l[m][0] *= zshcnorm;
-                expansion_l[m][1] *= -zshcnorm;
-            }
-        }
-        else
-        {
-            double prefactor = zshcnorm;
-            for (auto m : expansion_l.indices(1))
-            {
-                prefactor *= -1.0;
-                expansion_l[m][0] *= prefactor;
-                expansion_l[m][1] *= -prefactor;
-            }
+            expansion_l[m][0] *= complex_conversion_norm;
+            expansion_l[m][1] *= -complex_conversion_norm;
         }
     }
 
-    return ReturnType(as_complex_span(expansion.flatten()), expansion.order());
+    return ReturnType(
+            as_complex_span(std::forward<ExpansionType>(expansion).flatten()),
+            std::forward<ExpansionType>(expansion).order());
 }
 
 /**
