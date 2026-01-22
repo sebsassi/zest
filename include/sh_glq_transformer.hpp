@@ -653,7 +653,7 @@ private:
             {
                 auto expansion_l = expansion[l];
                 auto ass_leg_l = ass_leg[l];
-                std::span<const double> ass_leg_l0 = ass_leg_l[0];
+                auto ass_leg_l0 = ass_leg_l[0];
                 std::span<std::complex<double>> symm_asymm(
                     m_symm_asymm.begin() + (l & 1)*num_ass_leg*fft_order, num_ass_leg);
                 for (std::size_t i = 0; i < num_ass_leg; ++i)
@@ -665,7 +665,7 @@ private:
 
                 for (auto m : expansion_l.indices(1))
                 {
-                    std::span<const double> ass_leg_lm = ass_leg_l[m];
+                    auto ass_leg_lm = ass_leg_l[m];
                     std::span<std::complex<double>> symm_asymm(
                         m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_ass_leg, num_ass_leg);
                     for (std::size_t i = 0; i < num_ass_leg; ++i)

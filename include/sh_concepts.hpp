@@ -135,7 +135,7 @@ template <typename T>
 concept complex_encoded_zernike_sh_subspan
     = shaped_contiguous_buffer<T>
     && complex_float<typename std::remove_cvref_t<T>::value_type>
-    && parity_associated_legendre_shape<T>;
+    && parity_associated_legendre_shape<typename std::remove_cvref_t<T>::shape_type>;
 
 template <typename T, typename S>
 concept compatible_with = any_sh_expansion<T> && any_sh_expansion<S>

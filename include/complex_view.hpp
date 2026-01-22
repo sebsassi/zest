@@ -281,7 +281,7 @@ decode_as_real_expansion(ExpansionType&& expansion) noexcept
     constexpr double complex_conversion_norm = std::numbers::sqrt2;
 
     ReturnType res(
-            as_float_span(std::forward<ExpansionType>()(expansion).flatten()),
+            as_float_span(std::forward<ExpansionType>(expansion).flatten()),
             std::forward<ExpansionType>(expansion).order());
 
     for (auto l : res.indices())

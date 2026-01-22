@@ -265,6 +265,7 @@ private:
 public:
     using size_type = typename Base::size_type;
     using Base::extents;
+    using Base::size;
 
     template <std::size_t N>
         requires (0 < N && N <= Base::rank)
@@ -291,6 +292,34 @@ public:
     SphereGLQGridShape(size_type order, const Base::extent_type& extents):
         Base{extents}, m_order{order} {}
 
+    [[nodiscard]] constexpr size_type
+    order() const noexcept { return m_order; }
+
+    [[nodiscard]] static constexpr size_type
+    size(size_type order) requires (Base::dynamic_rank == 2)
+    {
+        return Base::size(LayoutType::extents(order));
+    }
+
+    [[nodiscard]] static constexpr size_type
+    size(size_type order, size_type inner_extent) requires (Base::dynamic_rank == 3)
+    {
+        return Base::size(append(LayoutType::extents(order), inner_extent));
+    }
+
+    [[nodiscard]] static constexpr size_type
+    size(size_type order, const std::array<size_type, Base::dynamic_rank - 2>& inner_extents)
+    {
+        return Base::size(concatenate(LayoutType::extents(order), inner_extents));
+    }
+
+    [[nodiscard]] static constexpr size_type
+    size(size_type order, const std::array<size_type, Base::rank - 2>& inner_extents)
+        requires (Base::dynamic_rank != Base::rank)
+    {
+        return Base::size(concatenate(LayoutType::extents(order), inner_extents));
+    }
+
     template <std::integral... Inds>
         requires (sizeof...(Inds) == 1)
     [[nodiscard]] constexpr auto
@@ -311,9 +340,6 @@ public:
         requires (sizeof...(Inds) == Base::rank)
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] Inds... inds) const noexcept { return NullShape{}; }
-
-    [[nodiscard]] constexpr size_type
-    order() const noexcept { return m_order; }
 
 private:
     size_type m_order{};
@@ -361,6 +387,7 @@ private:
 public:
     using size_type = typename Base::size_type;
     using Base::extents;
+    using Base::size;
 
     template <std::size_t N>
         requires (0 < N && N <= Base::rank)
@@ -380,6 +407,25 @@ public:
         const std::array<size_type, Base::rank - 2>& outer_extents, size_type order)
         requires (Base::dynamic_rank != Base::rank):
         Base(concatenate(outer_extents, LayoutType::extents(order))), m_order(order) {}
+
+    [[nodiscard]] constexpr size_type
+    size(size_type outer_extent, size_type order) requires (Base::dynamic_rank == 3)
+    {
+        return Base::size(prepend(outer_extent, LayoutType::extents(order)));
+    }
+
+    [[nodiscard]] constexpr size_type
+    size(const std::array<size_type, Base::dynamic_rank - 2>& outer_extents, size_type order)
+    {
+        return Base::size(concatenate(outer_extents, LayoutType::extents(order)));
+    }
+
+    [[nodiscard]] constexpr size_type
+    size(const std::array<size_type, Base::rank - 2>& outer_extents, size_type order)
+        requires (Base::dynamic_rank != Base::rank)
+    {
+        return Base::size(concatenate(outer_extents, LayoutType::extents(order)));
+    }
 
     template <std::integral... Inds>
         requires (sizeof...(Inds) < Base::rank - 2)
