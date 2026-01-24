@@ -80,7 +80,8 @@ public:
         m_data{data.data()}, m_shape{shape} { assert(data.size() >= m_shape.size()); }
 
     template <shaped_contiguous_buffer T>
-        requires std::same_as<typename T::shape_type, shape_type>
+        requires std::same_as<typename std::remove_cvref_t<T>::shape_type, shape_type>
+            && std::same_as<typename std::remove_cvref_t<T>::value_type, value_type>
     constexpr ShapedSpan(T&& shaped_buffer):
         m_data{std::forward<T>(shaped_buffer).data()},
         m_shape{std::forward<T>(shaped_buffer).shape()} {}
@@ -90,7 +91,7 @@ public:
     [[nodiscard]] static constexpr size_type
     size(const ExtentTypes&... extents) noexcept { return shape_type::size(extents...); }
 
-    [[nodiscard]] constexpr operator
+    [[nodiscard]] explicit constexpr operator
     const_view() const noexcept { return const_view(m_data, m_shape); }
 
     [[nodiscard]] constexpr auto

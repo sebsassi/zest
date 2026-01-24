@@ -71,10 +71,10 @@ public:
     [[nodiscard]] static constexpr size_type
     size(const ExtentTypes&... extents) noexcept { return shape_type::size(extents...); }
 
-    [[nodiscard]] operator
+    [[nodiscard]] explicit operator
     view() noexcept { return view(m_data.data(), m_shape); }
 
-    [[nodiscard]] operator
+    [[nodiscard]] explicit operator
     const_view() const noexcept { return const_view(m_data.data(), m_shape); }
 
     [[nodiscard]] auto

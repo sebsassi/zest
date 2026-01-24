@@ -932,7 +932,7 @@ public:
     void resize(std::size_t order)
     {
         m_points.resize(order);
-        m_grid.resize(order);
+        m_grid.reshape(order);
         m_transformer.resize(order);
     }
 
