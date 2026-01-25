@@ -44,6 +44,8 @@ namespace st
 template <any_sh_expansion ExpansionTypeA, compatible_with<ExpansionTypeA> ExpansionTypeB>
     requires std::floating_point<value_type_of<ExpansionTypeA>>
         && std::floating_point<value_type_of<ExpansionTypeB>>
+        && st::has_inner_rank<ExpansionTypeA, 0>
+        && st::has_inner_rank<ExpansionTypeB, 0>
 void cross_power_spectrum(
     const ExpansionTypeA& a, const ExpansionTypeB& b, std::span<double> out) noexcept
 {
@@ -85,6 +87,8 @@ void cross_power_spectrum(
 template <any_sh_expansion ExpansionTypeA, compatible_with<ExpansionTypeA> ExpansionTypeB>
     requires std::floating_point<value_type_of<ExpansionTypeA>>
         && std::floating_point<value_type_of<ExpansionTypeB>>
+        && st::has_inner_rank<ExpansionTypeA, 0>
+        && st::has_inner_rank<ExpansionTypeB, 0>
 [[nodiscard]] std::vector<double>
 cross_power_spectrum(
     const ExpansionTypeA& a, const ExpansionTypeB& b) noexcept
@@ -103,6 +107,7 @@ cross_power_spectrum(
 */
 template <any_sh_expansion ExpansionType>
     requires std::floating_point<value_type_of<ExpansionType>>
+        && st::has_inner_rank<ExpansionType, 0>
 void power_spectrum(const ExpansionType& expansion, std::span<double> out) noexcept
 {
     constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
@@ -142,6 +147,7 @@ void power_spectrum(const ExpansionType& expansion, std::span<double> out) noexc
 */
 template <any_sh_expansion ExpansionType>
     requires std::floating_point<value_type_of<ExpansionType>>
+        && st::has_inner_rank<ExpansionType, 0>
 [[nodiscard]] std::vector<double>
 power_spectrum(const ExpansionType& expansion)
 {
@@ -163,6 +169,7 @@ namespace zt
 */
 template <any_zernike_expansion ExpansionType>
     requires std::floating_point<value_type_of<ExpansionType>>
+        && zt::has_inner_rank<ExpansionType, 0>
 void power_spectrum(
     const ExpansionType& expansion,
     RadialZernikeSpan<double, zernike_norm_of<ExpansionType>> out) noexcept
@@ -207,6 +214,7 @@ void power_spectrum(
 */
 template <any_zernike_expansion ExpansionType>
     requires std::floating_point<value_type_of<ExpansionType>>
+        && zt::has_inner_rank<ExpansionType, 0>
 [[nodiscard]] std::vector<double>
 power_spectrum(const ExpansionType& expansion)
 {

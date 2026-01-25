@@ -58,8 +58,16 @@ concept sh_tagged = std::derived_from<
 template <sh_tagged T>
 consteval SHNorm sh_norm_of() { return std::remove_cvref_t<T>::sh_norm; }
 
+template <typename T>
+    requires sh_tagged<typename std::remove_cvref_t<T>::shape_type>
+consteval SHNorm sh_norm_of() { return std::remove_cvref_t<T>::shape_type::sh_norm; }
+
 template <sh_tagged T>
 consteval SHNorm sh_phase_of() { return std::remove_cvref_t<T>::sh_norm; }
+
+template <typename T>
+    requires sh_tagged<typename std::remove_cvref_t<T>::shape_type>
+consteval SHPhase sh_phase_of() { return std::remove_cvref_t<T>::shape_type::sh_phase; }
 
 /**
     @brief Normalization constant of spherical harmonics coefficients.

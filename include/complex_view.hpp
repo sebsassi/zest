@@ -50,6 +50,7 @@ namespace zest
 */
 template <st::complete_sh_expansion<IndexingMode::zero_based> ExpansionType>
     requires std::same_as<typename std::remove_cvref_t<ExpansionType>::value_type, double>
+        && st::has_inner_rank<ExpansionType, 0>
 constexpr st::ComplexEncodedRealSHSpan<
     std::complex<double>, st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()>
 encode_as_complex_expansion(ExpansionType&& expansion) noexcept
@@ -131,6 +132,7 @@ decode_as_real_expansion(ExpansionType&& expansion) noexcept
 */
 template <zt::zernike_expansion<IndexingMode::zero_based> ExpansionType>
     requires std::same_as<typename std::remove_cvref_t<ExpansionType>::value_type, double>
+        && zt::has_inner_rank<ExpansionType, 0>
 constexpr zt::ComplexEncodedRealZernikeSpan<
     std::complex<double>, zt::zernike_norm_of<ExpansionType>(),
     st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()>
@@ -224,6 +226,7 @@ decode_as_real_expansion(ExpansionType&& expansion) noexcept
 */
 template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
     requires std::same_as<typename std::remove_cvref_t<ExpansionType>::value_type, double>
+        && st::has_inner_rank<ExpansionType, 0>
 constexpr typename zt::ComplexEncodedRealZernikeSpan<
     std::complex<double>, zt::zernike_norm_of<ExpansionType>(),
     st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()

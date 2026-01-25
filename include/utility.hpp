@@ -41,12 +41,9 @@ concept sequence_shaped = requires (T x)
 
 template <typename T>
 concept tensor_shaped
-    = std::same_as<
-        typename T::extent_type,
-        std::array<typename T::size_type, std::tuple_size_v<typename T::extent_type>>>
-    && requires (T x, typename T::size_type i)
+    =  requires (T x, typename std::remove_cvref_t<T>::size_type i)
     {
-        { x.extent(i) } -> std::same_as<typename T::size_type>;
+        { x.extent(i) } -> std::same_as<typename std::remove_cvref_t<T>::size_type>;
     };
 
 template <typename T>

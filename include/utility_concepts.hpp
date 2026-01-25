@@ -27,6 +27,9 @@ SOFTWARE.
 namespace zest
 {
 
+template <typename T, std::size_t outer_rank, std::size_t inner_rank>
+concept has_inner_tensor_structure = (std::remove_cvref_t<T>::rank == outer_rank + inner_rank);
+
 template <typename T>
 concept shaped_contiguous_buffer = requires (T x)
     {

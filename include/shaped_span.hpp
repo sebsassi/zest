@@ -45,9 +45,11 @@ public:
     using const_pointer = const element_type*;
     using shape_type = ShapeType;
     using index_type = shape_type::index_type;
-    using index_range = ShapeType::index_range;
+    using index_range = shape_type::index_range;
     using view = ShapedSpan<element_type, ShapeType>;
     using const_view = ShapedSpan<const element_type, ShapeType>;
+
+    static constexpr size_type rank = shape_type::rank;
 
     template <std::size_t N>
     using subspan_type = ShapedSpan<

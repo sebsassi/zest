@@ -28,11 +28,12 @@ SOFTWARE.
 #include "utility_concepts.hpp"
 #include "zernike_conventions.hpp"
 
-namespace zest
+namespace zest::zt
 {
 
-namespace zt
-{
+template <typename T, std::size_t inner_rank>
+concept has_inner_rank
+    = has_inner_tensor_structure<T, ((indexing_mode_of<T>() == IndexingMode::zero_based) ? 4 : 3), inner_rank>;
 
 template <typename T, IndexingMode indexing_mode>
 concept zernike_shape
@@ -77,18 +78,6 @@ concept compatible_with = any_zernike_expansion<T> && any_zernike_expansion<S>
         && (std::remove_cvref_t<T>::shape_type::zernike_norm == std::remove_cvref_t<S>::shape_type::zernike_norm)
         && (std::remove_cvref_t<T>::shape_type::indexing_mode == std::remove_cvref_t<S>::shape_type::indexing_mode);
 
-template <zt::zernike_buffer T>
-[[nodiscard]] consteval zt::ZernikeNorm zernike_norm_of()
-{
-    return std::remove_cvref_t<T>::shape_type::zernike_norm;
-}
+} // namespace zest::zt
 
-} // namespace zt
 
-template <zt::zernike_buffer T>
-[[nodiscard]] consteval IndexingMode indexing_mode_of()
-{
-    return std::remove_cvref_t<T>::shape_type::indexing_mode;
-}
-
-} // namespace zest

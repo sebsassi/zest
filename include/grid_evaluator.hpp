@@ -109,6 +109,7 @@ public:
     */
     template <sh_expansion<IndexingMode::zero_based> ExpansionType>
         requires std::floating_point<value_type_of<ExpansionType>>
+            && st::has_inner_rank<ExpansionType, 0>
     [[nodiscard]] DynamicMDArray<double, 2> evaluate(
         const ExpansionType& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes)
@@ -243,6 +244,7 @@ public:
     */
     template <zernike_expansion<IndexingMode::zero_based> ExpansionType>
         requires std::floating_point<value_type_of<ExpansionType>>
+            && zt::has_inner_rank<ExpansionType, 0>
     [[nodiscard]] DynamicMDArray<double, 3> evaluate(
         const ExpansionType& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)

@@ -54,6 +54,10 @@ concept indexing_mode_tagged = std::derived_from<
 template <indexing_mode_tagged T>
 consteval IndexingMode indexing_mode_of() { return std::remove_cvref_t<T>::indexing_mode; }
 
+template <typename T>
+    requires indexing_mode_tagged<typename std::remove_cvref_t<T>::shape_type>
+consteval IndexingMode indexing_mode_of() { return std::remove_cvref_t<T>::shape_type::indexing_mode; }
+
 enum class Parity { even = 0, odd = 1 };
 
 template <typename T>

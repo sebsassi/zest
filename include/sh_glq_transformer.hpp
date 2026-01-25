@@ -231,6 +231,7 @@ public:
     template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
         requires (st::sh_norm_of<ExpansionType>() == sh_norm)
             && (st::sh_phase_of<ExpansionType>() == sh_phase)
+            && st::has_inner_rank<ExpansionType, 0>
     void backward_transform(
         const ExpansionType& expansion, SphereGLQGridSpan<double, grid_layout_type> values)
     {
@@ -293,6 +294,7 @@ public:
     template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
         requires (st::sh_norm_of<ExpansionType>() == sh_norm)
             && (st::sh_phase_of<ExpansionType>() == sh_phase)
+            && st::has_inner_rank<ExpansionType, 0>
     [[nodiscard]] SphereGLQGrid<double, grid_layout_type>
     backward_transform(const ExpansionType& expansion, std::size_t order)
     {

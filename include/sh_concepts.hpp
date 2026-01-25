@@ -30,33 +30,39 @@ SOFTWARE.
 #include "shape.hpp"
 #include "utility_concepts.hpp"
 
-namespace zest
+namespace zest::st
 {
 
-namespace st
-{
+template <typename T, std::size_t inner_rank>
+concept has_inner_rank
+    = has_inner_tensor_structure<T, ((indexing_mode_of<T>() == IndexingMode::zero_based) ? 3 : 2), inner_rank>;
+
+template <typename T>
+concept paired_azimuthal_indexed
+    = (indexing_mode_of<T>() == IndexingMode::zero_based)
+    && (std::remove_cvref_t<T>::template subshape_type<1>::static_extents[0] == 2);
+
+template <typename T>
+concept symmetric_azimuthal_indexed
+    = (indexing_mode_of<T>() == IndexingMode::symmetric)
+    && (std::same_as<remove_tags<typename std::remove_cvref_t<T>::template subshape_type<1>>, NullShape>
+        || tensor_shaped<typename std::remove_cvref_t<T>::template subshape_type<1>>);
 
 template <typename T, IndexingMode indexing_mode>
 concept azimuthal_indexed
     = (indexing_mode_of<T>() == indexing_mode)
-    && ((std::same_as<
-                remove_tags<typename std::remove_cvref_t<T>::template subshape_type<1>>, TensorShape<2>>
-            && (indexing_mode == IndexingMode::zero_based))
-        || (std::same_as<
-                remove_tags<typename std::remove_cvref_t<T>::template subshape_type<1>>, NullShape>
-            && (indexing_mode == IndexingMode::symmetric)));
+    && (paired_azimuthal_indexed<T> || symmetric_azimuthal_indexed<T>);
 
-template <typename T, IndexingMode indexing_mode>
-concept sh_shape
-    = sh_tagged<T> && indexing_mode_tagged<T>
-    && azimuthal_indexed<
-        typename std::remove_cvref_t<T>::template subshape_type<1>, indexing_mode>;
+template <typename T>
+concept zero_based_azimuthal_indexed
+    = (indexing_mode_of<T>() == IndexingMode::zero_based)
+    && (std::same_as<remove_tags<typename std::remove_cvref_t<T>::template subshape_type<1>>, NullShape>
+        || tensor_shaped<typename std::remove_cvref_t<T>::template subshape_type<1>>);
 
 template <typename T>
 concept associated_legendre_shape
     = sh_tagged<T> && indexing_mode_tagged<T>
-    && (indexing_mode_of<T>() == IndexingMode::zero_based)
-    && std::same_as<remove_tags<typename std::remove_cvref_t<T>::template subshape_type<2>>, NullShape>;
+    && zero_based_azimuthal_indexed<typename std::remove_cvref_t<T>::template subshape_type<1>>;
 
 template <typename T>
 concept complete_associated_legendre_shape
@@ -69,6 +75,12 @@ template <typename T>
 concept parity_associated_legendre_shape
     = associated_legendre_shape<T>
     && std::same_as<typename std::remove_cvref_t<T>::index_range, ParityIndexRange<std::size_t>>;
+
+template <typename T, IndexingMode indexing_mode>
+concept sh_shape
+    = sh_tagged<T> && indexing_mode_tagged<T>
+    && azimuthal_indexed<
+        typename std::remove_cvref_t<T>::template subshape_type<1>, indexing_mode>;
 
 template <typename T>
 concept any_sh_shape = sh_shape<T, indexing_mode_of<T>()>;
@@ -143,24 +155,6 @@ concept compatible_with = any_sh_expansion<T> && any_sh_expansion<S>
         && (std::remove_cvref_t<T>::shape_type::sh_norm == std::remove_cvref_t<S>::shape_type::sh_norm)
         && (std::remove_cvref_t<T>::shape_type::indexing_mode == std::remove_cvref_t<S>::shape_type::indexing_mode);
 
-template <st::sh_buffer T>
-[[nodiscard]] consteval st::SHNorm sh_norm_of()
-{
-    return std::remove_cvref_t<T>::shape_type::sh_norm;
-}
+} // namespace zest::st
 
-template <st::sh_buffer T>
-[[nodiscard]] consteval st::SHPhase sh_phase_of()
-{
-    return std::remove_cvref_t<T>::shape_type::sh_phase;
-}
 
-} // namespace st
-
-template <st::sh_buffer T>
-[[nodiscard]] consteval IndexingMode indexing_mode_of()
-{
-    return std::remove_cvref_t<T>::shape_type::indexing_mode;
-}
-
-} // namespace zest

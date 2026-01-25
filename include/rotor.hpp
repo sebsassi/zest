@@ -105,6 +105,7 @@ public:
     */
     template <st::sh_expansion<IndexingMode::zero_based> ExpansionType>
         requires std::floating_point<value_type_of<ExpansionType>>
+            && st::has_inner_rank<ExpansionType, 0>
     void rotate(
         ExpansionType&& expansion, const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles, RotationType type)
@@ -141,6 +142,7 @@ public:
     */
     template <zt::zernike_expansion<IndexingMode::zero_based> ExpansionType>
         requires std::floating_point<value_type_of<ExpansionType>>
+            && zt::has_inner_rank<ExpansionType, 0>
     void rotate(
         ExpansionType&& expansion, const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles, RotationType type)
@@ -175,6 +177,7 @@ public:
     */
     template <st::sh_expansion<IndexingMode::zero_based> ExpansionType>
         requires std::floating_point<value_type_of<ExpansionType>>
+            && st::has_inner_rank<ExpansionType, 0>
     void polar_rotate(ExpansionType&& expansion, double angle, RotationType type)
     {
         const std::size_t order = expansion.order();
@@ -203,6 +206,7 @@ public:
     */
     template <zt::zernike_expansion<IndexingMode::zero_based> ExpansionType>
         requires std::floating_point<value_type_of<ExpansionType>>
+            && zt::has_inner_rank<ExpansionType, 0>
     void polar_rotate(ExpansionType&& expansion, double angle, RotationType type)
     {
         const std::size_t order = expansion.order();
