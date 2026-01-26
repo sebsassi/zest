@@ -137,7 +137,7 @@ public:
     void generate(
         std::span<const double> lon, std::span<const double> colat, ExpansionType&& expansion)
     {
-        assert(lon.size() != colat.size());
+        assert(lon.size() == colat.size());
 
         const std::size_t order = std::forward<ExpansionType>(expansion).order();
         expand(order, lon.size());
