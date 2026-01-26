@@ -37,7 +37,6 @@ SOFTWARE.
 #include "sh_expansion.hpp"
 #include "sphere_glq_grid.hpp"
 #include "utility_concepts.hpp"
-#include "zernike_expansion.hpp"
 
 namespace zest::st
 {
@@ -844,7 +843,7 @@ public:
         @param expansion buffer to store the expansion
     */
     template <spherical_function FuncType>
-    void transform(
+    void forward_transform(
         FuncType&& f,
         SHSpan<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param> expansion)
     {
@@ -866,7 +865,7 @@ public:
     */
     template <spherical_function FuncType>
     [[nodiscard]] SHExpansion<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param>
-    transform(FuncType&& f, std::size_t order)
+    forward_transform(FuncType&& f, std::size_t order)
     {
         resize(order);
         m_points.generate_values(m_grid, std::forward<FuncType>(f));
@@ -883,7 +882,7 @@ public:
         @param expansion buffer to store the expansion
     */
     template <cartesian_function FuncType>
-    void transform(
+    void forward_transform(
         FuncType&& f, 
         SHSpan<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param> expansion)
     {
@@ -911,7 +910,7 @@ public:
     */
     template <cartesian_function FuncType>
     [[nodiscard]] SHExpansion<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param>
-    transform(FuncType&& f, std::size_t order)
+    forward_transform(FuncType&& f, std::size_t order)
     {
         auto f_spherical = [&](double lon, double colat) {
             const double scolat = std::sin(colat);
@@ -923,6 +922,39 @@ public:
         resize(order);
         m_points.generate_values(m_grid, f_spherical);
         return m_transformer.forward_transform(m_grid, order);
+    }
+
+    void backward_transform(
+        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
+        SphereGLQGridSpan<double, grid_layout_type> values)
+    {
+        m_transformer.backward_transform(expansion, values);
+    }
+
+    template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
+        requires (st::sh_norm_of<ExpansionType>() == sh_norm)
+            && (st::sh_phase_of<ExpansionType>() == sh_phase)
+            && st::has_inner_rank<ExpansionType, 0>
+    void backward_transform(
+        const ExpansionType& expansion, SphereGLQGridSpan<double, grid_layout_type> values)
+    {
+        m_transformer.backward_transform(expansion, values);
+    }
+    [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
+        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
+        std::size_t order)
+    {
+        return m_transformer.backward_transform(expansion, order);
+    }
+
+    template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
+        requires (st::sh_norm_of<ExpansionType>() == sh_norm)
+            && (st::sh_phase_of<ExpansionType>() == sh_phase)
+            && st::has_inner_rank<ExpansionType, 0>
+    [[nodiscard]] SphereGLQGrid<double, grid_layout_type>
+    backward_transform(const ExpansionType& expansion, std::size_t order)
+    {
+        return m_transformer.backward_transform(expansion, order);
     }
 
 private:

@@ -143,7 +143,7 @@ public:
     order() const noexcept { return m_order; }
 
 private:
-    size_type m_order;
+    size_type m_order{};
 };
 
 /**
@@ -947,7 +947,7 @@ public:
         @param expansion buffer to store the expansion
     */
     template <ball_function FuncType>
-    void transform(
+    void forward_transform(
         FuncType&& f, double radius,
         ZernikeSpan<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
     {
@@ -973,7 +973,7 @@ public:
     */
     template <ball_function FuncType>
     [[nodiscard]] ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param>
-    transform(FuncType&& f, double radius, std::size_t order)
+    forward_transform(FuncType&& f, double radius, std::size_t order)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
             return std::forward<FuncType>(f)(lon, colat, r*radius);
@@ -994,7 +994,7 @@ public:
         @param expansion buffer to store the expansion
     */
     template <cartesian_function FuncType>
-    void transform(
+    void forward_transform(
         FuncType&& f, double radius,
         ZernikeSpan<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
     {
@@ -1026,7 +1026,7 @@ public:
     */
     template <cartesian_function FuncType>
     [[nodiscard]] ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param>
-    transform(FuncType&& f, double radius, std::size_t order)
+    forward_transform(FuncType&& f, double radius, std::size_t order)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
             const double rad = r*radius;
@@ -1040,6 +1040,32 @@ public:
         resize(order);
         m_points.generate_values(m_grid, f_scaled);
         return m_transformer.forward_transform(m_grid, order);
+    }
+
+    /**
+        @brief Backward transform from Zernike coefficients to Gauss-Legendre quadrature grid.
+
+        @param values values on the ball quadrature grid
+        @param expansion coefficients of the expansion
+    */
+    void backward_transform(
+        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
+        BallGLQGridSpan<double, grid_layout_type> values)
+    {
+        m_transformer.backward_transform(expansion, values);
+    }
+
+    /**
+        @brief Backward transform from Zernike coefficients to Gauss-Legendre quadrature grid.
+
+        @param expansion coefficients of the expansion
+    */
+    [[nodiscard]] BallGLQGrid<double, grid_layout_type>
+    backward_transform(
+        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
+        std::size_t order)
+    {
+        return m_transformer.backward_transform(expansion, order);
     }
 
 private:

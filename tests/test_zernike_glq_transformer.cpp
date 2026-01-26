@@ -59,14 +59,14 @@ constexpr bool test_ballglqgridspan_const_view_can_be_taken()
 static_assert(test_ballglqgridspan_const_view_can_be_taken());
 
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, 
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
 bool test_glq_forward_transform_expands_Z000()
 {
     std::size_t order = 6;
 
     auto function = [](
-        [[maybe_unused]] double lon, [[maybe_unused]] double colat, 
+        [[maybe_unused]] double lon, [[maybe_unused]] double colat,
         [[maybe_unused]] double r)
     {
         constexpr double znorm
@@ -79,7 +79,7 @@ bool test_glq_forward_transform_expands_Z000()
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
-    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase> 
+    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase>
     transformer(order);
 
     auto expansion = transformer.forward_transform(grid, order);
@@ -138,7 +138,7 @@ bool test_glq_forward_transform_expands_Z000()
 }
 
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, 
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
 bool test_glq_forward_transform_expands_Z200()
 {
@@ -159,7 +159,7 @@ bool test_glq_forward_transform_expands_Z200()
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
-    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase> 
+    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase>
     transformer(order);
 
     auto expansion = transformer.forward_transform(grid, order);
@@ -218,7 +218,7 @@ bool test_glq_forward_transform_expands_Z200()
 }
 
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, 
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
 bool test_glq_forward_transform_expands_Z110()
 {
@@ -238,7 +238,7 @@ bool test_glq_forward_transform_expands_Z110()
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
-    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase> 
+    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase>
     transformer(order);
 
     auto expansion = transformer.forward_transform(grid, order);
@@ -297,7 +297,7 @@ bool test_glq_forward_transform_expands_Z110()
 }
 
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, 
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
 bool test_glq_forward_transform_expands_Z221()
 {
@@ -320,7 +320,7 @@ bool test_glq_forward_transform_expands_Z221()
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
-    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase> 
+    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase>
     transformer(order);
 
     auto expansion = transformer.forward_transform(grid, order);
@@ -379,7 +379,7 @@ bool test_glq_forward_transform_expands_Z221()
 }
 
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, 
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
 bool test_glq_forward_transform_expands_Z33m2()
 {
@@ -397,7 +397,7 @@ bool test_glq_forward_transform_expands_Z33m2()
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
-    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase> 
+    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase>
     transformer(order);
 
     auto expansion = transformer.forward_transform(grid, order);
@@ -456,7 +456,7 @@ bool test_glq_forward_transform_expands_Z33m2()
 }
 
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, 
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
 bool test_glq_forward_transform_expands_Z531()
 {
@@ -479,7 +479,7 @@ bool test_glq_forward_transform_expands_Z531()
 
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid grid = points.generate_values(function, order);
-    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase> 
+    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase>
     transformer(order);
 
     auto expansion = transformer.forward_transform(grid, order);
@@ -538,7 +538,7 @@ bool test_glq_forward_transform_expands_Z531()
 }
 
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, 
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
 bool test_glq_backward_transform_evaluates_Z000()
 {
@@ -559,7 +559,7 @@ bool test_glq_backward_transform_evaluates_Z000()
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase> 
+    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase>
     transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
@@ -607,7 +607,7 @@ bool test_glq_backward_transform_evaluates_Z000()
 }
 
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, 
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
 bool test_glq_backward_transform_evaluates_Z110()
 {
@@ -629,7 +629,7 @@ bool test_glq_backward_transform_evaluates_Z110()
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase> 
+    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase>
     transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
@@ -677,7 +677,7 @@ bool test_glq_backward_transform_evaluates_Z110()
 }
 
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, 
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
 bool test_glq_backward_transform_evaluates_Z200()
 {
@@ -699,7 +699,7 @@ bool test_glq_backward_transform_evaluates_Z200()
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase> 
+    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase>
     transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
@@ -747,7 +747,7 @@ bool test_glq_backward_transform_evaluates_Z200()
 }
 
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, 
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
 bool test_glq_backward_transform_evaluates_Z221()
 {
@@ -771,7 +771,7 @@ bool test_glq_backward_transform_evaluates_Z221()
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase> 
+    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase>
     transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
@@ -819,7 +819,7 @@ bool test_glq_backward_transform_evaluates_Z221()
 }
 
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, 
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
 bool test_glq_backward_transform_evaluates_Z33m2()
 {
@@ -838,7 +838,7 @@ bool test_glq_backward_transform_evaluates_Z33m2()
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase> 
+    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase>
     transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
@@ -886,7 +886,7 @@ bool test_glq_backward_transform_evaluates_Z33m2()
 }
 
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, 
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
 bool test_glq_backward_transform_evaluates_Z531()
 {
@@ -958,7 +958,7 @@ bool test_glq_backward_transform_evaluates_Z531()
 }
 
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, 
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
 bool test_zernike_transform_converges()
 {
@@ -978,7 +978,7 @@ bool test_zernike_transform_converges()
     zest::zt::BallGLQGridPoints points{};
     zest::zt::BallGLQGrid test_grid = points.generate_values(function, order);
 
-    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase> 
+    zest::zt::GLQTransformer<zernike_norm, sh_norm, sh_phase>
     transformer(order);
 
     auto expansion = transformer.forward_transform(test_grid, order);
@@ -1001,7 +1001,81 @@ bool test_zernike_transform_converges()
 }
 
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, 
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
+    zest::st::SHPhase sh_phase>
+bool test_zernike_transformer_scales_for_nonunit_radius()
+{
+    constexpr double radius = 2.0;
+    constexpr std::size_t order = 100;
+
+    auto function = [](double lon, double colat, double r)
+    {
+        std::array<double, 3> x = {
+            r*std::sin(colat)*std::cos(lon) - 0.3,
+            r*std::sin(colat)*std::sin(lon) + 0.1,
+            r*std::cos(colat) - 0.043
+        };
+        return std::exp(-(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]));
+    };
+
+    auto scaled_function = [&](double lon, double colat, double r) {
+        return function(lon, colat, r*radius);
+    };
+
+    zest::zt::BallGLQGridPoints points{};
+    zest::zt::BallGLQGrid test_grid = points.generate_values(scaled_function, order);
+
+    zest::zt::ZernikeTransformer<zernike_norm, sh_norm, sh_phase> transformer{};
+    auto expansion = transformer.forward_transform(function, radius, order);
+    auto grid = transformer.backward_transform(expansion, order);
+
+    constexpr double tol = 1.0e-13;
+
+    bool success = true;
+    for (std::size_t i = 0; i < grid.extent(0); ++i)
+    {
+        for (std::size_t j = 0; j < grid.extent(1); ++j)
+        {
+            for (std::size_t k = 0; k < grid.extent(2); ++k)
+                if (!is_close(grid[i, j, k], test_grid[i, j, k], tol))
+                    success = false;
+        }
+    }
+
+    if (!success)
+    {
+        for (std::size_t i = 0; i < grid.extent(0); ++i)
+        {
+            for (std::size_t j = 0; j < grid.extent(1); ++j)
+            {
+                for (std::size_t k = 0; k < grid.extent(2); ++k)
+                {
+                    std::print("{:.16e} ", grid[i, j, k]);
+                }
+                 std::println("");
+            }
+             std::println("");
+        }
+
+        for (std::size_t i = 0; i < grid.extent(0); ++i)
+        {
+            for (std::size_t j = 0; j < grid.extent(1); ++j)
+            {
+                for (std::size_t k = 0; k < grid.extent(2); ++k)
+                {
+                    std::print("{:.16e} ", test_grid[i, j, k]);
+                }
+                 std::println("");
+            }
+             std::println("");
+        }
+    }
+
+    return success;
+}
+
+template <
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
 void test_glq()
 {
@@ -1020,6 +1094,8 @@ void test_glq()
     assert((test_glq_backward_transform_evaluates_Z531<zernike_norm, sh_norm, sh_phase>()));
 
     assert((test_zernike_transform_converges<zernike_norm, sh_norm, sh_phase>()));
+
+    assert((test_zernike_transformer_scales_for_nonunit_radius<zernike_norm, sh_norm, sh_phase>()));
 }
 
 } // namespace
