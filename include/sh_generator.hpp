@@ -21,6 +21,7 @@ SOFTWARE.
 */
 #pragma once
 
+#include <cassert>
 #include <span>
 #include <vector>
 
@@ -136,8 +137,7 @@ public:
     void generate(
         std::span<const double> lon, std::span<const double> colat, ExpansionType&& expansion)
     {
-        if (lon.size() != colat.size())
-            throw std::runtime_error("lon and colat must have the same size");
+        assert(lon.size() != colat.size());
 
         const std::size_t order = std::forward<ExpansionType>(expansion).order();
         expand(order, lon.size());
