@@ -228,7 +228,7 @@ public:
     [[nodiscard]] SHExpansion<double, indexing_mode, sh_norm, sh_phase, std::dynamic_extent>
     generate(std::span<const double> lon, std::span<const double> colat, std::size_t order)
     {
-        SHExpansion<double, indexing_mode, sh_norm, sh_phase> expansion{order};
+        SHExpansion<double, indexing_mode, sh_norm, sh_phase, std::dynamic_extent> expansion{order};
         generate(lon, colat, expansion);
         return expansion;
     }
