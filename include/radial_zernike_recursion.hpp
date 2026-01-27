@@ -66,6 +66,8 @@ public:
         const std::size_t order = zernike.order();
         if (order == 0) return;
 
+        assert(0.0 <= r && r <= 1.0);
+
         expand(order);
 
         const double r2 = r*r;
@@ -167,6 +169,8 @@ public:
         if (order == 0) return;
 
         assert((r.size() == zernike[0, 0].size()));
+        for (std::size_t i = 0; i < r.size(); ++i)
+            assert(0.0 <= r[i] && r[i] <= 1.0);
 
         expand(order);
 

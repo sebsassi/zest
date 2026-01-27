@@ -22,6 +22,7 @@ SOFTWARE.
 #pragma once
 
 #include <array>
+#include <cassert>
 #include <complex>
 #include <cstddef>
 #include <span>
@@ -58,6 +59,7 @@ public:
     [[nodiscard]] constexpr std::size_t
     idx(std::size_t m1, std::size_t m2) const noexcept
     {
+        assert(m1 < m_order && m2 < m_order);
         return m_order*m1 + m2;
     }
 
@@ -107,6 +109,7 @@ private:
     [[nodiscard]] static constexpr std::size_t idx(
         std::size_t l, std::size_t m1, std::size_t m2) noexcept
     {
+        assert(m1 <= l && m2 < l);
         return (l*(l + 1)*(2*l + 1))/6 + (l + 1)*m1 + m2;
     }
 

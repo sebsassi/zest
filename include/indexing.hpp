@@ -196,7 +196,7 @@ public:
     using iterator = IndexIterator<index_type, stride_param>;
 
     explicit constexpr BasicIndexRange(index_type begin, index_type end):
-        m_begin(std::min(begin, end)), m_end(end) {}
+        m_begin(std::min(begin, end)), m_end(end) { assert(begin <= end); }
 
     /**
         @brief Iterator to the beginning of the range.
