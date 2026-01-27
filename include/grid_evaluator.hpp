@@ -117,8 +117,8 @@ public:
         if (longitudes.size() == 0 || colatitudes.size() == 0)
             return {};
 
-        for (std::size_t i = 0; i < colatitudes.size(); ++i)
-            assert(0.0 <= colatitudes[i] && colatitudes[i] <= std::numbers::pi);
+        for (const auto& element : colatitudes)
+            assert(0.0 <= element && element <= std::numbers::pi);
 
         const std::size_t order = expansion.order();
         resize(order, longitudes.size(), colatitudes.size());
@@ -255,11 +255,11 @@ public:
         if (longitudes.size() == 0 || colatitudes.size() == 0 || radii.size() == 0)
             return {};
 
-        for (std::size_t i = 0; i < colatitudes.size(); ++i)
-            assert(0.0 <= colatitudes[i] && colatitudes[i] <= std::numbers::pi);
+        for (double element : colatitudes)
+            assert(0.0 <= element && element <= std::numbers::pi);
 
-        for (std::size_t i = 0; i < radii.size(); ++i)
-            assert(0.0 <= radii[i] && radii[i] <= std::numbers::pi);
+        for (double element : radii)
+            assert(0.0 <= element && element <= std::numbers::pi);
 
         const std::size_t order = expansion.order();
         resize(order, longitudes.size(), colatitudes.size(), radii.size());

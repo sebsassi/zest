@@ -139,8 +139,8 @@ public:
         std::span<const double> lon, std::span<const double> colat, ExpansionType&& expansion)
     {
         assert(lon.size() == colat.size());
-        for (std::size_t i = 0; i < colat.size(); ++i)
-            assert(0.0 <= colat[i] && colat[i] <= std::numbers::pi);
+        for (double element : colat)
+            assert(0.0 <= element && element <= std::numbers::pi);
 
         const std::size_t order = std::forward<ExpansionType>(expansion).order();
         expand(order, lon.size());

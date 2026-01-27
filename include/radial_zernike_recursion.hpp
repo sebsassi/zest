@@ -169,8 +169,8 @@ public:
         if (order == 0) return;
 
         assert((r.size() == zernike[0, 0].size()));
-        for (std::size_t i = 0; i < r.size(); ++i)
-            assert(0.0 <= r[i] && r[i] <= 1.0);
+        for (double element : r)
+            assert(0.0 <= element && element <= 1.0);
 
         expand(order);
 

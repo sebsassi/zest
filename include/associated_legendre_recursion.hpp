@@ -253,8 +253,8 @@ private:
 
         assert((z.size() == ass_leg[0, 0].size()));
 
-        for ([[maybe_unused]] auto zi : z)
-            assert(std::fabs(zi) <= 1.0);
+        for (double element : z)
+            assert(std::fabs(element) <= 1.0);
 
         expand(order);
         expand_vec(z.size());
