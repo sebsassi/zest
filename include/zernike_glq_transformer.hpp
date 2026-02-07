@@ -33,6 +33,7 @@ SOFTWARE.
 #include "ball_glq_grid.hpp"
 #include "gauss_legendre.hpp"
 #include "md_span.hpp"
+#include "radial_glq_grid.hpp"
 #include "radial_zernike_recursion.hpp"
 #include "zernike_expansion.hpp"
 
@@ -829,6 +830,137 @@ template <typename GridLayout = DefaultLayout>
 using ZernikeTransformerNormalGeo
     = ZernikeTransformer<
         ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
+
+template <
+    zest::zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase,
+    typename GridLayoutType = RadialGridLayout<>>
+class IsotropicZernikeGLQTransformer
+{
+public:
+    using grid_layout_type = GridLayoutType;
+
+    IsotropicZernikeGLQTransformer() = default;
+    IsotropicZernikeGLQTransformer(std::size_t order):
+        m_recursion{order},
+        m_glq_nodes(grid_layout_type::size(order)),
+        m_glq_weights(grid_layout_type::size(order)),
+        m_weighted_values(grid_layout_type::size(order)),
+        m_order{order}
+    {
+        gl::gl_nodes_and_weights<gl::UnpackedLayout, gl::GLNodeStyle::cos>(
+                m_glq_nodes, m_glq_weights, m_glq_weights.size() & 1);
+
+        for (auto& node : m_glq_nodes)
+            node = 0.5*(1.0 + node);
+
+        m_recursion.init(m_glq_nodes);
+    }
+
+    void resize(std::size_t order)
+    {
+        if (order == m_order) return;
+
+        m_glq_nodes.resize(grid_layout_type::size(order));
+        m_glq_weights.resize(grid_layout_type::size(order));
+        m_weighted_values.resize(grid_layout_type::size(order));
+        m_order = order;
+
+        gl::gl_nodes_and_weights<gl::UnpackedLayout, gl::GLNodeStyle::cos>(
+                m_glq_nodes, m_glq_weights, m_glq_weights.size() & 1);
+
+        for (auto& node : m_glq_nodes)
+            node = 0.5*(1.0 + node);
+
+        m_recursion.init(m_glq_nodes);
+    }
+
+    void forward_transform(
+        RadialGLQGridSpan<const double> values,
+        IsotropicZernikeSpan<double, zernike_norm, sh_norm, sh_phase> expansion)
+    {
+        resize(values.order());
+
+        std::size_t min_order = std::min(values.order(), expansion.order());
+
+        IsotropicZernikeSpan<double, zernike_norm, sh_norm, sh_phase>
+        truncated_expansion{expansion.flatten(), min_order};
+
+        for (std::size_t i = 0; i < values.size(); ++i)
+        {
+            const double r = m_glq_nodes[i];
+            m_weighted_values[i] = r*r*m_glq_weights[i]*values[i];
+        }
+
+        if (values.order() == m_order)
+            m_recursion.init();
+
+        for (auto n : truncated_expansion.indices())
+        {
+            auto radial_zernike = m_recursion.next();
+            double& element = truncated_expansion[n];
+            element = 0.0;
+            for (std::size_t i = 0; i < values.size(); ++i)
+            {
+                element += m_weighted_values[i]*radial_zernike[i];
+            }
+
+            constexpr double spherical_integral = (sh_norm == zest::st::SHNorm::geo) ?
+                4.0*std::numbers::pi : 2.0/std::numbers::inv_sqrtpi;
+            element *= spherical_integral;
+        }
+    }
+
+    [[nodiscard]] IsotropicZernikeExpansion<double, zernike_norm, sh_norm, sh_phase>
+    forward_transform(RadialGLQGridSpan<const double> values, std::size_t order)
+    {
+        IsotropicZernikeExpansion<double, zernike_norm, sh_norm, sh_phase>
+        expansion{order};
+
+        forward_transform(values, expansion);
+        return expansion;
+    }
+
+    void backward_transform(
+        IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion,
+        RadialGLQGridSpan<double> values)
+    {
+        resize(values.order());
+
+        std::size_t min_order = std::min(expansion.order(), values.order());
+
+        IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase>
+        truncated_expansion{expansion.flatten(), min_order};
+
+        if (values.order() == m_order)
+            m_recursion.init();
+
+        for (auto n : truncated_expansion.indices())
+        {
+            auto radial_zernike = m_recursion.next();
+            const double spherical_harmonic = (sh_norm == zest::st::SHNorm::geo) ?
+                1.0 : 0.5*std::numbers::inv_sqrtpi;
+            const double element = spherical_harmonic*truncated_expansion[n];
+            for (std::size_t i = 0; i < values.size(); ++i)
+                values[i] += element*radial_zernike[i];
+        }
+    }
+
+    [[nodiscard]] RadialGLQGrid<double>
+    backward_transform(IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion, std::size_t order)
+    {
+        RadialGLQGrid<double> grid{order};
+
+        backward_transform(expansion, grid);
+        return grid;
+    }
+
+private:
+    IsotropicRadialZernikeRecursion<zernike_norm> m_recursion;
+    std::vector<double> m_glq_nodes;
+    std::vector<double> m_glq_weights;
+    std::vector<double> m_weighted_values;
+    std::size_t m_order{};
+};
 
 } // namespace zest::zt
 

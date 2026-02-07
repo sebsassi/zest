@@ -671,4 +671,192 @@ template <
 using ComplexEncodedRealZernikeSpan = ShapedSpan<
     ElementType, ZernikeNonnegativeShape<zernike_norm, sh_norm, sh_phase, inner_extents...>>;
 
+/**
+    @brief A non-owning view of isotropic 3D Zernike function data.
+
+    @tparam ElementType Type of elements.
+    @tparam zernike_norm Zernike function normalization convention.
+    @tparam sh_norm Spherical harmonic normalization convention.
+    @tparam sh_phase Spherical harmonic phase convention.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <
+    std::floating_point ElementType,
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase,
+    std::size_t... inner_extents>
+using IsotropicZernikeSpan = zest::ShapedSpan<
+    ElementType, IsotropicZernikeShape<zernike_norm, sh_norm, sh_phase, inner_extents...>>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeSpan` with unnormalized Zernike
+    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, std::size_t... inner_extents>
+using IsotropicZernikeSpanAcoustics = IsotropicZernikeSpan<
+    ElementType, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none,
+    inner_extents...>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeSpan` with orthonormal Zernike
+    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, std::size_t... inner_extents>
+using IsotropicZernikeSpanNormalAcoustics = IsotropicZernikeSpan<
+    ElementType, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none,
+    inner_extents...>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeSpan` with unnormalized Zernike
+    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, std::size_t... inner_extents>
+using IsotropicZernikeSpanQM = IsotropicZernikeSpan<
+    ElementType, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs,
+    inner_extents...>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeSpan` with orthonormal Zernike
+    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, std::size_t... inner_extents>
+using IsotropicZernikeSpanNormalQM = IsotropicZernikeSpan<
+    ElementType, ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs,
+    inner_extents...>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeSpan` with unnormalized Zernike
+    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, std::size_t... inner_extents>
+using IsotropicZernikeSpanGeo = IsotropicZernikeSpan<
+    ElementType, ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none,
+    inner_extents...>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeSpan` with orthonormal Zernike
+    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, std::size_t... inner_extents>
+using IsotropicZernikeSpanNormalGeo = IsotropicZernikeSpan<
+    ElementType, ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none,
+    inner_extents...>;
+
+/**
+    @brief A container for isotropic 3D Zernike function data.
+
+    @tparam ElementType Type of elements.
+    @tparam zernike_norm Zernike function normalization convention.
+    @tparam sh_norm Spherical harmonic normalization convention.
+    @tparam sh_phase Spherical harmonic phase convention.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <
+    std::floating_point ElementType,
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase,
+    std::size_t... inner_extents>
+using IsotropicZernikeExpansion = zest::ShapedArray<
+    ElementType, IsotropicZernikeShape<zernike_norm, sh_norm, sh_phase, inner_extents...>>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeExpansion` with unnormalized Zernike
+    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, std::size_t... inner_extents>
+using IsotropicZernikeExpansionAcoustics = IsotropicZernikeExpansion<
+    ElementType, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none,
+    inner_extents...>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeExpansion` with orthonormal Zernike
+    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, std::size_t... inner_extents>
+using IsotropicZernikeExpansionNormalAcoustics = IsotropicZernikeExpansion<
+    ElementType, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none,
+    inner_extents...>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeExpansion` with unnormalized Zernike
+    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, std::size_t... inner_extents>
+using IsotropicZernikeExpansionQM = IsotropicZernikeExpansion<
+    ElementType, ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs,
+    inner_extents...>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeExpansion` with orthonormal Zernike
+    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, std::size_t... inner_extents>
+using IsotropicZernikeExpansionNormalQM = IsotropicZernikeExpansion<
+    ElementType, ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs,
+    inner_extents...>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeExpansion` with unnormalized Zernike
+    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, std::size_t... inner_extents>
+using IsotropicZernikeExpansionGeo = IsotropicZernikeExpansion<
+    ElementType, ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none,
+    inner_extents...>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeExpansion` with orthonormal Zernike
+    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam indexing_mode Determines azimuthal index order.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, std::size_t... inner_extents>
+using IsotropicZernikeExpansionNormalGeo = IsotropicZernikeExpansion<
+    ElementType, ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none,
+    inner_extents...>;
+
 } // namespace zest::zt
