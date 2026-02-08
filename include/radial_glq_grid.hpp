@@ -378,8 +378,7 @@ public:
         @param grid grid to place the values in
         @param f function to generate values
     */
-    template <typename FuncType>
-        requires std::same_as<std::invoke_result_t<FuncType, double>, double>
+    template <isotropic_function<double> FuncType>
     void generate_values(RadialGLQGridSpan<double, Alignment> grid, FuncType&& f)
     {
         resize(grid.order());
@@ -399,8 +398,7 @@ public:
         @param grid grid to place the values in
         @param f function to generate values
     */
-    template <typename FuncType>
-        requires std::same_as<std::invoke_result_t<FuncType, double>, double>
+    template <isotropic_function<double> FuncType>
     void generate_values(RadialGLQGrid<double, Alignment>& grid, FuncType&& f)
     {
         generate_values((typename RadialGLQGrid<double, Alignment>::view)(grid), std::forward<FuncType>(f));
@@ -413,8 +411,7 @@ public:
 
         @param f function to generate values
     */
-    template <typename FuncType>
-        requires std::same_as<std::invoke_result_t<FuncType, double>, double>
+    template <isotropic_function<double> FuncType>
     auto generate_values(FuncType&& f, std::size_t order)
     {
         auto grid = RadialGLQGrid<double, Alignment>(order);

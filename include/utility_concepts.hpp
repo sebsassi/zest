@@ -58,28 +58,25 @@ using remove_tags = detail::remove_tags_helper<T>::type;
 /**
     @brief Function concept taking Cartesian coordinates as inputs.
 */
-template <typename Func>
-concept cartesian_function = requires (Func f, std::array<double, 3> x)
-{
-    { f(x) } -> std::same_as<double>;
-};
+template <typename Func, typename T>
+concept cartesian_function = std::same_as<std::invoke_result_t<Func, std::array<double, 3>>, T>;
 
 /**
     @brief Function concept taking spherical angles as inputs.
 */
-template <typename Func>
-concept spherical_function = requires (Func f, double lon, double colat)
-{
-    { f(lon, colat) } -> std::same_as<double>;
-};
+template <typename Func, typename T>
+concept spherical_function = std::same_as<std::invoke_result_t<Func, double, double>, T>;
 
 /**
     @brief Function concept taking spherical coordinates as inputs.
 */
-template <typename Func>
-concept ball_function = requires (Func f, double lon, double colat, double r)
-{
-    { f(lon, colat, r) } -> std::same_as<double>;
-};
+template <typename Func, typename T>
+concept ball_function = std::same_as<std::invoke_result_t<Func, double, double, double>, T>;
+
+/**
+    @brief Function concept taking radial coordinate as input.
+*/
+template <typename Func, typename T>
+concept isotropic_function = std::same_as<std::invoke_result_t<Func, double>, T>;
 
 } // namespace zest

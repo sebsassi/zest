@@ -842,7 +842,7 @@ public:
         @param f function to transform
         @param expansion buffer to store the expansion
     */
-    template <spherical_function FuncType>
+    template <spherical_function<double> FuncType>
     void forward_transform(
         FuncType&& f,
         SHSpan<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param> expansion)
@@ -863,7 +863,7 @@ public:
 
         @returns spherical harmonic expansion
     */
-    template <spherical_function FuncType>
+    template <spherical_function<double> FuncType>
     [[nodiscard]] SHExpansion<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param>
     forward_transform(FuncType&& f, std::size_t order)
     {
@@ -881,7 +881,7 @@ public:
         @param f function to transform
         @param expansion buffer to store the expansion
     */
-    template <cartesian_function FuncType>
+    template <cartesian_function<double> FuncType>
     void forward_transform(
         FuncType&& f, 
         SHSpan<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param> expansion)
@@ -908,7 +908,7 @@ public:
 
         @returns spherical harmonic expansion
     */
-    template <cartesian_function FuncType>
+    template <cartesian_function<double> FuncType>
     [[nodiscard]] SHExpansion<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param>
     forward_transform(FuncType&& f, std::size_t order)
     {

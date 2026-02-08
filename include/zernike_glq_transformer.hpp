@@ -637,7 +637,7 @@ public:
         @param radius radius of the ball `f` is defined on
         @param expansion buffer to store the expansion
     */
-    template <ball_function FuncType>
+    template <ball_function<double> FuncType>
     void forward_transform(
         FuncType&& f, double radius,
         ZernikeSpan<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
@@ -662,7 +662,7 @@ public:
 
         @returns Zernike expansion
     */
-    template <ball_function FuncType>
+    template <ball_function<double> FuncType>
     [[nodiscard]] ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param>
     forward_transform(FuncType&& f, double radius, std::size_t order)
     {
@@ -684,7 +684,7 @@ public:
         @param radius radius of the ball `f` is defined on
         @param expansion buffer to store the expansion
     */
-    template <cartesian_function FuncType>
+    template <cartesian_function<double> FuncType>
     void forward_transform(
         FuncType&& f, double radius,
         ZernikeSpan<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
@@ -715,7 +715,7 @@ public:
 
         @returns Zernike expansion
     */
-    template <cartesian_function FuncType>
+    template <cartesian_function<double> FuncType>
     [[nodiscard]] ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param>
     forward_transform(FuncType&& f, double radius, std::size_t order)
     {
@@ -834,13 +834,13 @@ using ZernikeTransformerNormalGeo
 template <
     zest::zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase,
     typename GridLayoutType = RadialGridLayout<>>
-class IsotropicZernikeGLQTransformer
+class IsotropicGLQTransformer
 {
 public:
     using grid_layout_type = GridLayoutType;
 
-    IsotropicZernikeGLQTransformer() = default;
-    IsotropicZernikeGLQTransformer(std::size_t order):
+    IsotropicGLQTransformer() = default;
+    IsotropicGLQTransformer(std::size_t order):
         m_recursion{order},
         m_glq_nodes(grid_layout_type::size(order)),
         m_glq_weights(grid_layout_type::size(order)),
@@ -960,6 +960,185 @@ private:
     std::vector<double> m_glq_weights;
     std::vector<double> m_weighted_values;
     std::size_t m_order{};
+};
+
+/**
+    @brief Convenient alias for `IsotropicGLQTransformer` with unnormalized Zernike
+    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = DefaultLayout>
+using IsotropicGLQTransformerAcoustics
+    = IsotropicGLQTransformer<
+        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none, GridLayout>;
+
+/**
+    @brief Convenient alias for `IsotropicGLQTransformer` with orthonorml Zernike
+    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = DefaultLayout>
+using IsotropicGLQTransformerNormalAcoustics
+    = IsotropicGLQTransformer<
+        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none, GridLayout>;
+
+/**
+    @brief Convenient alias for `IsotropicGLQTransformer` with unnormalized Zernike
+    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = DefaultLayout>
+using IsotropicGLQTransformerQM
+    = IsotropicGLQTransformer<
+        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs, GridLayout>;
+
+/**
+    @brief Convenient alias for `IsotropicGLQTransformer` with orthonormal Zernike
+    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = DefaultLayout>
+using IsotropicGLQTransformerNormalQM
+    = IsotropicGLQTransformer<
+        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs, GridLayout>;
+
+/**
+    @brief Convenient alias for `IsotropicGLQTransformer` with unnormalized Zernike
+    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = DefaultLayout>
+using IsotropicGLQTransformerGeo
+    = IsotropicGLQTransformer<
+        ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
+
+/**
+    @brief Convenient alias for `IsotropicGLQTransformer` with orthonormal Zernike
+    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = DefaultLayout>
+using IsotropicGLQTransformerNormalGeo
+    = IsotropicGLQTransformer<
+        ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
+
+/**
+    @brief High-level interface for taking Zernike transforms of functions on
+    balls of arbitrary radii.
+
+    @tparam zernike_norm_param normalization convention of Zernike functions
+    @tparam sh_norm_param normalization convention of spherical harmonics
+    @tparam sh_phase_param phase convention of spherical harmonics
+    @tparam GridLayoutType
+*/
+template <ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param, typename GridLayoutType = RadialGridLayout<>>
+class IsotropicZernikeTransformer
+{
+public:
+    using grid_layout_type = GridLayoutType;
+
+    static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
+    static constexpr st::SHNorm sh_norm = sh_norm_param;
+    static constexpr st::SHPhase sh_phase = sh_phase_param;
+
+    IsotropicZernikeTransformer() = default;
+    explicit IsotropicZernikeTransformer(std::size_t order):
+        m_grid(order), m_points(order), m_transformer(order) {}
+
+    /**
+        @brief Resize the transformer to work with expansions of different
+        order.
+    */
+    void resize(std::size_t order)
+    {
+        m_points.resize(order);
+        m_grid.reshape(order);
+        m_transformer.resize(order);
+    }
+
+    /**
+        @brief Get Zernike expansion of a function expressed in spherical
+        coordinates.
+
+        @tparam FuncType type of function
+
+        @param f function to transform
+        @param radius radius of the ball `f` is defined on
+        @param expansion buffer to store the expansion
+    */
+    template <isotropic_function<double> FuncType>
+    void forward_transform(
+        FuncType&& f, double radius,
+        IsotropicZernikeSpan<double, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
+    {
+        auto f_scaled = [&](double r) {
+            return std::forward<FuncType>(f)(r*radius);
+        };
+        resize(expansion.order());
+        m_points.generate_values(m_grid, f_scaled);
+        m_transformer.forward_transform(m_grid, expansion);
+    }
+
+    /**
+        @brief Get Zernike expansion of a function expressed in spherical
+        coordinates.
+
+        @tparam FuncType type of function
+
+        @param f function to transform
+        @param radius radius of the ball `f` is defined on
+        @param order order of the expansion
+
+        @returns Zernike expansion
+    */
+    template <ball_function<double> FuncType>
+    [[nodiscard]] IsotropicZernikeExpansion<double, zernike_norm_param, sh_norm_param, sh_phase_param>
+    forward_transform(FuncType&& f, double radius, std::size_t order)
+    {
+        auto f_scaled = [&](double r) {
+            return std::forward<FuncType>(f)(r*radius);
+        };
+        resize(order);
+        m_points.generate_values(m_grid, f_scaled);
+        return m_transformer.forward_transform(m_grid, order);
+    }
+
+    /**
+        @brief Backward transform from Zernike coefficients to Gauss-Legendre quadrature grid.
+
+        @param values values on the ball quadrature grid
+        @param expansion coefficients of the expansion
+    */
+    void backward_transform(
+        IsotropicZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
+        RadialGLQGridSpan<double, grid_layout_type> values)
+    {
+        m_transformer.backward_transform(expansion, values);
+    }
+
+    /**
+        @brief Backward transform from Zernike coefficients to Gauss-Legendre quadrature grid.
+
+        @param expansion coefficients of the expansion
+    */
+    [[nodiscard]] RadialGLQGrid<double, grid_layout_type>
+    backward_transform(
+        IsotropicZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
+        std::size_t order)
+    {
+        return m_transformer.backward_transform(expansion, order);
+    }
+
+private:
+    RadialGLQGrid<double, grid_layout_type> m_grid;
+    RadialGLQGridPoints<grid_layout_type> m_points;
+    IsotropicGLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param, grid_layout_type> m_transformer;
 };
 
 } // namespace zest::zt
