@@ -55,6 +55,29 @@ using RadialZernikeTensorShape = TaggedShape<
     SequenceTensorShape<EvenTriangleSequence, outer_extents...>, ZernikeTag<zernike_norm>>;
 
 /**
+    @brief Shape of an efficient layout of isotropic 3D radial Zernike
+    polynomials, tagged with normalization conventions.
+
+    @tparam zernike_norm Zernike function normalization conventions.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <ZernikeNorm zernike_norm, std::size_t... inner_extents>
+using IsotropicRadialZernikeShape = TaggedShape<
+    TensorSequenceShape<ParityLinearSequence, inner_extents...>, ZernikeTag<zernike_norm>>;
+
+/**
+    @brief Shape of an efficient layout of a multidimensional array
+    of isotropic 3D radial Zernike polynomial sequences, tagged with normalization
+    conventions.
+
+    @tparam zernike_norm Zernike function normalization convention.
+    @tparam outer_extents Extents of an outer multidimensional array structure.
+*/
+template <ZernikeNorm zernike_norm, std::size_t... outer_extents>
+using IsotropicRadialZernikeTensorShape = TaggedShape<
+    SequenceTensorShape<ParityLinearSequence, outer_extents...>, ZernikeTag<zernike_norm>>;
+
+/**
     @brief Shape of an efficient layout of 3D Zernike functions,
     tagged with normalizaton and phase conventions.
 
@@ -123,11 +146,11 @@ using ZernikeNonnegativeShape = TaggedShape<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase,
+    ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase,
     std::size_t... inner_extents>
-using IsotropicZernikeShape = zest::TaggedShape<
-    zest::TensorSequenceShape<zest::ParityLinearSequence, inner_extents...>,
-    zest::zt::ZernikeTag<zernike_norm>, zest::st::SHTag<sh_norm, sh_phase>>;
+using IsotropicZernikeShape = TaggedShape<
+    TensorSequenceShape<ParityLinearSequence, inner_extents...>,
+    ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>>;
 
 /**
     @brief Shape of an efficient layout of a multidimensional array of
@@ -140,10 +163,10 @@ using IsotropicZernikeShape = zest::TaggedShape<
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
-    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase,
+    ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase,
     std::size_t... outer_extents>
-using IsotropicZernikeTensorShape = zest::TaggedShape<
-    zest::SequenceTensorShape<zest::ParityLinearSequence, outer_extents...>,
-    zest::zt::ZernikeTag<zernike_norm>, zest::st::SHTag<sh_norm, sh_phase>>;
+using IsotropicZernikeTensorShape = TaggedShape<
+    SequenceTensorShape<ParityLinearSequence, outer_extents...>,
+    ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>>;
 
 } // namespace zest::zt

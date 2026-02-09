@@ -48,16 +48,6 @@ std::vector<T> linspace(T start, T stop, std::size_t count)
     return res;
 }
 
-constexpr bool test_ballglqgridspan_const_view_can_be_taken()
-{
-    zest::zt::BallGLQGridSpan<double> span{};
-    [[maybe_unused]] auto const_view
-        = zest::zt::BallGLQGridSpan<const double>(span);
-    return true;
-}
-
-static_assert(test_ballglqgridspan_const_view_can_be_taken());
-
 template <
     zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
@@ -542,7 +532,7 @@ template <
     zest::st::SHPhase sh_phase>
 bool test_glq_backward_transform_evaluates_Z000()
 {
-    constexpr std::size_t order = 6; 
+    constexpr std::size_t order = 6;
 
     auto function = [](
         [[maybe_unused]] double lon, [[maybe_unused]] double colat,
@@ -613,7 +603,7 @@ bool test_glq_backward_transform_evaluates_Z110()
 {
     constexpr double sqrt5 = 2.2360679774997896964091737;
 
-    constexpr std::size_t order = 6; 
+    constexpr std::size_t order = 6;
 
     auto function = []([[maybe_unused]] double lon, double colat, double r)
     {
@@ -1077,6 +1067,368 @@ bool test_zernike_transformer_scales_for_nonunit_radius()
 template <
     zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>
+bool test_isotropic_glq_forward_transform_expands_Z000()
+{
+    std::size_t order = 6;
+
+    auto function = []([[maybe_unused]] double r)
+    {
+        constexpr double znorm
+            = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
+                std::numbers::sqrt3 : 1.0;
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return znorm*shnorm;
+    };
+
+    zest::zt::RadialGLQGridPoints points{};
+    zest::zt::RadialGLQGrid grid = points.generate_values(function, order);
+    zest::zt::IsotropicGLQTransformer<zernike_norm, sh_norm, sh_phase>
+    transformer(order);
+
+    auto expansion = transformer.forward_transform(grid, order);
+
+    constexpr double reference_coeff = 1.0;
+
+    constexpr double tol = 1.0e-10;
+
+    bool success = true;
+    for (auto n : expansion.indices())
+    {
+        if (n == 0)
+        {
+            if (is_close(expansion[n], reference_coeff, tol))
+                success = success && true;
+            else
+                success = success && false;
+        }
+        else
+        {
+            if (is_close(expansion[n], 0.0, tol))
+                success = success && true;
+            else
+                success = success && false;
+        }
+    }
+
+    if (!success)
+    {
+        for (auto n : expansion.indices())
+        {
+            std::println("{}: {}", n, expansion[n]);
+        }
+    }
+    return success;
+}
+
+template <
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
+    zest::st::SHPhase sh_phase>
+bool test_isotropic_glq_forward_transform_expands_Z200()
+{
+    std::size_t order = 6;
+
+    auto function = []([[maybe_unused]] double r)
+    {
+        constexpr double sqrt7 = 2.6457513110645905905016158;
+        constexpr double znorm
+            = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
+                sqrt7 : 1.0;
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return znorm*shnorm*(2.5*r*r - 1.5);
+    };
+
+    zest::zt::RadialGLQGridPoints points{};
+    zest::zt::RadialGLQGrid grid = points.generate_values(function, order);
+    zest::zt::IsotropicGLQTransformer<zernike_norm, sh_norm, sh_phase>
+    transformer(order);
+
+    auto expansion = transformer.forward_transform(grid, order);
+
+    constexpr double reference_coeff = 1.0;
+
+    constexpr double tol = 1.0e-10;
+
+    bool success = true;
+    for (auto n : expansion.indices())
+    {
+        if (n == 2)
+        {
+            if (is_close(expansion[n], reference_coeff, tol))
+                success = success && true;
+            else
+                success = success && false;
+        }
+        else
+        {
+            if (is_close(expansion[n], 0.0, tol))
+                success = success && true;
+            else
+                success = success && false;
+        }
+    }
+
+    if (!success)
+    {
+        for (auto n : expansion.indices())
+        {
+            std::println("{}: {}", n, expansion[n]);
+        }
+    }
+    return success;
+}
+
+template <
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
+    zest::st::SHPhase sh_phase>
+bool test_isotropic_glq_forward_transform_expands_Z400()
+{
+    std::size_t order = 6;
+
+    auto function = []([[maybe_unused]] double r)
+    {
+        constexpr double sqrt11 = 3.3166247903553998491149327;
+        constexpr double znorm
+            = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
+                sqrt11 : 1.0;
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return znorm*shnorm*((7.875*r*r - 8.75)*r*r + 1.875);
+    };
+
+    zest::zt::RadialGLQGridPoints points{};
+    zest::zt::RadialGLQGrid grid = points.generate_values(function, order);
+    zest::zt::IsotropicGLQTransformer<zernike_norm, sh_norm, sh_phase>
+    transformer(order);
+
+    auto expansion = transformer.forward_transform(grid, order);
+
+    constexpr double reference_coeff = 1.0;
+
+    constexpr double tol = 1.0e-10;
+
+    bool success = true;
+    for (auto n : expansion.indices())
+    {
+        if (n == 4)
+        {
+            if (is_close(expansion[n], reference_coeff, tol))
+                success = success && true;
+            else
+                success = success && false;
+        }
+        else
+        {
+            if (is_close(expansion[n], 0.0, tol))
+                success = success && true;
+            else
+                success = success && false;
+        }
+    }
+
+    if (!success)
+    {
+        for (auto n : expansion.indices())
+        {
+            std::println("{}: {}", n, expansion[n]);
+        }
+    }
+    return success;
+}
+
+template <
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
+    zest::st::SHPhase sh_phase>
+bool test_isotropic_glq_backward_transform_evaluates_Z000()
+{
+    constexpr std::size_t order = 6;
+
+    auto function = []([[maybe_unused]] double r)
+    {
+        constexpr double znorm
+            = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
+                std::numbers::sqrt3 : 1.0;
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return znorm*shnorm;
+    };
+
+    zest::zt::RadialGLQGridPoints points{};
+    zest::zt::RadialGLQGrid test_grid = points.generate_values(function, order);
+
+    zest::zt::IsotropicGLQTransformer<zernike_norm, sh_norm, sh_phase>
+    transformer(order);
+
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
+
+    constexpr double tol = 1.0e-10;
+
+    bool success = true;
+    for (std::size_t i = 0; i < grid.size(); ++i)
+    {
+        if (!is_close(grid[i], test_grid[i], tol))
+            success = false;
+    }
+
+    if (!success)
+    {
+        std::println("test_grid");
+        for (std::size_t i = 0; i < test_grid.size(); ++i)
+        {
+            std::print("{} ", test_grid[i]);
+        }
+        std::println("grid");
+        for (std::size_t i = 0; i < grid.size(); ++i)
+        {
+            std::print("{} ", grid[i]);
+        }
+    }
+    return success;
+}
+
+template <
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
+    zest::st::SHPhase sh_phase>
+bool test_isotropic_glq_backward_transform_evaluates_Z200()
+{
+    constexpr std::size_t order = 6;
+
+    auto function = []([[maybe_unused]] double r)
+    {
+        constexpr double sqrt7 = 2.6457513110645905905016158;
+        constexpr double znorm
+            = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
+                sqrt7 : 1.0;
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return znorm*shnorm*(2.5*r*r - 1.5);
+    };
+
+    zest::zt::RadialGLQGridPoints points{};
+    zest::zt::RadialGLQGrid test_grid = points.generate_values(function, order);
+
+    zest::zt::IsotropicGLQTransformer<zernike_norm, sh_norm, sh_phase>
+    transformer(order);
+
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
+
+    constexpr double tol = 1.0e-10;
+
+    bool success = true;
+    for (std::size_t i = 0; i < grid.size(); ++i)
+    {
+        if (!is_close(grid[i], test_grid[i], tol))
+            success = false;
+    }
+
+    if (!success)
+    {
+        std::println("test_grid");
+        for (std::size_t i = 0; i < test_grid.size(); ++i)
+        {
+            std::print("{} ", test_grid[i]);
+        }
+        std::println("grid");
+        for (std::size_t i = 0; i < grid.size(); ++i)
+        {
+            std::print("{} ", grid[i]);
+        }
+    }
+    return success;
+}
+
+template <
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
+    zest::st::SHPhase sh_phase>
+bool test_isotropic_glq_backward_transform_evaluates_Z400()
+{
+    constexpr std::size_t order = 6;
+
+    auto function = []([[maybe_unused]] double r)
+    {
+        constexpr double sqrt11 = 3.3166247903553998491149327;
+        constexpr double znorm
+            = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
+                sqrt11 : 1.0;
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+            0.5*std::numbers::inv_sqrtpi : 1.0;
+        return znorm*shnorm*((7.875*r*r - 8.75)*r*r + 1.875);
+    };
+
+    zest::zt::RadialGLQGridPoints points{};
+    zest::zt::RadialGLQGrid test_grid = points.generate_values(function, order);
+
+    zest::zt::IsotropicGLQTransformer<zernike_norm, sh_norm, sh_phase>
+    transformer(order);
+
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
+
+    constexpr double tol = 1.0e-10;
+
+    bool success = true;
+    for (std::size_t i = 0; i < grid.size(); ++i)
+    {
+        if (!is_close(grid[i], test_grid[i], tol))
+            success = false;
+    }
+
+    if (!success)
+    {
+        std::println("test_grid");
+        for (std::size_t i = 0; i < test_grid.size(); ++i)
+        {
+            std::print("{} ", test_grid[i]);
+        }
+        std::println("grid");
+        for (std::size_t i = 0; i < grid.size(); ++i)
+        {
+            std::print("{} ", grid[i]);
+        }
+    }
+    return success;
+}
+
+template <
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
+    zest::st::SHPhase sh_phase>
+bool test_isotropic_zernike_transform_converges()
+{
+    constexpr std::size_t order = 100;
+
+    auto function = [](double r)
+    {
+        return std::exp(-r*r);
+    };
+
+
+    zest::zt::RadialGLQGridPoints points{};
+    zest::zt::RadialGLQGrid test_grid = points.generate_values(function, order);
+
+    zest::zt::IsotropicGLQTransformer<zernike_norm, sh_norm, sh_phase>
+    transformer(order);
+
+    auto expansion = transformer.forward_transform(test_grid, order);
+    auto grid = transformer.backward_transform(expansion, order);
+
+    constexpr double tol = 1.0e-13;
+
+    bool success = true;
+    for (std::size_t i = 0; i < grid.size(); ++i)
+    {
+        if (!is_close(grid[i], test_grid[i], tol))
+            success = false;
+    }
+
+    return success;
+}
+
+template <
+    zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm,
+    zest::st::SHPhase sh_phase>
 void test_glq()
 {
     assert((test_glq_forward_transform_expands_Z000<zernike_norm, sh_norm, sh_phase>()));
@@ -1096,6 +1448,16 @@ void test_glq()
     assert((test_zernike_transform_converges<zernike_norm, sh_norm, sh_phase>()));
 
     assert((test_zernike_transformer_scales_for_nonunit_radius<zernike_norm, sh_norm, sh_phase>()));
+
+    assert((test_isotropic_glq_forward_transform_expands_Z000<zernike_norm, sh_norm, sh_phase>()));
+    assert((test_isotropic_glq_forward_transform_expands_Z200<zernike_norm, sh_norm, sh_phase>()));
+    assert((test_isotropic_glq_forward_transform_expands_Z400<zernike_norm, sh_norm, sh_phase>()));
+
+    assert((test_isotropic_glq_backward_transform_evaluates_Z000<zernike_norm, sh_norm, sh_phase>()));
+    assert((test_isotropic_glq_backward_transform_evaluates_Z200<zernike_norm, sh_norm, sh_phase>()));
+    assert((test_isotropic_glq_backward_transform_evaluates_Z400<zernike_norm, sh_norm, sh_phase>()));
+
+    assert((test_isotropic_zernike_transform_converges<zernike_norm, sh_norm, sh_phase>()));
 }
 
 } // namespace

@@ -102,6 +102,74 @@ using RadialZernikeExpansionVector = RadialZernikeExpansionTensor<
     ElementType, zernike_norm, std::dynamic_extent>;
 
 /**
+    @brief A non-owning view of isotropic 3D radial Zernike polynomial data.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam zernike_norm Zernike function normalization convention.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... inner_extents>
+using IsotropicRadialZernikeSpan = ShapedSpan<
+    ElementType, IsotropicRadialZernikeShape<zernike_norm, inner_extents...>>;
+
+/**
+    @brief A container of isotropic 3D radial Zernike polynomial data.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam zernike_norm Zernike function normalization convention.
+    @tparam inner_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... inner_extents>
+using IsotropicRadialZernikeExpansion = ShapedArray<
+    ElementType, IsotropicRadialZernikeShape<zernike_norm, inner_extents...>>;
+
+/**
+    @brief A non-owning view of multidimensional arrays of isotropic 3D radial
+    Zernike polynomial data.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam zernike_norm Zernike function normalization convention.
+    @tparam outer_extents Extents of an outer multidimensional array structure.
+*/
+template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... outer_extents>
+using IsotropicRadialZernikeTensorSpan = ShapedSpan<
+    ElementType, IsotropicRadialZernikeTensorShape<zernike_norm, outer_extents...>>;
+
+/**
+    @brief A non-owning view of a vector of isotropic 3D radial Zernike
+    polynomial data.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam zernike_norm Zernike function normalization convention.
+*/
+template <typename ElementType, ZernikeNorm zernike_norm>
+using IsotropicRadialZernikeVectorSpan = IsotropicRadialZernikeTensorSpan<
+    ElementType, zernike_norm, std::dynamic_extent>;
+
+/**
+    @brief A container for storing multidimensional arrays of isotropic 3D
+    radial Zernike polynomial data.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam zernike_norm Zernike function normalization convention.
+    @tparam outer_extents Extents of an inner multidimensional array structure.
+*/
+template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... outer_extents>
+using IsotropicRadialZernikeExpansionTensor = ShapedArray<
+    ElementType, IsotropicRadialZernikeTensorShape<zernike_norm, outer_extents...>>;
+
+/**
+    @brief A container for storing a vector of isotropic 3D radial Zernike
+    polynomial data.
+
+    @tparam ElementType Type of elements in the view.
+    @tparam zernike_norm Zernike function normalization convention.
+*/
+template <typename ElementType, ZernikeNorm zernike_norm>
+using IsotropicRadialZernikeExpansionVector = IsotropicRadialZernikeExpansionTensor<
+    ElementType, zernike_norm, std::dynamic_extent>;
+
+/**
     @brief A non-owning view of 3D Zernike function data.
 
     @tparam ElementType Type of elements

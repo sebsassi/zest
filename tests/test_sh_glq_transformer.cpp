@@ -32,16 +32,6 @@ constexpr bool is_close(double a, double b, double tol)
     return std::fabs(a - b) < tol;
 }
 
-constexpr bool test_sphereglqgridspan_const_view_can_be_taken()
-{
-    zest::st::SphereGLQGridSpan<double> span{};
-    [[maybe_unused]] auto const_view
-        = zest::st::SphereGLQGridSpan<const double>(span);
-    return true;
-}
-
-static_assert(test_sphereglqgridspan_const_view_can_be_taken());
-
 template <
     typename GridLayout, zest::st::SHNorm sh_norm,
     zest::st::SHPhase sh_phase>

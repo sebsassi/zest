@@ -1116,7 +1116,7 @@ public:
         @param expansion coefficients of the expansion
     */
     void backward_transform(
-        IsotropicZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
+        IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion,
         RadialGLQGridSpan<double, grid_layout_type> values)
     {
         m_transformer.backward_transform(expansion, values);
@@ -1129,7 +1129,7 @@ public:
     */
     [[nodiscard]] RadialGLQGrid<double, grid_layout_type>
     backward_transform(
-        IsotropicZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
+        IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion,
         std::size_t order)
     {
         return m_transformer.backward_transform(expansion, order);
