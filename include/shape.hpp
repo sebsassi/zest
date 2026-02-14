@@ -589,6 +589,9 @@ public:
         return m_shapes.first.extents();
     }
 
+    [[nodiscard]] constexpr size_type
+    extent(size_type index) const noexcept { return m_shapes.first.extent(index); };
+
     [[nodiscard]] constexpr extent_type
     extents() const noexcept { return {m_shapes.first.extents(), m_shapes.second.extents()}; }
 
