@@ -325,6 +325,26 @@ public:
     static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
 
     IsotropicRadialZernikeRecursion() = default;
+    explicit IsotropicRadialZernikeRecursion(std::size_t max_order):
+        m_k{max_order}
+    {
+        for (auto n : m_k.indices(4))
+        {
+            if constexpr (zernike_norm == ZernikeNorm::unnormed)
+            {
+                m_k[n, 0] = double(2*n - 1)*double(2*n + 1)/(double(n)*double(n + 1));
+                m_k[n, 1] = -double(2*n - 1)*(1.0 + double(2*n + 1)*double(2*n - 3))/(double(n)*double(n + 1)*double(2*n - 3));
+                m_k[n, 2] = -double(n - 2)*double(n - 1)*double(2*n + 1)/(double(n)*double(n + 1)*double(2*n - 3));
+            }
+            else
+            {
+                m_k[n, 0] = std::sqrt(double(2*n + 3)*double(2*n - 1))*double(2*n + 1)/(double(n)*double(n + 1));
+                m_k[n, 1] = -std::sqrt(double(2*n + 3)*double(2*n - 1))*(1.0 + double(2*n + 1)*double(2*n - 3))/(double(n)*double(n + 1)*double(2*n - 3));
+                m_k[n, 2] = -std::sqrt(double(2*n + 3)/double(2*n - 5))*double(n - 2)*double(n - 1)*double(2*n + 1)/(double(n)*double(n + 1)*double(2*n - 3));
+            }
+        }
+    }
+
     IsotropicRadialZernikeRecursion(std::size_t max_order, std::size_t size):
         m_buffer_chain{size}, m_r_sq(size), m_k{max_order}
     {
@@ -419,6 +439,8 @@ public:
 
     void init(std::span<const double> x)
     {
+        m_buffer_chain.resize(x.size());
+        m_r_sq.resize(x.size());
         for (std::size_t i = 0; i < x.size(); ++i)
             m_r_sq[i] = x[i]*x[i];
         init();
