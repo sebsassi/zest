@@ -1097,7 +1097,7 @@ public:
 
         @returns Zernike expansion
     */
-    template <ball_function<double> FuncType>
+    template <isotropic_function<double> FuncType>
     [[nodiscard]] IsotropicZernikeExpansion<double, zernike_norm_param, sh_norm_param, sh_phase_param>
     forward_transform(FuncType&& f, double radius, std::size_t order)
     {
