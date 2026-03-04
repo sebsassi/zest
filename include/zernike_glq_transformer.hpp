@@ -1141,5 +1141,71 @@ private:
     IsotropicGLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param, grid_layout_type> m_transformer;
 };
 
+/**
+    @brief Convenient alias for `IsotropicZernikeTransformer` with unnormalized Zernike
+    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = RadialGridLayout<>>
+using IsotropicZernikeTransformerAcoustics
+    = IsotropicZernikeTransformer<
+        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none, GridLayout>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeTransformer` with orthonormal Zernike
+    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = RadialGridLayout<>>
+using IsotropicZernikeTransformerNormalAcoustics
+    = IsotropicZernikeTransformer<
+        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none, GridLayout>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeTransformer` with unnormalized Zernike
+    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = RadialGridLayout<>>
+using IsotropicZernikeTransformerQM
+    = IsotropicZernikeTransformer<
+        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs, GridLayout>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeTransformer` with orthonormal Zernike
+    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = RadialGridLayout<>>
+using IsotropicZernikeTransformerNormalQM
+    = IsotropicZernikeTransformer<
+        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs, GridLayout>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeTransformer` with unnormalized Zernike
+    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = RadialGridLayout<>>
+using IsotropicZernikeTransformerGeo
+    = IsotropicZernikeTransformer<
+        ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
+
+/**
+    @brief Convenient alias for `IsotropicZernikeTransformer` with orthonormal Zernike
+    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
+
+    @tparam GridLayout
+*/
+template <typename GridLayout = RadialGridLayout<>>
+using IsotropicZernikeTransformerNormalGeo
+    = IsotropicZernikeTransformer<
+        ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
+
 } // namespace zest::zt
 
