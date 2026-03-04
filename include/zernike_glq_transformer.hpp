@@ -27,6 +27,7 @@ SOFTWARE.
 #include <span>
 #include <vector>
 
+#include "alignment.hpp"
 #include "pocketfft_spec.hpp"
 
 #include "associated_legendre_recursion.hpp"
@@ -833,11 +834,12 @@ using ZernikeTransformerNormalGeo
 
 template <
     zest::zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase,
-    typename GridLayoutType = RadialGridLayout<>>
+    typename AlignmentType = RadialGridLayout<>>
 class IsotropicGLQTransformer
 {
 public:
-    using grid_layout_type = GridLayoutType;
+    using grid_layout_type = RadialGridLayout<AlignmentType>;
+    using alignment_type = AlignmentType;
 
     IsotropicGLQTransformer() = default;
     IsotropicGLQTransformer(std::size_t order):
@@ -875,7 +877,7 @@ public:
     }
 
     void forward_transform(
-        RadialGLQGridSpan<const double> values,
+        RadialGLQGridSpan<const double, alignment_type> values,
         IsotropicZernikeSpan<double, zernike_norm, sh_norm, sh_phase> expansion)
     {
         resize(values.order());
@@ -911,7 +913,7 @@ public:
     }
 
     [[nodiscard]] IsotropicZernikeExpansion<double, zernike_norm, sh_norm, sh_phase>
-    forward_transform(RadialGLQGridSpan<const double> values, std::size_t order)
+    forward_transform(RadialGLQGridSpan<const double, alignment_type> values, std::size_t order)
     {
         IsotropicZernikeExpansion<double, zernike_norm, sh_norm, sh_phase>
         expansion{order};
@@ -922,7 +924,7 @@ public:
 
     void backward_transform(
         IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion,
-        RadialGLQGridSpan<double> values)
+        RadialGLQGridSpan<double, alignment_type> values)
     {
         resize(values.order());
 
@@ -948,7 +950,7 @@ public:
     [[nodiscard]] RadialGLQGrid<double>
     backward_transform(IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion, std::size_t order)
     {
-        RadialGLQGrid<double> grid{order};
+        RadialGLQGrid<double, alignment_type> grid{order};
 
         backward_transform(expansion, grid);
         return grid;
@@ -966,67 +968,67 @@ private:
     @brief Convenient alias for `IsotropicGLQTransformer` with unnormalized Zernike
     functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
 
-    @tparam GridLayout
+    @tparam Alignment
 */
-template <typename GridLayout = DefaultLayout>
+template <typename Alignment = CacheLineAlignment>
 using IsotropicGLQTransformerAcoustics
     = IsotropicGLQTransformer<
-        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none, GridLayout>;
+        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicGLQTransformer` with orthonorml Zernike
     functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
 
-    @tparam GridLayout
+    @tparam Alignment
 */
-template <typename GridLayout = DefaultLayout>
+template <typename Alignment = CacheLineAlignment>
 using IsotropicGLQTransformerNormalAcoustics
     = IsotropicGLQTransformer<
-        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none, GridLayout>;
+        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicGLQTransformer` with unnormalized Zernike
     functions, orthonormal spherical harmonics, and Condon-Shortley phase.
 
-    @tparam GridLayout
+    @tparam Alignment
 */
-template <typename GridLayout = DefaultLayout>
+template <typename Alignment = CacheLineAlignment>
 using IsotropicGLQTransformerQM
     = IsotropicGLQTransformer<
-        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs, GridLayout>;
+        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicGLQTransformer` with orthonormal Zernike
     functions, orthonormal spherical harmonics, and Condon-Shortley phase.
 
-    @tparam GridLayout
+    @tparam Alignment
 */
-template <typename GridLayout = DefaultLayout>
+template <typename Alignment = CacheLineAlignment>
 using IsotropicGLQTransformerNormalQM
     = IsotropicGLQTransformer<
-        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs, GridLayout>;
+        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicGLQTransformer` with unnormalized Zernike
     functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
 
-    @tparam GridLayout
+    @tparam Alignment
 */
-template <typename GridLayout = DefaultLayout>
+template <typename Alignment = CacheLineAlignment>
 using IsotropicGLQTransformerGeo
     = IsotropicGLQTransformer<
-        ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
+        ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicGLQTransformer` with orthonormal Zernike
     functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
 
-    @tparam GridLayout
+    @tparam Alignment
 */
-template <typename GridLayout = DefaultLayout>
+template <typename Alignment = CacheLineAlignment>
 using IsotropicGLQTransformerNormalGeo
     = IsotropicGLQTransformer<
-        ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
+        ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none, Alignment>;
 
 /**
     @brief High-level interface for taking Zernike transforms of functions on
@@ -1037,11 +1039,11 @@ using IsotropicGLQTransformerNormalGeo
     @tparam sh_phase_param phase convention of spherical harmonics
     @tparam GridLayoutType
 */
-template <ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param, typename GridLayoutType = RadialGridLayout<>>
+template <ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param, typename AlignmentType = CacheLineAlignment>
 class IsotropicZernikeTransformer
 {
 public:
-    using grid_layout_type = GridLayoutType;
+    using alignment_type = AlignmentType;
 
     static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
     static constexpr st::SHNorm sh_norm = sh_norm_param;
@@ -1117,7 +1119,7 @@ public:
     */
     void backward_transform(
         IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion,
-        RadialGLQGridSpan<double, grid_layout_type> values)
+        RadialGLQGridSpan<double, alignment_type> values)
     {
         m_transformer.backward_transform(expansion, values);
     }
@@ -1127,7 +1129,7 @@ public:
 
         @param expansion coefficients of the expansion
     */
-    [[nodiscard]] RadialGLQGrid<double, grid_layout_type>
+    [[nodiscard]] RadialGLQGrid<double, alignment_type>
     backward_transform(
         IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion,
         std::size_t order)
@@ -1136,76 +1138,76 @@ public:
     }
 
 private:
-    RadialGLQGrid<double, grid_layout_type> m_grid;
-    RadialGLQGridPoints<grid_layout_type> m_points;
-    IsotropicGLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param, grid_layout_type> m_transformer;
+    RadialGLQGrid<double, alignment_type> m_grid;
+    RadialGLQGridPoints<alignment_type> m_points;
+    IsotropicGLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param, alignment_type> m_transformer;
 };
 
 /**
     @brief Convenient alias for `IsotropicZernikeTransformer` with unnormalized Zernike
     functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
 
-    @tparam GridLayout
+    @tparam Alignment
 */
-template <typename GridLayout = RadialGridLayout<>>
+template <typename Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerAcoustics
     = IsotropicZernikeTransformer<
-        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none, GridLayout>;
+        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTransformer` with orthonormal Zernike
     functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
 
-    @tparam GridLayout
+    @tparam Alignment
 */
-template <typename GridLayout = RadialGridLayout<>>
+template <typename Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerNormalAcoustics
     = IsotropicZernikeTransformer<
-        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none, GridLayout>;
+        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTransformer` with unnormalized Zernike
     functions, orthonormal spherical harmonics, and Condon-Shortley phase.
 
-    @tparam GridLayout
+    @tparam Alignment
 */
-template <typename GridLayout = RadialGridLayout<>>
+template <typename Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerQM
     = IsotropicZernikeTransformer<
-        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs, GridLayout>;
+        ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTransformer` with orthonormal Zernike
     functions, orthonormal spherical harmonics, and Condon-Shortley phase.
 
-    @tparam GridLayout
+    @tparam Alignment
 */
-template <typename GridLayout = RadialGridLayout<>>
+template <typename Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerNormalQM
     = IsotropicZernikeTransformer<
-        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs, GridLayout>;
+        ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTransformer` with unnormalized Zernike
     functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
 
-    @tparam GridLayout
+    @tparam Alignment
 */
-template <typename GridLayout = RadialGridLayout<>>
+template <typename Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerGeo
     = IsotropicZernikeTransformer<
-        ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
+        ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTransformer` with orthonormal Zernike
     functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
 
-    @tparam GridLayout
+    @tparam Alignment
 */
-template <typename GridLayout = RadialGridLayout<>>
+template <typename Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerNormalGeo
     = IsotropicZernikeTransformer<
-        ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none, GridLayout>;
+        ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none, Alignment>;
 
 } // namespace zest::zt
 
