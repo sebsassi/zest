@@ -855,7 +855,7 @@ public:
         for (auto& node : m_glq_nodes)
             node = 0.5*(1.0 + node);
 
-        m_recursion.init(m_glq_nodes);
+        m_recursion.set_radii(m_glq_nodes);
     }
 
     void resize(std::size_t order)
@@ -865,6 +865,7 @@ public:
         m_glq_nodes.resize(grid_layout_type::size(order));
         m_glq_weights.resize(grid_layout_type::size(order));
         m_weighted_values.resize(grid_layout_type::size(order));
+        m_recursion.expand(order);
         m_order = order;
 
         gl::gl_nodes_and_weights<gl::UnpackedLayout, gl::GLNodeStyle::cos>(
@@ -873,7 +874,7 @@ public:
         for (auto& node : m_glq_nodes)
             node = 0.5*(1.0 + node);
 
-        m_recursion.init(m_glq_nodes);
+        m_recursion.set_radii(m_glq_nodes);
     }
 
     void forward_transform(
@@ -893,18 +894,17 @@ public:
             m_weighted_values[i] = r*r*m_glq_weights[i]*values[i];
         }
 
-        if (values.order() == m_order)
-            m_recursion.init();
-
+        m_recursion.init();
         for (auto n : truncated_expansion.indices())
         {
-            auto radial_zernike = m_recursion.next();
+            auto radial_zernike = m_recursion.current();
             double& element = truncated_expansion[n];
             element = 0.0;
             for (std::size_t i = 0; i < values.size(); ++i)
             {
                 element += m_weighted_values[i]*radial_zernike[i];
             }
+            m_recursion.iterate();
 
             constexpr double spherical_integral = (sh_norm == zest::st::SHNorm::geo) ?
                 4.0*std::numbers::pi : 2.0/std::numbers::inv_sqrtpi;

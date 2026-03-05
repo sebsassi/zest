@@ -332,16 +332,16 @@ public:
     }
 
     IsotropicRadialZernikeRecursion(std::size_t max_order, std::size_t size):
-        m_buffer_chain{size}, m_r_sq(size), m_k{max_order}, m_max_order{max_order}
+        m_buffer_chain{size}, m_radius_sq(size), m_k{max_order}, m_max_order{max_order}
     {
         generate_coeffs(4);
     }
 
     IsotropicRadialZernikeRecursion(std::size_t max_order, std::span<const double> r):
-        m_buffer_chain{r.size()}, m_r_sq(r.size()), m_k{max_order}, m_max_order{max_order}
+        m_buffer_chain{r.size()}, m_radius_sq(r.size()), m_k{max_order}, m_max_order{max_order}
     {
         for (std::size_t i = 0; i < r.size(); ++i)
-            m_r_sq[i] = r[i]*r[i];
+            m_radius_sq[i] = r[i]*r[i];
         init();
 
         generate_coeffs(4);
@@ -363,7 +363,15 @@ public:
     {
         expand(max_order);
         m_buffer_chain.resize(size);
-        m_r_sq.resize(size);
+        m_radius_sq.resize(size);
+    }
+
+    void set_radii(std::span<const double> radii)
+    {
+        m_buffer_chain.resize(radii.size());
+        m_radius_sq.resize(radii.size());
+        for (std::size_t i = 0; i < radii.size(); ++i)
+            m_radius_sq[i] = radii[i]*radii[i];
     }
 
     void init()
@@ -373,29 +381,26 @@ public:
             1.0 : std::numbers::sqrt3;
         std::ranges::fill(m_buffer_chain.current(), radial_zernike_0);
 
-        for (std::size_t i = 0; i < m_r_sq.size(); ++i)
+        for (std::size_t i = 0; i < m_radius_sq.size(); ++i)
         {
             if constexpr (zernike_norm == zest::zt::ZernikeNorm::unnormed)
-                m_buffer_chain.next()[i] = 2.5*m_r_sq[i] - 1.5;
+                m_buffer_chain.next()[i] = 2.5*m_radius_sq[i] - 1.5;
             else
-                m_buffer_chain.next()[i] = (2.5*sqrt7)*m_r_sq[i] - 1.5*sqrt7;
+                m_buffer_chain.next()[i] = (2.5*sqrt7)*m_radius_sq[i] - 1.5*sqrt7;
         }
         reset();
     }
 
-    void init(std::span<const double> x)
+    void init(std::span<const double> radii)
     {
-        m_buffer_chain.resize(x.size());
-        m_r_sq.resize(x.size());
-        for (std::size_t i = 0; i < x.size(); ++i)
-            m_r_sq[i] = x[i]*x[i];
+        set_radii(radii);
         init();
     }
 
     template <std::regular_invocable<std::span<double>> Func>
     void init(const Func& f) noexcept
     {
-        f(m_r_sq);
+        f(m_radius_sq);
         init();
     }
 
@@ -421,8 +426,8 @@ public:
             const double k1 = m_k[m_n, 0];
             const double k2 = m_k[m_n, 1];
             const double k3 = m_k[m_n, 2];
-            for (std::size_t i = 0; i < m_r_sq.size(); ++i)
-                m_buffer_chain.current()[i] = (k1*m_r_sq[i] + k2)*m_buffer_chain.previous<1>()[i] + k3*m_buffer_chain.previous<2>()[i];
+            for (std::size_t i = 0; i < m_radius_sq.size(); ++i)
+                m_buffer_chain.current()[i] = (k1*m_radius_sq[i] + k2)*m_buffer_chain.previous<1>()[i] + k3*m_buffer_chain.previous<2>()[i];
         }
 
     }
@@ -448,8 +453,8 @@ public:
             const double k1 = m_k[m_n, 0];
             const double k2 = m_k[m_n, 1];
             const double k3 = m_k[m_n, 2];
-            for (std::size_t i = 0; i < m_r_sq.size(); ++i)
-                m_buffer_chain.current()[i] = (k1*m_r_sq[i] + k2)*m_buffer_chain.previous<1>()[i] + k3*m_buffer_chain.previous<2>()[i];
+            for (std::size_t i = 0; i < m_radius_sq.size(); ++i)
+                m_buffer_chain.current()[i] = (k1*m_radius_sq[i] + k2)*m_buffer_chain.previous<1>()[i] + k3*m_buffer_chain.previous<2>()[i];
         }
 
     }
@@ -483,7 +488,7 @@ private:
     }
 
     BufferChain<double, 3> m_buffer_chain;
-    std::vector<double> m_r_sq;
+    std::vector<double> m_radius_sq;
     ShapedArray<double, TensorSequenceShape<ParityLinearSequence<Parity::even>, 3>> m_k;
     std::size_t m_n{};
     std::size_t m_max_order{};

@@ -35,11 +35,7 @@ class BufferChain
 {
 public:
     BufferChain() = default;
-    BufferChain(std::size_t size): m_buffer{size}
-    {
-        for (std::size_t i = 0; i < N; ++i)
-            m_chain[i] = i;
-    }
+    BufferChain(std::size_t size): m_buffer{size} {}
 
     void resize(std::size_t size) { m_buffer.reshape(size); }
 
@@ -70,7 +66,8 @@ public:
 
 private:
     MDArray<ElementType, N, std::dynamic_extent> m_buffer;
-    std::array<std::size_t, N> m_chain;
+    std::array<std::size_t, N> m_chain
+        = []<std::size_t... I>(std::index_sequence<I...>){ return std::array{I...,}; }(std::make_index_sequence<N>{});
 };
 
 } // namespace zest
