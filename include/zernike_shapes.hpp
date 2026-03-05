@@ -63,7 +63,7 @@ using RadialZernikeTensorShape = TaggedShape<
 */
 template <ZernikeNorm zernike_norm, std::size_t... inner_extents>
 using IsotropicRadialZernikeShape = TaggedShape<
-    TensorSequenceShape<ParityLinearSequence, inner_extents...>, ZernikeTag<zernike_norm>>;
+    TensorSequenceShape<ParityLinearSequence<Parity::even>, inner_extents...>, ZernikeTag<zernike_norm>>;
 
 /**
     @brief Shape of an efficient layout of a multidimensional array
@@ -75,7 +75,7 @@ using IsotropicRadialZernikeShape = TaggedShape<
 */
 template <ZernikeNorm zernike_norm, std::size_t... outer_extents>
 using IsotropicRadialZernikeTensorShape = TaggedShape<
-    SequenceTensorShape<ParityLinearSequence, outer_extents...>, ZernikeTag<zernike_norm>>;
+    SequenceTensorShape<ParityLinearSequence<Parity::even>, outer_extents...>, ZernikeTag<zernike_norm>>;
 
 /**
     @brief Shape of an efficient layout of 3D Zernike functions,
@@ -149,7 +149,7 @@ template <
     ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase,
     std::size_t... inner_extents>
 using IsotropicZernikeShape = TaggedShape<
-    TensorSequenceShape<ParityLinearSequence, inner_extents...>,
+    TensorSequenceShape<ParityLinearSequence<Parity::even>, inner_extents...>,
     ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>>;
 
 /**
@@ -166,7 +166,7 @@ template <
     ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase,
     std::size_t... outer_extents>
 using IsotropicZernikeTensorShape = TaggedShape<
-    SequenceTensorShape<ParityLinearSequence, outer_extents...>,
+    SequenceTensorShape<ParityLinearSequence<Parity::even>, outer_extents...>,
     ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>>;
 
 } // namespace zest::zt

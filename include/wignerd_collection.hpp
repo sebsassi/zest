@@ -109,7 +109,7 @@ private:
     [[nodiscard]] static constexpr std::size_t idx(
         std::size_t l, std::size_t m1, std::size_t m2) noexcept
     {
-        assert(m1 <= l && m2 < l);
+        assert(m1 <= l && m2 <= l);
         return (l*(l + 1)*(2*l + 1))/6 + (l + 1)*m1 + m2;
     }
 

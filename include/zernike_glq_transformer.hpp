@@ -834,7 +834,7 @@ using ZernikeTransformerNormalGeo
 
 template <
     zest::zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase,
-    typename AlignmentType = RadialGridLayout<>>
+    typename AlignmentType = CacheLineAlignment>
 class IsotropicGLQTransformer
 {
 public:

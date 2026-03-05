@@ -152,7 +152,7 @@ bool test_wigner_d_pi2_is_correct_to_order_5()
 
 
     zest::WignerdPiHalfCollection d_pi2(order);
-    
+
     bool success = is_close(d_pi2(0,0,0), d_pi2_0_0_0, 1.0e-13)
             && is_close(d_pi2(1,0,0), d_pi2_1_0_0, 1.0e-13)
             && is_close(d_pi2(1,0,1), d_pi2_1_0_1, 1.0e-13)

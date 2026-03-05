@@ -58,8 +58,6 @@ template <typename T>
     requires indexing_mode_tagged<typename std::remove_cvref_t<T>::shape_type>
 consteval IndexingMode indexing_mode_of() { return std::remove_cvref_t<T>::shape_type::indexing_mode; }
 
-enum class Parity { even = 0, odd = 1 };
-
 template <typename T>
 concept has_parity = requires (T x) { { x.parity() } -> std::same_as<Parity>; };
 
@@ -132,12 +130,14 @@ struct StandardLinearSequence
     the same element. Indexing data with this sequence mixing even and odd
     indices is an error.
 */
+template <Parity parity_param = Parity::mixed>
 struct ParityLinearSequence
 {
     using index_type = std::size_t;
     using size_type = std::size_t;
-    using index_range = ParityIndexRange<index_type>;
+    using index_range = ParityIndexRange<index_type, parity_param>;
 
+    static constexpr Parity parity = parity_param;
     static constexpr size_type rank = 1;
 
     /**
@@ -304,7 +304,7 @@ private:
         requires (N == 1)
     struct subsequence_helper<N>
     {
-        using type = ParityLinearSequence;
+        using type = ParityLinearSequence<Parity::mixed>;
     };
 
 public:
@@ -415,7 +415,7 @@ struct ParityRowTriangleSequence
     using index_type = std::conditional_t<indexing_mode_param == IndexingMode::symmetric,
         int, std::size_t>;
     using size_type = std::size_t;
-    using index_range = ParityIndexRange<index_type>;
+    using index_range = ParityIndexRange<index_type, Parity::mixed>;
 
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
     static constexpr size_type rank = 2;

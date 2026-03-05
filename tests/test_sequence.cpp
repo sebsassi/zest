@@ -93,7 +93,7 @@ bool test_standard_linear_sequence_index_range_symmetric(
 bool test_parity_linear_sequence_size(
     std::size_t order, std::size_t expected_size)
 {
-    using Sequence = zest::ParityLinearSequence;
+    using Sequence = zest::ParityLinearSequence<zest::Parity::mixed>;
 
     return Sequence::size(order) == expected_size;
 }
@@ -101,7 +101,7 @@ bool test_parity_linear_sequence_size(
 bool test_parity_linear_sequence_index(
     std::size_t index, std::size_t expected_linear_index)
 {
-    using Sequence = zest::ParityLinearSequence;
+    using Sequence = zest::ParityLinearSequence<zest::Parity::mixed>;
 
     return Sequence::index(index) == expected_linear_index;
 }
@@ -110,7 +110,7 @@ template <std::size_t N>
 bool test_parity_linear_sequence_index_range(
     std::size_t order, std::array<std::size_t, N> expected_indices)
 {
-    using Sequence = zest::ParityLinearSequence;
+    using Sequence = zest::ParityLinearSequence<zest::Parity::mixed>;
     using index_range = typename Sequence::index_range;
 
     bool success = true;

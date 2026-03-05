@@ -30,6 +30,7 @@ namespace zest
 {
 
 template <typename ElementType, std::size_t N>
+    requires (N > 0)
 class BufferChain
 {
 public:
@@ -61,7 +62,7 @@ public:
     void advance()
     {
         const std::size_t back = m_chain.back();
-        for (std::size_t i = N; i > 0; --i)
+        for (std::size_t i = N - 1; i > 0; --i)
             m_chain[i] = m_chain[i - 1];
 
         m_chain[0] = back;
