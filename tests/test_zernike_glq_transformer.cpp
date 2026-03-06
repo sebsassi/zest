@@ -1279,11 +1279,12 @@ bool test_isotropic_glq_backward_transform_evaluates_Z000()
         {
             std::print("{} ", test_grid[i]);
         }
-        std::println("grid");
+        std::println("\ngrid");
         for (std::size_t i = 0; i < grid.size(); ++i)
         {
             std::print("{} ", grid[i]);
         }
+        std::println("");
     }
     return success;
 }

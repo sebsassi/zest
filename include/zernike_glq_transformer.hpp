@@ -24,6 +24,7 @@ SOFTWARE.
 #include <array>
 #include <complex>
 #include <cstddef>
+#include <numbers>
 #include <span>
 #include <vector>
 
@@ -901,14 +902,16 @@ public:
             double& element = truncated_expansion[n];
             element = 0.0;
             for (std::size_t i = 0; i < values.size(); ++i)
-            {
                 element += m_weighted_values[i]*radial_zernike[i];
-            }
+
             m_recursion.iterate();
 
+            constexpr double radial_integral_norm = 0.5;
             constexpr double spherical_integral = (sh_norm == zest::st::SHNorm::geo) ?
-                4.0*std::numbers::pi : 2.0/std::numbers::inv_sqrtpi;
-            element *= spherical_integral;
+                1.0 : 2.0/std::numbers::inv_sqrtpi;
+            constexpr double norm = radial_integral_norm*spherical_integral;
+            const double zernike_normalization = normalization<zernike_norm>(n);
+            element *= norm*zernike_normalization;
         }
     }
 
@@ -933,17 +936,17 @@ public:
         IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase>
         truncated_expansion{expansion.flatten(), min_order};
 
-        if (values.order() == m_order)
-            m_recursion.init();
-
+        m_recursion.init();
         for (auto n : truncated_expansion.indices())
         {
-            auto radial_zernike = m_recursion.next();
+            auto radial_zernike = m_recursion.current();
             const double spherical_harmonic = (sh_norm == zest::st::SHNorm::geo) ?
                 1.0 : 0.5*std::numbers::inv_sqrtpi;
             const double element = spherical_harmonic*truncated_expansion[n];
             for (std::size_t i = 0; i < values.size(); ++i)
                 values[i] += element*radial_zernike[i];
+
+            m_recursion.iterate();
         }
     }
 

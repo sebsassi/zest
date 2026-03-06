@@ -426,7 +426,9 @@ private:
         if (num_rad != m_glq_nodes.size())
         {
             m_glq_nodes.resize(num_rad);
-            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::angle>(m_glq_nodes, m_glq_nodes.size() & 1);
+            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::cos>(m_glq_nodes, m_glq_nodes.size() & 1);
+            for (auto& node : m_glq_nodes)
+                node = 0.5*(1 + node);
         }
     }
 
