@@ -40,17 +40,28 @@ enum class IndexingMode
     zero_based // Index from `0` to `n`, inclusive.
 };
 
+/**
+    @brief Type for associating an indexing mode with another type.
+
+    @tparam indexing_mode_param Associated indexing mode.
+*/
 template <IndexingMode indexing_mode_param>
 struct IndexingModeTag
 {
     static constexpr IndexingMode indexing_mode = indexing_mode_param;
 };
 
+/**
+    @brief Check if a type has been tagged with an indexing mode.
+*/
 template <typename T>
 concept indexing_mode_tagged = std::derived_from<
     std::remove_cvref_t<T>,
     IndexingModeTag<std::remove_cvref_t<T>::indexing_mode>>;
 
+/**
+    @brief Get the indexing mode of a type.
+*/
 template <indexing_mode_tagged T>
 consteval IndexingMode indexing_mode_of() { return std::remove_cvref_t<T>::indexing_mode; }
 
@@ -58,6 +69,9 @@ template <typename T>
     requires indexing_mode_tagged<typename std::remove_cvref_t<T>::shape_type>
 consteval IndexingMode indexing_mode_of() { return std::remove_cvref_t<T>::shape_type::indexing_mode; }
 
+/**
+    @brief Check if type has parity.
+*/
 template <typename T>
 concept has_parity = requires (T x) { { x.parity() } -> std::same_as<Parity>; };
 

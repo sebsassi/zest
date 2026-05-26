@@ -1,2 +1,63 @@
-Sequences
-=========
+Index sequences
+===============
+
+Index sequences in the context of zest are (sequences of) index tuples, which have a parameter-free
+mapping to a sequence of one-dimensional contiguous indices. The prototypical example are the
+indices of spherical harmonics :math:`(l, m)` with :math:`|m| \leq l`, which can be mapped to a
+one-dimensional contiguous index via :math:`l(l + 1) + m`. We can define an order paramter :math:`L`
+such that :math:`l < L` to cut off the sequence at any finite order.
+
+Index sequences are used by zest primarily to create shapes (mappings of finite collections of
+index tuples to contiguous indices).
+
+Reference
+---------
+
+Enums
+^^^^^
+
+.. doxygenenum:: zest::IndexingMode
+    :project: zest
+
+Concepts
+^^^^^^^^
+
+.. doxygenconcept:: zest::indexing_mode_tagged
+    :project: zest
+
+.. doxygenconcept:: zest::has_parity
+    :project: zest
+
+Types
+^^^^^
+
+.. doxygenclass:: zest::IndexingModeTag
+
+.. doxygenclass:: zest::StandardLinearSequence
+    :project: zest
+    :members:
+
+.. doxygenclass:: zest::ParityLinearSequence
+    :project: zest
+    :members:
+
+.. doxygenclass:: zest::TriangleSequence
+    :project: zest
+    :members:
+
+.. doxygenclass:: zest::EvenTriangleSequence
+    :project: zest
+    :members:
+
+.. doxygenclass:: zest::ParityRowTriangleSequence
+    :project: zest
+    :members:
+
+.. doxygenclass:: zest::ZernikeTetrahedralSequence
+    :project: zest
+    :members:
+
+Functions
+^^^^^^^^^
+
+.. doxygenfunction:: zest::indexing_mode_of
