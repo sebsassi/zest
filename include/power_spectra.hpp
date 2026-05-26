@@ -172,9 +172,9 @@ template <any_zernike_expansion ExpansionType>
         && zt::has_inner_rank<ExpansionType, 0>
 void power_spectrum(
     const ExpansionType& expansion,
-    RadialZernikeSpan<double, zernike_norm_of<ExpansionType>> out) noexcept
+    RadialZernikeSpan<double, zernike_norm_of<ExpansionType>()> out) noexcept
 {
-    constexpr st::SHNorm sh_norm = std::remove_cvref_t<ExpansionType>::shape_type::sh_norm;
+    constexpr st::SHNorm sh_norm = st::sh_norm_of<ExpansionType>();
     constexpr IndexingMode indexing_mode = indexing_mode_of<ExpansionType>();
     std::size_t min_order = std::min(out.order(), expansion.order());
 
@@ -186,7 +186,7 @@ void power_spectrum(
         {
             auto expansion_nl = expansion_n[l];
             auto& out_nl = out_n[l];
-            if (indexing_mode == IndexingMode::symmetric)
+            if constexpr (indexing_mode == IndexingMode::symmetric)
             {
                 out_nl = 0.0;
                 for (auto m : expansion_nl.indices())
@@ -218,7 +218,7 @@ template <any_zernike_expansion ExpansionType>
 [[nodiscard]] std::vector<double>
 power_spectrum(const ExpansionType& expansion)
 {
-    using SpectrumSpan = RadialZernikeSpan<double, zernike_norm_of<ExpansionType>>;
+    using SpectrumSpan = RadialZernikeSpan<double, zernike_norm_of<ExpansionType>()>;
     std::vector<double> res(SpectrumSpan::shape_type::size(expansion.order()));
     power_spectrum(expansion, SpectrumSpan(res, expansion.order()));
     return res;

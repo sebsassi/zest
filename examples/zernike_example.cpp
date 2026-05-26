@@ -19,11 +19,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 SOFTWARE.
 */
-#include "zest/zernike_glq_transformer.hpp"
-#include "zest/rotor.hpp"
+#include "zernike_glq_transformer.hpp"
+#include "rotor.hpp"
 
 #include <cmath>
 #include <cstdio>
+#include <print>
 
 int main()
 {
@@ -39,7 +40,7 @@ int main()
         = points.generate_values(function, order);
 
     zest::zt::GLQTransformerGeo transformer{};
-    zest::zt::RealZernikeExpansion expansion
+    zest::zt::ZernikeExpansion expansion
         = transformer.forward_transform(grid, order);
 
     const double alpha = std::numbers::pi/2;
@@ -49,7 +50,7 @@ int main()
     std::array<double, 3> angles = {alpha, beta, gamma};
     zest::WignerdPiHalfCollection wigner(order);
     zest::Rotor rotor{};
-    rotor.rotate(expansion, wigner, angles);
+    rotor.rotate(expansion, wigner, angles, zest::RotationType::coordinate);
 
     for (auto n : expansion.indices())
     {
@@ -58,9 +59,9 @@ int main()
         {
             auto expansion_nl = expansion_n[l];
             for (auto m : expansion_nl.indices())
-                std::printf(
-                        "f[%lu, %lu, %lu] = %f",
-                        n, l, m, expansion_nl[m]);
+                std::println(
+                        "f[{}, {}, {}] = [{}, {}]",
+                        n, l, m, expansion_nl[m, 0], expansion_nl[m, 1]);
         }
     }
 }

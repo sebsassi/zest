@@ -188,6 +188,17 @@ private:
     index_type m_index{};
 };
 
+/**
+    @brief A basic strided range of integer indices.
+
+    @tparam IndexType Type of the indices.
+    @tparam stride_param Stride of the index range.
+
+    This class describes a basic strided index range, which start from some
+    index `begin`, and increments by `stride_param` until the index is equal
+    to or greater than some `end` index. That is, the `end` index is never
+    contained in the range.
+*/
 template <std::integral IndexType, IndexType stride_param>
 class BasicIndexRange
 {
@@ -195,6 +206,12 @@ public:
     using index_type = IndexType;
     using iterator = IndexIterator<index_type, stride_param>;
 
+    /**
+        @brief Constructs an index range from its starting point and end point.
+
+        @param begin Starting index of the range.
+        @param end End index of the range.
+    */
     explicit constexpr BasicIndexRange(index_type begin, index_type end):
         m_begin(std::min(begin, end)), m_end(end) {}
 
@@ -213,6 +230,18 @@ private:
     index_type m_end{};
 };
 
+/**
+    @brief A basic strided range of integer indices defined entirely at compile
+    time.
+
+    @tparam IndexType Type of the indices.
+    @tparam begin_param Starting index of the range.
+    @tparam end_param End index of the range.
+    @tparam stride_param Stride of the index range.
+
+    This class is like `BasicIndexRange`, but its start and end index are
+    defined at compile time.
+*/
 template <
     std::integral IndexType, IndexType begin_param, IndexType end_param,
     IndexType stride_param>
@@ -229,18 +258,13 @@ public:
     end() const noexcept { return iterator{end_param}; }
 };
 
-template <std::integral IndexType, IndexType begin, IndexType end>
-using StaticStandardIndexRange = StaticBasicIndexRange<
-    IndexType, begin, end, IndexType{1}>;
-
-template <std::integral IndexType>
-using SingleIndexRange = StaticBasicIndexRange<
-    IndexType, IndexType{0}, IndexType{1}, IndexType{1}>;
-
 /**
-    @brief Range of integer indices.
+    @brief A basic index range with unit stride.
 
     @tparam IndexType type of the index
+
+    This class defines the usual standard index range that contains all indices
+    in the range `[begin, end)`.
 */
 template <std::integral IndexType>
 class StandardIndexRange: public BasicIndexRange<IndexType, IndexType{1}>
@@ -267,19 +291,58 @@ public:
         BasicIndexRange<index_type, index_type{1}>(begin, end) {};
 };
 
+/**
+    @brief A basic index range with unit stride defined entirely at compile
+    time.
+
+    @tparam IndexType Type of the indices.
+    @tparam begin_param Starting index of the range.
+    @tparam end_param End index of the range.
+
+    This class is like `StandardIndexRange`, but its start and end index are
+    defined at compile time.
+*/
+template <std::integral IndexType, IndexType begin, IndexType end>
+using StaticStandardIndexRange = StaticBasicIndexRange<
+    IndexType, begin, end, IndexType{1}>;
+
+/**
+    @brief Index range to a single-element collection.
+
+    @tparam IndexType Type of the index.
+
+    This class defines an index range for a collection of one element,
+    containing only the index zero.
+*/
+template <std::integral IndexType>
+using SingleIndexRange = StaticStandardIndexRange<
+    IndexType, IndexType{0}, IndexType{1}>;
+
+/**
+    @brief An enum for describing the parity of a thing.
+*/
 enum class Parity
 {
-    mixed,
-    even,
-    odd
+    none,   /// Has no parity.
+    mixed,  /// Could be of either even or odd parity.
+    even,   /// Has even parity.
+    odd     /// Has odd parity.
 };
 
 /**
     @brief Range of even or odd integer indices.
 
-    @tparam IndexType type of the index
+    @tparam IndexType Type of the index.
+    @tparam parity Parity of the indices.
+
+    This class describes an index range, where the indices are either even or
+    odd. Depending on the `parity` template parameter, an object of the class
+    may be constructed to either contain only even, only odd, or possibly either
+    even or odd indices. Both `Parity::odd` and `Parity::even` guarantee the
+    range contains only indices of the given parity.
 */
 template <std::integral IndexType, Parity parity = Parity::mixed>
+    requires (parity != Parity::none)
 class ParityIndexRange: public BasicIndexRange<IndexType, IndexType{2}>
 {
 public:
@@ -341,7 +404,11 @@ public:
 /**
     @brief Range of integer indices symmetric about zero.
 
-    @tparam IndexType type of the index
+    @tparam IndexType Type of the index.
+
+    This class behaves more or less like a `StandardIndexRange`, but if
+    constructed with only `end`, it gives a range `(-end, end)` instead of
+    `[0, end)`.
 */
 template <std::signed_integral IndexType>
 class SymmetricIndexRange: public BasicIndexRange<IndexType, IndexType{1}>

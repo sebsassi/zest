@@ -19,11 +19,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 SOFTWARE.
 */
-#include "zest/sh_glq_transformer.hpp"
-#include "zest/rotor.hpp"
+#include "sh_glq_transformer.hpp"
+#include "rotor.hpp"
 
 #include <cmath>
 #include <cstdio>
+#include <print>
 
 int main()
 {
@@ -33,28 +34,41 @@ int main()
         return std::exp(-x*x);
     };
 
+    // Evaluate the function on a Gauss-Legendre quadrature grid.
     constexpr std::size_t order = 20;
     zest::st::SphereGLQGridPoints points{};
     zest::st::SphereGLQGrid grid
         = points.generate_values(function, order);
 
+    // Transform the grid to obtain its spherical harmonic expansion.
     zest::st::GLQTransformerGeo transformer{};
-    zest::st::RealSHExpansion expansion
+    zest::st::SHExpansion expansion
         = transformer.forward_transform(grid, order);
 
+    // Euler angles
     const double alpha = std::numbers::pi/2;
     const double beta = std::numbers::pi/4;
     const double gamma = 0;
 
+    // Rotate the expansion coefficients.
     std::array<double, 3> angles = {alpha, beta, gamma};
     zest::WignerdPiHalfCollection wigner(order);
     zest::Rotor rotor{};
-    rotor.rotate(expansion, wigner, angles);
 
+    // We explicitly specify whether we are rotating the coordinate system
+    // or the object in space.
+    rotor.rotate(expansion, wigner, angles, zest::RotationType::coordinate);
+
+    // To minimize errors in indexing various layouts, the library provides
+    // range-based indexing helpers.
     for (auto l : expansion.indices())
     {
+        // Subviews of expansions can be taken.
         auto expansion_l = expansion[l];
         for (auto m : expansion_l.indices())
-            std::printf("f[%lu, %lu] = %f", l, m, expansion_l[m]);
+            // The transforms operate with layouts where elements whose
+            // azimuthal indices have a common absolute value `|m|` come in
+            // pairs `[m, -m]`.
+            std::println("f[{}, {}] = [{}, {}]", l, m, expansion_l[m, 0], expansion_l[m, 1]);
     }
 }

@@ -19,8 +19,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 SOFTWARE.
 */
-#include "zest/zernike_glq_transformer.hpp"
-#include "zest/power_spectra.hpp"
+#include "zernike_glq_transformer.hpp"
+#include "power_spectra.hpp"
 
 #include <cmath>
 #include <cstdio>
@@ -36,11 +36,13 @@ int main()
     constexpr std::size_t order = 20;
     constexpr double radius = 1.0;
     zest::zt::ZernikeTransformerNormalQM transformer{};
-    zest::zt::RealZernikeExpansion expansion
-        = transformer.transform(function, radius, order);
+    zest::zt::ZernikeExpansion expansion
+        = transformer.forward_transform(function, radius, order);
 
-    std::vector<double> spectrum_data = zest::zt::power_spectrum(expansion);
-    zest::zt::RadialZernikeSpan<decltype(expansion)::zernike_norm, double> spectrum(spectrum_data, expansion.order());
+    zest::zt::RadialZernikeExpansion<double, zest::zt::zernike_norm_of<decltype(expansion)>()>
+    spectrum{expansion.order()};
+
+    zest::zt::power_spectrum(expansion, spectrum);
 
     for (auto n : spectrum.indices())
     {

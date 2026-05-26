@@ -14,26 +14,26 @@ lead to a layout that looks like this
 
 .. math::
 
-   \begin{array}
+    \begin{array}
         f_{0, 0}  & *             & *             & *             & *             & *             & \cdots & *        \\
         f_{1, -1} & f_{1, 0}      & f_{1, 1}      & *             & *             & *             & \cdots & *        \\
         f_{2, -2} & f_{2, -1}     & f_{2, 0}      & f_{2, 1}      & f_{2, 2}      & *             & \cdots & *        \\
         \vdots    & \vdots        & \vdots        & \vdots        & \vdots        & \vdots        & \ddots & *        \\
         f_{L, -L} & f_{L, -L + 1} & f_{L, -L + 2} & f_{L, -L + 3} & f_{L, -L + 4} & f_{L, -L + 5} & \cdots & f_{L, L} \\
-   \end{array}
+    \end{array}
 
 Computer memory is of course always linear, so this is stored as
 
 .. math::
 
-   f_{0, 0}, *, \ldots, *, f_{1, -1}, f_{1, 0}, f_{1, 1}, *, \ldots, *, f_{L, -L}, \ldots, f_{L, L}.
+    f_{0, 0}, *, \ldots, *, f_{1, -1}, f_{1, 0}, f_{1, 1}, *, \ldots, *, f_{L, -L}, \ldots, f_{L, L}.
 
 The asterisks here represent elements of the array that are allocated but never used. The linear
 index for an element is given by
 
 .. math::
 
-   i = (2L + 1)l + m.
+    i = (2L + 1)l + m.
 
 The coefficients are stored in the lower half-triangle of the array, and the remaining half is
 wasted space. The issue for Zernike coefficients :math:`f_{nlm}` is even worse, where with this
@@ -43,26 +43,27 @@ Ideally, we would like to store the elements just as
 
 .. math::
 
-   f_{0, 0}, f_{1, -1}, f_{1, 0}, f_{1, 1}, f_{2, 0}, \ldots, f_{L, L},
+    f_{0, 0}, f_{1, -1}, f_{1, 0}, f_{1, 1}, f_{2, 0}, \ldots, f_{L, L},
 
 or (for technical reasons)
 
 .. math::
 
-   f_{0, 0}, *, f_{1, 0}, *, f_{1, 1}, f_{1, -1}, f_{2, 0}, *, f_{2, 1}, f_{2, -1}, \ldots, f_{L, L}, f_{L, -L},
+    f_{0, 0}, *, f_{1, 0}, *, f_{1, 1}, f_{1, -1}, f_{2, 0}, *, f_{2, 1}, f_{2, -1},
+        \ldots, f_{L, L}, f_{L, -L},
 
 both with little wasted space. The linear indices for these schemes are
 given by
 
 .. math::
 
-   i = l(l + 1) + m,
+    i = l(l + 1) + m,
 
 and
 
 .. math::
 
-   i = \frac{l(l + 1)}{2} + m + k.
+    i = \frac{l(l + 1)}{2} + m + k.
 
 In the latter expression :math:`k = 0, 1` for positive and negative :math:`m`, respectively.
 These seem manageable, but when these expressions appear multiple times, sometimes perhaps indexing
@@ -71,13 +72,14 @@ demonstrated by the linear index of the space-optimal layout of Zernike coeffici
 
 .. math::
 
-   i = \frac{n(n + 1)(n + 2)}{6} + \frac{l{l + 1}}{2} + m,
+    i = \frac{n(n + 1)(n + 2)}{6} + \frac{l{l + 1}}{2} + m,
 
 or how about the layout where we pair :math:`\pm m` coefficients together like above
 
 .. math::
 
-   i = \left\lfloor \frac{(n + 1)(n + 3)(2n + 1)}{24} \right\rfloor + \left\lfloor \frac{l^2}{4} \right\rfloor + m + k.
+    i = \left\lfloor \frac{(n + 1)(n + 3)(2n + 1)}{24} \right\rfloor
+        + \left\lfloor \frac{l^2}{4} \right\rfloor + m + k.
 
 You definitely don't want to be typing these out constantly. In fact, you don't want to care about
 how the data is laid out in memory, you just want to write :cpp:`f[l, m]` or :cpp:`f[n, l, m, 0]`.
