@@ -1,0 +1,35 @@
+Ball grids
+==========
+
+For purposes of dealing with Zernike transforms, zest provides types for dealing with quadrature
+grids defined on the unit ball.
+
+Reference
+---------
+
+Types
+^^^^^
+
+.. doxygenclass:: zest::zt::LonLatRadLayout
+    :project: zest
+    :members:
+
+.. doxygenclass:: zest::zt::BallGLQGridShape
+    :project: zest
+    :members:
+
+.. doxygenclass:: zest::zt::BallGLQGridPoints
+    :project: zest
+    :members:
+
+Type aliases
+^^^^^^^^^^^^
+
+.. doxygentypedef:: zest::zt::DefaultLayout
+    :project: zest
+
+.. doxygentypedef:: zest::zt::BallGLQGrid
+    :project: zest
+
+.. doxygentypedef:: zest::zt::BallGLQGridSpan
+    :project: zest

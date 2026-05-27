@@ -6,4 +6,6 @@ Spherical harmonics
 
     sh_conventions
     sh_containers
+    sh_grids
     sh_transforms
+    sh_concepts

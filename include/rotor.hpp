@@ -75,7 +75,22 @@ namespace detail
 } // namespace detail
 
 /**
-    @brief Rotations of spherical harmonic and Zernike coefficients.
+    @brief Class for rotating spherical harmonic and Zernike expansions.
+
+    This class implements rotations of spherical harmonic and Zernike
+    expansions using Euler angles. It provides two different rotation methods:
+    full rotations for arbitrary triples of Euler angles, and an optimized 
+    method for polar rotations about the \f$z\f$-axis.
+
+    There are many conventions for rotations with Euler angles. This class only
+    implements one of them: the intrinsic ZYZ convention. That is, the first
+    Euler angle rotates about the Z-axis, the second rotates about the new
+    Y-axis, and the third rotates about the new Z-axis.
+
+    Rotations can apply to either the object being rotated (active rotations)
+    or to the coordinate system in which the object is defined (passive
+    rotations). This choice of convention is explicitly enforced by providing
+    a parameter of type `RotationType` to the rotation methods.
 */
 class Rotor
 {
@@ -83,8 +98,24 @@ public:
     Rotor() = default;
     explicit Rotor(std::size_t max_order);
 
+    /**
+        @brief Explicitly expand the maximum order of spherical harmonic
+        expansion which can be rotated.
+
+        @param max_order New maximum expansion order.
+
+        This class contains internal buffers, whose size depends on the order
+        of the spherical harmonic expansion rotations are applied to. This
+        adjustment is implicitly performed by the rotation methods if
+        necessary, but the interface to do it explicitly is exposed here for
+        the user.
+    */
     void expand(std::size_t max_order);
 
+    /**
+        @brief Maximum order of spherical harmonics rotation can be applied to
+        without expanding.
+    */
     [[nodiscard]] std::size_t
     max_order() const noexcept { return m_temp.size(); }
 

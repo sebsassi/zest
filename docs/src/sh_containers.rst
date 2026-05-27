@@ -18,95 +18,120 @@ Reference
 Type aliases
 ^^^^^^^^^^^^
 
-.. doxygenclass:: zest::st::AssociatedLegendreExpansion
+.. doxygentypedef:: zest::st::AssociatedLegendreExpansion
     :project: zest
 
-.. doxygenclass:: zest::st::AssociatedLegendreSpan
+.. doxygentypedef:: zest::st::AssociatedLegendreSpan
     :project: zest
 
-.. doxygenclass:: zest::st::AssociatedLegendreExpansionTensor
+.. doxygentypedef:: zest::st::AssociatedLegendreExpansionTensor
     :project: zest
 
-.. doxygenclass:: zest::st::AssociatedLegendreTensorSpan
+.. doxygentypedef:: zest::st::AssociatedLegendreTensorSpan
     :project: zest
 
-.. doxygenclass:: zest::st::AssociatedLegendreExpansionVector
+.. doxygentypedef:: zest::st::AssociatedLegendreExpansionVector
     :project: zest
 
-.. doxygenclass:: zest::st::AssociatedLegendreVectorSpan
+.. doxygentypedef:: zest::st::AssociatedLegendreVectorSpan
     :project: zest
 
-.. doxygenclass:: zest::st::SHExpansion
+.. doxygentypedef:: zest::st::SHExpansion
     :project: zest
 
-.. doxygenclass:: zest::st::SHExpansionAcoustics
+.. doxygentypedef:: zest::st::SHExpansionAcoustics
     :project: zest
 
-.. doxygenclass:: zest::st::SHExpansionGeo
+.. doxygentypedef:: zest::st::SHExpansionGeo
     :project: zest
 
-.. doxygenclass:: zest::st::SHExpansionQM
+.. doxygentypedef:: zest::st::SHExpansionQM
     :project: zest
 
-.. doxygenclass:: zest::st::SHSpan
+.. doxygentypedef:: zest::st::SHSpan
     :project: zest
 
-.. doxygenclass:: zest::st::SHSpanAcoustics
+.. doxygentypedef:: zest::st::SHSpanAcoustics
     :project: zest
 
-.. doxygenclass:: zest::st::SHSpanGeo
+.. doxygentypedef:: zest::st::SHSpanGeo
     :project: zest
 
-.. doxygenclass:: zest::st::SHSpanQM
+.. doxygentypedef:: zest::st::SHSpanQM
     :project: zest
 
-.. doxygenclass:: zest::st::SHExpansionTensor
+.. doxygentypedef:: zest::st::SHExpansionTensor
     :project: zest
 
-.. doxygenclass:: zest::st::SHExpansionTensorAcoustics
+.. doxygentypedef:: zest::st::SHExpansionTensorAcoustics
     :project: zest
 
-.. doxygenclass:: zest::st::SHExpansionTensorGeo
+.. doxygentypedef:: zest::st::SHExpansionTensorGeo
     :project: zest
 
-.. doxygenclass:: zest::st::SHExpansionTensorQM
+.. doxygentypedef:: zest::st::SHExpansionTensorQM
     :project: zest
 
-.. doxygenclass:: zest::st::SHTensorSpan
+.. doxygentypedef:: zest::st::SHTensorSpan
     :project: zest
 
-.. doxygenclass:: zest::st::SHTensorSpanAcoustics
+.. doxygentypedef:: zest::st::SHTensorSpanAcoustics
     :project: zest
 
-.. doxygenclass:: zest::st::SHTensorSpanGeo
+.. doxygentypedef:: zest::st::SHTensorSpanGeo
     :project: zest
 
-.. doxygenclass:: zest::st::SHTensorSpanQM
+.. doxygentypedef:: zest::st::SHTensorSpanQM
     :project: zest
 
-.. doxygenclass:: zest::st::SHExpansionVector
+.. doxygentypedef:: zest::st::SHExpansionVector
     :project: zest
 
-.. doxygenclass:: zest::st::SHExpansionVectorAcoustics
+.. doxygentypedef:: zest::st::SHExpansionVectorAcoustics
     :project: zest
 
-.. doxygenclass:: zest::st::SHExpansionVectorGeo
+.. doxygentypedef:: zest::st::SHExpansionVectorGeo
     :project: zest
 
-.. doxygenclass:: zest::st::SHExpansionVectorQM
+.. doxygentypedef:: zest::st::SHExpansionVectorQM
     :project: zest
 
-.. doxygenclass:: zest::st::SHVectorSpan
+.. doxygentypedef:: zest::st::SHVectorSpan
     :project: zest
 
-.. doxygenclass:: zest::st::SHVectorSpanAcoustics
+.. doxygentypedef:: zest::st::SHVectorSpanAcoustics
     :project: zest
 
-.. doxygenclass:: zest::st::SHVectorSpanGeo
+.. doxygentypedef:: zest::st::SHVectorSpanGeo
     :project: zest
 
-.. doxygenclass:: zest::st::SHVectorSpanQM
+.. doxygentypedef:: zest::st::SHVectorSpanQM
     :project: zest
 
-.. doxygenclass:: zest::st::ComplexEncodedRealSHSPan
+.. doxygentypedef:: zest::st::ComplexEncodedRealSHSPan
     :project: zest
+
+Spherical harmonic layout shapes
+================================
+
+Below are the definitions of the shapes that are used to define the indexing layouts of the above
+containers.
+
+Reference
+---------
+
+Type aliases
+^^^^^^^^^^^^
+
+.. doxygentypedef:: zest::st::AssociatedLegendreShape
+    :project: zest
+
+.. doxygentypedef:: zest::st::AssociatedLegendreTensorShape
+    :project: zest
+
+.. doxygentypedef:: zest::st::SHShape
+    :project: zest
+
+.. doxygentypedef:: zest::st::SHTensorShape
+    :project: zest
+

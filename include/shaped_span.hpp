@@ -32,6 +32,17 @@ SOFTWARE.
 namespace zest
 {
 
+/**
+    @brief A non-owning view of contiguous multidimensional data.
+
+    @tparam ElementType Type of elements of the view.
+    @tparam ShapeType Type defining the multidimensional shape of the data.
+
+    This class allows for definition of non-owning views of contiguous
+    multidimensional data of arbitrary shape. It generalizes the concept of
+    tensor and multidimensional array views to datasets whose indices don't
+    necessarily form a rectangular grid.
+*/
 template <typename ElementType, typename ShapeType>
 class ShapedSpan
 {
@@ -51,36 +62,102 @@ public:
 
     static constexpr size_type rank = shape_type::rank;
 
+    /**
+        @brief `N`th subspan view.
+
+        @tparam N The depth of the view in dimensions.
+
+        Given a `ShapedSpan` of dimension `M`, `subspan_type` corresponds to
+        the `M - N` dimensional view of the last `M - N` dimensions.
+    */
     template <std::size_t N>
     using subspan_type = ShapedSpan<
         element_type, typename shape_type::template subshape_type<N>>;
 
+    /**
+        @brief Constant `N`th subspan view.
+
+        @tparam N The depth of the view in dimensions.
+
+        this is a const variant of `subspan_view`.
+    */
     template <std::size_t N>
     using const_subspan_type = ShapedSpan<
         const element_type, typename shape_type::template subshape_type<N>>;
 
     constexpr ShapedSpan() = default;
 
+    /**
+        @brief Construct a shaped span from a pointer to data and extents of
+        the shape.
+
+        @tparam ExtentTypes Types of the extents of the shape.
+
+        @param data Pointer to the beginning of the data.
+        @param extents Extents of the shape.
+    */
     template <typename... ExtentTypes>
         requires std::constructible_from<shape_type, ExtentTypes...>
     constexpr ShapedSpan(pointer data, const ExtentTypes&... extents):
         m_data{data}, m_shape{extents...} {}
 
+    /**
+        @brief Construct a shaped span from a pointer to data and extents of
+        the shape.
+
+        @param data Pointer to the beginning of the data.
+        @param extents Extents of the shape.
+    */
     constexpr ShapedSpan(pointer data, const shape_type::extent_type& extents):
         m_data{data}, m_shape{extents} {}
+
+    /**
+        @brief Construct a shaped span from a pointer and a shape.
+
+        @param data Pointer to the beginning of the data.
+        @param shape Shape of the view.
+    */
     constexpr ShapedSpan(pointer data, const shape_type& shape):
         m_data{data}, m_shape{shape} {}
 
+    /**
+        @brief Construct a shaped span from `std::span` and extents of the shape.
+
+        @tparam ExtentTypes Types of the extents of the shape.
+
+        @param data `std::span` of the data.
+        @param extents Extents of the shape.
+    */
     template <typename... ExtentTypes>
         requires std::constructible_from<shape_type, ExtentTypes...>
     constexpr ShapedSpan(std::span<element_type> data, const ExtentTypes&... extents):
         m_data{data.data()}, m_shape{extents...} { assert(data.size() >= m_shape.size()); }
 
+    /**
+        @brief Construct a shaped span from `std::span` and extents of the shape.
+
+        @param data `std::span` of the data.
+        @param extents Extents of the shape.
+    */
     constexpr ShapedSpan(std::span<element_type> data, const shape_type::extent_type& extents):
         m_data{data.data()}, m_shape{extents} { assert(data.size() >= m_shape.size()); }
+
+    /**
+        @brief Construct a shaped span from `std::span` and a shape.
+
+        @param data `std::span` of the data.
+        @param shape Shape of the view.
+    */
     constexpr ShapedSpan(std::span<element_type> data, const shape_type& shape):
         m_data{data.data()}, m_shape{shape} { assert(data.size() >= m_shape.size()); }
 
+    /**
+        @brief Construct a shaped span from another shaped buffer.
+
+        @tparam T The type of the buffer.
+
+        @param shaped_buffer The other buffer.
+    */
     template <shaped_contiguous_buffer T>
         requires std::same_as<typename std::remove_cvref_t<T>::shape_type, shape_type>
             && std::same_as<typename std::remove_cvref_t<T>::value_type, value_type>
@@ -88,23 +165,47 @@ public:
         m_data{std::forward<T>(shaped_buffer).data()},
         m_shape{std::forward<T>(shaped_buffer).shape()} {}
 
+    /**
+        @brief Compute the size of a shaped span gives its extents.
+
+        @tparam ExtentTypes Types of the extents of the shape.
+
+        @param extents Extents of the shape.
+    */
     template <typename... ExtentTypes>
         requires std::constructible_from<shape_type, ExtentTypes...>
     [[nodiscard]] static constexpr size_type
     size(const ExtentTypes&... extents) noexcept { return shape_type::size(extents...); }
 
+    /**
+        @brief Convert to a constant view.
+    */
     [[nodiscard]] explicit constexpr operator
     const_view() const noexcept { return const_view(m_data, m_shape); }
 
+    /**
+        @brief Get a view of a shaped span with a tagged shape with the tags
+        removed.
+    */
     [[nodiscard]] constexpr auto
     tagless() const noexcept requires tagged<shape_type>
     {
         return ShapedSpan<element_type, typename shape_type::untag>(m_data, m_shape);
     }
 
+    /**
+        @brief Convert to a `std::span`.
+    */
     [[nodiscard]] explicit(shape_type::rank != 1) constexpr operator
     std::span<value_type>() const noexcept { return flatten(); }
 
+    /**
+        @brief View the data with a new shape.
+
+        @tparam NewShapeType Type of the new shape.
+
+        @param shape New shape of the data.
+    */
     template <typename NewShapeType>
     [[nodiscard]] constexpr auto
     view_as(const NewShapeType& shape) const noexcept
@@ -113,49 +214,88 @@ public:
         return ShapedSpan<element_type, NewShapeType>(m_data, shape);
     }
 
+    /**
+        @brief Shape of the view.
+    */
     [[nodiscard]] constexpr const shape_type&
     shape() const noexcept { return m_shape; }
 
+    /**
+        @brief Order of the view if the shape is a sequenced shape.
+    */
     [[nodiscard]] constexpr size_type
     order() const noexcept requires sequence_shaped<shape_type> { return m_shape.order(); }
 
+    /**
+        @brief Extents of the view.
+    */
     [[nodiscard]] constexpr const ShapeType::extent_type&
     extents() const noexcept { return m_shape.extents(); }
 
+    /**
+        @brief Extent of a tensor-like view along a given dimension.
+    */
     [[nodiscard]] constexpr size_type
     extent(size_type i) const noexcept requires tensor_shaped<shape_type> { return m_shape.extent(i); }
 
+    /**
+        @brief Size of the view.
+    */
     [[nodiscard]] constexpr size_type
     size() const noexcept { return m_shape.size(); }
 
+    /**
+        @brief Check if the view is empty.
+    */
     [[nodiscard]] constexpr bool
     is_empty() const noexcept { return size() == 0; }
 
+    /**
+        @brief Pointer to the underlying data.
+    */
     [[nodiscard]] constexpr pointer
     data() const noexcept { return m_data; }
 
+    /**
+        @brief Flatten to a one-dimensional `std::span` view.
+    */
     [[nodiscard]] constexpr auto
     flatten() const noexcept
     {
         return std::span<element_type, shape_type::linear_extent>(m_data, m_shape.size());
     }
 
+    /**
+        @brief Index range of the outermost dimension.
+    */
     [[nodiscard]] constexpr index_range
     indices() const noexcept { return m_shape.indices(); }
 
+    /**
+        @brief Index range of the outermost dimension, starting at `index`.
+    */
     [[nodiscard]] constexpr index_range
     indices(index_type index) const noexcept { return m_shape.indices(index); }
 
+    /**
+        @brief Access the elements at the given indices.
+    */
     template <std::integral... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] constexpr reference
     operator()(Inds... indices) const noexcept { return m_data[m_shape(indices...)]; }
 
+    /**
+        @brief Access the elements at the given indices.
+    */
     template <std::integral... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] constexpr reference
     operator[](Inds... indices) const noexcept { return m_data[m_shape(indices...)]; }
 
+    /**
+        @brief Get the subspan at the given indices.
+    */
     template <std::integral... Inds>
         requires (sizeof...(Inds) < shape_type::rank)
     [[nodiscard]] constexpr auto
@@ -165,6 +305,9 @@ public:
             m_data + m_shape(indices...), m_shape.subshape(indices...));
     }
 
+    /**
+        @brief Get the subspan at the given indices.
+    */
     template <std::integral... Inds>
         requires (sizeof...(Inds) < shape_type::rank)
     [[nodiscard]] constexpr auto
