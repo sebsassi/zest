@@ -353,50 +353,38 @@ public:
         @brief Constructs a range of indices `[(end + 1) % 2, end + 1)`.
 
         @param end end of index range
+
+        The index range has the following limits for given `parity`:
+            - `Parity::mixed`: `[(end + 1) % 2, end + 1)`
+            - `Parity::even`: `[0, end + 1)`
+            - `Parity::odd`: `[1, end + 1)`
     */
     explicit constexpr ParityIndexRange(index_type end) requires (parity == Parity::mixed):
         BasicIndexRange<index_type, index_type{2}>(1 & (end + 1), end + 1) {}
+
+    explicit constexpr ParityIndexRange(index_type end) requires (parity == Parity::even):
+        BasicIndexRange<index_type, index_type{2}>(0, (end + 1) & (~1UL)) {}
+
+    explicit constexpr ParityIndexRange(index_type end) requires (parity == Parity::odd):
+        BasicIndexRange<index_type, index_type{2}>(1, (end & (~1UL)) + 1) {}
 
     /**
         @brief Constructs a range of indices `[2*floor(begin/2) + (end + 1) % 2, end + 1)`.
 
         @param begin start of index range
         @param end end of index range
+
+        This index range has the following limits for given `parity`:
+            - `Parity::mixed`: `[2*floor(begin/2) + (end + 1) % 2, end + 1)`
+            - `Parity::even`: `[2*floor(begin/2), end + 1)`
+            - `Parity::odd`: `[2*floor(begin/2) + 1, end + 1)`
     */
     explicit constexpr ParityIndexRange(index_type begin, index_type end) requires (parity == Parity::mixed):
         BasicIndexRange<index_type, index_type{2}>(begin + (1 & (begin ^ (end + 1))), end + 1) {}
 
-    /**
-        @brief Constructs a range of indices `[0, end + 1)`.
-
-        @param end end of index range
-    */
-    explicit constexpr ParityIndexRange(index_type end) requires (parity == Parity::even):
-        BasicIndexRange<index_type, index_type{2}>(0, (end + 1) & (~1UL)) {}
-
-    /**
-        @brief Constructs a range of indices `[2*floor(begin/2), end + 1)`.
-
-        @param begin start of index range
-        @param end end of index range
-    */
     explicit constexpr ParityIndexRange(index_type begin, index_type end) requires (parity == Parity::even):
         BasicIndexRange<index_type, index_type{2}>((begin + 1) & (~1UL), (end + 1) & (~1UL)) {}
 
-    /**
-        @brief Constructs a range of indices `[1, end + 1)`.
-
-        @param end end of index range
-    */
-    explicit constexpr ParityIndexRange(index_type end) requires (parity == Parity::odd):
-        BasicIndexRange<index_type, index_type{2}>(1, (end & (~1UL)) + 1) {}
-
-    /**
-        @brief Constructs a range of indices `[2*floor(begin/2) + 1, end + 1)`.
-
-        @param begin start of index range
-        @param end end of index range
-    */
     explicit constexpr ParityIndexRange(index_type begin, index_type end) requires (parity == Parity::odd):
         BasicIndexRange<index_type, index_type{2}>((begin & (~1UL)) + 1, (end & (~1UL)) + 1) {}
 };

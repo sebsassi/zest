@@ -137,6 +137,8 @@ public:
 
     /**
         @brief Resize transformer for specified expansion order.
+
+        @param order Order of the Zernike expansion.
     */
     void resize(std::size_t order)
     {
@@ -195,8 +197,8 @@ public:
     /**
         @brief Forward transform from Gauss-Legendre quadrature grid to Zernike coefficients.
 
-        @param values values on the ball quadrature grid
-        @param expansion coefficients of the expansion
+        @param values Values on the quadrature grid.
+        @param expansion Output buffer for coefficients of the Zernike expansion.
     */
     void forward_transform(
         BallGLQGridSpan<const double, grid_layout_type> values,
@@ -219,8 +221,8 @@ public:
     /**
         @brief Backward transform from Zernike expansion to Gauss-Legendre quadrature grid.
 
-        @param expansion coefficients of the expansion
-        @param values values on the ball quadrature grid
+        @param expansion Coefficients of the Zernike expansion.
+        @param values Output buffer for values on the ball quadrature grid.
     */
     void backward_transform(
         ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
@@ -239,10 +241,12 @@ public:
     }
 
     /**
-        @brief Forward transform from Gauss-Legendre quadrature grid to Zernike coefficients.
+        @brief Forward transform from a quadrature grid to Zernike coefficients.
 
-        @param values values on the ball quadrature grid
-        @param order order of expansion
+        @param values Values on the ball quadrature grid.
+        @param order Order of the output expansion.
+
+        @return Coefficients of the Zernike expansion.
     */
     [[nodiscard]] ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>
     forward_transform(BallGLQGridSpan<const double, grid_layout_type> values, std::size_t order)
@@ -255,10 +259,12 @@ public:
     }
 
     /**
-        @brief Backward transform from Zernike coefficients to Gauss-Legendre quadrature grid.
+        @brief Backward transform from Zernike coefficients to a quadrature grid.
 
-        @param values values on the ball quadrature grid
-        @param expansion coefficients of the expansion
+        @param expansion Coefficients of the expansion.
+        @param order Order of the output expansion.
+
+        @return Function values on a ball quadrature grid.
     */
     [[nodiscard]] BallGLQGrid<double, grid_layout_type>
     backward_transform(
@@ -633,11 +639,11 @@ public:
         @brief Get Zernike expansion of a function expressed in spherical
         coordinates.
 
-        @tparam FuncType type of function
+        @tparam FuncType Type of function.
 
-        @param f function to transform
-        @param radius radius of the ball `f` is defined on
-        @param expansion buffer to store the expansion
+        @param f Function to transform.
+        @param radius Radius of the ball `f` is defined on.
+        @param expansion Output buffer for the Zernike expansion coefficients.
     */
     template <ball_function<double> FuncType>
     void forward_transform(
@@ -656,11 +662,11 @@ public:
         @brief Get Zernike expansion of a function expressed in spherical
         coordinates.
 
-        @tparam FuncType type of function
+        @tparam FuncType Type of function.
 
-        @param f function to transform
-        @param radius radius of the ball `f` is defined on
-        @param order order of the expansion
+        @param f Function to transform.
+        @param radius Radius of the ball `f` is defined on.
+        @param order Order of the expansion.
 
         @returns Zernike expansion
     */
@@ -680,11 +686,11 @@ public:
         @brief Get Zernike expansion of a function expressed in Cartesian
         coordinates.
 
-        @tparam FuncType type of function
+        @tparam FuncType Type of the function.
 
-        @param f function to transform
-        @param radius radius of the ball `f` is defined on
-        @param expansion buffer to store the expansion
+        @param f Function to transform
+        @param radius Radius of the ball `f` is defined on.
+        @param expansion Output buffer for the Zernike expansion coefficients.
     */
     template <cartesian_function<double> FuncType>
     void forward_transform(
@@ -709,13 +715,13 @@ public:
         @brief Get spherical harmonic expansion of a function expressed in
         Cartesian coordinates.
 
-        @tparam FuncType type of function
+        @tparam FuncType Type of the function.
 
-        @param f function to transform
-        @param radius radius of the ball `f` is defined on
-        @param order order of the expansion
+        @param f Function to transform.
+        @param radius Radius of the ball `f` is defined on.
+        @param order Order of the expansion.
 
-        @returns Zernike expansion
+        @return Coefficients of the Zernike expansion.
     */
     template <cartesian_function<double> FuncType>
     [[nodiscard]] ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param>
@@ -738,8 +744,8 @@ public:
     /**
         @brief Backward transform from Zernike coefficients to Gauss-Legendre quadrature grid.
 
-        @param values values on the ball quadrature grid
-        @param expansion coefficients of the expansion
+        @param expansion Coefficients of the Zernike expansion.
+        @param values Output buffer for values on the ball quadrature grid.
     */
     void backward_transform(
         ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
@@ -751,7 +757,10 @@ public:
     /**
         @brief Backward transform from Zernike coefficients to Gauss-Legendre quadrature grid.
 
-        @param expansion coefficients of the expansion
+        @param expansion Coefficients of the Zernike expansion.
+        @param order Order of the expansion.
+
+        @return Function values on a ball quadrature grid.
     */
     [[nodiscard]] BallGLQGrid<double, grid_layout_type>
     backward_transform(
@@ -859,6 +868,12 @@ public:
         m_recursion.set_radii(m_glq_nodes);
     }
 
+    /**
+        @brief Resize the transformer to work with expansions of different
+        order.
+
+        @param order Order of Zernike expansion.
+    */
     void resize(std::size_t order)
     {
         if (order == m_order) return;
@@ -878,6 +893,12 @@ public:
         m_recursion.set_radii(m_glq_nodes);
     }
 
+    /**
+        @brief Forward transform from a radial quadrature grid to Zernike coefficients.
+
+        @param values Values on the radial quadrature grid.
+        @param expansion Coefficients of the Zernike expansion.
+    */
     void forward_transform(
         RadialGLQGridSpan<const double, alignment_type> values,
         IsotropicZernikeSpan<double, zernike_norm, sh_norm, sh_phase> expansion)
@@ -915,6 +936,14 @@ public:
         }
     }
 
+    /**
+        @brief Forward transform from a radial quadrature grid to Zernike coefficients.
+
+        @param values Values on the radial quadrature grid.
+        @param order Order of the output expansion.
+
+        @return Coefficients of the Zernike expansion.
+    */
     [[nodiscard]] IsotropicZernikeExpansion<double, zernike_norm, sh_norm, sh_phase>
     forward_transform(RadialGLQGridSpan<const double, alignment_type> values, std::size_t order)
     {
@@ -925,6 +954,12 @@ public:
         return expansion;
     }
 
+    /**
+        @brief Backward transform from Zernike expansion to a radial quadrature grid.
+
+        @param expansion Coefficients of the Zernike expansion.
+        @param values Values on the radial quadrature grid.
+    */
     void backward_transform(
         IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion,
         RadialGLQGridSpan<double, alignment_type> values)
@@ -950,8 +985,18 @@ public:
         }
     }
 
+    /**
+        @brief Backward transform from Zernike coefficients to a quadrature grid.
+
+        @param expansion Coefficients of the expansion.
+        @param order Order of the output expansion.
+
+        @return Function values on a radial quadrature grid.
+    */
     [[nodiscard]] RadialGLQGrid<double>
-    backward_transform(IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion, std::size_t order)
+    backward_transform(
+        IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion,
+        std::size_t order)
     {
         RadialGLQGrid<double, alignment_type> grid{order};
 
@@ -1059,6 +1104,8 @@ public:
     /**
         @brief Resize the transformer to work with expansions of different
         order.
+
+        @param order Order of Zernike expansion.
     */
     void resize(std::size_t order)
     {
@@ -1071,11 +1118,11 @@ public:
         @brief Get Zernike expansion of a function expressed in spherical
         coordinates.
 
-        @tparam FuncType type of function
+        @tparam FuncType Type of function.
 
-        @param f function to transform
-        @param radius radius of the ball `f` is defined on
-        @param expansion buffer to store the expansion
+        @param f Function to transform.
+        @param radius Radius of the ball `f` is defined on.
+        @param expansion Buffer to store the expansion.
     */
     template <isotropic_function<double> FuncType>
     void forward_transform(
@@ -1094,13 +1141,13 @@ public:
         @brief Get Zernike expansion of a function expressed in spherical
         coordinates.
 
-        @tparam FuncType type of function
+        @tparam FuncType Type of the function.
 
-        @param f function to transform
-        @param radius radius of the ball `f` is defined on
-        @param order order of the expansion
+        @param f Function to transform.
+        @param radius Radius of the ball `f` is defined on.
+        @param order Order of the expansion.
 
-        @returns Zernike expansion
+        @return Zernike expansion coefficients of the function.
     */
     template <isotropic_function<double> FuncType>
     [[nodiscard]] IsotropicZernikeExpansion<double, zernike_norm_param, sh_norm_param, sh_phase_param>
@@ -1115,10 +1162,11 @@ public:
     }
 
     /**
-        @brief Backward transform from Zernike coefficients to Gauss-Legendre quadrature grid.
+        @brief Backward transform from Zernike coefficients to values on a
+        radial quadrature grid.
 
-        @param values values on the ball quadrature grid
-        @param expansion coefficients of the expansion
+        @param values Values on the ball quadrature grid.
+        @param expansion Coefficients of the expansion.
     */
     void backward_transform(
         IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion,
@@ -1128,9 +1176,13 @@ public:
     }
 
     /**
-        @brief Backward transform from Zernike coefficients to Gauss-Legendre quadrature grid.
+        @brief Backward transform from Zernike coefficients to values on a
+        radial quadrature grid.
 
         @param expansion coefficients of the expansion
+
+        @return Values of the corresponding function on a radial quadrature
+        grid.
     */
     [[nodiscard]] RadialGLQGrid<double, alignment_type>
     backward_transform(

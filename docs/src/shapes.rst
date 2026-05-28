@@ -20,17 +20,14 @@ Shapes are zest's way of managing such complex mappings, such that the user only
 about the indices, while the underlying mapping to elements in memory is done by the shape
 machinery.
 
-Reference
----------
-
 Concepts
-^^^^^^^^
+--------
 
 .. doxygenconcept:: zest::shape
     :project: zest
 
 Types
-^^^^^
+-----
 
 .. doxygenclass:: zest::NullShape
     :project: zest
@@ -53,7 +50,7 @@ Types
     :members:
 
 Type aliases
-^^^^^^^^^^^^
+------------
 
 .. doxygentypedef:: zest::DynamicTensorShape
     :project: zest

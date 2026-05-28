@@ -4,17 +4,23 @@ Power spectra
 This library provides a set of functions for computing the angular power spectra of spherical
 harmonic and Zernike expansions.
 
-Reference
+Functions
 ---------
 
-Functions
-^^^^^^^^^
-
-.. doxygenfunction:: zest::st::cross_power_spectrum
+.. doxygenfunction:: void zest::st::cross_power_spectrum(const ExpansionTypeA&, const ExpansionTypeB&, std::span<double>)
     :project: zest
 
-.. doxygenfunction:: zest::st::power_spectrum
+.. doxygenfunction:: std::vector<duoble> zest::st::cross_power_spectrum(const ExpansionTypeA&, const ExpansionTypeB&)
     :project: zest
 
-.. doxygenfunction:: zest::zt::power_spectrum
+.. doxygenfunction:: void zest::st::power_spectrum(const ExpansionType&, std::span<double>)
+    :project: zest
+
+.. doxygenfunction:: std::vector<double> zest::st::power_spectrum(const ExpansionType&)
+    :project: zest
+
+.. doxygenfunction:: void zest::zt::power_spectrum(const ExpansionType&, RadialZernikeSpan<double, zernike_norm_of<ExpansionType>()>)
+    :project: zest
+
+.. doxygenfunction:: RadialZernikeExpansion<double, zernike_norm_of<ExpansionType>()> zest::zt::power_spectrum(const ExpansionType&)
     :project: zest

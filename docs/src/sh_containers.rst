@@ -12,11 +12,8 @@ commonly used combinations of normalization and Condon--Shortley phase: acoustic
 no Condon--Shortley phase), quantum mechanics (unit-normalized, Condon--Shortley phase), and
 geodesy (:math:`4\pi`-normalized, no Condon--Shortley phase).
 
-Reference
----------
-
 Type aliases
-^^^^^^^^^^^^
+------------
 
 .. doxygentypedef:: zest::st::AssociatedLegendreExpansion
     :project: zest
@@ -117,11 +114,8 @@ Spherical harmonic layout shapes
 Below are the definitions of the shapes that are used to define the indexing layouts of the above
 containers.
 
-Reference
----------
-
 Type aliases
-^^^^^^^^^^^^
+------------
 
 .. doxygentypedef:: zest::st::AssociatedLegendreShape
     :project: zest

@@ -4,11 +4,8 @@ Spherical harmonic transforms
 The Zernike transforms in zest enable fast transformations between grid representations and Zernike
 expansions of functions defined on the unit ball.
 
-Reference
----------
-
 Types
-^^^^^
+-----
 
 .. doxygenclass:: zest::zt::GLQTransformer
     :project: zest
@@ -19,7 +16,7 @@ Types
     :members:
 
 Type aliases
-^^^^^^^^^^^^
+------------
 
 .. doxygentypedef:: zest::zt::GLQTransformerAcoustics
     :project: zest

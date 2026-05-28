@@ -4,11 +4,8 @@ Spherical harmonic concepts
 Below are the defintions of the concepts that are used throughout the library to restrict the 
 types of spherical harmonic objects allowed by template methods/classes.
 
-Reference
----------
-
 Concepts
-^^^^^^^^
+--------
 
 .. doxygenconcept:: zest::st::has_inner_rank
     :project: zest

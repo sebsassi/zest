@@ -4,11 +4,8 @@ Spherical harmonic transforms
 The spherical harmonic transforms in zest enable fast transformations between grid representations
 and spherical harmonics expansions of spherical functions.
 
-Reference
----------
-
 Types
-^^^^^
+-----
 
 .. doxygenclass:: zest::st::GLQTransformer
     :project: zest
@@ -19,7 +16,7 @@ Types
     :members:
 
 Type aliases
-^^^^^^^^^^^^
+------------
 
 .. doxygentypedef:: zest::st::GLQTransformerAcoustics
     :project: zest

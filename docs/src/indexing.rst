@@ -39,17 +39,14 @@ loop
 
 We need to take a subview of our expansion at each step, but there is no way to get this wrong.
 
-Reference
----------
-
 Enums
-^^^^^
+-----
 
 .. doxygenenum:: zest::Parity
    :project: zest
 
 Types
-^^^^^
+-----
 
 .. doxygenclass:: zest::BasicIndexRange
     :project: zest
@@ -72,9 +69,9 @@ Types
     :members:
 
 Type aliases
-^^^^^^^^^^^^
+------------
 
-.. doxygentypedef:: zest::StaticBasicIndexRange
+.. doxygentypedef:: zest::StaticStandardIndexRange
    :project: zest
 
 .. doxygentypedef:: zest::SingleIndexRange

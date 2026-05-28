@@ -10,17 +10,14 @@ such that :math:`l < L` to cut off the sequence at any finite order.
 Index sequences are used by zest primarily to create shapes (mappings of finite collections of
 index tuples to contiguous indices).
 
-Reference
----------
-
 Enums
-^^^^^
+-----
 
 .. doxygenenum:: zest::IndexingMode
     :project: zest
 
 Concepts
-^^^^^^^^
+--------
 
 .. doxygenconcept:: zest::indexing_mode_tagged
     :project: zest
@@ -29,7 +26,7 @@ Concepts
     :project: zest
 
 Types
-^^^^^
+-----
 
 .. doxygenclass:: zest::IndexingModeTag
 
@@ -58,6 +55,6 @@ Types
     :members:
 
 Functions
-^^^^^^^^^
+---------
 
 .. doxygenfunction:: zest::indexing_mode_of

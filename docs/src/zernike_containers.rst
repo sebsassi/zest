@@ -13,11 +13,8 @@ geodesy (:math:`4\pi`-normalized, no Condon--Shortley phase), each of which has 
 normalized and unnormalized radial Zernike polynomials. Furthermore, there are also special
 containers and views for isotropic Zernike expansions.
 
-Reference
----------
-
 Type aliases
-^^^^^^^^^^^^
+------------
 
 .. doxygentypedef:: zest::zt::RadialZernikeExpansion
     :project: zest
@@ -277,11 +274,8 @@ Spherical harmonic layout shapes
 Below are the definitions of the shapes that are used to define the indexing layouts of the above
 containers.
 
-Reference
----------
-
 Type aliases
-^^^^^^^^^^^^
+------------
 
 .. doxygentypedef:: zest::zt::RadialZernikeShape
     :project: zest

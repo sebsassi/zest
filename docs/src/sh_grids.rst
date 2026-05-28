@@ -4,11 +4,8 @@ Spherical grids
 For purposes of dealing with spherical harmonic transforms, zest provides types for dealing with
 quadrature grids defined on the sphere.
 
-Reference
----------
-
 Types
-^^^^^
+-----
 
 .. doxygenclass:: zest::st::LatLonLayout
     :project: zest
@@ -35,7 +32,7 @@ Types
     :members:
 
 Type aliases
-^^^^^^^^^^^^
+------------
 
 .. doxygentypedef:: zest::st::DefaultLayout
     :projects: zest

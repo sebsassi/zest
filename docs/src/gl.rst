@@ -5,23 +5,20 @@ The main Zernike and spherical harmonic transformation algorithms in zest use Ga
 quadrature. As such, efficient generation of quadrature nodes and weights is imperative. Therefore
 zest also comes with a set of functions for generating the Gauss--Legendre nodes and weights.
 
-Reference
----------
-
 Enums
-^^^^^
+-----
 
 .. doxygenenum:: zest::gl::GLNodeStyle
     :project: zest
 
 Concepts
-^^^^^^^^
+--------
 
-.. doxygenconcept:: zest::gl_layout
+.. doxygenconcept:: zest::gl::gl_layout
     :project: zest
 
 Types
-^^^^^
+-----
 
 .. doxygenclass:: zest::gl::PackedLayout
     :project: zest
@@ -32,7 +29,7 @@ Types
     :members:
 
 Functions
-^^^^^^^^^
+---------
 
 .. doxygenfunction:: zest::gl::gl_nodes
     :project: zest

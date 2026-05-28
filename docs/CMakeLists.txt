@@ -52,31 +52,51 @@ add_custom_command(
         ${SPHINX_SOURCE_DIR}/index.rst
         ${SPHINX_SOURCE_DIR}/getting_started.rst
         ${SPHINX_SOURCE_DIR}/introduction.rst
-        ${SPHINX_SOURCE_DIR}/anatomy.rst
-        ${SPHINX_SOURCE_DIR}/reference.rst
+        ${SPHINX_SOURCE_DIR}/sh.rst
+            ${SPHINX_SOURCE_DIR}/sh_conventions.rst
+            ${SPHINX_SOURCE_DIR}/sh_containers.rst
+            ${SPHINX_SOURCE_DIR}/sh_grids.rst
+            ${SPHINX_SOURCE_DIR}/sh_transforms.rst
+            ${SPHINX_SOURCE_DIR}/sh_concepts.rst
+        ${SPHINX_SOURCE_DIR}/zernike.rst
+            ${SPHINX_SOURCE_DIR}/zernike_conventions.rst
+            ${SPHINX_SOURCE_DIR}/zernike_containers.rst
+            ${SPHINX_SOURCE_DIR}/zernike_grids.rst
+            ${SPHINX_SOURCE_DIR}/zernike_transforms.rst
+            ${SPHINX_SOURCE_DIR}/zernike_concepts.rst
+        ${SPHINX_SOURCE_DIR}/rotations.rst
+        ${SPHINX_SOURCE_DIR}/power_spectra.rst
+        ${SPHINX_SOURCE_DIR}/shaped.rst
+            ${SPHINX_SOURCE_DIR}/shape_intro.rst
+            ${SPHINX_SOURCE_DIR}/indexing.rst
+            ${SPHINX_SOURCE_DIR}/arrays_spans.rst
+            ${SPHINX_SOURCE_DIR}/shapes.rst
+            ${SPHINX_SOURCE_DIR}/sequences.rst
+        ${SPHINX_SOURCE_DIR}/gl.rst
+        ${SPHINX_SOURCE_DIR}/utilities.rst
         ${DOXYGEN_INDEX_FILE}
     MAIN_DEPENDENCY ${SPHINX_CONFIG_DIR}/conf.py
     COMMENT "Generating HTML documentation with Sphinx: ${SPHINX_EXECUTABLE}"
 )
 
-add_custom_command(
-    OUTPUT ${SPHINX_LATEX_FILE}
-    COMMAND
-        ${SPHINX_EXECUTABLE}
-        -M latexpdf
-        ${SPHINX_SOURCE_DIR} ${SPHINX_LATEX_BUILD_DIR}
-        -c ${SPHINX_CONFIG_DIR}
-        -Dbreathe_projects.zest=${DOXYGEN_OUTPUT_DIR}/xml
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS
-        ${SPHINX_SOURCE_DIR}/index.rst
-        ${SPHINX_SOURCE_DIR}/getting_started.rst
-        ${SPHINX_SOURCE_DIR}/introduction.rst
-        ${SPHINX_SOURCE_DIR}/anatomy.rst
-        ${SPHINX_SOURCE_DIR}/reference.rst
-        ${DOXYGEN_INDEX_FILE}
-    MAIN_DEPENDENCY ${SPHINX_CONFIG_DIR}/conf.py
-    COMMENT "Generating LaTeX documentation with Sphinx: ${SPHINX_EXECUTABLE}"
-)
+# add_custom_command(
+#     OUTPUT ${SPHINX_LATEX_FILE}
+#     COMMAND
+#         ${SPHINX_EXECUTABLE}
+#         -M latexpdf
+#         ${SPHINX_SOURCE_DIR} ${SPHINX_LATEX_BUILD_DIR}
+#         -c ${SPHINX_CONFIG_DIR}
+#         -Dbreathe_projects.zest=${DOXYGEN_OUTPUT_DIR}/xml
+#     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+#     DEPENDS
+#         ${SPHINX_SOURCE_DIR}/index.rst
+#         ${SPHINX_SOURCE_DIR}/getting_started.rst
+#         ${SPHINX_SOURCE_DIR}/introduction.rst
+#         ${SPHINX_SOURCE_DIR}/anatomy.rst
+#         ${SPHINX_SOURCE_DIR}/reference.rst
+#         ${DOXYGEN_INDEX_FILE}
+#     MAIN_DEPENDENCY ${SPHINX_CONFIG_DIR}/conf.py
+#     COMMENT "Generating LaTeX documentation with Sphinx: ${SPHINX_EXECUTABLE}"
+# )
 
-add_custom_target(Sphinx ALL DEPENDS ${SPHINX_INDEX_FILE} ${SPHINX_LATEX_FILE})
+add_custom_target(Sphinx ALL DEPENDS ${SPHINX_INDEX_FILE})

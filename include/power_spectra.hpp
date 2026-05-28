@@ -82,7 +82,6 @@ void cross_power_spectrum(
 
     @param a spherical harmonic expansion
     @param b spherical harmonic expansion
-    @param out output buffer for the cross power spectrum
 */
 template <any_sh_expansion ExpansionTypeA, compatible_with<ExpansionTypeA> ExpansionTypeB>
     requires std::floating_point<value_type_of<ExpansionTypeA>>
@@ -215,12 +214,12 @@ void power_spectrum(
 template <any_zernike_expansion ExpansionType>
     requires std::floating_point<value_type_of<ExpansionType>>
         && zt::has_inner_rank<ExpansionType, 0>
-[[nodiscard]] std::vector<double>
+[[nodiscard]] RadialZernikeExpansion<double, zernike_norm_of<ExpansionType>()>
 power_spectrum(const ExpansionType& expansion)
 {
-    using SpectrumSpan = RadialZernikeSpan<double, zernike_norm_of<ExpansionType>()>;
-    std::vector<double> res(SpectrumSpan::shape_type::size(expansion.order()));
-    power_spectrum(expansion, SpectrumSpan(res, expansion.order()));
+    using OutType = RadialZernikeExpansion<double, zernike_norm_of<ExpansionType>()>;
+    OutType res{expansion.order()};
+    power_spectrum(expansion, (typename OutType::view)(res));
     return res;
 }
 

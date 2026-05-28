@@ -475,7 +475,7 @@ public:
     /**
         @brief Subshape of the shape.
 
-        @param indices Indices at which the subshape is taken.
+        @param inds Indices at which the subshape is taken.
     */
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < rank)

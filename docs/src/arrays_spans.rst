@@ -5,11 +5,8 @@ Along with the shape system which enables the creation of complex multidimension
 offers the means of using these to construct both owning multi-dimensional arrays as well as
 non-owning views to such arrays.
 
-Reference
----------
-
 Types
-^^^^^
+-----
 
 .. doxygenclass:: zest::ShapedArray
     :project: zest
@@ -20,7 +17,7 @@ Types
     :members:
 
 Type aliases
-^^^^^^^^^^^^
+------------
 
 .. doxygentypedef:: zest::MDArray
     :project: zest

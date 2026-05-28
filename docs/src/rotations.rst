@@ -3,17 +3,14 @@ Rotations of Zernike functions and spherical harmonics
 
 This section documents the classes used for rotation of Zernike and spherical harmonic expansions.
 
-Reference
----------
-
 Enums
-^^^^^
+-----
 
 .. doxygenenum:: zest::RotationType
     :project: zest
 
 Types
-^^^^^
+-----
 
 .. doxygenclass:: zest::WignerdSpan
     :project: zest
@@ -28,7 +25,7 @@ Types
     :members:
 
 Functions
-^^^^^^^^^
+---------
 
 .. doxygenfunction:: zest::rotate_l
     :project: zest

@@ -4,11 +4,8 @@ Zernike concepts
 Below are the defintions of the concepts that are used throughout the library to restrict the 
 types of Zernike objects allowed by template methods/classes.
 
-Reference
----------
-
 Concepts
-^^^^^^^^
+--------
 
 .. doxygenconcept:: zest::zt::has_inner_rank
     :project: zest

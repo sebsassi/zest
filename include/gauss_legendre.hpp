@@ -36,11 +36,11 @@ namespace zest::gl
 /**
     @brief Packed layout of Gauss-Legendre nodes.
 
-    @note Gauss-Legendre nodes on the interval [-1,1] are distributed
-    symmetrically about 0, such that for any node `x` the point `-x` is also a
-    node with the same weight. Therefore the nodes and weights only need to be
-    produced for nonnegative `x`. For the negative portion of the interval the
-    nodes are `-x`, and the weights are given by the corresponding weights.
+    Gauss-Legendre nodes on the interval [-1,1] are distributed symmetrically
+    about 0, such that for any node `x` the point `-x` is also a node with the
+    same weight. Therefore the nodes and weights only need to be produced for
+    nonnegative `x`. For the negative portion of the interval the nodes are
+    `-x`, and the weights are given by the corresponding weights.
 */
 struct PackedLayout
 {
@@ -61,11 +61,11 @@ struct PackedLayout
 /**
     @brief Unpacked layout of Gauss-Legendre nodes.
 
-    @note Gauss-Legendre nodes on the interval [-1,1] are distributed
-    symmetrically about 0, such that for any node `x` the point `-x` is also a
-    node with the same weight. Therefore the nodes and weights only need to be
-    produced for nonnegative `x`. For the negative portion of the interval the
-    nodes are `-x`, and the weights are given by the corresponding weights.
+    Gauss-Legendre nodes on the interval [-1,1] are distributed symmetrically
+    about 0, such that for any node `x` the point `-x` is also a node with the
+    same weight. Therefore the nodes and weights only need to be produced for
+    nonnegative `x`. For the negative portion of the interval the nodes are
+    `-x`, and the weights are given by the corresponding weights.
 */
 struct UnpackedLayout
 {

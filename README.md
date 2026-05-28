@@ -94,4 +94,4 @@ More examples of using this library can be found in the `examples` directory.
 
 ## Documentation
 
-HTML and PDF documentation are available in the `docs` directory.
+HTML documentation is available in the `docs` directory.

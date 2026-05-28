@@ -4,11 +4,8 @@ Utilities
 The library has an assortment of utilities, some of which are user facing, and others which are
 only used internally but may be useful in other context. These utilities are documented below.
 
-Reference
----------
-
 Concepts
-^^^^^^^^
+--------
 
 .. doxygenconcept:: zest::tagged
     :project: zest
@@ -29,13 +26,13 @@ Concepts
     :project: zest
 
 Types
-^^^^^
+-----
 
 .. doxygenclass:: zest::BufferChain
     :project: zest
 
 Functions
-^^^^^^^^^
+---------
 
 .. doxygenfunction:: zest::take_last
     :project: zest
@@ -60,18 +57,15 @@ Alignment
 
 Below are documented the utilities zest uses for describing byte alignment of containers and views.
 
-Reference
----------
-
 Concepts
-^^^^^^^^
+--------
 
 .. doxygenconcept:: zest::valid_simd_alignment
     :project: zest
     :members:
 
 Types
-^^^^^
+-----
 
 .. doxygenclass:: zest::VectorAlignment
     :project: zest
@@ -82,7 +76,7 @@ Types
     :members:
 
 Type aliases
-^^^^^^^^^^^^
+------------
 
 .. doxygentypedef:: zest::SSEAlignment
     :project: zest
