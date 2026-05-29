@@ -23,6 +23,7 @@ macro(create_example EXAMPLENAME)
         PRIVATE ${PROJECT_SOURCE_DIR}/include
     )
     target_link_libraries(${EXAMPLENAME}.example zest ${ARGN})
+    add_test(NAME ${EXAMPLENAME} COMMAND ${EXAMPLENAME}.example)
 endmacro()
 
 create_example(zernike_example)
