@@ -1,23 +1,23 @@
 <!doctype html>
 <html class="no-js" lang="en" data-content_root="./">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Theoretical background" href="introduction.html" /><link rel="prev" title="zest – Zernike and spherical transforms" href="index.html" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Theoretical background" href="introduction.html"><link rel="prev" title="zest – Zernike and spherical transforms" href="index.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
         <title>Getting started - zest 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     
     
 
 
 <style>
   body {
-    --color-code-background: #f8f8f8;
-  --color-code-foreground: black;
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
   
   }
   @media not print {
@@ -144,14 +144,10 @@
   </symbol>
 </svg>
 
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
 
 <a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
@@ -161,8 +157,7 @@
   <header class="mobile-header">
     <div class="header-left">
       <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
       </label>
     </div>
     <div class="header-center">
@@ -170,8 +165,7 @@
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
           <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
           <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
@@ -179,8 +173,7 @@
         </button>
       </div>
       <label class="toc-overlay-icon toc-header-icon" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
   </header>
@@ -188,7 +181,6 @@
     <div class="sidebar-container">
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
-  
   
   <span class="sidebar-brand-text">zest 0.1.0 documentation</span>
   
@@ -202,8 +194,37 @@
 <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Theoretical background</a></li>
-<li class="toctree-l1"><a class="reference internal" href="anatomy.html">Anatomy of zest</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference.html">Library reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="sh.html">Spherical harmonics</a><input aria-label="Toggle navigation of Spherical harmonics" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="sh_conventions.html">Spherical harmonic conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_containers.html">Spherical harmonic containers and views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_containers.html#spherical-harmonic-layout-shapes">Spherical harmonic layout shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_grids.html">Spherical grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_transforms.html">Spherical harmonic transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_concepts.html">Spherical harmonic concepts</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="zernike.html">Zernike functions</a><input aria-label="Toggle navigation of Zernike functions" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="zernike_conventions.html">Zernike conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_containers.html">Zernike containers and views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_containers.html#spherical-harmonic-layout-shapes">Spherical harmonic layout shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_grids.html">Ball grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_transforms.html">Spherical harmonic transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_concepts.html">Zernike concepts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rotations.html">Rotations of Zernike functions and spherical harmonics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power_spectra.html">Power spectra</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="shaped.html">Spans, shapes, sequences, …</a><input aria-label="Toggle navigation of Spans, shapes, sequences, …" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="shape_intro.html">Motivation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="indexing.html">Index ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arrays_spans.html">Arrays and spans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shapes.html">Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sequences.html">Index sequences</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gl.html">Gauss–Legendre quadrature</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html#alignment">Alignment</a></li>
 </ul>
 
 </div>
@@ -230,8 +251,7 @@
   </a>
 </div>
 <div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
               <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
               <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
@@ -239,8 +259,7 @@
             </button>
           </div>
           <label class="toc-overlay-icon toc-content-icon" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
@@ -248,9 +267,6 @@
 <h1>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h1>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
-<p>Before proceeding to installation, it is worth noting that zest mostly does not depend on libraries
-other than standard lbrary. However, an exception to this is that performing least squares fits of
-spherical harmonic and Zernike expansions requires linking with LAPACK.</p>
 <p>For the installation you need to obtain the source code, e.g., by cloning the git repository. Then,
 navigate to the source directory</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git clone https://github.com/sebsassi/zest.git</span>
@@ -258,8 +274,7 @@ navigate to the source directory</p>
 </pre></div>
 </div>
 <p>If you are familiar with CMake, zest follows a conventional CMake build/install procedure. Even if
-not, the process is simple: first, create a directory where the library is built, say <code class="docutils literal notranslate"><span class="pre">build</span></code>,
-and then build the sources in that directory, e.g.,</p>
+not, the process is simple: first we select one of the build presets and build the library</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cmake --preset=default</span>
 <span class="go">cmake --build build</span>
 </pre></div>
@@ -281,6 +296,7 @@ the rotated coefficients. Make a file <code class="docutils literal notranslate"
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cmath&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;print&gt;</span>
 
 <span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
@@ -290,15 +306,15 @@ the rotated coefficients. Make a file <code class="docutils literal notranslate"
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="p">);</span>
 <span class="w">    </span><span class="p">};</span>
 
-<span class="w">    </span><span class="c1">// Evaluate the function on a Gauss-Legendre quadrature grid</span>
+<span class="w">    </span><span class="c1">// Evaluate the function on a Gauss-Legendre quadrature grid.</span>
 <span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
 <span class="w">    </span><span class="n">zest</span><span class="o">::</span><span class="n">st</span><span class="o">::</span><span class="n">SphereGLQGridPoints</span><span class="w"> </span><span class="n">points</span><span class="p">{};</span>
 <span class="w">    </span><span class="n">zest</span><span class="o">::</span><span class="n">st</span><span class="o">::</span><span class="n">SphereGLQGrid</span><span class="w"> </span><span class="n">grid</span>
 <span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">points</span><span class="p">.</span><span class="n">generate_values</span><span class="p">(</span><span class="n">function</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// Transform the grid to obtain its spherical harmonic expansion</span>
+<span class="w">    </span><span class="c1">// Transform the grid to obtain its spherical harmonic expansion.</span>
 <span class="w">    </span><span class="n">zest</span><span class="o">::</span><span class="n">st</span><span class="o">::</span><span class="n">GLQTransformerGeo</span><span class="w"> </span><span class="n">transformer</span><span class="p">{};</span>
-<span class="w">    </span><span class="n">zest</span><span class="o">::</span><span class="n">st</span><span class="o">::</span><span class="n">RealSHExpansion</span><span class="w"> </span><span class="n">expansion</span>
+<span class="w">    </span><span class="n">zest</span><span class="o">::</span><span class="n">st</span><span class="o">::</span><span class="n">SHExpansion</span><span class="w"> </span><span class="n">expansion</span>
 <span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">transformer</span><span class="p">.</span><span class="n">forward_transform</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">);</span>
 
 <span class="w">    </span><span class="c1">// Euler angles</span>
@@ -306,27 +322,37 @@ the rotated coefficients. Make a file <code class="docutils literal notranslate"
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">numbers</span><span class="o">::</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">;</span>
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">gamma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 
-<span class="w">    </span><span class="c1">// Rotate the expansion coefficients</span>
+<span class="w">    </span><span class="c1">// Rotate the expansion coefficients.</span>
 <span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="o">&gt;</span><span class="w"> </span><span class="n">angles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">alpha</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="p">,</span><span class="w"> </span><span class="n">gamma</span><span class="p">};</span>
 <span class="w">    </span><span class="n">zest</span><span class="o">::</span><span class="n">WignerdPiHalfCollection</span><span class="w"> </span><span class="n">wigner</span><span class="p">(</span><span class="n">order</span><span class="p">);</span>
 <span class="w">    </span><span class="n">zest</span><span class="o">::</span><span class="n">Rotor</span><span class="w"> </span><span class="n">rotor</span><span class="p">{};</span>
-<span class="w">    </span><span class="n">rotor</span><span class="p">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">expansion</span><span class="p">,</span><span class="w"> </span><span class="n">wigner</span><span class="p">,</span><span class="w"> </span><span class="n">angles</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">expansion</span><span class="p">.</span><span class="n">order</span><span class="p">();</span><span class="w"> </span><span class="o">++</span><span class="n">l</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">// We explicitly specify whether we are rotating the coordinate system</span>
+<span class="w">    </span><span class="c1">// or the object in space.</span>
+<span class="w">    </span><span class="n">rotor</span><span class="p">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">expansion</span><span class="p">,</span><span class="w"> </span><span class="n">wigner</span><span class="p">,</span><span class="w"> </span><span class="n">angles</span><span class="p">,</span><span class="w"> </span><span class="n">zest</span><span class="o">::</span><span class="n">RotationType</span><span class="o">::</span><span class="n">coordinate</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// To minimize errors in indexing various layouts, the library provides</span>
+<span class="w">    </span><span class="c1">// range-based indexing helpers.</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">expansion</span><span class="p">.</span><span class="n">indices</span><span class="p">())</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">l</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">m</span><span class="p">)</span>
-<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;f[%lu, %lu] = %f&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">expansion</span><span class="p">(</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">));</span>
+<span class="w">        </span><span class="c1">// Subviews of expansions can be taken.</span>
+<span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">expansion_l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">expansion</span><span class="p">[</span><span class="n">l</span><span class="p">];</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">expansion_l</span><span class="p">.</span><span class="n">indices</span><span class="p">())</span>
+<span class="w">            </span><span class="c1">// The transforms operate with layouts where elements whose</span>
+<span class="w">            </span><span class="c1">// azimuthal indices have a common absolute value `|m|` come in</span>
+<span class="w">            </span><span class="c1">// pairs `[m, -m]`.</span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;f[{}, {}] = [{}, {}]&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">expansion_l</span><span class="p">[</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">expansion_l</span><span class="p">[</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>Now, to compile the code, we use GCC in this example and link our code with zest</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">g++ -std=c++20 -O3 -mfma -mavx2 -o rotate_sh rotate_sh.cpp -lzest</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">g++ -std=c++23 -O3 -mfma -mavx2 -o rotate_sh rotate_sh.cpp -lzest</span>
 </pre></div>
 </div>
-<p>There are few things of note here. First, zest is built on the C++20 standard, and therefore
-requires a sufficiently modern compiler, which implements the necessary C++20 features. To tell GCC
-we are using C++20, we give the flag <code class="docutils literal notranslate"><span class="pre">std=c++20</span></code>.</p>
+<p>There are few things of note here. First, zest is built on the C++23 standard, and therefore
+requires a sufficiently modern compiler, which implements the necessary C++23 features. To tell GCC
+we are using C++23, we give the flag <code class="docutils literal notranslate"><span class="pre">std=c++23</span></code>.</p>
 <p>Secondly, the performance of the library is sensitive to compiler optimizations. As a baseline, we
 use the optimization level <code class="docutils literal notranslate"><span class="pre">-O3</span></code> to enable all architecture-independent optimizations in GCC. On
 top of that, this example assumes that we are building for an x86 CPU, which supports floating
@@ -407,8 +433,8 @@ alternative to these options.</p>
     </aside>
   </div>
 </div><script src="_static/documentation_options.js?v=01f34227"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
     </body>
 </html>

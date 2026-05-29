@@ -113,8 +113,7 @@ public:
     void expand(std::size_t max_order);
 
     /**
-        @brief Maximum order of spherical harmonics rotation can be applied to
-        without expanding.
+        @brief Maximum order of spherical harmonics which can be rotated.
     */
     [[nodiscard]] std::size_t
     max_order() const noexcept { return m_temp.size(); }

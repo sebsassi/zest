@@ -1,0 +1,720 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="Gauss–Legendre quadrature" href="gl.html">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Utilities - zest 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">zest 0.1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">zest 0.1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Theoretical background</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="sh.html">Spherical harmonics</a><input aria-label="Toggle navigation of Spherical harmonics" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="sh_conventions.html">Spherical harmonic conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_containers.html">Spherical harmonic containers and views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_containers.html#spherical-harmonic-layout-shapes">Spherical harmonic layout shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_grids.html">Spherical grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_transforms.html">Spherical harmonic transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_concepts.html">Spherical harmonic concepts</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="zernike.html">Zernike functions</a><input aria-label="Toggle navigation of Zernike functions" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="zernike_conventions.html">Zernike conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_containers.html">Zernike containers and views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_containers.html#spherical-harmonic-layout-shapes">Spherical harmonic layout shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_grids.html">Ball grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_transforms.html">Spherical harmonic transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_concepts.html">Zernike concepts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rotations.html">Rotations of Zernike functions and spherical harmonics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power_spectra.html">Power spectra</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="shaped.html">Spans, shapes, sequences, …</a><input aria-label="Toggle navigation of Spans, shapes, sequences, …" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="shape_intro.html">Motivation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="indexing.html">Index ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arrays_spans.html">Arrays and spans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shapes.html">Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sequences.html">Index sequences</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gl.html">Gauss–Legendre quadrature</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#alignment">Alignment</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/utilities.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="utilities">
+<h1>Utilities<a class="headerlink" href="#utilities" title="Link to this heading">¶</a></h1>
+<p>The library has an assortment of utilities, some of which are user facing, and others which are
+only used internally but may be useful in other context. These utilities are documented below.</p>
+<section id="concepts">
+<h2>Concepts<a class="headerlink" href="#concepts" title="Link to this heading">¶</a></h2>
+<dl class="cpp concept">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN4zest6taggedE">
+<span id="_CPPv3I0EN4zest6taggedE"></span><span id="_CPPv2I0EN4zest6taggedE"></span><span class="target" id="conceptzest_1_1tagged"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">concept</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tagged</span></span></span><a class="headerlink" href="#_CPPv4I0EN4zest6taggedE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;utility.hpp&gt;</em></div>
+<p>Check if a type contains tags. </p>
+<p>A tagged type is <code class="docutils literal notranslate"><span class="pre">T</span></code> identified by the presence of a member type <code class="docutils literal notranslate"><span class="pre">T::untag</span></code>, which is the type stripped of all its tags. </p>
+</dd></dl>
+
+<dl class="cpp concept">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN4zest15sequence_shapedE">
+<span id="_CPPv3I0EN4zest15sequence_shapedE"></span><span id="_CPPv2I0EN4zest15sequence_shapedE"></span><span class="target" id="conceptzest_1_1sequence__shaped"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">concept</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sequence_shaped</span></span></span><a class="headerlink" href="#_CPPv4I0EN4zest15sequence_shapedE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;utility.hpp&gt;</em></div>
+<p>Check if a type is indexed by a sequence of index tuples. </p>
+<p>The defining property of a sequence shaped layout is that its extents, regardless of dimensionality, are determined by a single integer parameter, the order. </p>
+</dd></dl>
+
+<dl class="cpp concept">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN4zest13tensor_shapedE">
+<span id="_CPPv3I0EN4zest13tensor_shapedE"></span><span id="_CPPv2I0EN4zest13tensor_shapedE"></span><span class="target" id="conceptzest_1_1tensor__shaped"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">concept</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tensor_shaped</span></span></span><a class="headerlink" href="#_CPPv4I0EN4zest13tensor_shapedE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;utility.hpp&gt;</em></div>
+<p>Check if a type looks tensor shaped. </p>
+<p>A tensor shaped type has a set of extents which can be indexed by its dimensions. </p>
+</dd></dl>
+
+<dl class="cpp concept">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN4zest13complex_floatE">
+<span id="_CPPv3I0EN4zest13complex_floatE"></span><span id="_CPPv2I0EN4zest13complex_floatE"></span><span class="target" id="conceptzest_1_1complex__float"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">concept</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">complex_float</span></span></span><a class="headerlink" href="#_CPPv4I0EN4zest13complex_floatE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;utility.hpp&gt;</em></div>
+<p>Check if a type is a complex floating point number. </p>
+</dd></dl>
+
+<dl class="cpp concept">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN4zest21complex_or_real_floatE">
+<span id="_CPPv3I0EN4zest21complex_or_real_floatE"></span><span id="_CPPv2I0EN4zest21complex_or_real_floatE"></span><span class="target" id="conceptzest_1_1complex__or__real__float"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">concept</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">complex_or_real_float</span></span></span><a class="headerlink" href="#_CPPv4I0EN4zest21complex_or_real_floatE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;utility.hpp&gt;</em></div>
+<p>Check if a type is a complex or a real floating point number. </p>
+</dd></dl>
+
+<dl class="cpp concept">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN4zest8tag_typeE">
+<span id="_CPPv3I0EN4zest8tag_typeE"></span><span id="_CPPv2I0EN4zest8tag_typeE"></span><span class="target" id="conceptzest_1_1tag__type"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">concept</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tag_type</span></span></span><a class="headerlink" href="#_CPPv4I0EN4zest8tag_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;utility.hpp&gt;</em></div>
+<p>Check if a type can be used as a tag. </p>
+<p>A type may be used as a tag if it:<ol class="arabic simple">
+<li><p>Contains no non-static member variables</p></li>
+<li><p>Is an aggreggate type as defined by the C++ standard</p></li>
+</ol>
+</p>
+<p>In practice, a tag type only contains definitions for member types and static member variables. </p>
+</dd></dl>
+
+</section>
+<section id="types">
+<h2>Types<a class="headerlink" href="#types" title="Link to this heading">¶</a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4I0_NSt6size_tEEN4zest11BufferChainE">
+<span id="_CPPv3I0_NSt6size_tEEN4zest11BufferChainE"></span><span id="_CPPv2I0_NSt6size_tEEN4zest11BufferChainE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ElementType</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">N</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1BufferChain"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BufferChain</span></span></span><a class="headerlink" href="#_CPPv4I0_NSt6size_tEEN4zest11BufferChainE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt6size_tE0EN4zest9take_lastEDaRK1T">
+<span id="_CPPv3I_NSt6size_tE0EN4zest9take_lastERK1T"></span><span id="_CPPv2I_NSt6size_tE0EN4zest9take_lastERK1T"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">N</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="utility_8hpp_1a87e7649a155cea260540d325698516aa"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">take_last</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt6size_tE0EN4zest9take_lastEDaRK1T" title="zest::take_last::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">tuple_like</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I_NSt6size_tE0EN4zest9take_lastEDaRK1T" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Take last <code class="docutils literal notranslate"><span class="pre">N</span></code> elements of a tuple-like object. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> – Number of elements to take. </p></li>
+<li><p><strong>T</strong> – A tuple-like type.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>tuple_like</strong> – A tuple-like object.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A tuple-like object consisting of the last <code class="docutils literal notranslate"><span class="pre">N</span></code> elements of the input. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt6size_tE0EN4zest10take_firstEDaRK1T">
+<span id="_CPPv3I_NSt6size_tE0EN4zest10take_firstERK1T"></span><span id="_CPPv2I_NSt6size_tE0EN4zest10take_firstERK1T"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">N</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="utility_8hpp_1a7d9bc29df75556c3a42d44b6a43d1d31"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">take_first</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt6size_tE0EN4zest10take_firstEDaRK1T" title="zest::take_first::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">tuple_like</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I_NSt6size_tE0EN4zest10take_firstEDaRK1T" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Take first <code class="docutils literal notranslate"><span class="pre">N</span></code> elements of a tuple-like object. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> – Number of elements to take. </p></li>
+<li><p><strong>T</strong> – A tuple-like type.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>tuple_like</strong> – A tuple-like object.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A tuple-like object consisting of the first <code class="docutils literal notranslate"><span class="pre">N</span></code> elements of the input. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EN4zest6appendEDaRK1TRK1S">
+<span id="_CPPv3I00EN4zest6appendERK1TRK1S"></span><span id="_CPPv2I00EN4zest6appendERK1TRK1S"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">S</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="utility_8hpp_1af47eedbf2a6146cda1a1178b1120a311"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">append</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest6appendEDaRK1TRK1S" title="zest::append::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">tuple_like</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest6appendEDaRK1TRK1S" title="zest::append::S"><span class="n"><span class="pre">S</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">element</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I00EN4zest6appendEDaRK1TRK1S" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Append an element to a tuple-like object. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>T</strong> – A tuple-like type. </p></li>
+<li><p><strong>S</strong> – Type of appended element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>tuple_like</strong> – Tuple-like object. </p></li>
+<li><p><strong>element</strong> – Object to append.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Input with <code class="docutils literal notranslate"><span class="pre">element</span></code> appended. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EN4zest7prependEDaRK1TRK1S">
+<span id="_CPPv3I00EN4zest7prependERK1TRK1S"></span><span id="_CPPv2I00EN4zest7prependERK1TRK1S"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">S</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="utility_8hpp_1a804a2e952e5e9cc7ad031b709f003cb7"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">prepend</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest7prependEDaRK1TRK1S" title="zest::prepend::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">element</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest7prependEDaRK1TRK1S" title="zest::prepend::S"><span class="n"><span class="pre">S</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">tuple_like</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I00EN4zest7prependEDaRK1TRK1S" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Prepend an element to a tuple-like object. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>T</strong> – A tuple-like type. </p></li>
+<li><p><strong>S</strong> – Type of prepended element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>element</strong> – Object to prepend. </p></li>
+<li><p><strong>tuple_like</strong> – Tuple-like object.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Input with <code class="docutils literal notranslate"><span class="pre">element</span></code> prepended. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EN4zest11concatenateEDaRK1TRK1S">
+<span id="_CPPv3I00EN4zest11concatenateERK1TRK1S"></span><span id="_CPPv2I00EN4zest11concatenateERK1TRK1S"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">S</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="utility_8hpp_1aa35b4f7f72265d9dd39092b2c31e177b"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">concatenate</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest11concatenateEDaRK1TRK1S" title="zest::concatenate::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">tuple_like_t</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest11concatenateEDaRK1TRK1S" title="zest::concatenate::S"><span class="n"><span class="pre">S</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">tuple_like_s</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I00EN4zest11concatenateEDaRK1TRK1S" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Concatenate two tuple-like objects. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>T</strong> – A tuple-like type. </p></li>
+<li><p><strong>S</strong> – A tuple-like type.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>tuple_like_t</strong> – </p></li>
+<li><p><strong>tuple_like_s</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Concatenation of the input objects. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>doxygenfunction: Unable to resolve function “zest::product” with arguments None in doxygen xml output for project “zest” from directory: /home/seb/Projects/cpp/zest/release/docs/doxygen/xml.
+Potential matches:
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">template</span><span class="o">&lt;</span><span class="n">typename</span> <span class="o">...</span><span class="n">Ts</span><span class="o">&gt;</span> <span class="n">auto</span> <span class="n">product</span><span class="p">(</span><span class="n">Ts</span><span class="o">...</span> <span class="n">x</span><span class="p">)</span> <span class="n">noexcept</span>
+<span class="o">-</span> <span class="n">template</span><span class="o">&lt;</span><span class="n">typename</span> <span class="n">T</span><span class="p">,</span> <span class="n">std</span><span class="p">::</span><span class="n">size_t</span> <span class="n">N</span><span class="o">&gt;</span> <span class="n">T</span> <span class="n">product</span><span class="p">(</span><span class="n">const</span> <span class="n">std</span><span class="p">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">N</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">arr</span><span class="p">)</span> <span class="n">noexcept</span>
+<span class="o">-</span> <span class="n">template</span><span class="o">&lt;</span><span class="n">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="n">product</span><span class="p">(</span><span class="n">const</span> <span class="n">std</span><span class="p">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="mi">0</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">arr</span><span class="p">)</span> <span class="n">noexcept</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="alignment">
+<h1>Alignment<a class="headerlink" href="#alignment" title="Link to this heading">¶</a></h1>
+<p>Below are documented the utilities zest uses for describing byte alignment of containers and views.</p>
+<section id="id1">
+<h2>Concepts<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<dl class="cpp concept">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN4zest20valid_simd_alignmentE">
+<span id="_CPPv3I0EN4zest20valid_simd_alignmentE"></span><span id="_CPPv2I0EN4zest20valid_simd_alignmentE"></span><span class="target" id="conceptzest_1_1valid__simd__alignment"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">concept</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">valid_simd_alignment</span></span></span><a class="headerlink" href="#_CPPv4I0EN4zest20valid_simd_alignmentE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</section>
+<section id="id2">
+<h2>Types<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest11NoAlignmentE">
+<span id="_CPPv3N4zest11NoAlignmentE"></span><span id="_CPPv2N4zest11NoAlignmentE"></span><span id="zest::NoAlignment"></span><span class="target" id="structzest_1_1NoAlignment"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NoAlignment</span></span></span><a class="headerlink" href="#_CPPv4N4zest11NoAlignmentE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Alignmnet descriptor which doesn’t specify any alignment. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN4zest11NoAlignment11vector_sizeENSt6size_tEv">
+<span id="_CPPv3I0EN4zest11NoAlignment11vector_sizeEv"></span><span id="_CPPv2I0EN4zest11NoAlignment11vector_sizeEv"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structzest_1_1NoAlignment_1a608bf79992d1c071031fe0c85c49263d"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">vector_size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I0EN4zest11NoAlignment11vector_sizeENSt6size_tEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Number of elements that fit in a SIMD vector of given type. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>T</strong> – type of elements. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt6size_tEEN4zest15VectorAlignmentE">
+<span id="_CPPv3I_NSt6size_tEEN4zest15VectorAlignmentE"></span><span id="_CPPv2I_NSt6size_tEEN4zest15VectorAlignmentE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">byte_alignment</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structzest_1_1VectorAlignment"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">VectorAlignment</span></span></span><a class="headerlink" href="#_CPPv4I_NSt6size_tEEN4zest15VectorAlignmentE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Alignmnet descriptor for SIMD vector alignment. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">byte_alignment</span></code> must be a power of two. </p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>byte_alignment</strong> – number of bytes to align to</p>
+</dd>
+</dl>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN4zest15VectorAlignment11vector_sizeENSt6size_tEv">
+<span id="_CPPv3I0EN4zest15VectorAlignment11vector_sizeEv"></span><span id="_CPPv2I0EN4zest15VectorAlignment11vector_sizeEv"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structzest_1_1VectorAlignment_1a1f0da0f8ecee1c82ff671943334b282b"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">vector_size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I0EN4zest15VectorAlignment11vector_sizeENSt6size_tEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Number of elements that fit in a SIMD vector of given type. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>T</strong> – type of elements </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4I0_20valid_simd_alignmentEN4zest16AlignedAllocatorE">
+<span id="_CPPv3I0_20valid_simd_alignmentEN4zest16AlignedAllocatorE"></span><span id="_CPPv2I0_20valid_simd_alignmentEN4zest16AlignedAllocatorE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN4zest20valid_simd_alignmentE" title="zest::valid_simd_alignment"><span class="n"><span class="pre">valid_simd_alignment</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Alignment</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structzest_1_1AlignedAllocator"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AlignedAllocator</span></span></span><a class="headerlink" href="#_CPPv4I0_20valid_simd_alignmentEN4zest16AlignedAllocatorE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Aligned memory allocator class. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>T</strong> – type of allocated object </p></li>
+<li><p><strong>BYTE_ALIGNMENT</strong> – number of bytes to align to </p></li>
+</ul>
+</dd>
+</dl>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest16AlignedAllocator8allocateENSt6size_tE">
+<span id="_CPPv3N4zest16AlignedAllocator8allocateENSt6size_tE"></span><span id="_CPPv2N4zest16AlignedAllocator8allocateENSt6size_tE"></span><span id="zest::AlignedAllocator::allocate__std::s"></span><span class="target" id="structzest_1_1AlignedAllocator_1a84018559a385ad5e33ff44428f11dd1d"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_20valid_simd_alignmentEN4zest16AlignedAllocatorE" title="zest::AlignedAllocator::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">allocate</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest16AlignedAllocator8allocateENSt6size_tE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Allocate an aligned block of memory that fits <code class="docutils literal notranslate"><span class="pre">n</span></code> objects of <code class="docutils literal notranslate"><span class="pre">value_type</span></code>. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> – Number of objects.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Pointer to the allocated memory. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest16AlignedAllocator10deallocateEP1TNSt6size_tE">
+<span id="_CPPv3N4zest16AlignedAllocator10deallocateEP1TNSt6size_tE"></span><span id="_CPPv2N4zest16AlignedAllocator10deallocateEP1TNSt6size_tE"></span><span id="zest::AlignedAllocator::deallocate__TP.std::s"></span><span class="target" id="structzest_1_1AlignedAllocator_1ade000d4fdf1682d7a397a333b85c9342"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">deallocate</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0_20valid_simd_alignmentEN4zest16AlignedAllocatorE" title="zest::AlignedAllocator::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">p</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N4zest16AlignedAllocator10deallocateEP1TNSt6size_tE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Free allocated memory. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> – Pointer to the allocated memory. </p></li>
+<li><p><strong>n</strong> – Number of objects in the allocated block. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN4zest16AlignedAllocator6rebindE">
+<span id="_CPPv3I0EN4zest16AlignedAllocator6rebindE"></span><span id="_CPPv2I0EN4zest16AlignedAllocator6rebindE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structzest_1_1AlignedAllocator_1_1rebind"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rebind</span></span></span><a class="headerlink" href="#_CPPv4I0EN4zest16AlignedAllocator6rebindE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="type-aliases">
+<h2>Type aliases<a class="headerlink" href="#type-aliases" title="Link to this heading">¶</a></h2>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest12SSEAlignmentE">
+<span id="_CPPv3N4zest12SSEAlignmentE"></span><span id="_CPPv2N4zest12SSEAlignmentE"></span><span class="target" id="alignment_8hpp_1a6a9db7d71e56bd2b127948b215c9cd95"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">SSEAlignment</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest15VectorAlignmentE" title="zest::VectorAlignment"><span class="n"><span class="pre">VectorAlignment</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="m"><span class="pre">16</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N4zest12SSEAlignmentE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Alias for SSE (16 byte) alignment descriptor. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest12AVXAlignmentE">
+<span id="_CPPv3N4zest12AVXAlignmentE"></span><span id="_CPPv2N4zest12AVXAlignmentE"></span><span class="target" id="alignment_8hpp_1a8a1aefdaa9a5021911dc1da8c36f8fb6"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">AVXAlignment</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest15VectorAlignmentE" title="zest::VectorAlignment"><span class="n"><span class="pre">VectorAlignment</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="m"><span class="pre">32</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N4zest12AVXAlignmentE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Alias for AVX (32 byte) alignment descriptor. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest15AVX512AlignmentE">
+<span id="_CPPv3N4zest15AVX512AlignmentE"></span><span id="_CPPv2N4zest15AVX512AlignmentE"></span><span class="target" id="alignment_8hpp_1a3836750effe6a837dd81edcb6932202f"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">AVX512Alignment</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest15VectorAlignmentE" title="zest::VectorAlignment"><span class="n"><span class="pre">VectorAlignment</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="m"><span class="pre">64</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N4zest15AVX512AlignmentE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Alias for AVX512 (64 byte) alignment descriptor. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest18CacheLineAlignmentE">
+<span id="_CPPv3N4zest18CacheLineAlignmentE"></span><span id="_CPPv2N4zest18CacheLineAlignmentE"></span><span class="target" id="alignment_8hpp_1a21f0c2f87c0496445139855e2ac72fae"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">CacheLineAlignment</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest15VectorAlignmentE" title="zest::VectorAlignment"><span class="n"><span class="pre">VectorAlignment</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="m"><span class="pre">64</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N4zest18CacheLineAlignmentE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Alias for cache line (64 byte) alignment descriptor. </p>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          <a class="prev-page" href="gl.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Gauss–Legendre quadrature</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Sebastian Sassi
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Utilities</a><ul>
+<li><a class="reference internal" href="#concepts">Concepts</a><ul>
+<li><a class="reference internal" href="#_CPPv4I0EN4zest6taggedE"><code class="docutils literal notranslate"><span class="pre">tagged</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0EN4zest15sequence_shapedE"><code class="docutils literal notranslate"><span class="pre">sequence_shaped</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0EN4zest13tensor_shapedE"><code class="docutils literal notranslate"><span class="pre">tensor_shaped</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0EN4zest13complex_floatE"><code class="docutils literal notranslate"><span class="pre">complex_float</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0EN4zest21complex_or_real_floatE"><code class="docutils literal notranslate"><span class="pre">complex_or_real_float</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0EN4zest8tag_typeE"><code class="docutils literal notranslate"><span class="pre">tag_type</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#types">Types</a><ul>
+<li><a class="reference internal" href="#_CPPv4I0_NSt6size_tEEN4zest11BufferChainE"><code class="docutils literal notranslate"><span class="pre">zest::BufferChain</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#functions">Functions</a><ul>
+<li><a class="reference internal" href="#_CPPv4I_NSt6size_tE0EN4zest9take_lastEDaRK1T"><code class="docutils literal notranslate"><span class="pre">take_last()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I_NSt6size_tE0EN4zest10take_firstEDaRK1T"><code class="docutils literal notranslate"><span class="pre">take_first()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I00EN4zest6appendEDaRK1TRK1S"><code class="docutils literal notranslate"><span class="pre">append()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I00EN4zest7prependEDaRK1TRK1S"><code class="docutils literal notranslate"><span class="pre">prepend()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I00EN4zest11concatenateEDaRK1TRK1S"><code class="docutils literal notranslate"><span class="pre">concatenate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#alignment">Alignment</a><ul>
+<li><a class="reference internal" href="#id1">Concepts</a><ul>
+<li><a class="reference internal" href="#_CPPv4I0EN4zest20valid_simd_alignmentE"><code class="docutils literal notranslate"><span class="pre">valid_simd_alignment</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id2">Types</a><ul>
+<li><a class="reference internal" href="#_CPPv4N4zest11NoAlignmentE"><code class="docutils literal notranslate"><span class="pre">zest::NoAlignment</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4I0EN4zest11NoAlignment11vector_sizeENSt6size_tEv"><code class="docutils literal notranslate"><span class="pre">vector_size()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest15VectorAlignmentE"><code class="docutils literal notranslate"><span class="pre">zest::VectorAlignment</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4I0EN4zest15VectorAlignment11vector_sizeENSt6size_tEv"><code class="docutils literal notranslate"><span class="pre">vector_size()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4I0_20valid_simd_alignmentEN4zest16AlignedAllocatorE"><code class="docutils literal notranslate"><span class="pre">zest::AlignedAllocator</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N4zest16AlignedAllocator8allocateENSt6size_tE"><code class="docutils literal notranslate"><span class="pre">allocate()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest16AlignedAllocator10deallocateEP1TNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">deallocate()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0EN4zest16AlignedAllocator6rebindE"><code class="docutils literal notranslate"><span class="pre">zest::AlignedAllocator::rebind</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#type-aliases">Type aliases</a><ul>
+<li><a class="reference internal" href="#_CPPv4N4zest12SSEAlignmentE"><code class="docutils literal notranslate"><span class="pre">SSEAlignment</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest12AVXAlignmentE"><code class="docutils literal notranslate"><span class="pre">AVXAlignment</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest15AVX512AlignmentE"><code class="docutils literal notranslate"><span class="pre">AVX512Alignment</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest18CacheLineAlignmentE"><code class="docutils literal notranslate"><span class="pre">CacheLineAlignment</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

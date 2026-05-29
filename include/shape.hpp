@@ -175,14 +175,18 @@ public:
     constexpr SequencedShape() = default;
 
     /**
-        @brief Construct a shape from its extent.
+        @brief Construct a sequenced shape from its order.
+
+        @param Order of the sequenced shape.
     */
     explicit constexpr SequencedShape(extent_type order):
         m_order{order}, m_size{size(order)} {}
 
 
     /**
-        @brief Size of the shape for a given extent.
+        @brief Size of the sequenced shape for a given order.
+
+        @param Order of the sequenced shape.
     */
     [[nodiscard]] static constexpr size_type
     size(extent_type order) noexcept { return sequence_type::size(order); }

@@ -12,5 +12,10 @@ zest -- **Ze**\ rnike and **s**\ pherical **t**\ ransforms
 
    getting_started
    introduction
-   anatomy
-   reference
+   sh
+   zernike
+   rotations
+   power_spectra
+   shaped
+   gl
+   utilities

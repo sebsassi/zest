@@ -97,6 +97,8 @@ public:
 
     /**
         @brief Increment index by stride.
+
+        @return Reference to the iterator.
     */
     constexpr IndexIterator& operator++() noexcept
     {
@@ -106,6 +108,8 @@ public:
 
     /**
         @brief Decrement index by stride.
+
+        @return Reference to the iterator.
     */
     constexpr IndexIterator& operator--() noexcept
     {
@@ -115,6 +119,8 @@ public:
 
     /**
         @brief Increment index by stride.
+
+        @return Reference to the iterator.
     */
     constexpr IndexIterator operator++(int) noexcept
     {
@@ -125,6 +131,8 @@ public:
 
     /**
         @brief Decrement index by stride.
+
+        @return Reference to the iterator.
     */
     constexpr IndexIterator operator--(int) noexcept
     {
@@ -135,6 +143,10 @@ public:
 
     /**
         @brief Increment index by multiple strides.
+
+        @param n Number of strides.
+
+        @return Reference to the iterator.
     */
     constexpr IndexIterator& operator+=(index_type n) noexcept
     { m_index += n*stride; return *this; }
@@ -142,12 +154,20 @@ public:
 
     /**
         @brief Decrement index by multiple strides.
+
+        @param n Number of strides.
+
+        @return Reference to the iterator.
     */
     constexpr IndexIterator& operator-=(index_type n) noexcept
     { m_index += n*stride; return *this; }
 
     /**
         @brief Add `n` strides to index.
+
+        @param n Number of strides.
+
+        @return An index iterator `n` strides forward.
     */
     [[nodiscard]] constexpr IndexIterator
     operator+(difference_type n) const noexcept
@@ -155,6 +175,10 @@ public:
 
     /**
         @brief Subtract `n` strides from index.
+
+        @param n Number of strides.
+
+        @return An index iterator `n` strides back.
     */
     [[nodiscard]] constexpr IndexIterator
     operator-(difference_type n) const noexcept
@@ -216,12 +240,16 @@ public:
         m_begin(std::min(begin, end)), m_end(end) {}
 
     /**
-        @brief Iterator to the beginning of the range.
+        @brief Beginning of the range.
+
+        @return Iterator to the beginning of the range.
     */
     [[nodiscard]] constexpr iterator begin() const noexcept { return iterator{m_begin}; }
 
     /**
-        @brief Iterator to the end of the range.
+        @brief End of the range.
+
+        @return Iterator to the end of the range.
     */
     [[nodiscard]] constexpr iterator end() const noexcept { return iterator{m_end}; }
 
@@ -251,9 +279,19 @@ public:
     using index_type = IndexType;
     using iterator = IndexIterator<index_type, stride_param>;
 
+    /**
+        @brief Beginning of the range.
+
+        @return Iterator to the beginning of the range.
+    */
     [[nodiscard]] constexpr iterator 
     begin() const noexcept { return iterator{begin_param}; }
 
+    /**
+        @brief End of the range.
+
+        @return Iterator to the end of the range.
+    */
     [[nodiscard]] constexpr iterator
     end() const noexcept { return iterator{end_param}; }
 };

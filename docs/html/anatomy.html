@@ -1,23 +1,23 @@
 <!doctype html>
 <html class="no-js" lang="en" data-content_root="./">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Library reference" href="reference.html" /><link rel="prev" title="Theoretical background" href="introduction.html" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
         <title>Anatomy of zest - zest 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     
     
 
 
 <style>
   body {
-    --color-code-background: #f8f8f8;
-  --color-code-foreground: black;
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
   
   }
   @media not print {
@@ -144,14 +144,10 @@
   </symbol>
 </svg>
 
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
 
 <a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
@@ -161,8 +157,7 @@
   <header class="mobile-header">
     <div class="header-left">
       <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
       </label>
     </div>
     <div class="header-center">
@@ -170,8 +165,7 @@
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
           <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
           <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
@@ -179,8 +173,7 @@
         </button>
       </div>
       <label class="toc-overlay-icon toc-header-icon" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
   </header>
@@ -188,7 +181,6 @@
     <div class="sidebar-container">
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
-  
   
   <span class="sidebar-brand-text">zest 0.1.0 documentation</span>
   
@@ -199,11 +191,40 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Theoretical background</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Anatomy of zest</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference.html">Library reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="sh.html">Spherical harmonics</a><input aria-label="Toggle navigation of Spherical harmonics" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="sh_conventions.html">Spherical harmonic conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_containers.html">Spherical harmonic containers and views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_containers.html#spherical-harmonic-layout-shapes">Spherical harmonic layout shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_grids.html">Spherical grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_transforms.html">Spherical harmonic transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_concepts.html">Spherical harmonic concepts</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="zernike.html">Zernike functions</a><input aria-label="Toggle navigation of Zernike functions" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="zernike_conventions.html">Zernike conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_containers.html">Zernike containers and views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_containers.html#spherical-harmonic-layout-shapes">Spherical harmonic layout shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_grids.html">Ball grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_transforms.html">Spherical harmonic transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_concepts.html">Zernike concepts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rotations.html">Rotations of Zernike functions and spherical harmonics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power_spectra.html">Power spectra</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="shaped.html">Spans, shapes, sequences, …</a><input aria-label="Toggle navigation of Spans, shapes, sequences, …" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="shape_intro.html">Motivation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="indexing.html">Index ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arrays_spans.html">Arrays and spans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shapes.html">Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sequences.html">Index sequences</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gl.html">Gauss–Legendre quadrature</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html#alignment">Alignment</a></li>
 </ul>
 
 </div>
@@ -230,8 +251,7 @@
   </a>
 </div>
 <div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
               <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
               <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
@@ -239,8 +259,7 @@
             </button>
           </div>
           <label class="toc-overlay-icon toc-content-icon" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
@@ -331,7 +350,7 @@ responsible for allocation and deallocation of the buffer. Views are objects whi
 buffer they refer to; they simply give a <em>view</em> to a buffer owned by some other object.</p>
 <p>The library comes with a number of containers for easy storage and manipulation of different types
 of data. For storing spherical harmonic and Zernike expansions of real functions, there are the
-classes <a class="reference internal" href="reference.html#_CPPv4I_6SHNorm_7SHPhase0EN4zest2st15RealSHExpansionE" title="zest::st::RealSHExpansion"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::RealSHExpansion</span></code></a> and <a class="reference internal" href="reference.html#_CPPv4I_11ZernikeNorm_N2st6SHNormE_N2st7SHPhaseE0EN4zest2zt20RealZernikeExpansionE" title="zest::zt::RealZernikeExpansion"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeExpansion</span></code></a>
+classes <code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::RealSHExpansion</span></code> and <code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeExpansion</span></code>
 respectively.</p>
 <p>The template parameters of these containers primarily control the various normalization conventions.
 The parameter <code class="docutils literal notranslate"><span class="pre">ElementType</span></code> is the type of elements in the underlying buffer. There are two main
@@ -344,36 +363,36 @@ quadrature-based transforms, but the former is mandatory for fitting an expansio
 <p>For these classes, the library provides a number of convenient aliases for various common
 combinations of normalization and phase conventions. For spherical harmonics these aliases are</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="reference.html#_CPPv4N4zest2st24RealSHExpansionAcousticsE" title="zest::st::RealSHExpansionAcoustics"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::RealSHExpansionAcoustics</span></code></a></p></li>
-<li><p><a class="reference internal" href="reference.html#_CPPv4N4zest2st17RealSHExpansionQME" title="zest::st::RealSHExpansionQM"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::RealSHExpansionQM</span></code></a></p></li>
-<li><p><a class="reference internal" href="reference.html#_CPPv4N4zest2st18RealSHExpansionGeoE" title="zest::st::RealSHExpansionGeo"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::RealSHExpansionGeo</span></code></a></p></li>
+<li><p><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::RealSHExpansionAcoustics</span></code></p></li>
+<li><p><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::RealSHExpansionQM</span></code></p></li>
+<li><p><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::RealSHExpansionGeo</span></code></p></li>
 </ul>
 <p>For Zernike functions there are corresponding aliases for the unnormalized radial functions:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="reference.html#_CPPv4N4zest2zt29RealZernikeExpansionAcousticsE" title="zest::zt::RealZernikeExpansionAcoustics"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeExpansionAcoustics</span></code></a></p></li>
-<li><p><a class="reference internal" href="reference.html#_CPPv4N4zest2zt22RealZernikeExpansionQME" title="zest::zt::RealZernikeExpansionQM"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeExpansionQM</span></code></a></p></li>
-<li><p><a class="reference internal" href="reference.html#_CPPv4N4zest2zt23RealZernikeExpansionGeoE" title="zest::zt::RealZernikeExpansionGeo"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeExpansionGeo</span></code></a></p></li>
+<li><p><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeExpansionAcoustics</span></code></p></li>
+<li><p><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeExpansionQM</span></code></p></li>
+<li><p><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeExpansionGeo</span></code></p></li>
 </ul>
 <p>and furthermore for the normalized radial Zernike polynomials:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="reference.html#_CPPv4N4zest2zt35RealZernikeExpansionNormalAcousticsE" title="zest::zt::RealZernikeExpansionNormalAcoustics"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeExpansionNormalAcoustics</span></code></a></p></li>
-<li><p><a class="reference internal" href="reference.html#_CPPv4N4zest2zt28RealZernikeExpansionNormalQME" title="zest::zt::RealZernikeExpansionNormalQM"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeExpansionNormalQM</span></code></a></p></li>
-<li><p><a class="reference internal" href="reference.html#_CPPv4N4zest2zt29RealZernikeExpansionNormalGeoE" title="zest::zt::RealZernikeExpansionNormalGeo"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeExpansionNormalGeo</span></code></a></p></li>
+<li><p><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeExpansionNormalAcoustics</span></code></p></li>
+<li><p><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeExpansionNormalQM</span></code></p></li>
+<li><p><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeExpansionNormalGeo</span></code></p></li>
 </ul>
 <p>For storage of function values on Gauss–Legendre quadrature grids there are the classes
-<a class="reference internal" href="reference.html#_CPPv4I00EN4zest2st13SphereGLQGridE" title="zest::st::SphereGLQGrid"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::SphereGLQGrid</span></code></a> and <a class="reference internal" href="reference.html#_CPPv4I00EN4zest2zt11BallGLQGridE" title="zest::zt::BallGLQGrid"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::BallGLQGrid</span></code></a> for the sphere and ball,
+<code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::SphereGLQGrid</span></code> and <a class="reference internal" href="zernike_grids.html#_CPPv4I00EN4zest2zt11BallGLQGridE" title="zest::zt::BallGLQGrid"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::BallGLQGrid</span></code></a> for the sphere and ball,
 respectively. The <code class="docutils literal notranslate"><span class="pre">ElementType</span></code> parameter here is simply a floating point type. The parameter
 <code class="docutils literal notranslate"><span class="pre">LayoutType</span></code>, in turn, describes how the multidimensional grid is laid out in memory. This is not
 something a user of the library generally needs to worry about, because the default layout is the
 layout that should be used for performing the transforms to expansion coefficients.</p>
 <p>Mirroring the convention of the C++ standard library, views to buffers in zest are referred with
 the word “span”. Each of the above containers has a corresponding view. Thus we have
-<a class="reference internal" href="reference.html#_CPPv4I0_6SHNorm_7SHPhaseEN4zest2st10RealSHSpanE" title="zest::st::RealSHSpan"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::RealSHSpan</span></code></a> and <a class="reference internal" href="reference.html#_CPPv4I0_11ZernikeNorm_N2st6SHNormE_N2st7SHPhaseEEN4zest2zt15RealZernikeSpanE" title="zest::zt::RealZernikeSpan"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeSpan</span></code></a> with the corresponding
-aliases for different normalization/phase conventions, and <a class="reference internal" href="reference.html#_CPPv4I00EN4zest2st17SphereGLQGridSpanE" title="zest::st::SphereGLQGridSpan"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">zest::st::SphereGLQGridSpan</span></code></a>
-and <a class="reference internal" href="reference.html#_CPPv4I00EN4zest2zt15BallGLQGridSpanE" title="zest::zt::BallGLQGridSpan"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">zest::zt::BallGLQGridSpan</span></code></a> for the quadrature grids.</p>
-<p>In additon, for completeness it is worth mentioning the <a class="reference internal" href="reference.html#_CPPv4I0_NSt6size_tEEN4zest6MDSpanE" title="zest::MDSpan"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">zest::MDSpan</span></code></a>, which is a
-general multidimensional array view, and is the base of both <a class="reference internal" href="reference.html#_CPPv4I00EN4zest2st17SphereGLQGridSpanE" title="zest::st::SphereGLQGridSpan"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">zest::st::SphereGLQGridSpan</span></code></a>
-and <a class="reference internal" href="reference.html#_CPPv4I00EN4zest2zt15BallGLQGridSpanE" title="zest::zt::BallGLQGridSpan"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">zest::zt::BallGLQGridSpan</span></code></a>. It is a poor man’s alternative to C++23’s <code class="docutils literal notranslate"><span class="pre">std::mdspan</span></code>,
+<code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::RealSHSpan</span></code> and <code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::RealZernikeSpan</span></code> with the corresponding
+aliases for different normalization/phase conventions, and <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">zest::st::SphereGLQGridSpan</span></code>
+and <a class="reference internal" href="zernike_grids.html#_CPPv4I00EN4zest2zt15BallGLQGridSpanE" title="zest::zt::BallGLQGridSpan"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">zest::zt::BallGLQGridSpan</span></code></a> for the quadrature grids.</p>
+<p>In additon, for completeness it is worth mentioning the <a class="reference internal" href="arrays_spans.html#_CPPv4I0_DpNSt6size_tEEN4zest6MDSpanE" title="zest::MDSpan"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">zest::MDSpan</span></code></a>, which is a
+general multidimensional array view, and is the base of both <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">zest::st::SphereGLQGridSpan</span></code>
+and <a class="reference internal" href="zernike_grids.html#_CPPv4I00EN4zest2zt15BallGLQGridSpanE" title="zest::zt::BallGLQGridSpan"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">zest::zt::BallGLQGridSpan</span></code></a>. It is a poor man’s alternative to C++23’s <code class="docutils literal notranslate"><span class="pre">std::mdspan</span></code>,
 replicating the part of its interface, which is necessary for this library.</p>
 <p>Views are very useful, because they allow for more flexible storage of the expansions and grids.
 For example, zest does not offer a container for storage of multiple spherical harmonic expansions,
@@ -435,24 +454,24 @@ that could be made in writing the constraints for the indices by hand.</p>
 <section id="gauss-legendre-quadrature-transformers">
 <h2>Gauss–Legendre quadrature transformers<a class="headerlink" href="#gauss-legendre-quadrature-transformers" title="Link to this heading">¶</a></h2>
 <p>At the heart of zest are the Gauss–Legendre quadrature grid based transforms of spherical harmonic
-and Zernike expansions. These transforms are implemented by the classes <a class="reference internal" href="reference.html#_CPPv4I_6SHNorm_7SHPhase0EN4zest2st14GLQTransformerE" title="zest::st::GLQTransformer"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::GLQTransformer</span></code></a>
-and <a class="reference internal" href="reference.html#_CPPv4I_11ZernikeNorm_N2st6SHNormE_N2st7SHPhaseE0EN4zest2zt14GLQTransformerE" title="zest::zt::GLQTransformer"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::GLQTransformer</span></code></a> for spherical harmonic and Zernike transforms respectively.
+and Zernike expansions. These transforms are implemented by the classes <a class="reference internal" href="sh_transforms.html#_CPPv4I_6SHNorm_7SHPhase0EN4zest2st14GLQTransformerE" title="zest::st::GLQTransformer"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::GLQTransformer</span></code></a>
+and <a class="reference internal" href="zernike_transforms.html#_CPPv4I_11ZernikeNorm_N2st6SHNormE_N2st7SHPhaseE0EN4zest2zt14GLQTransformerE" title="zest::zt::GLQTransformer"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::GLQTransformer</span></code></a> for spherical harmonic and Zernike transforms respectively.
 The normalization and phase convention parameters are the same as those to the respective expansion
 containers discussed above. To that end, both transformer classes have a set of aliases for some commond
 combinations of normalization and phase conventions. These are</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="reference.html#_CPPv4I0EN4zest2st23GLQTransformerAcousticsE" title="zest::st::GLQTransformerAcoustics"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::GLQTransformerAcoustics</span></code></a></p></li>
-<li><p><a class="reference internal" href="reference.html#_CPPv4I0EN4zest2st16GLQTransformerQME" title="zest::st::GLQTransformerQM"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::GLQTransformerQM</span></code></a></p></li>
-<li><p><a class="reference internal" href="reference.html#_CPPv4I0EN4zest2st17GLQTransformerGeoE" title="zest::st::GLQTransformerGeo"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::GLQTransformerGeo</span></code></a></p></li>
+<li><p><a class="reference internal" href="sh_transforms.html#_CPPv4I0EN4zest2st23GLQTransformerAcousticsE" title="zest::st::GLQTransformerAcoustics"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::GLQTransformerAcoustics</span></code></a></p></li>
+<li><p><a class="reference internal" href="sh_transforms.html#_CPPv4I0EN4zest2st16GLQTransformerQME" title="zest::st::GLQTransformerQM"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::GLQTransformerQM</span></code></a></p></li>
+<li><p><a class="reference internal" href="sh_transforms.html#_CPPv4I0EN4zest2st17GLQTransformerGeoE" title="zest::st::GLQTransformerGeo"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::st::GLQTransformerGeo</span></code></a></p></li>
 </ul>
 <p>for the spherical harmonic transformer as well as</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="reference.html#_CPPv4I0EN4zest2zt23GLQTransformerAcousticsE" title="zest::zt::GLQTransformerAcoustics"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::GLQTransformerAcoustics</span></code></a></p></li>
-<li><p><a class="reference internal" href="reference.html#_CPPv4I0EN4zest2zt16GLQTransformerQME" title="zest::zt::GLQTransformerQM"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::GLQTransformerQM</span></code></a></p></li>
-<li><p><a class="reference internal" href="reference.html#_CPPv4I0EN4zest2zt17GLQTransformerGeoE" title="zest::zt::GLQTransformerGeo"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::GLQTransformerGeo</span></code></a></p></li>
-<li><p><a class="reference internal" href="reference.html#_CPPv4I0EN4zest2zt29GLQTransformerNormalAcousticsE" title="zest::zt::GLQTransformerNormalAcoustics"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::GLQTransformerNormalAcoustics</span></code></a></p></li>
-<li><p><a class="reference internal" href="reference.html#_CPPv4I0EN4zest2zt22GLQTransformerNormalQME" title="zest::zt::GLQTransformerNormalQM"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::GLQTransformerNormalQM</span></code></a></p></li>
-<li><p><a class="reference internal" href="reference.html#_CPPv4I0EN4zest2zt23GLQTransformerNormalGeoE" title="zest::zt::GLQTransformerNormalGeo"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::GLQTransformerNormalGeo</span></code></a></p></li>
+<li><p><a class="reference internal" href="zernike_transforms.html#_CPPv4I0EN4zest2zt23GLQTransformerAcousticsE" title="zest::zt::GLQTransformerAcoustics"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::GLQTransformerAcoustics</span></code></a></p></li>
+<li><p><a class="reference internal" href="zernike_transforms.html#_CPPv4I0EN4zest2zt16GLQTransformerQME" title="zest::zt::GLQTransformerQM"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::GLQTransformerQM</span></code></a></p></li>
+<li><p><a class="reference internal" href="zernike_transforms.html#_CPPv4I0EN4zest2zt17GLQTransformerGeoE" title="zest::zt::GLQTransformerGeo"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::GLQTransformerGeo</span></code></a></p></li>
+<li><p><a class="reference internal" href="zernike_transforms.html#_CPPv4I0EN4zest2zt29GLQTransformerNormalAcousticsE" title="zest::zt::GLQTransformerNormalAcoustics"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::GLQTransformerNormalAcoustics</span></code></a></p></li>
+<li><p><a class="reference internal" href="zernike_transforms.html#_CPPv4I0EN4zest2zt22GLQTransformerNormalQME" title="zest::zt::GLQTransformerNormalQM"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::GLQTransformerNormalQM</span></code></a></p></li>
+<li><p><a class="reference internal" href="zernike_transforms.html#_CPPv4I0EN4zest2zt23GLQTransformerNormalGeoE" title="zest::zt::GLQTransformerNormalGeo"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">zest::zt::GLQTransformerNormalGeo</span></code></a></p></li>
 </ul>
 <p>for the Zernike transformer. The final parameter <code class="docutils literal notranslate"><span class="pre">GridLayoutType</span></code> in turn is the same as for the
 corresponding grid containers.</p>
@@ -494,7 +513,7 @@ D-matrices never needs to be evaluated. The x-axis rotations are expressible in 
 d-matrix for a 90 degree rotation, and can be precomputed once, On the other hand, the z-rotations
 are just diagonal matrices of values <span class="math notranslate nohighlight">\(e^{im\theta_i}\)</span>, where <span class="math notranslate nohighlight">\(\theta_i\)</span> is one of
 <span class="math notranslate nohighlight">\((\alpha,\beta,\gamma)\)</span>.</p>
-<p>With this brief review of the essential facts, zest has a single class <a class="reference internal" href="reference.html#_CPPv4N4zest5RotorE" title="zest::Rotor"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">zest::Rotor</span></code></a> for
+<p>With this brief review of the essential facts, zest has a single class <a class="reference internal" href="rotations.html#_CPPv4N4zest5RotorE" title="zest::Rotor"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">zest::Rotor</span></code></a> for
 performing the rotations, which has the method <code class="docutils literal notranslate"><span class="pre">rotate</span></code> for performing general rotations and
 <code class="docutils literal notranslate"><span class="pre">polar_rotate</span></code> for the special case of rotations about the z-axis</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">zest</span><span class="o">::</span><span class="n">Rotor</span><span class="w"> </span><span class="nf">rotor</span><span class="p">(</span><span class="n">order</span><span class="p">);</span>
@@ -508,13 +527,13 @@ performing the rotations, which has the method <code class="docutils literal not
 <span class="w">    </span><span class="n">expansion</span><span class="p">,</span><span class="w"> </span><span class="n">wigner_d_pi2</span><span class="p">,</span><span class="w"> </span><span class="n">euler_angles</span><span class="p">,</span><span class="w"> </span><span class="n">zest</span><span class="o">::</span><span class="n">RotationType</span><span class="o">::</span><span class="n">coordinate</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>All rotations take as their last argument an enum of type <a class="reference internal" href="reference.html#_CPPv4N4zest12RotationTypeE" title="zest::RotationType"><code class="xref cpp cpp-enum docutils literal notranslate"><span class="pre">zest::RotationType</span></code></a>, which has
-two values <a class="reference internal" href="reference.html#_CPPv4N4zest12RotationType6objectE" title="zest::RotationType::object"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">zest::RotationType::object</span></code></a> and <a class="reference internal" href="reference.html#_CPPv4N4zest12RotationType10coordinateE" title="zest::RotationType::coordinate"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">zest::RotationType::coordinate</span></code></a>.
+<p>All rotations take as their last argument an enum of type <a class="reference internal" href="rotations.html#_CPPv4N4zest12RotationTypeE" title="zest::RotationType"><code class="xref cpp cpp-enum docutils literal notranslate"><span class="pre">zest::RotationType</span></code></a>, which has
+two values <a class="reference internal" href="rotations.html#_CPPv4N4zest12RotationType6objectE" title="zest::RotationType::object"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">zest::RotationType::object</span></code></a> and <a class="reference internal" href="rotations.html#_CPPv4N4zest12RotationType10coordinateE" title="zest::RotationType::coordinate"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">zest::RotationType::coordinate</span></code></a>.
 These express whether the rotation represents a rotation of an object in space (active rotation) or
 a rotation of the coordinate system (passive rotation). The polar rotation naturally takes as its
 argument a single angle, whereas the general rotation takes three Euler angles, given as a standard
 library array with three elements. Finally, the general rotation takes as its second argument an
-object of type <a class="reference internal" href="reference.html#_CPPv4N4zest23WignerdPiHalfCollectionE" title="zest::WignerdPiHalfCollection"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">zest::WignerdPiHalfCollection</span></code></a>. This object contains the values of the
+object of type <a class="reference internal" href="rotations.html#_CPPv4N4zest23WignerdPiHalfCollectionE" title="zest::WignerdPiHalfCollection"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">zest::WignerdPiHalfCollection</span></code></a>. This object contains the values of the
 d-matrix for a 90 degree angle, i.e., <span class="math notranslate nohighlight">\(\pi/2\)</span>, up to some specified order.</p>
 </section>
 </section>
@@ -524,26 +543,8 @@ d-matrix for a 90 degree angle, i.e., <span class="math notranslate nohighlight"
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="reference.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">Library reference</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="introduction.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">Theoretical background</div>
-                
-              </div>
-            </a>
+          
+          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -591,9 +592,9 @@ d-matrix for a 90 degree angle, i.e., <span class="math notranslate nohighlight"
     </aside>
   </div>
 </div><script src="_static/documentation_options.js?v=01f34227"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     </body>
 </html>

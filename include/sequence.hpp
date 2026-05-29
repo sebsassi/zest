@@ -119,7 +119,7 @@ struct StandardLinearSequence
     /**
         @brief Linear index of an element in sequence.
 
-        @param l
+        @param l Index to the sequence.
     */
     [[nodiscard]] static constexpr index_type
     index(index_type l) noexcept
@@ -168,7 +168,7 @@ struct ParityLinearSequence
     /**
         @brief Linear index of an element in sequence.
 
-        @param l
+        @param l Index to the sequence.
     */
     [[nodiscard]] static constexpr index_type
     index(index_type l) noexcept
@@ -244,8 +244,8 @@ public:
     /**
         @brief Linear index of an element in sequence.
 
-        @param l
-        @param m
+        @param l Index to the sequence.
+        @param m Index to the sequence.
     */
     [[nodiscard]] static constexpr index_type
     index(index_type l, index_type m) noexcept
@@ -264,7 +264,7 @@ public:
     /**
         @brief Linear index of an element in sequence.
 
-        @param l
+        @param l Index to the sequence.
     */
     [[nodiscard]] static constexpr index_type
     index(index_type l) noexcept
@@ -278,7 +278,7 @@ public:
     /**
         @brief Order of a subsequence at given index `l`.
 
-        @param l
+        @param l Index to the sequence.
     */
     [[nodiscard]] static constexpr size_type
     subextent(index_type l) noexcept { return size_type(l + 1); }
@@ -341,8 +341,8 @@ public:
     /**
         @brief Linear index of an element in sequence.
 
-        @param n
-        @param l
+        @param n Index to the sequence.
+        @param l Index to the sequence.
     */
     [[nodiscard]] static constexpr index_type
     index(index_type n, index_type l) noexcept
@@ -354,7 +354,7 @@ public:
     /**
         @brief Linear index of an element in sequence.
 
-        @param n
+        @param n Index to the sequence.
     */
     [[nodiscard]] static constexpr index_type
     index(index_type n) noexcept
@@ -365,7 +365,7 @@ public:
     /**
         @brief Order of a subsequence at given index `n`.
 
-        @param n
+        @param n Index to the sequence.
     */
     [[nodiscard]] static constexpr
     size_type subextent(index_type n) noexcept { return size_type(n + 1); }
@@ -466,8 +466,8 @@ public:
     /**
         @brief Linear index of an element in sequence.
 
-        @param l
-        @param m
+        @param l Index to the sequence.
+        @param m Index to the sequence.
     */
     static constexpr index_type
     index(index_type l, index_type m) noexcept
@@ -487,7 +487,7 @@ public:
     /**
         @brief Linear index of an element in sequence.
 
-        @param l
+        @param l Index to the sequence.
     */
     static constexpr index_type
     index(index_type l) noexcept
@@ -501,7 +501,7 @@ public:
     /**
         @brief Order of a subsequence at given index `l`.
 
-        @param l
+        @param l Index to the sequence.
     */
     [[nodiscard]] static constexpr size_type
     subextent(index_type l) noexcept { return size_type(l + 1); }
@@ -592,9 +592,9 @@ public:
     /**
         @brief Linear index of an element in sequence.
 
-        @param n
-        @param l
-        @param m
+        @param n Index to the sequence.
+        @param l Index to the sequence.
+        @param m Index to the sequence.
     */
     [[nodiscard]] static constexpr index_type
     index(index_type n, index_type l, index_type m) noexcept
@@ -614,8 +614,8 @@ public:
     /**
         @brief Linear index of an element in sequence.
 
-        @param n
-        @param l
+        @param n Index to the sequence.
+        @param l Index to the sequence.
     */
     [[nodiscard]] static constexpr index_type
     index(index_type n, index_type l) noexcept
@@ -635,7 +635,7 @@ public:
     /**
         @brief Linear index of an element in sequence.
 
-        @param n
+        @param n Index to the sequence.
     */
     [[nodiscard]] static constexpr index_type
     index(index_type n) noexcept
@@ -657,8 +657,8 @@ public:
     /**
         @brief Order of a subsequence at given index pair `(n,l)`.
 
-        @param n
-        @param l
+        @param n Index to the sequence.
+        @param l Index to the sequence.
     */
     [[nodiscard]] static constexpr size_type
     subextent([[maybe_unused]] index_type n, index_type l) noexcept { return size_type(l + 1); }

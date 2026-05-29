@@ -102,7 +102,7 @@ public:
     /**
         @brief Construct a shaped array from a shape.
 
-        @param extents Extents of the shape.
+        @param shape Shape of the array.
     */
     explicit ShapedArray(const shape_type& shape):
         m_data(shape.size()), m_shape(shape) {}

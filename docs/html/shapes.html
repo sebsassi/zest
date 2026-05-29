@@ -1,0 +1,985 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Index sequences" href="sequences.html"><link rel="prev" title="Arrays and spans" href="arrays_spans.html">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Shapes - zest 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">zest 0.1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">zest 0.1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Theoretical background</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="sh.html">Spherical harmonics</a><input aria-label="Toggle navigation of Spherical harmonics" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="sh_conventions.html">Spherical harmonic conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_containers.html">Spherical harmonic containers and views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_containers.html#spherical-harmonic-layout-shapes">Spherical harmonic layout shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_grids.html">Spherical grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_transforms.html">Spherical harmonic transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_concepts.html">Spherical harmonic concepts</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="zernike.html">Zernike functions</a><input aria-label="Toggle navigation of Zernike functions" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="zernike_conventions.html">Zernike conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_containers.html">Zernike containers and views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_containers.html#spherical-harmonic-layout-shapes">Spherical harmonic layout shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_grids.html">Ball grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_transforms.html">Spherical harmonic transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_concepts.html">Zernike concepts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rotations.html">Rotations of Zernike functions and spherical harmonics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power_spectra.html">Power spectra</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="shaped.html">Spans, shapes, sequences, …</a><input aria-label="Toggle navigation of Spans, shapes, sequences, …" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="shape_intro.html">Motivation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="indexing.html">Index ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arrays_spans.html">Arrays and spans</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sequences.html">Index sequences</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gl.html">Gauss–Legendre quadrature</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html#alignment">Alignment</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/shapes.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="shapes">
+<h1>Shapes<a class="headerlink" href="#shapes" title="Link to this heading">¶</a></h1>
+<p>Shapes are the means with which zest maps complex indexing schemes efficiently to contiquous ranges
+of memory.</p>
+<p>Consider, as a prototypical case, the spherical harmonics, which are indexed by the two
+indices <span class="math notranslate nohighlight">\((l, m)\)</span> with <span class="math notranslate nohighlight">\(|m| \leq l\)</span>. Conventionally, if <span class="math notranslate nohighlight">\(l &lt; L\)</span> for some math:<cite>L</cite>,
+these would be stored in an array of size <cite>L times 2L</cite>, and simply accessed like regular array
+elements. However, this uses two times more memory than necessary (the array has <span class="math notranslate nohighlight">\(2L^2\)</span>
+elements when we only need <span class="math notranslate nohighlight">\(L^2\)</span> of them), and some indices are very far from each other (the
+elements corresponding to <span class="math notranslate nohighlight">\((0, 0)\)</span> and <span class="math notranslate nohighlight">\((1, 0)\)</span> have <span class="math notranslate nohighlight">\(2L - 1\)</span> unused slots between
+them).</p>
+<p>It would be more efficient if all elements were stored with no wasted space in between. This can be
+done by mapping <span class="math notranslate nohighlight">\((l, m)\)</span> to <span class="math notranslate nohighlight">\(l(l + 1) + m\)</span>, for example. This way <span class="math notranslate nohighlight">\((0, 0)\)</span> is
+followed immediately by <span class="math notranslate nohighlight">\((1, -1)\)</span>, and so on.</p>
+<p>Shapes are zest’s way of managing such complex mappings, such that the user only ever needs to worry
+about the indices, while the underlying mapping to elements in memory is done by the shape
+machinery.</p>
+<section id="concepts">
+<h2>Concepts<a class="headerlink" href="#concepts" title="Link to this heading">¶</a></h2>
+<dl class="cpp concept">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN4zest5shapeE">
+<span id="_CPPv3I0EN4zest5shapeE"></span><span id="_CPPv2I0EN4zest5shapeE"></span><span class="target" id="conceptzest_1_1shape"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">concept</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">shape</span></span></span><a class="headerlink" href="#_CPPv4I0EN4zest5shapeE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;shape.hpp&gt;</em></div>
+<p>Concept for checking if a type looks like a shape. </p>
+</dd></dl>
+
+</section>
+<section id="types">
+<h2>Types<a class="headerlink" href="#types" title="Link to this heading">¶</a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest9NullShapeE">
+<span id="_CPPv3N4zest9NullShapeE"></span><span id="_CPPv2N4zest9NullShapeE"></span><span id="zest::NullShape"></span><span class="target" id="classzest_1_1NullShape"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NullShape</span></span></span><a class="headerlink" href="#_CPPv4N4zest9NullShapeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Type which communicates that an object has no underlying shape. </p>
+<p>The null shape communicates that a given object has no underlying shape. It is primarily used in subshape hierarchies to indicate that we have reached the bottom of the hierarchy. All shapes of rank <span class="math notranslate nohighlight">\(N\)</span> should have it as its <span class="math notranslate nohighlight">\(N\)</span>th subshape. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-types">Public Types</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt6size_tEEN4zest9NullShape13subshape_typeE">
+<span id="_CPPv3I_NSt6size_tEEN4zest9NullShape13subshape_typeE"></span><span id="_CPPv2I_NSt6size_tEEN4zest9NullShape13subshape_typeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">N</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1NullShape_1a94b315b6378731956bca1c1456047988"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">subshape_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N4zest9NullShapeE" title="zest::NullShape"><span class="n"><span class="pre">NullShape</span></span></a><a class="headerlink" href="#_CPPv4I_NSt6size_tEEN4zest9NullShape13subshape_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Subshapes of the shape. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest9NullShape9NullShapeE11extent_type">
+<span id="_CPPv3N4zest9NullShape9NullShapeE11extent_type"></span><span id="_CPPv2N4zest9NullShape9NullShapeE11extent_type"></span><span id="zest::NullShape::NullShape__extent_typeCE"></span><span class="target" id="classzest_1_1NullShape_1af7f57c948ce7292c9aedbc1958777f45"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NullShape</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">extent_type</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest9NullShape9NullShapeE11extent_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Construct a shape from extents. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest9NullShape4sizeEv">
+<span id="_CPPv3NK4zest9NullShape4sizeEv"></span><span id="_CPPv2NK4zest9NullShape4sizeEv"></span><span id="zest::NullShape::sizeC"></span><span class="target" id="classzest_1_1NullShape_1a17ede42371236050d9ad50f72c519be1"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest9NullShape4sizeEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size of the shape. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Always returns zero. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest9NullShape7extentsEv">
+<span id="_CPPv3NK4zest9NullShape7extentsEv"></span><span id="_CPPv2NK4zest9NullShape7extentsEv"></span><span id="zest::NullShape::extentsC"></span><span class="target" id="classzest_1_1NullShape_1a4d4f48eddf984d7cd94683c6c2c25b0d"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">extent_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">extents</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest9NullShape7extentsEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Extents of the shape. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Always returns zero. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest9NullShape7indicesEv">
+<span id="_CPPv3NK4zest9NullShape7indicesEv"></span><span id="_CPPv2NK4zest9NullShape7indicesEv"></span><span id="zest::NullShape::indicesC"></span><span class="target" id="classzest_1_1NullShape_1a8e8142490888a54d2da87473d090c4df"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">index_range</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">indices</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest9NullShape7indicesEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Index range of the shape. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns a range with a single index zero. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest9NullShape4sizeE11extent_type">
+<span id="_CPPv3N4zest9NullShape4sizeE11extent_type"></span><span id="_CPPv2N4zest9NullShape4sizeE11extent_type"></span><span id="zest::NullShape::size__extent_type"></span><span class="target" id="classzest_1_1NullShape_1a782464da2708969023b59e9f4a8d1971"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">extent_type</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N4zest9NullShape4sizeE11extent_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size of the shape for given extents. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Always returns zero. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN4zest14SequencedShapeE">
+<span id="_CPPv3I0EN4zest14SequencedShapeE"></span><span id="_CPPv2I0EN4zest14SequencedShapeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SequenceType</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1SequencedShape"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SequencedShape</span></span></span><a class="headerlink" href="#_CPPv4I0EN4zest14SequencedShapeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Shape which is generated by an infinite sequence. </p>
+<p>
+Some shapes can be naturally regarded as being generated by an infinite sequence of index tuples, such that they can be fully specified by a single number. An example of such a sequence is the sequence of index pairs <span class="math notranslate nohighlight">\((l, m)\)</span> with <span class="math notranslate nohighlight">\(|m| \leq l\)</span>, which can be naturally mapped to a contiquous sequence via <span class="math notranslate nohighlight">\(l(l + 1) + m\)</span>, such that only the cutoff for the index <span class="math notranslate nohighlight">\(l\)</span> needs to be know to get a finite shape.</p>
+<p>Concretely, the shape is described by a single number, the order, such that the index of its outermost dimension is less than the order.</p>
+<p>All subshapes of sequenced shapes are, by definition, also sequenced shapes. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>SequenceType</strong> – Type of generating sequence.</p>
+</dd>
+</dl>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-types">Public Types</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt6size_tEEN4zest14SequencedShape13subshape_typeE">
+<span id="_CPPv3I_NSt6size_tEEN4zest14SequencedShape13subshape_typeE"></span><span id="_CPPv2I_NSt6size_tEEN4zest14SequencedShape13subshape_typeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">N</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1SequencedShape_1afcf4953d889194f3d55fd80f2bb881eb"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">subshape_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">subshape_helper</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest14SequencedShape13subshape_typeE" title="zest::SequencedShape::subshape_type::N"><span class="n"><span class="pre">N</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">type</span></span><a class="headerlink" href="#_CPPv4I_NSt6size_tEEN4zest14SequencedShape13subshape_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Subshapes of the shape. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest14SequencedShape14SequencedShapeE11extent_type">
+<span id="_CPPv3N4zest14SequencedShape14SequencedShapeE11extent_type"></span><span id="_CPPv2N4zest14SequencedShape14SequencedShapeE11extent_type"></span><span id="zest::SequencedShape::SequencedShape__extent_typeCE"></span><span class="target" id="classzest_1_1SequencedShape_1a8c4df5d19f9ee398de08735e06a98852"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SequencedShape</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">extent_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">order</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest14SequencedShape14SequencedShapeE11extent_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Construct a sequenced shape from its order. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Order</strong> – of the sequenced shape. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest14SequencedShape4sizeEv">
+<span id="_CPPv3NK4zest14SequencedShape4sizeEv"></span><span id="_CPPv2NK4zest14SequencedShape4sizeEv"></span><span id="zest::SequencedShape::sizeC"></span><span class="target" id="classzest_1_1SequencedShape_1aedca761554fe255fac3aa2fe1a37086f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest14SequencedShape4sizeEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size of the shape. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest14SequencedShape7extentsEv">
+<span id="_CPPv3NK4zest14SequencedShape7extentsEv"></span><span id="_CPPv2NK4zest14SequencedShape7extentsEv"></span><span id="zest::SequencedShape::extentsC"></span><span class="target" id="classzest_1_1SequencedShape_1a60e401b338c43dfd85cc6fe1dc838cff"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">extent_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">extents</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest14SequencedShape7extentsEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Extent of the shape. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest14SequencedShape5orderEv">
+<span id="_CPPv3NK4zest14SequencedShape5orderEv"></span><span id="_CPPv2NK4zest14SequencedShape5orderEv"></span><span id="zest::SequencedShape::orderC"></span><span class="target" id="classzest_1_1SequencedShape_1ab778c3d5d7adcdd22d27e326bb20ba77"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">extent_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">order</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest14SequencedShape5orderEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Order paramter of the shape; synonymous to <code class="docutils literal notranslate"><a class="reference internal" href="#classzest_1_1SequencedShape_1a60e401b338c43dfd85cc6fe1dc838cff"><span class="std std-ref"><span class="pre">extents()</span></span></a></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_DpNSt8integralEENK4zest14SequencedShape8subshapeEDaDp4Inds">
+<span id="_CPPv3I_DpNSt8integralEENK4zest14SequencedShape8subshapeEDp4Inds"></span><span id="_CPPv2I_DpNSt8integralEENK4zest14SequencedShape8subshapeEDp4Inds"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Inds</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1SequencedShape_1a10c7bf1f9a08076a9a48f4ad6e1b6e28"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">subshape</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_DpNSt8integralEENK4zest14SequencedShape8subshapeEDaDp4Inds" title="zest::SequencedShape::subshape::Inds"><span class="n"><span class="pre">Inds</span></span></a><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">indices</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I_DpNSt8integralEENK4zest14SequencedShape8subshapeEDaDp4Inds" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Subshape of the shape. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>indices</strong> – Indices at which the subshape is taken. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_DpNSt8integralEENK4zest14SequencedShapeclE10index_typeDp4Inds">
+<span id="_CPPv3I_DpNSt8integralEENK4zest14SequencedShapeclEDp4Inds"></span><span id="_CPPv2I_DpNSt8integralEENK4zest14SequencedShapeclEDp4Inds"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Inds</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1SequencedShape_1ab54981c3fe409b31c8fa91d72109559a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">()</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_DpNSt8integralEENK4zest14SequencedShapeclE10index_typeDp4Inds" title="zest::SequencedShape::operator()::Inds"><span class="n"><span class="pre">Inds</span></span></a><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">indices</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I_DpNSt8integralEENK4zest14SequencedShapeclE10index_typeDp4Inds" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Get the contiguous index corresponding to the shape indices. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>indices</strong> – Indices mapped to the contiquous sequence. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest14SequencedShape7indicesEv">
+<span id="_CPPv3NK4zest14SequencedShape7indicesEv"></span><span id="_CPPv2NK4zest14SequencedShape7indicesEv"></span><span id="zest::SequencedShape::indicesC"></span><span class="target" id="classzest_1_1SequencedShape_1a9bd6c9203ab105d1122d319e2ae996f9"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">index_range</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">indices</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest14SequencedShape7indicesEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Index range of the shape. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest14SequencedShape7indicesE10index_type">
+<span id="_CPPv3NK4zest14SequencedShape7indicesE10index_type"></span><span id="_CPPv2NK4zest14SequencedShape7indicesE10index_type"></span><span id="zest::SequencedShape::indices__index_typeC"></span><span class="target" id="classzest_1_1SequencedShape_1a7ce705a1116b9e00326195033bae67ec"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">index_range</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">indices</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">index</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest14SequencedShape7indicesE10index_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Index range of the shape starting at a given index. </p>
+<p>index Starting index. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest14SequencedShape4sizeE11extent_type">
+<span id="_CPPv3N4zest14SequencedShape4sizeE11extent_type"></span><span id="_CPPv2N4zest14SequencedShape4sizeE11extent_type"></span><span id="zest::SequencedShape::size__extent_type"></span><span class="target" id="classzest_1_1SequencedShape_1ad2213da8f540a128b568e25d91d8dbd5"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">extent_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">order</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N4zest14SequencedShape4sizeE11extent_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size of the sequenced shape for a given order. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Order</strong> – of the sequenced shape. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4I_DpNSt6size_tEEN4zest11TensorShapeE">
+<span id="_CPPv3I_DpNSt6size_tEEN4zest11TensorShapeE"></span><span id="_CPPv2I_DpNSt6size_tEEN4zest11TensorShapeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">extent_params</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1TensorShape"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TensorShape</span></span></span><a class="headerlink" href="#_CPPv4I_DpNSt6size_tEEN4zest11TensorShapeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Shape describing the layout of a general multidimensional array. </p>
+<p>
+This class describes the shape of multidimensional arrays/tensors. It allows tensor shapes may be known at compile time (static) or may only be known at runtime (dynamic). Thus any of the <code class="docutils literal notranslate"><span class="pre">extent_params</span></code> having the value <code class="docutils literal notranslate"><span class="pre">std::dynamic_extent</span></code> corresponds to a dynamic dimension, while any other value corresponds to a static dimension of the given size. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>extent_params</strong> – Parameters describing the extents of the array.</p>
+</dd>
+</dl>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-types">Public Types</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt6size_tEEN4zest11TensorShape13subshape_typeE">
+<span id="_CPPv3I_NSt6size_tEEN4zest11TensorShape13subshape_typeE"></span><span id="_CPPv2I_NSt6size_tEEN4zest11TensorShape13subshape_typeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">N</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1TensorShape_1acaaf0338913901218177ab929ae91b0d"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">subshape_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">subshape_helper</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest11TensorShape13subshape_typeE" title="zest::TensorShape::subshape_type::N"><span class="n"><span class="pre">N</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">make_index_sequence</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">rank</span></span><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest11TensorShape13subshape_typeE" title="zest::TensorShape::subshape_type::N"><span class="n"><span class="pre">N</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">type</span></span><a class="headerlink" href="#_CPPv4I_NSt6size_tEEN4zest11TensorShape13subshape_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Subshapes of the shape. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest11TensorShape11TensorShapeERK11extent_type">
+<span id="_CPPv3N4zest11TensorShape11TensorShapeERK11extent_type"></span><span id="_CPPv2N4zest11TensorShape11TensorShapeERK11extent_type"></span><span id="zest::TensorShape::TensorShape__extent_typeCRCE"></span><span class="target" id="classzest_1_1TensorShape_1adb10910537c27d0a7465089e12b03dd1"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TensorShape</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">extent_type</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">extents</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest11TensorShape11TensorShapeERK11extent_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Construct a shape from its extents. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest11TensorShape11TensorShapeERK19dynamic_extent_type">
+<span id="_CPPv3N4zest11TensorShape11TensorShapeERK19dynamic_extent_type"></span><span id="_CPPv2N4zest11TensorShape11TensorShapeERK19dynamic_extent_type"></span><span id="zest::TensorShape::TensorShape__dynamic_extent_typeCRCE"></span><span class="target" id="classzest_1_1TensorShape_1a8024e218637d1a49eaf145f5647d2220"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TensorShape</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">dynamic_extent_type</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">dynamic_extents</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest11TensorShape11TensorShapeERK19dynamic_extent_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Construct a shape from its dynamic extents. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_DpNSt8integralEEN4zest11TensorShape11TensorShapeEDp9SizeTypes">
+<span id="_CPPv3I_DpNSt8integralEEN4zest11TensorShape11TensorShapeEDp9SizeTypes"></span><span id="_CPPv2I_DpNSt8integralEEN4zest11TensorShape11TensorShapeEDp9SizeTypes"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SizeTypes</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1TensorShape_1ac77250abda1bf9023a7c87a1b86dc31b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TensorShape</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_DpNSt8integralEEN4zest11TensorShape11TensorShapeEDp9SizeTypes" title="zest::TensorShape::TensorShape::SizeTypes"><span class="n"><span class="pre">SizeTypes</span></span></a><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">extents</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I_DpNSt8integralEEN4zest11TensorShape11TensorShapeEDp9SizeTypes" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Construct a shape from its extents. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp">
+<span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SizeTypes</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1TensorShape_1ac886e1de7bdf189a336c3ad901066ee3"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TensorShape</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_DpNSt8integralEEN4zest11TensorShape11TensorShapeEDp9SizeTypes" title="zest::TensorShape::TensorShape::SizeTypes"><span class="n"><span class="pre">SizeTypes</span></span></a><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">dynamic_extents</span></span><span class="sig-paren">)</span><br /></dt>
+<dd><p>Construct a shape from its dynamic extents. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest11TensorShape4sizeEv">
+<span id="_CPPv3NK4zest11TensorShape4sizeEv"></span><span id="_CPPv2NK4zest11TensorShape4sizeEv"></span><span id="zest::TensorShape::sizeC"></span><span class="target" id="classzest_1_1TensorShape_1a5aa17b19ed0a1bd270c1550b048ecbc1"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest11TensorShape4sizeEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size of the shape. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest11TensorShape7extentsEv">
+<span id="_CPPv3NK4zest11TensorShape7extentsEv"></span><span id="_CPPv2NK4zest11TensorShape7extentsEv"></span><span id="zest::TensorShape::extentsC"></span><span class="target" id="classzest_1_1TensorShape_1af4bd7756c416b4c90dd469f05c322f99"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">extent_type</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">extents</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest11TensorShape7extentsEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Extents of the shape. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest11TensorShape15dynamic_extentsEv">
+<span id="_CPPv3NK4zest11TensorShape15dynamic_extentsEv"></span><span id="_CPPv2NK4zest11TensorShape15dynamic_extentsEv"></span><span id="zest::TensorShape::dynamic_extentsC"></span><span class="target" id="classzest_1_1TensorShape_1abe957f0e91c07f67466fb5de554e0943"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">dynamic_extent_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dynamic_extents</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest11TensorShape15dynamic_extentsEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Dynamic extents of the shape. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest11TensorShape6extentE9size_type">
+<span id="_CPPv3NK4zest11TensorShape6extentE9size_type"></span><span id="_CPPv2NK4zest11TensorShape6extentE9size_type"></span><span id="zest::TensorShape::extent__size_typeC"></span><span class="target" id="classzest_1_1TensorShape_1aae126a1f8a3cde2b252d024601d5f925"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">extent</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">i</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest11TensorShape6extentE9size_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Extent of the shape along a given dimension. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt6size_tEENK4zest11TensorShape6extentE9size_typev">
+<span id="_CPPv3I_NSt6size_tEENK4zest11TensorShape6extentEv"></span><span id="_CPPv2I_NSt6size_tEENK4zest11TensorShape6extentEv"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">I</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1TensorShape_1a35056fbda151a19ad26cc430e9985475"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">extent</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I_NSt6size_tEENK4zest11TensorShape6extentE9size_typev" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Extent of the shape along a given dimension known at compile time. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_DpNSt8integralEENK4zest11TensorShape8subshapeEDaDp4Inds">
+<span id="_CPPv3I_DpNSt8integralEENK4zest11TensorShape8subshapeEDp4Inds"></span><span id="_CPPv2I_DpNSt8integralEENK4zest11TensorShape8subshapeEDp4Inds"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Inds</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1TensorShape_1afad5b98a957a309be8c15a87296200b7"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">subshape</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_DpNSt8integralEENK4zest11TensorShape8subshapeEDaDp4Inds" title="zest::TensorShape::subshape::Inds"><span class="n"><span class="pre">Inds</span></span></a><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">inds</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I_DpNSt8integralEENK4zest11TensorShape8subshapeEDaDp4Inds" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Subshape of the shape. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inds</strong> – Indices at which the subshape is taken. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_DpNSt8integralEENK4zest11TensorShapeclE10index_typeDp4Inds">
+<span id="_CPPv3I_DpNSt8integralEENK4zest11TensorShapeclEDp4Inds"></span><span id="_CPPv2I_DpNSt8integralEENK4zest11TensorShapeclEDp4Inds"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Inds</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1TensorShape_1aed30dde1ccde4b365886df563d732ef6"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">()</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_DpNSt8integralEENK4zest11TensorShapeclE10index_typeDp4Inds" title="zest::TensorShape::operator()::Inds"><span class="n"><span class="pre">Inds</span></span></a><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">indices</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I_DpNSt8integralEENK4zest11TensorShapeclE10index_typeDp4Inds" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Get the contiguous index corresponding to the shape indices. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>indices</strong> – Indices mapped to the contiquous sequence. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest11TensorShape7indicesEv">
+<span id="_CPPv3NK4zest11TensorShape7indicesEv"></span><span id="_CPPv2NK4zest11TensorShape7indicesEv"></span><span id="zest::TensorShape::indicesC"></span><span class="target" id="classzest_1_1TensorShape_1af4c2536d8c52f39af3e5baf4d32369fd"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">indices</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest11TensorShape7indicesEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Index range of the shape. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest11TensorShape7indicesE10index_type">
+<span id="_CPPv3NK4zest11TensorShape7indicesE10index_type"></span><span id="_CPPv2NK4zest11TensorShape7indicesE10index_type"></span><span id="zest::TensorShape::indices__index_typeC"></span><span class="target" id="classzest_1_1TensorShape_1a84a31a8670041faa141419e56b7efc12"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">indices</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">index</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest11TensorShape7indicesE10index_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Index range of the shape starting at a given index. </p>
+<p>index Starting index. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest11TensorShape4sizeERK11extent_type">
+<span id="_CPPv3N4zest11TensorShape4sizeERK11extent_type"></span><span id="_CPPv2N4zest11TensorShape4sizeERK11extent_type"></span><span id="zest::TensorShape::size__extent_typeCR"></span><span class="target" id="classzest_1_1TensorShape_1a6bccf8a07f4b3eeadeb305f569c0b615"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">extent_type</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">extents</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N4zest11TensorShape4sizeERK11extent_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size of the shape given its extents. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest11TensorShape4sizeERK19dynamic_extent_type">
+<span id="_CPPv3N4zest11TensorShape4sizeERK19dynamic_extent_type"></span><span id="_CPPv2N4zest11TensorShape4sizeERK19dynamic_extent_type"></span><span id="zest::TensorShape::size__dynamic_extent_typeCR"></span><span class="target" id="classzest_1_1TensorShape_1a591cee9ebe5a30834301f58354676699"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">dynamic_extent_type</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">dynamic_extents</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N4zest11TensorShape4sizeERK19dynamic_extent_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size of the shape given its dynamic extents. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_DpNSt8integralEEN4zest11TensorShape4sizeE9size_typeDp9SizeTypes">
+<span id="_CPPv3I_DpNSt8integralEEN4zest11TensorShape4sizeEDp9SizeTypes"></span><span id="_CPPv2I_DpNSt8integralEEN4zest11TensorShape4sizeEDp9SizeTypes"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SizeTypes</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1TensorShape_1aac02480d8353a36e61be980b77d0646d"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_DpNSt8integralEEN4zest11TensorShape4sizeE9size_typeDp9SizeTypes" title="zest::TensorShape::size::SizeTypes"><span class="n"><span class="pre">SizeTypes</span></span></a><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">extents</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I_DpNSt8integralEEN4zest11TensorShape4sizeE9size_typeDp9SizeTypes" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size of the shape given its extents. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp">
+<span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SizeTypes</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1TensorShape_1a6e2e743256ce3b86df3e3154fbf8266d"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_DpNSt8integralEEN4zest11TensorShape4sizeE9size_typeDp9SizeTypes" title="zest::TensorShape::size::SizeTypes"><span class="n"><span class="pre">SizeTypes</span></span></a><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">dynamic_extents</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><br /></dt>
+<dd><p>Size of the shape given its dynamic extents. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4I00EN4zest14CompositeShapeE">
+<span id="_CPPv3I00EN4zest14CompositeShapeE"></span><span id="_CPPv2I00EN4zest14CompositeShapeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">OuterShape</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">InnerShape</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1CompositeShape"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CompositeShape</span></span></span><a class="headerlink" href="#_CPPv4I00EN4zest14CompositeShapeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Compose an outer shape and an inner shape to a new shape. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>OuterShape</strong> – </p></li>
+<li><p><strong>InnerShape</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-types">Public Types</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt6size_tEEN4zest14CompositeShape13subshape_typeE">
+<span id="_CPPv3I_NSt6size_tEEN4zest14CompositeShape13subshape_typeE"></span><span id="_CPPv2I_NSt6size_tEEN4zest14CompositeShape13subshape_typeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">N</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1CompositeShape_1adcfda19539f0366a3bb222f394723ecd"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">subshape_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">subshape_helper</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest14CompositeShape13subshape_typeE" title="zest::CompositeShape::subshape_type::N"><span class="n"><span class="pre">N</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">type</span></span><a class="headerlink" href="#_CPPv4I_NSt6size_tEEN4zest14CompositeShape13subshape_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Subshapes of the shape. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EN4zest14CompositeShape14CompositeShapeERK2E1RK2E2">
+<span id="_CPPv3I00EN4zest14CompositeShape14CompositeShapeERK2E1RK2E2"></span><span id="_CPPv2I00EN4zest14CompositeShape14CompositeShapeERK2E1RK2E2"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">E1</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">E2</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1CompositeShape_1a325711d223f26c6d834123811a3fefd9"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CompositeShape</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest14CompositeShape14CompositeShapeERK2E1RK2E2" title="zest::CompositeShape::CompositeShape::E1"><span class="n"><span class="pre">E1</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">outer_extents</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest14CompositeShape14CompositeShapeERK2E1RK2E2" title="zest::CompositeShape::CompositeShape::E2"><span class="n"><span class="pre">E2</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">inner_extents</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN4zest14CompositeShape14CompositeShapeERK2E1RK2E2" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Construct a composite shape from the extents of its inner and outer shapes. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outer_extents</strong> – Extents of the outer shape. </p></li>
+<li><p><strong>inner_extents</strong> – Extents of the inner shape. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN4zest14CompositeShape14CompositeShapeERK1E">
+<span id="_CPPv3I0EN4zest14CompositeShape14CompositeShapeERK1E"></span><span id="_CPPv2I0EN4zest14CompositeShape14CompositeShapeERK1E"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">E</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1CompositeShape_1a0fbc00cbacce53d0d7dfb642cd993d81"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CompositeShape</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN4zest14CompositeShape14CompositeShapeERK1E" title="zest::CompositeShape::CompositeShape::E"><span class="n"><span class="pre">E</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">outer_extents</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN4zest14CompositeShape14CompositeShapeERK1E" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Construct a composite shape with inner static extents from the extents of its outer shape. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>outer_extents</strong> – Extents of the outer shape. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp">
+<span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">E</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1CompositeShape_1a79dcb7e9cfb9be338bbf7139bb482a27"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CompositeShape</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN4zest14CompositeShape14CompositeShapeERK1E" title="zest::CompositeShape::CompositeShape::E"><span class="n"><span class="pre">E</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">inner_extents</span></span><span class="sig-paren">)</span><br /></dt>
+<dd><p>Construct a composite shape with outer static extents from the extents of its inner shape. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inner_extents</strong> – Extents of the inner shape. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest14CompositeShape14CompositeShapeERK10OuterShapeRK10InnerShape">
+<span id="_CPPv3N4zest14CompositeShape14CompositeShapeERK10OuterShapeRK10InnerShape"></span><span id="_CPPv2N4zest14CompositeShape14CompositeShapeERK10OuterShapeRK10InnerShape"></span><span id="zest::CompositeShape::CompositeShape__OuterShapeCR.InnerShapeCRCE"></span><span class="target" id="classzest_1_1CompositeShape_1af94f8fc7816952b1f81e163a7777f99c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CompositeShape</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest14CompositeShapeE" title="zest::CompositeShape::OuterShape"><span class="n"><span class="pre">OuterShape</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">outer_shape</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest14CompositeShapeE" title="zest::CompositeShape::InnerShape"><span class="n"><span class="pre">InnerShape</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">inner_shape</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest14CompositeShape14CompositeShapeERK10OuterShapeRK10InnerShape" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Construct a composite shape from its component shapes. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest14CompositeShape5orderEv">
+<span id="_CPPv3NK4zest14CompositeShape5orderEv"></span><span id="_CPPv2NK4zest14CompositeShape5orderEv"></span><span id="zest::CompositeShape::orderC"></span><span class="target" id="classzest_1_1CompositeShape_1a1f33550c960660a39f57f6b6673b6146"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest14CompositeShapeE" title="zest::CompositeShape::OuterShape"><span class="n"><span class="pre">OuterShape</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">extent_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">order</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest14CompositeShape5orderEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Order paramter of the shape if the outer shape is a sequenced shape. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest14CompositeShape6extentE9size_type">
+<span id="_CPPv3NK4zest14CompositeShape6extentE9size_type"></span><span id="_CPPv2NK4zest14CompositeShape6extentE9size_type"></span><span id="zest::CompositeShape::extent__size_typeC"></span><span class="target" id="classzest_1_1CompositeShape_1ab4137817549cbe8e36f835c3ab302810"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">extent</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">index</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest14CompositeShape6extentE9size_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Extent of the shape at a given index. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest14CompositeShape7extentsEv">
+<span id="_CPPv3NK4zest14CompositeShape7extentsEv"></span><span id="_CPPv2NK4zest14CompositeShape7extentsEv"></span><span id="zest::CompositeShape::extentsC"></span><span class="target" id="classzest_1_1CompositeShape_1a01d5f2e3e8a607705c19ac37f84fec5e"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">extent_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">extents</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest14CompositeShape7extentsEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Extents of the shape. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_DpNSt8integralEENK4zest14CompositeShape8subshapeEDaDp4Inds">
+<span id="_CPPv3I_DpNSt8integralEENK4zest14CompositeShape8subshapeEDp4Inds"></span><span id="_CPPv2I_DpNSt8integralEENK4zest14CompositeShape8subshapeEDp4Inds"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Inds</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1CompositeShape_1aab35ca13ba76779348416adb3668725d"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">subshape</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_DpNSt8integralEENK4zest14CompositeShape8subshapeEDaDp4Inds" title="zest::CompositeShape::subshape::Inds"><span class="n"><span class="pre">Inds</span></span></a><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">indices</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I_DpNSt8integralEENK4zest14CompositeShape8subshapeEDaDp4Inds" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Subshape of the shape. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>indices</strong> – Indices at which the subshape is taken. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_DpNSt8integralEENK4zest14CompositeShapeclE10index_typeDp4Inds">
+<span id="_CPPv3I_DpNSt8integralEENK4zest14CompositeShapeclEDp4Inds"></span><span id="_CPPv2I_DpNSt8integralEENK4zest14CompositeShapeclEDp4Inds"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Inds</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1CompositeShape_1a31ccc132499b0487bdf4236191787e84"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">()</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_DpNSt8integralEENK4zest14CompositeShapeclE10index_typeDp4Inds" title="zest::CompositeShape::operator()::Inds"><span class="n"><span class="pre">Inds</span></span></a><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">indices</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I_DpNSt8integralEENK4zest14CompositeShapeclE10index_typeDp4Inds" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Get the contiguous index corresponding to the shape indices. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>indices</strong> – Indices mapped to the contiquous sequence. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest14CompositeShape7indicesEv">
+<span id="_CPPv3NK4zest14CompositeShape7indicesEv"></span><span id="_CPPv2NK4zest14CompositeShape7indicesEv"></span><span id="zest::CompositeShape::indicesC"></span><span class="target" id="classzest_1_1CompositeShape_1aeab35ba2c51dd87b9419982749648aac"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">index_range</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">indices</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest14CompositeShape7indicesEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Index range of the shape. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest14CompositeShape7indicesE10index_type">
+<span id="_CPPv3NK4zest14CompositeShape7indicesE10index_type"></span><span id="_CPPv2NK4zest14CompositeShape7indicesE10index_type"></span><span id="zest::CompositeShape::indices__index_typeC"></span><span class="target" id="classzest_1_1CompositeShape_1a51607cfacff8daba5610582dda06a77f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">index_range</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">indices</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">index</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest14CompositeShape7indicesE10index_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Index range of the shape starting at a given index. </p>
+<p>index Starting index. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest14CompositeShape4sizeERKN10OuterShape11extent_typeERKN10InnerShape11extent_typeE">
+<span id="_CPPv3N4zest14CompositeShape4sizeERKN10OuterShape11extent_typeERKN10InnerShape11extent_typeE"></span><span id="_CPPv2N4zest14CompositeShape4sizeERKN10OuterShape11extent_typeERKN10InnerShape11extent_typeE"></span><span id="zest::CompositeShape::size__OuterShape::extent_typeCR.InnerShape::extent_typeCR"></span><span class="target" id="classzest_1_1CompositeShape_1a6a49685acd8b227a765c9b65c00f8a06"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest14CompositeShapeE" title="zest::CompositeShape::OuterShape"><span class="n"><span class="pre">OuterShape</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">extent_type</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">outer_extents</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest14CompositeShapeE" title="zest::CompositeShape::InnerShape"><span class="n"><span class="pre">InnerShape</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">extent_type</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">inner_extents</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N4zest14CompositeShape4sizeERKN10OuterShape11extent_typeERKN10InnerShape11extent_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size of a composite shape given the outer and inner extents. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outer_extents</strong> – Extents of the outer shape. </p></li>
+<li><p><strong>inner_extents</strong> – Extents of the inner shape. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest14CompositeShape4sizeERKN10OuterShape11extent_typeE">
+<span id="_CPPv3N4zest14CompositeShape4sizeERKN10OuterShape11extent_typeE"></span><span id="_CPPv2N4zest14CompositeShape4sizeERKN10OuterShape11extent_typeE"></span><span id="zest::CompositeShape::size__OuterShape::extent_typeCR"></span><span class="target" id="classzest_1_1CompositeShape_1ac7ce698af602b97e8021e6e4d2c77a9f"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest14CompositeShapeE" title="zest::CompositeShape::OuterShape"><span class="n"><span class="pre">OuterShape</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">extent_type</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">outer_extents</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest14CompositeShape4sizeERKN10OuterShape11extent_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size of a composite shape with inner static extents given the extents of its outer shape. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>outer_extents</strong> – Extents of the outer shape. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest14CompositeShape4sizeERKN10InnerShape11extent_typeE">
+<span id="_CPPv3N4zest14CompositeShape4sizeERKN10InnerShape11extent_typeE"></span><span id="_CPPv2N4zest14CompositeShape4sizeERKN10InnerShape11extent_typeE"></span><span id="zest::CompositeShape::size__InnerShape::extent_typeCR"></span><span class="target" id="classzest_1_1CompositeShape_1a7690f351085463440475efa4154c71d4"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest14CompositeShapeE" title="zest::CompositeShape::InnerShape"><span class="n"><span class="pre">InnerShape</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">extent_type</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">inner_extents</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest14CompositeShape4sizeERKN10InnerShape11extent_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size of a composite shape with outer static extents given the extents of its inner shape. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inner_extents</strong> – Extents of the inner shape. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest14CompositeShape4sizeEv">
+<span id="_CPPv3N4zest14CompositeShape4sizeEv"></span><span id="_CPPv2N4zest14CompositeShape4sizeEv"></span><span id="zest::CompositeShape::size"></span><span class="target" id="classzest_1_1CompositeShape_1a913cd54880556483d439fec323f7c5ea"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N4zest14CompositeShape4sizeEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size of the shape. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4I0_Dp8tag_typeEN4zest11TaggedShapeE">
+<span id="_CPPv3I0_Dp8tag_typeEN4zest11TaggedShapeE"></span><span id="_CPPv2I0_Dp8tag_typeEN4zest11TaggedShapeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ShapeType</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="utilities.html#_CPPv4I0EN4zest8tag_typeE" title="zest::tag_type"><span class="n"><span class="pre">tag_type</span></span></a><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Tags</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structzest_1_1TaggedShape"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TaggedShape</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_Dp8tag_typeEN4zest11TaggedShapeE" title="zest::TaggedShape::ShapeType"><span class="n"><span class="pre">ShapeType</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_Dp8tag_typeEN4zest11TaggedShapeE" title="zest::TaggedShape::Tags"><span class="n"><span class="pre">Tags</span></span></a><span class="p"><span class="pre">...</span></span><a class="headerlink" href="#_CPPv4I0_Dp8tag_typeEN4zest11TaggedShapeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Helper type for attaching arbitrary tag types to shapes. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ShapeType</strong> – Shape to be tagged. </p></li>
+<li><p><strong>Tags</strong> – Types tagging the shape type. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="type-aliases">
+<h2>Type aliases<a class="headerlink" href="#type-aliases" title="Link to this heading">¶</a></h2>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt6size_tEEN4zest18DynamicTensorShapeE">
+<span id="_CPPv3I_NSt6size_tEEN4zest18DynamicTensorShapeE"></span><span id="_CPPv2I_NSt6size_tEEN4zest18DynamicTensorShapeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rank</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="shape_8hpp_1a967dcc091ee3626612c7c5934d9bc5bc"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">DynamicTensorShape</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">detail</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">DynamicTensorShapeHelper</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">make_index_sequence</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest18DynamicTensorShapeE" title="zest::DynamicTensorShape::rank"><span class="n"><span class="pre">rank</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">type</span></span><a class="headerlink" href="#_CPPv4I_NSt6size_tEEN4zest18DynamicTensorShapeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Alias for a <code class="docutils literal notranslate"><a class="reference internal" href="#classzest_1_1TensorShape"><span class="std std-ref"><span class="pre">TensorShape</span></span></a></code> with only dynamic extents. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rank</strong> – Rank of the <code class="docutils literal notranslate"><a class="reference internal" href="#classzest_1_1TensorShape"><span class="std std-ref"><span class="pre">TensorShape</span></span></a></code>. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4I0_DpNSt6size_tEEN4zest19TensorSequenceShapeE">
+<span id="_CPPv3I0_DpNSt6size_tEEN4zest19TensorSequenceShapeE"></span><span id="_CPPv2I0_DpNSt6size_tEEN4zest19TensorSequenceShapeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SequenceType</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">extent_params</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="shape_8hpp_1af0a1466527a2ac54666d2a76058306af"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">TensorSequenceShape</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">conditional_t</span></span><span class="p"><span class="pre">&lt;</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">sizeof</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">(</span></span><a class="reference internal" href="#_CPPv4I0_DpNSt6size_tEEN4zest19TensorSequenceShapeE" title="zest::TensorSequenceShape::extent_params"><span class="n"><span class="pre">extent_params</span></span></a><span class="p"><span class="pre">)</span></span><span class="w"> </span><span class="o"><span class="pre">&gt;</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest14CompositeShapeE" title="zest::CompositeShape"><span class="n"><span class="pre">CompositeShape</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0EN4zest14SequencedShapeE" title="zest::SequencedShape"><span class="n"><span class="pre">SequencedShape</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0_DpNSt6size_tEEN4zest19TensorSequenceShapeE" title="zest::TensorSequenceShape::SequenceType"><span class="n"><span class="pre">SequenceType</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_DpNSt6size_tEEN4zest11TensorShapeE" title="zest::TensorShape"><span class="n"><span class="pre">TensorShape</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0_DpNSt6size_tEEN4zest19TensorSequenceShapeE" title="zest::TensorSequenceShape::extent_params"><span class="n"><span class="pre">extent_params</span></span></a><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN4zest14SequencedShapeE" title="zest::SequencedShape"><span class="n"><span class="pre">SequencedShape</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0_DpNSt6size_tEEN4zest19TensorSequenceShapeE" title="zest::TensorSequenceShape::SequenceType"><span class="n"><span class="pre">SequenceType</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4I0_DpNSt6size_tEEN4zest19TensorSequenceShapeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Alias for a shape describing a sequenced shape of tensor shapes. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>SequenceType</strong> – Type of the outer sequenced shape. </p></li>
+<li><p><strong>extent_params</strong> – Inner tensor shape extents. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4I0_DpNSt6size_tEEN4zest19SequenceTensorShapeE">
+<span id="_CPPv3I0_DpNSt6size_tEEN4zest19SequenceTensorShapeE"></span><span id="_CPPv2I0_DpNSt6size_tEEN4zest19SequenceTensorShapeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SequenceType</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">...</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">extent_params</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="shape_8hpp_1a226211c73af429f4bc8b38b6c4b744ca"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">SequenceTensorShape</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">conditional_t</span></span><span class="p"><span class="pre">&lt;</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">sizeof</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">(</span></span><a class="reference internal" href="#_CPPv4I0_DpNSt6size_tEEN4zest19SequenceTensorShapeE" title="zest::SequenceTensorShape::extent_params"><span class="n"><span class="pre">extent_params</span></span></a><span class="p"><span class="pre">)</span></span><span class="w"> </span><span class="o"><span class="pre">&gt;</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00EN4zest14CompositeShapeE" title="zest::CompositeShape"><span class="n"><span class="pre">CompositeShape</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_DpNSt6size_tEEN4zest11TensorShapeE" title="zest::TensorShape"><span class="n"><span class="pre">TensorShape</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0_DpNSt6size_tEEN4zest19SequenceTensorShapeE" title="zest::SequenceTensorShape::extent_params"><span class="n"><span class="pre">extent_params</span></span></a><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN4zest14SequencedShapeE" title="zest::SequencedShape"><span class="n"><span class="pre">SequencedShape</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0_DpNSt6size_tEEN4zest19SequenceTensorShapeE" title="zest::SequenceTensorShape::SequenceType"><span class="n"><span class="pre">SequenceType</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN4zest14SequencedShapeE" title="zest::SequencedShape"><span class="n"><span class="pre">SequencedShape</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0_DpNSt6size_tEEN4zest19SequenceTensorShapeE" title="zest::SequenceTensorShape::SequenceType"><span class="n"><span class="pre">SequenceType</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4I0_DpNSt6size_tEEN4zest19SequenceTensorShapeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Alias for a shape describing a tensor of sequenced shapes. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>SequenceType</strong> – Type of the inner sequenced shape. </p></li>
+<li><p><strong>extent_params</strong> – Outer tensor shape extents. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="sequences.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Index sequences</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="arrays_spans.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Arrays and spans</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Sebastian Sassi
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Shapes</a><ul>
+<li><a class="reference internal" href="#concepts">Concepts</a><ul>
+<li><a class="reference internal" href="#_CPPv4I0EN4zest5shapeE"><code class="docutils literal notranslate"><span class="pre">shape</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#types">Types</a><ul>
+<li><a class="reference internal" href="#_CPPv4N4zest9NullShapeE"><code class="docutils literal notranslate"><span class="pre">zest::NullShape</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest9NullShape13subshape_typeE"><code class="docutils literal notranslate"><span class="pre">subshape_type</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest9NullShape9NullShapeE11extent_type"><code class="docutils literal notranslate"><span class="pre">NullShape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest9NullShape4sizeEv"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest9NullShape7extentsEv"><code class="docutils literal notranslate"><span class="pre">extents()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest9NullShape7indicesEv"><code class="docutils literal notranslate"><span class="pre">indices()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest9NullShape4sizeE11extent_type"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4I0EN4zest14SequencedShapeE"><code class="docutils literal notranslate"><span class="pre">zest::SequencedShape</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest14SequencedShape13subshape_typeE"><code class="docutils literal notranslate"><span class="pre">subshape_type</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest14SequencedShape14SequencedShapeE11extent_type"><code class="docutils literal notranslate"><span class="pre">SequencedShape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest14SequencedShape4sizeEv"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest14SequencedShape7extentsEv"><code class="docutils literal notranslate"><span class="pre">extents()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest14SequencedShape5orderEv"><code class="docutils literal notranslate"><span class="pre">order()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I_DpNSt8integralEENK4zest14SequencedShape8subshapeEDaDp4Inds"><code class="docutils literal notranslate"><span class="pre">subshape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I_DpNSt8integralEENK4zest14SequencedShapeclE10index_typeDp4Inds"><code class="docutils literal notranslate"><span class="pre">operator()()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest14SequencedShape7indicesEv"><code class="docutils literal notranslate"><span class="pre">indices()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest14SequencedShape7indicesE10index_type"><code class="docutils literal notranslate"><span class="pre">indices()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest14SequencedShape4sizeE11extent_type"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4I_DpNSt6size_tEEN4zest11TensorShapeE"><code class="docutils literal notranslate"><span class="pre">zest::TensorShape</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest11TensorShape13subshape_typeE"><code class="docutils literal notranslate"><span class="pre">subshape_type</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest11TensorShape11TensorShapeERK11extent_type"><code class="docutils literal notranslate"><span class="pre">TensorShape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest11TensorShape11TensorShapeERK19dynamic_extent_type"><code class="docutils literal notranslate"><span class="pre">TensorShape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I_DpNSt8integralEEN4zest11TensorShape11TensorShapeEDp9SizeTypes"><code class="docutils literal notranslate"><span class="pre">TensorShape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest11TensorShape4sizeEv"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest11TensorShape7extentsEv"><code class="docutils literal notranslate"><span class="pre">extents()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest11TensorShape15dynamic_extentsEv"><code class="docutils literal notranslate"><span class="pre">dynamic_extents()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest11TensorShape6extentE9size_type"><code class="docutils literal notranslate"><span class="pre">extent()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I_NSt6size_tEENK4zest11TensorShape6extentE9size_typev"><code class="docutils literal notranslate"><span class="pre">extent()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I_DpNSt8integralEENK4zest11TensorShape8subshapeEDaDp4Inds"><code class="docutils literal notranslate"><span class="pre">subshape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I_DpNSt8integralEENK4zest11TensorShapeclE10index_typeDp4Inds"><code class="docutils literal notranslate"><span class="pre">operator()()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest11TensorShape7indicesEv"><code class="docutils literal notranslate"><span class="pre">indices()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest11TensorShape7indicesE10index_type"><code class="docutils literal notranslate"><span class="pre">indices()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest11TensorShape4sizeERK11extent_type"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest11TensorShape4sizeERK19dynamic_extent_type"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I_DpNSt8integralEEN4zest11TensorShape4sizeE9size_typeDp9SizeTypes"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4I00EN4zest14CompositeShapeE"><code class="docutils literal notranslate"><span class="pre">zest::CompositeShape</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest14CompositeShape13subshape_typeE"><code class="docutils literal notranslate"><span class="pre">subshape_type</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I00EN4zest14CompositeShape14CompositeShapeERK2E1RK2E2"><code class="docutils literal notranslate"><span class="pre">CompositeShape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0EN4zest14CompositeShape14CompositeShapeERK1E"><code class="docutils literal notranslate"><span class="pre">CompositeShape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest14CompositeShape14CompositeShapeERK10OuterShapeRK10InnerShape"><code class="docutils literal notranslate"><span class="pre">CompositeShape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest14CompositeShape5orderEv"><code class="docutils literal notranslate"><span class="pre">order()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest14CompositeShape6extentE9size_type"><code class="docutils literal notranslate"><span class="pre">extent()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest14CompositeShape7extentsEv"><code class="docutils literal notranslate"><span class="pre">extents()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I_DpNSt8integralEENK4zest14CompositeShape8subshapeEDaDp4Inds"><code class="docutils literal notranslate"><span class="pre">subshape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I_DpNSt8integralEENK4zest14CompositeShapeclE10index_typeDp4Inds"><code class="docutils literal notranslate"><span class="pre">operator()()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest14CompositeShape7indicesEv"><code class="docutils literal notranslate"><span class="pre">indices()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest14CompositeShape7indicesE10index_type"><code class="docutils literal notranslate"><span class="pre">indices()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest14CompositeShape4sizeERKN10OuterShape11extent_typeERKN10InnerShape11extent_typeE"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest14CompositeShape4sizeERKN10OuterShape11extent_typeE"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest14CompositeShape4sizeERKN10InnerShape11extent_typeE"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest14CompositeShape4sizeEv"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4I0_Dp8tag_typeEN4zest11TaggedShapeE"><code class="docutils literal notranslate"><span class="pre">zest::TaggedShape</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#type-aliases">Type aliases</a><ul>
+<li><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN4zest18DynamicTensorShapeE"><code class="docutils literal notranslate"><span class="pre">DynamicTensorShape</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0_DpNSt6size_tEEN4zest19TensorSequenceShapeE"><code class="docutils literal notranslate"><span class="pre">TensorSequenceShape</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0_DpNSt6size_tEEN4zest19SequenceTensorShapeE"><code class="docutils literal notranslate"><span class="pre">SequenceTensorShape</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    </body>
+</html>

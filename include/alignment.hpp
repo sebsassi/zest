@@ -72,7 +72,7 @@ struct NoAlignment
     /**
         @brief Number of elements that fit in a SIMD vector of given type.
 
-        @tparam T type of elements
+        @tparam T type of elements.
     */
     template <typename T>
     [[nodiscard]] static constexpr std::size_t
@@ -164,7 +164,11 @@ struct AlignedAllocator
     struct rebind { using other = AlignedAllocator<T, Alignment>; };
  
     /**
-        @brief Allocate an aligned block of memory that fits `n` values of `value_type`.
+        @brief Allocate an aligned block of memory that fits `n` objects of `value_type`.
+
+        @param n Number of objects.
+
+        @return Pointer to the allocated memory.
     */
     [[nodiscard]] T* allocate(std::size_t n)
     {
@@ -180,6 +184,9 @@ struct AlignedAllocator
  
     /**
         @brief Free allocated memory.
+
+        @param p Pointer to the allocated memory.
+        @param n Number of objects in the allocated block.
     */
     void deallocate(T* p, [[maybe_unused]] std::size_t n) noexcept
     {

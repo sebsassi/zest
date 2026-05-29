@@ -21,7 +21,8 @@ such that
 
 .. math::
 
-    \int_{S^2}Y_{lm}(\theta,\varphi)^*Y_{l'm'}(\theta,\varphi)\,d\Omega = N_{lm}\delta_{ll'}\delta_{mm'}.
+    \int_{S^2}Y_{lm}(\theta,\varphi)^*Y_{l'm'}(\theta,\varphi)\,d\Omega
+        = N_{lm}\delta_{ll'}\delta_{mm'}.
 
 Here :math:`\delta_{ij}` is the Kroenecker delta, and :math:`N_{lm}` is a normalization constant
 that depends on the normalization convention of spherical harmonics.
@@ -56,7 +57,8 @@ and quantum mechanics convention
 
 .. math::
 
-    Y_l^m(\theta,\varphi) = (-1)^{m}\sqrt{\frac{2l+1}{4\pi}\frac{(l-m)!}{(l+m)!}}P_l^m(\cos\theta)e^{im\varphi}.
+    Y_l^m(\theta,\varphi)
+        = (-1)^{m}\sqrt{\frac{2l+1}{4\pi}\frac{(l-m)!}{(l+m)!}}P_l^m(\cos\theta)e^{im\varphi}.
 
 For the geodesy convention, the normalization constant is :math:`N_{lm} = 4\pi`, whereas the
 quantum mechanics spherical harmonics are unit normalized with :math:`N_{lm} = 1`. The quantum
@@ -233,13 +235,15 @@ Since the Zernike functions form an orthogonal basis, any function on the unit b
 
 .. math::
 
-    f(\rho, \theta, \varphi) = \sum_{\frac{1}{2}(n-l)\in\mathbb{N}}\sum_{|m|\leq l}f_{nlm}Z_{nlm}(\rho,\theta,\varphi),
+    f(\rho, \theta, \varphi)
+        = \sum_{\frac{1}{2}(n-l)\in\mathbb{N}}\sum_{|m|\leq l}f_{nlm}Z_{nlm}(\rho,\theta,\varphi),
 
 and we have an orthogonality relation
 
 .. math::
 
-    \int_B Z_{nlm}(\rho,\theta,\varphi)Z_{n'l'm'}(\rho,\theta,\varphi)\, dV = N_{nlm}\delta_{nn'}\delta_{ll'}\delta_{mm'}.
+    \int_B Z_{nlm}(\rho,\theta,\varphi)Z_{n'l'm'}(\rho,\theta,\varphi)\, dV
+        = N_{nlm}\delta_{nn'}\delta_{ll'}\delta_{mm'}.
 
 The ambiquity about the phase and normalization of spherical harmonics naturally applies to Zernike
 functions, but there is an additional ambiquity over the normalization of the radial Zernike
@@ -248,13 +252,15 @@ orthogonality relation
 
 .. math::
 
-    \int_0^1 R_{nl}^{(\alpha)}(\rho)R_{n'l}^{(\alpha)}(\rho)\frac{\rho^2\,d\rho}{(1-\rho^2)^\alpha} = N_{nl}^{(\alpha)}\delta_{nn'}.
+    \int_0^1 R_{nl}^{(\alpha)}(\rho)R_{n'l}^{(\alpha)}(\rho)\frac{\rho^2\,d\rho}{(1-\rho^2)^\alpha}
+        = N_{nl}^{(\alpha)}\delta_{nn'}.
 
 with
 
 .. math::
 
-    N_{nl}^{(\alpha)} = \frac{1}{2(n + \alpha + 3/2)}\frac{((n - l)/2 + 1)_\alpha}{((n - l)/2 + l + 3/2)_\alpha}.
+    N_{nl}^{(\alpha)}
+        = \frac{1}{2(n + \alpha + 3/2)}\frac{((n - l)/2 + 1)_\alpha}{((n - l)/2 + l + 3/2)_\alpha}.
 
 The notation :math:`(x)_\alpha` is the Pochammer symbol, but we don't need to worry about it much,
 because under :math:`\alpha = 0` the expression reduces to
@@ -289,12 +295,14 @@ direction, because the radial integral comes with an extra factor of :math:`\rho
 
 .. math::
 
-    f_{nlm} \approx \sum_{k=0}^{L + 1}\sum_{i=0}{L}w_kw_i\rho_k^2R_{nl}(\rho_k)\bar{P}_l^m(z_i)\sum_{j=0}^{2L}
-    \begin{Bmatrix}
-        \cos(m\varphi_j)\\
-        \sin(|m|\varphi_j)
-    \end{Bmatrix}
-    f(\rho_k,\theta_i,\varphi_j).
+    f_{nlm}
+        \approx \sum_{k=0}^{L + 1}\sum_{i=0}{L}w_kw_i\rho_k^2R_{nl}(\rho_k)\bar{P}_l^m(z_i)
+            \sum_{j=0}^{2L}
+                \begin{Bmatrix}
+                    \cos(m\varphi_j)\\
+                    \sin(|m|\varphi_j)
+                \end{Bmatrix}
+                f(\rho_k,\theta_i,\varphi_j).
 
 As is the case with the spherical harmonic transform, this transform can be performed stepwise,
 first computing intermediate coefficients :math:`f_m(\rho_k,\theta_i)`, by doing the innermost sum,

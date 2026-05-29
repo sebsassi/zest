@@ -4,10 +4,6 @@ Getting started
 Installation
 ------------
 
-Before proceeding to installation, it is worth noting that zest mostly does not depend on libraries
-other than standard lbrary. However, an exception to this is that performing least squares fits of
-spherical harmonic and Zernike expansions requires linking with LAPACK. 
-
 For the installation you need to obtain the source code, e.g., by cloning the git repository. Then,
 navigate to the source directory
 
@@ -17,8 +13,7 @@ navigate to the source directory
     cd zest
 
 If you are familiar with CMake, zest follows a conventional CMake build/install procedure. Even if
-not, the process is simple: first, create a directory where the library is built, say ``build``,
-and then build the sources in that directory, e.g.,
+not, the process is simple: first we select one of the build presets and build the library
 
 .. code:: console
 
@@ -48,6 +43,7 @@ the rotated coefficients. Make a file ``rotate_sh.cpp`` with the following conte
 
     #include <cmath>
     #include <cstdio>
+    #include <print>
 
     int main()
     {
@@ -57,15 +53,15 @@ the rotated coefficients. Make a file ``rotate_sh.cpp`` with the following conte
             return std::exp(-x*x);
         };
 
-        // Evaluate the function on a Gauss-Legendre quadrature grid
+        // Evaluate the function on a Gauss-Legendre quadrature grid.
         constexpr std::size_t order = 20;
         zest::st::SphereGLQGridPoints points{};
         zest::st::SphereGLQGrid grid
             = points.generate_values(function, order);
 
-        // Transform the grid to obtain its spherical harmonic expansion
+        // Transform the grid to obtain its spherical harmonic expansion.
         zest::st::GLQTransformerGeo transformer{};
-        zest::st::RealSHExpansion expansion
+        zest::st::SHExpansion expansion
             = transformer.forward_transform(grid, order);
 
         // Euler angles
@@ -73,16 +69,26 @@ the rotated coefficients. Make a file ``rotate_sh.cpp`` with the following conte
         const double beta = std::numbers::pi/4;
         const double gamma = 0;
 
-        // Rotate the expansion coefficients
+        // Rotate the expansion coefficients.
         std::array<double, 3> angles = {alpha, beta, gamma};
         zest::WignerdPiHalfCollection wigner(order);
         zest::Rotor rotor{};
-        rotor.rotate(expansion, wigner, angles);
 
-        for (std::size_t l = 0; l < expansion.order(); ++l)
+        // We explicitly specify whether we are rotating the coordinate system
+        // or the object in space.
+        rotor.rotate(expansion, wigner, angles, zest::RotationType::coordinate);
+
+        // To minimize errors in indexing various layouts, the library provides
+        // range-based indexing helpers.
+        for (auto l : expansion.indices())
         {
-            for (std::size_t m = 0; m <= l; ++m)
-                std::printf("f[%lu, %lu] = %f", l, m, expansion(l, m));
+            // Subviews of expansions can be taken.
+            auto expansion_l = expansion[l];
+            for (auto m : expansion_l.indices())
+                // The transforms operate with layouts where elements whose
+                // azimuthal indices have a common absolute value `|m|` come in
+                // pairs `[m, -m]`.
+                std::println("f[{}, {}] = [{}, {}]", l, m, expansion_l[m, 0], expansion_l[m, 1]);
         }
     }
 
@@ -90,11 +96,11 @@ Now, to compile the code, we use GCC in this example and link our code with zest
 
 .. code:: console
 
-    g++ -std=c++20 -O3 -mfma -mavx2 -o rotate_sh rotate_sh.cpp -lzest
+    g++ -std=c++23 -O3 -mfma -mavx2 -o rotate_sh rotate_sh.cpp -lzest
     
-There are few things of note here. First, zest is built on the C++20 standard, and therefore
-requires a sufficiently modern compiler, which implements the necessary C++20 features. To tell GCC
-we are using C++20, we give the flag ``std=c++20``.
+There are few things of note here. First, zest is built on the C++23 standard, and therefore
+requires a sufficiently modern compiler, which implements the necessary C++23 features. To tell GCC
+we are using C++23, we give the flag ``std=c++23``.
 
 Secondly, the performance of the library is sensitive to compiler optimizations. As a baseline, we
 use the optimization level ``-O3`` to enable all architecture-independent optimizations in GCC. On

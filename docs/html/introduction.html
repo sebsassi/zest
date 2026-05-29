@@ -1,23 +1,23 @@
 <!doctype html>
 <html class="no-js" lang="en" data-content_root="./">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Anatomy of zest" href="anatomy.html" /><link rel="prev" title="Getting started" href="getting_started.html" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Spherical harmonics" href="sh.html"><link rel="prev" title="Getting started" href="getting_started.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
         <title>Theoretical background - zest 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     
     
 
 
 <style>
   body {
-    --color-code-background: #f8f8f8;
-  --color-code-foreground: black;
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
   
   }
   @media not print {
@@ -144,14 +144,10 @@
   </symbol>
 </svg>
 
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
 
 <a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
@@ -161,8 +157,7 @@
   <header class="mobile-header">
     <div class="header-left">
       <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
       </label>
     </div>
     <div class="header-center">
@@ -170,8 +165,7 @@
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
           <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
           <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
@@ -179,8 +173,7 @@
         </button>
       </div>
       <label class="toc-overlay-icon toc-header-icon" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
   </header>
@@ -188,7 +181,6 @@
     <div class="sidebar-container">
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
-  
   
   <span class="sidebar-brand-text">zest 0.1.0 documentation</span>
   
@@ -202,8 +194,37 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Theoretical background</a></li>
-<li class="toctree-l1"><a class="reference internal" href="anatomy.html">Anatomy of zest</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference.html">Library reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="sh.html">Spherical harmonics</a><input aria-label="Toggle navigation of Spherical harmonics" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="sh_conventions.html">Spherical harmonic conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_containers.html">Spherical harmonic containers and views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_containers.html#spherical-harmonic-layout-shapes">Spherical harmonic layout shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_grids.html">Spherical grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_transforms.html">Spherical harmonic transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_concepts.html">Spherical harmonic concepts</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="zernike.html">Zernike functions</a><input aria-label="Toggle navigation of Zernike functions" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="zernike_conventions.html">Zernike conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_containers.html">Zernike containers and views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_containers.html#spherical-harmonic-layout-shapes">Spherical harmonic layout shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_grids.html">Ball grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_transforms.html">Spherical harmonic transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_concepts.html">Zernike concepts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rotations.html">Rotations of Zernike functions and spherical harmonics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power_spectra.html">Power spectra</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="shaped.html">Spans, shapes, sequences, …</a><input aria-label="Toggle navigation of Spans, shapes, sequences, …" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="shape_intro.html">Motivation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="indexing.html">Index ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arrays_spans.html">Arrays and spans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shapes.html">Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sequences.html">Index sequences</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gl.html">Gauss–Legendre quadrature</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html#alignment">Alignment</a></li>
 </ul>
 
 </div>
@@ -230,8 +251,7 @@
   </a>
 </div>
 <div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
               <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
               <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
@@ -239,8 +259,7 @@
             </button>
           </div>
           <label class="toc-overlay-icon toc-content-icon" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
@@ -262,7 +281,8 @@ linear combination of (possibly an infinite number of) spherical harmonics</p>
 <p>such that</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[\int_{S^2}Y_{lm}(\theta,\varphi)^*Y_{l'm'}(\theta,\varphi)\,d\Omega = N_{lm}\delta_{ll'}\delta_{mm'}.\]</div>
+\[\int_{S^2}Y_{lm}(\theta,\varphi)^*Y_{l'm'}(\theta,\varphi)\,d\Omega
+    = N_{lm}\delta_{ll'}\delta_{mm'}.\]</div>
 </div>
 <p>Here <span class="math notranslate nohighlight">\(\delta_{ij}\)</span> is the Kroenecker delta, and <span class="math notranslate nohighlight">\(N_{lm}\)</span> is a normalization constant
 that depends on the normalization convention of spherical harmonics.</p>
@@ -293,7 +313,8 @@ conventions here. Two conventions of note are the geodesy convention</p>
 <p>and quantum mechanics convention</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[Y_l^m(\theta,\varphi) = (-1)^{m}\sqrt{\frac{2l+1}{4\pi}\frac{(l-m)!}{(l+m)!}}P_l^m(\cos\theta)e^{im\varphi}.\]</div>
+\[Y_l^m(\theta,\varphi)
+    = (-1)^{m}\sqrt{\frac{2l+1}{4\pi}\frac{(l-m)!}{(l+m)!}}P_l^m(\cos\theta)e^{im\varphi}.\]</div>
 </div>
 <p>For the geodesy convention, the normalization constant is <span class="math notranslate nohighlight">\(N_{lm} = 4\pi\)</span>, whereas the
 quantum mechanics spherical harmonics are unit normalized with <span class="math notranslate nohighlight">\(N_{lm} = 1\)</span>. The quantum
@@ -445,12 +466,14 @@ odd, then <span class="math notranslate nohighlight">\(l\)</span> must be odd.</
 <p>Since the Zernike functions form an orthogonal basis, any function on the unit ball can be written as</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[f(\rho, \theta, \varphi) = \sum_{\frac{1}{2}(n-l)\in\mathbb{N}}\sum_{|m|\leq l}f_{nlm}Z_{nlm}(\rho,\theta,\varphi),\]</div>
+\[f(\rho, \theta, \varphi)
+    = \sum_{\frac{1}{2}(n-l)\in\mathbb{N}}\sum_{|m|\leq l}f_{nlm}Z_{nlm}(\rho,\theta,\varphi),\]</div>
 </div>
 <p>and we have an orthogonality relation</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[\int_B Z_{nlm}(\rho,\theta,\varphi)Z_{n'l'm'}(\rho,\theta,\varphi)\, dV = N_{nlm}\delta_{nn'}\delta_{ll'}\delta_{mm'}.\]</div>
+\[\int_B Z_{nlm}(\rho,\theta,\varphi)Z_{n'l'm'}(\rho,\theta,\varphi)\, dV
+    = N_{nlm}\delta_{nn'}\delta_{ll'}\delta_{mm'}.\]</div>
 </div>
 <p>The ambiquity about the phase and normalization of spherical harmonics naturally applies to Zernike
 functions, but there is an additional ambiquity over the normalization of the radial Zernike
@@ -458,12 +481,14 @@ functions themselves. Per the definition of <span class="math notranslate nohigh
 orthogonality relation</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[\int_0^1 R_{nl}^{(\alpha)}(\rho)R_{n'l}^{(\alpha)}(\rho)\frac{\rho^2\,d\rho}{(1-\rho^2)^\alpha} = N_{nl}^{(\alpha)}\delta_{nn'}.\]</div>
+\[\int_0^1 R_{nl}^{(\alpha)}(\rho)R_{n'l}^{(\alpha)}(\rho)\frac{\rho^2\,d\rho}{(1-\rho^2)^\alpha}
+    = N_{nl}^{(\alpha)}\delta_{nn'}.\]</div>
 </div>
 <p>with</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[N_{nl}^{(\alpha)} = \frac{1}{2(n + \alpha + 3/2)}\frac{((n - l)/2 + 1)_\alpha}{((n - l)/2 + l + 3/2)_\alpha}.\]</div>
+\[N_{nl}^{(\alpha)}
+    = \frac{1}{2(n + \alpha + 3/2)}\frac{((n - l)/2 + 1)_\alpha}{((n - l)/2 + l + 3/2)_\alpha}.\]</div>
 </div>
 <p>The notation <span class="math notranslate nohighlight">\((x)_\alpha\)</span> is the Pochammer symbol, but we don’t need to worry about it much,
 because under <span class="math notranslate nohighlight">\(\alpha = 0\)</span> the expression reduces to</p>
@@ -494,12 +519,14 @@ Gauss–Legendre nodes. Note that the radial direction requires one node more th
 direction, because the radial integral comes with an extra factor of <span class="math notranslate nohighlight">\(\rho\)</span>. We can now write</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[\begin{split}f_{nlm} \approx \sum_{k=0}^{L + 1}\sum_{i=0}{L}w_kw_i\rho_k^2R_{nl}(\rho_k)\bar{P}_l^m(z_i)\sum_{j=0}^{2L}
-\begin{Bmatrix}
-    \cos(m\varphi_j)\\
-    \sin(|m|\varphi_j)
-\end{Bmatrix}
-f(\rho_k,\theta_i,\varphi_j).\end{split}\]</div>
+\[\begin{split}f_{nlm}
+    \approx \sum_{k=0}^{L + 1}\sum_{i=0}{L}w_kw_i\rho_k^2R_{nl}(\rho_k)\bar{P}_l^m(z_i)
+        \sum_{j=0}^{2L}
+            \begin{Bmatrix}
+                \cos(m\varphi_j)\\
+                \sin(|m|\varphi_j)
+            \end{Bmatrix}
+            f(\rho_k,\theta_i,\varphi_j).\end{split}\]</div>
 </div>
 <p>As is the case with the spherical harmonic transform, this transform can be performed stepwise,
 first computing intermediate coefficients <span class="math notranslate nohighlight">\(f_m(\rho_k,\theta_i)\)</span>, by doing the innermost sum,
@@ -566,12 +593,12 @@ corresponding rotations on Zernike coefficients for free.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="anatomy.html">
+          <a class="next-page" href="sh.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Anatomy of zest</div>
+                <div class="title">Spherical harmonics</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -634,9 +661,9 @@ corresponding rotations on Zernike coefficients for free.</p>
     </aside>
   </div>
 </div><script src="_static/documentation_options.js?v=01f34227"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     </body>
 </html>

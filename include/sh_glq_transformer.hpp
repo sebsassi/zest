@@ -45,9 +45,9 @@ namespace zest::st
     @brief Transformations between a Gauss-Legendre quadrature grid
     representation and spherical harmonic expansion representation of real data.
 
-    @tparam sh_norm_param normalization convention of spherical harmonics
-    @tparam sh_phase_param phase convention of spherical harmonics
-    @tparam GridLayoutType memory layout of the grid
+    @tparam sh_norm_param Normalization convention of spherical harmonics.
+    @tparam sh_phase_param Phase convention of spherical harmonics.
+    @tparam GridLayoutType Memory layout of the grid.
 */
 template <
     SHNorm sh_norm_param, SHPhase sh_phase_param,
@@ -125,6 +125,8 @@ public:
 
     /**
         @brief Resize transformer for specified expansion order.
+
+        @param order New order of the expansion.
     */
     void resize(std::size_t order)
     {
@@ -171,8 +173,9 @@ public:
         @brief Forward transform from Gauss-Legendre quadrature grid to
         spherical harmonic coefficients.
 
-        @param values values on the spherical quadrature grid
-        @param expansion coefficients of the expansion
+        @param values Values on the spherical quadrature grid.
+        @param expansion Output buffer for coefficients of the spherical
+        harmonic expansion.
     */
     void forward_transform(
         SphereGLQGridSpan<const double, grid_layout_type> values,
@@ -196,8 +199,8 @@ public:
         @brief Backward transform from spherical harmonic expansion to
         Gauss-Legendre quadrature grid.
 
-        @param expansion coefficients of the expansion
-        @param values values on the spherical quadrature grid
+        @param expansion Coefficients of the spherical harmonic expansion.
+        @param values Output buffer for values on the spherical quadrature grid.
     */
     void backward_transform(
         SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
@@ -221,8 +224,8 @@ public:
 
         @tparam Expansion type of expansion
 
-        @param expansion coefficients of the expansion
-        @param values values on the spherical quadrature grid
+        @param expansion Coefficients of the spherical harmonic expansion.
+        @param values Output buffer for values on the spherical quadrature grid.
 
         @note A spherical harmonic expansion has even/odd parity if the first
         index of all nonzero coefficients has even/odd parity.
@@ -250,8 +253,10 @@ public:
         @brief Forward transform from Gauss-Legendre quadrature grid to
         spherical harmonic coefficients.
 
-        @param values values on the spherical quadrature grid
-        @param order order of expansion
+        @param values Values on the spherical quadrature grid.
+        @param order Order of the spherical harmonic expansion.
+
+        @return Spherical harmonic coefficients of the expansion.
     */
     [[nodiscard]] SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase>
     forward_transform(
@@ -266,8 +271,10 @@ public:
         @brief Backward transform from spherical harmonic coefficients to
         Gauss-Legendre quadrature grid.
 
-        @param values values on the spherical quadrature grid
-        @param expansion coefficients of the expansion
+        @param expansion Coefficients of the spherical harmonic expansion.
+        @param order Order of the spherical quadrature grid.
+
+        @return Values on the spherical quadrature grid.
     */
     [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
         SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
@@ -282,10 +289,10 @@ public:
         @brief Backward transform from spherical harmonic expansion of even or
         odd parity to Gauss-Legendre quadrature grid.
 
-        @tparam Expansion type of expansion
+        @tparam Expansion Type of the spherical harmonic expansion.
 
-        @param expansion coefficients of the expansion
-        @param values values on the spherical quadrature grid
+        @param expansion Coefficients of the spherical harmonic expansion.
+        @param order Order of the spherical quadrature grid.
 
         @note A spherical harmonic expansion has even/odd parity if the first
         index of all nonzero coefficients has even/odd parity.

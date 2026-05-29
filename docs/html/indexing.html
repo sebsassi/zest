@@ -1,0 +1,727 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Arrays and spans" href="arrays_spans.html"><link rel="prev" title="Motivation" href="shape_intro.html">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Index ranges - zest 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">zest 0.1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">zest 0.1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Theoretical background</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="sh.html">Spherical harmonics</a><input aria-label="Toggle navigation of Spherical harmonics" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="sh_conventions.html">Spherical harmonic conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_containers.html">Spherical harmonic containers and views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_containers.html#spherical-harmonic-layout-shapes">Spherical harmonic layout shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_grids.html">Spherical grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_transforms.html">Spherical harmonic transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sh_concepts.html">Spherical harmonic concepts</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="zernike.html">Zernike functions</a><input aria-label="Toggle navigation of Zernike functions" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="zernike_conventions.html">Zernike conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_containers.html">Zernike containers and views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_containers.html#spherical-harmonic-layout-shapes">Spherical harmonic layout shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_grids.html">Ball grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_transforms.html">Spherical harmonic transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zernike_concepts.html">Zernike concepts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rotations.html">Rotations of Zernike functions and spherical harmonics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power_spectra.html">Power spectra</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="shaped.html">Spans, shapes, sequences, …</a><input aria-label="Toggle navigation of Spans, shapes, sequences, …" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="shape_intro.html">Motivation</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Index ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arrays_spans.html">Arrays and spans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shapes.html">Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sequences.html">Index sequences</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gl.html">Gauss–Legendre quadrature</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html#alignment">Alignment</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/indexing.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="index-ranges">
+<h1>Index ranges<a class="headerlink" href="#index-ranges" title="Link to this heading">¶</a></h1>
+<p>Index ranges provide a safe way of iterating over complex data layouts without needing to memorize
+where the indices start, where they end, which indices are potentially skipped. A good motivation
+for this comes from Zernike polynomials, which are indexed by three indices <span class="math notranslate nohighlight">\((n, l, m)\)</span> with
+the conditions that <span class="math notranslate nohighlight">\(|m| \leq l \leq n\)</span>, <em>and</em> that <span class="math notranslate nohighlight">\(n - l\)</span> is an even number. Written
+by hand iterating over a zernike expansion would thus look like</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nmax</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">l</span><span class="p">;</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">l</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">m</span><span class="p">)</span>
+<span class="w">            </span><span class="cm">/* do something */</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Mistyping any part of that loop will lead to reading wrong elements, either silently resulting in
+nonsensical results, or, if you’re lucky, crashing the program.</p>
+<p>With index ranges, if we have a Zernike expansion <cite>expansion</cite> we could instead write the following
+loop</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">expansion</span><span class="p">.</span><span class="n">indices</span><span class="p">())</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">expansion_n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">expansion</span><span class="p">[</span><span class="n">n</span><span class="p">];</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">expansion_n</span><span class="p">.</span><span class="n">indices</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">expansion_nl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">expansion_n</span><span class="p">[</span><span class="n">l</span><span class="p">];</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">expansion_nl</span><span class="p">.</span><span class="n">indices</span><span class="p">())</span>
+<span class="w">            </span><span class="cm">/* do something */</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We need to take a subview of our expansion at each step, but there is no way to get this wrong.</p>
+<section id="enums">
+<h2>Enums<a class="headerlink" href="#enums" title="Link to this heading">¶</a></h2>
+<dl class="cpp enum-class">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest6ParityE">
+<span id="_CPPv3N4zest6ParityE"></span><span id="_CPPv2N4zest6ParityE"></span><span class="target" id="indexing_8hpp_1ad2111a00860b81652b4dfa480db9b565"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">Parity</span></span></span><a class="headerlink" href="#_CPPv4N4zest6ParityE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>An enum for describing the parity of a thing. </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest6Parity4noneE">
+<span id="_CPPv3N4zest6Parity4noneE"></span><span id="_CPPv2N4zest6Parity4noneE"></span><span class="target" id="indexing_8hpp_1ad2111a00860b81652b4dfa480db9b565a334c4a4c42fdb79d7ebc3e73b517e6f8"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">none</span></span></span><a class="headerlink" href="#_CPPv4N4zest6Parity4noneE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest6Parity5mixedE">
+<span id="_CPPv3N4zest6Parity5mixedE"></span><span id="_CPPv2N4zest6Parity5mixedE"></span><span class="target" id="indexing_8hpp_1ad2111a00860b81652b4dfa480db9b565a1d770934d44de09b0d24f04fd01708ba"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mixed</span></span></span><a class="headerlink" href="#_CPPv4N4zest6Parity5mixedE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Has no parity. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest6Parity4evenE">
+<span id="_CPPv3N4zest6Parity4evenE"></span><span id="_CPPv2N4zest6Parity4evenE"></span><span class="target" id="indexing_8hpp_1ad2111a00860b81652b4dfa480db9b565acc935c5faf4c8f7a0468d7552a9b8138"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">even</span></span></span><a class="headerlink" href="#_CPPv4N4zest6Parity4evenE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Could be of either even or odd parity. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest6Parity3oddE">
+<span id="_CPPv3N4zest6Parity3oddE"></span><span id="_CPPv2N4zest6Parity3oddE"></span><span class="target" id="indexing_8hpp_1ad2111a00860b81652b4dfa480db9b565aa2b6f2a6066ed8700d83335fc50a2b8e"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">odd</span></span></span><a class="headerlink" href="#_CPPv4N4zest6Parity3oddE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Has even parity. </p>
+<p>Has odd parity. </p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="types">
+<h2>Types<a class="headerlink" href="#types" title="Link to this heading">¶</a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt8integralE_9IndexTypeEN4zest15BasicIndexRangeE">
+<span id="_CPPv3I_NSt8integralE_9IndexTypeEN4zest15BasicIndexRangeE"></span><span id="_CPPv2I_NSt8integralE_9IndexTypeEN4zest15BasicIndexRangeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IndexType</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexTypeEN4zest15BasicIndexRangeE" title="zest::BasicIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">stride_param</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1BasicIndexRange"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BasicIndexRange</span></span></span><a class="headerlink" href="#_CPPv4I_NSt8integralE_9IndexTypeEN4zest15BasicIndexRangeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>A basic strided range of integer indices. </p>
+<p>
+This class describes a basic strided index range, which start from some index <code class="docutils literal notranslate"><a class="reference internal" href="#classzest_1_1BasicIndexRange_1a8c581f73076d42264f35af9ecdd515f2"><span class="std std-ref"><span class="pre">begin</span></span></a></code>, and increments by <code class="docutils literal notranslate"><span class="pre">stride_param</span></code> until the index is equal to or greater than some <code class="docutils literal notranslate"><a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a></code> index. That is, the <code class="docutils literal notranslate"><a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a></code> index is never contained in the range. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>IndexType</strong> – Type of the indices. </p></li>
+<li><p><strong>stride_param</strong> – Stride of the index range.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest15BasicIndexRange15BasicIndexRangeE10index_type10index_type">
+<span id="_CPPv3N4zest15BasicIndexRange15BasicIndexRangeE10index_type10index_type"></span><span id="_CPPv2N4zest15BasicIndexRange15BasicIndexRangeE10index_type10index_type"></span><span id="zest::BasicIndexRange::BasicIndexRange__index_type.index_typeCE"></span><span class="target" id="classzest_1_1BasicIndexRange_1af55a92f6a9a280d8e2ef4f68537abbc3"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BasicIndexRange</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">begin</span></span>, <span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">end</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest15BasicIndexRange15BasicIndexRangeE10index_type10index_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Constructs an index range from its starting point and end point. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>begin</strong> – Starting index of the range. </p></li>
+<li><p><strong>end</strong> – End index of the range. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest15BasicIndexRange5beginEv">
+<span id="_CPPv3NK4zest15BasicIndexRange5beginEv"></span><span id="_CPPv2NK4zest15BasicIndexRange5beginEv"></span><span id="zest::BasicIndexRange::beginC"></span><span class="target" id="classzest_1_1BasicIndexRange_1a8c581f73076d42264f35af9ecdd515f2"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">iterator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">begin</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest15BasicIndexRange5beginEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Beginning of the range. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Iterator to the beginning of the range. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest15BasicIndexRange3endEv">
+<span id="_CPPv3NK4zest15BasicIndexRange3endEv"></span><span id="_CPPv2NK4zest15BasicIndexRange3endEv"></span><span id="zest::BasicIndexRange::endC"></span><span class="target" id="classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">iterator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">end</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest15BasicIndexRange3endEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>End of the range. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Iterator to the end of the range. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt8integralE_9IndexType_9IndexType_9IndexTypeEN4zest21StaticBasicIndexRangeE">
+<span id="_CPPv3I_NSt8integralE_9IndexType_9IndexType_9IndexTypeEN4zest21StaticBasicIndexRangeE"></span><span id="_CPPv2I_NSt8integralE_9IndexType_9IndexType_9IndexTypeEN4zest21StaticBasicIndexRangeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IndexType</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexType_9IndexTypeEN4zest21StaticBasicIndexRangeE" title="zest::StaticBasicIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">begin_param</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexType_9IndexTypeEN4zest21StaticBasicIndexRangeE" title="zest::StaticBasicIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">end_param</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexType_9IndexTypeEN4zest21StaticBasicIndexRangeE" title="zest::StaticBasicIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">stride_param</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1StaticBasicIndexRange"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">StaticBasicIndexRange</span></span></span><a class="headerlink" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexType_9IndexTypeEN4zest21StaticBasicIndexRangeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>A basic strided range of integer indices defined entirely at compile time. </p>
+<p>
+This class is like <code class="docutils literal notranslate"><a class="reference internal" href="#classzest_1_1BasicIndexRange"><span class="std std-ref"><span class="pre">BasicIndexRange</span></span></a></code>, but its start and end index are defined at compile time. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>IndexType</strong> – Type of the indices. </p></li>
+<li><p><strong>begin_param</strong> – Starting index of the range. </p></li>
+<li><p><strong>end_param</strong> – End index of the range. </p></li>
+<li><p><strong>stride_param</strong> – Stride of the index range.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest21StaticBasicIndexRange5beginEv">
+<span id="_CPPv3NK4zest21StaticBasicIndexRange5beginEv"></span><span id="_CPPv2NK4zest21StaticBasicIndexRange5beginEv"></span><span id="zest::StaticBasicIndexRange::beginC"></span><span class="target" id="classzest_1_1StaticBasicIndexRange_1ae7377abf96eb52477896eb25742c5a9d"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">iterator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">begin</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest21StaticBasicIndexRange5beginEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Beginning of the range. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Iterator to the beginning of the range. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4zest21StaticBasicIndexRange3endEv">
+<span id="_CPPv3NK4zest21StaticBasicIndexRange3endEv"></span><span id="_CPPv2NK4zest21StaticBasicIndexRange3endEv"></span><span id="zest::StaticBasicIndexRange::endC"></span><span class="target" id="classzest_1_1StaticBasicIndexRange_1aa93877196ec1a0c12a2c4f584cb4be3f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">iterator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">end</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK4zest21StaticBasicIndexRange3endEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>End of the range. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Iterator to the end of the range. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt8integralEEN4zest18StandardIndexRangeE">
+<span id="_CPPv3I_NSt8integralEEN4zest18StandardIndexRangeE"></span><span id="_CPPv2I_NSt8integralEEN4zest18StandardIndexRangeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IndexType</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1StandardIndexRange"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">StandardIndexRange</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexTypeEN4zest15BasicIndexRangeE" title="zest::BasicIndexRange"><span class="n"><span class="pre">BasicIndexRange</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_NSt8integralEEN4zest18StandardIndexRangeE" title="zest::StandardIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralEEN4zest18StandardIndexRangeE" title="zest::StandardIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="p"><span class="pre">{</span></span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">}</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4I_NSt8integralEEN4zest18StandardIndexRangeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>A basic index range with unit stride. </p>
+<p>
+This class defines the usual standard index range that contains all indices in the range <code class="docutils literal notranslate"><span class="pre">[</span><a class="reference internal" href="#classzest_1_1BasicIndexRange_1a8c581f73076d42264f35af9ecdd515f2"><span class="std std-ref"><span class="pre">begin</span></span></a><span class="pre">,</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a><span class="pre">)</span></code>. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>IndexType</strong> – type of the index</p>
+</dd>
+</dl>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest18StandardIndexRange18StandardIndexRangeE10index_type">
+<span id="_CPPv3N4zest18StandardIndexRange18StandardIndexRangeE10index_type"></span><span id="_CPPv2N4zest18StandardIndexRange18StandardIndexRangeE10index_type"></span><span id="zest::StandardIndexRange::StandardIndexRange__index_type"></span><span class="target" id="classzest_1_1StandardIndexRange_1a1b49e12681e2f877b9afbad1c1e99dd5"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">StandardIndexRange</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">end</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest18StandardIndexRange18StandardIndexRangeE10index_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Constructs a range of indices <code class="docutils literal notranslate"><span class="pre">[0,</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a><span class="pre">)</span></code>. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>end</strong> – end of index range </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest18StandardIndexRange18StandardIndexRangeE10index_type10index_type">
+<span id="_CPPv3N4zest18StandardIndexRange18StandardIndexRangeE10index_type10index_type"></span><span id="_CPPv2N4zest18StandardIndexRange18StandardIndexRangeE10index_type10index_type"></span><span id="zest::StandardIndexRange::StandardIndexRange__index_type.index_type"></span><span class="target" id="classzest_1_1StandardIndexRange_1a9eb3d0fd2d1391511cb3c88dae373552"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">StandardIndexRange</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">begin</span></span>, <span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">end</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest18StandardIndexRange18StandardIndexRangeE10index_type10index_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Constructs a range of indices <code class="docutils literal notranslate"><span class="pre">[</span><a class="reference internal" href="#classzest_1_1BasicIndexRange_1a8c581f73076d42264f35af9ecdd515f2"><span class="std std-ref"><span class="pre">begin</span></span></a><span class="pre">,</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a><span class="pre">)</span></code>. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>begin</strong> – start of index range </p></li>
+<li><p><strong>end</strong> – end of index range </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt8integralE_6ParityEN4zest16ParityIndexRangeE">
+<span id="_CPPv3I_NSt8integralE_6ParityEN4zest16ParityIndexRangeE"></span><span id="_CPPv2I_NSt8integralE_6ParityEN4zest16ParityIndexRangeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IndexType</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N4zest6ParityE" title="zest::Parity"><span class="n"><span class="pre">Parity</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">parity</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N4zest6ParityE" title="zest::Parity"><span class="n"><span class="pre">Parity</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N4zest6Parity5mixedE" title="zest::Parity::mixed"><span class="n"><span class="pre">mixed</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1ParityIndexRange"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ParityIndexRange</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexTypeEN4zest15BasicIndexRangeE" title="zest::BasicIndexRange"><span class="n"><span class="pre">BasicIndexRange</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_NSt8integralE_6ParityEN4zest16ParityIndexRangeE" title="zest::ParityIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralE_6ParityEN4zest16ParityIndexRangeE" title="zest::ParityIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="p"><span class="pre">{</span></span><span class="m"><span class="pre">2</span></span><span class="p"><span class="pre">}</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4I_NSt8integralE_6ParityEN4zest16ParityIndexRangeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Range of even or odd integer indices. </p>
+<p>
+This class describes an index range, where the indices are either even or odd. Depending on the <code class="docutils literal notranslate"><span class="pre">parity</span></code> template parameter, an object of the class may be constructed to either contain only even, only odd, or possibly either even or odd indices. Both <code class="docutils literal notranslate"><span class="pre">Parity::odd</span></code> and <code class="docutils literal notranslate"><span class="pre">Parity::even</span></code> guarantee the range contains only indices of the given parity. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>IndexType</strong> – Type of the index. </p></li>
+<li><p><strong>parity</strong> – Parity of the indices.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest16ParityIndexRange16ParityIndexRangeE10index_type">
+<span id="_CPPv3N4zest16ParityIndexRange16ParityIndexRangeE10index_type"></span><span id="_CPPv2N4zest16ParityIndexRange16ParityIndexRangeE10index_type"></span><span id="zest::ParityIndexRange::ParityIndexRange__index_typeCE"></span><span class="target" id="classzest_1_1ParityIndexRange_1ac0ce30f52866729d1d2b1098758b1751"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ParityIndexRange</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">end</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest16ParityIndexRange16ParityIndexRangeE10index_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Constructs a range of indices <code class="docutils literal notranslate"><span class="pre">[(</span><a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a> <span class="pre">+</span> <span class="pre">1)</span> <span class="pre">%</span> <span class="pre">2,</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a> <span class="pre">+</span> <span class="pre">1)</span></code>. </p>
+<p>
+The index range has the following limits for given <code class="docutils literal notranslate"><span class="pre">parity</span></code>:<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Parity::mixed</span></code>: <code class="docutils literal notranslate"><span class="pre">[(</span><a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a> <span class="pre">+</span> <span class="pre">1)</span> <span class="pre">%</span> <span class="pre">2,</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a> <span class="pre">+</span> <span class="pre">1)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Parity::even</span></code>: <code class="docutils literal notranslate"><span class="pre">[0,</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a> <span class="pre">+</span> <span class="pre">1)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Parity::odd</span></code>: <code class="docutils literal notranslate"><span class="pre">[1,</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a> <span class="pre">+</span> <span class="pre">1)</span></code></p></li>
+</ul>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>end</strong> – end of index range</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest16ParityIndexRange16ParityIndexRangeE10index_type10index_type">
+<span id="_CPPv3N4zest16ParityIndexRange16ParityIndexRangeE10index_type10index_type"></span><span id="_CPPv2N4zest16ParityIndexRange16ParityIndexRangeE10index_type10index_type"></span><span id="zest::ParityIndexRange::ParityIndexRange__index_type.index_typeCE"></span><span class="target" id="classzest_1_1ParityIndexRange_1a7e06d684f8de98e53058c7cdd4298e77"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ParityIndexRange</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">begin</span></span>, <span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">end</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest16ParityIndexRange16ParityIndexRangeE10index_type10index_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Constructs a range of indices <code class="docutils literal notranslate"><span class="pre">[2*floor(begin/2)</span> <span class="pre">+</span> <span class="pre">(</span><a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a> <span class="pre">+</span> <span class="pre">1)</span> <span class="pre">%</span> <span class="pre">2,</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a> <span class="pre">+</span> <span class="pre">1)</span></code>. </p>
+<p>
+This index range has the following limits for given <code class="docutils literal notranslate"><span class="pre">parity</span></code>:<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Parity::mixed</span></code>: <code class="docutils literal notranslate"><span class="pre">[2*floor(begin/2)</span> <span class="pre">+</span> <span class="pre">(</span><a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a> <span class="pre">+</span> <span class="pre">1)</span> <span class="pre">%</span> <span class="pre">2,</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a> <span class="pre">+</span> <span class="pre">1)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Parity::even</span></code>: <code class="docutils literal notranslate"><span class="pre">[2*floor(begin/2),</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a> <span class="pre">+</span> <span class="pre">1)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Parity::odd</span></code>: <code class="docutils literal notranslate"><span class="pre">[2*floor(begin/2)</span> <span class="pre">+</span> <span class="pre">1,</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a> <span class="pre">+</span> <span class="pre">1)</span></code></p></li>
+</ul>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>begin</strong> – start of index range </p></li>
+<li><p><strong>end</strong> – end of index range</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt15signed_integralEEN4zest19SymmetricIndexRangeE">
+<span id="_CPPv3I_NSt15signed_integralEEN4zest19SymmetricIndexRangeE"></span><span id="_CPPv2I_NSt15signed_integralEEN4zest19SymmetricIndexRangeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">signed_integral</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IndexType</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classzest_1_1SymmetricIndexRange"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SymmetricIndexRange</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexTypeEN4zest15BasicIndexRangeE" title="zest::BasicIndexRange"><span class="n"><span class="pre">BasicIndexRange</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_NSt15signed_integralEEN4zest19SymmetricIndexRangeE" title="zest::SymmetricIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt15signed_integralEEN4zest19SymmetricIndexRangeE" title="zest::SymmetricIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="p"><span class="pre">{</span></span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">}</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4I_NSt15signed_integralEEN4zest19SymmetricIndexRangeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Range of integer indices symmetric about zero. </p>
+<p>
+This class behaves more or less like a <code class="docutils literal notranslate"><a class="reference internal" href="#classzest_1_1StandardIndexRange"><span class="std std-ref"><span class="pre">StandardIndexRange</span></span></a></code>, but if constructed with only <code class="docutils literal notranslate"><a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a></code>, it gives a range <code class="docutils literal notranslate"><span class="pre">(-</span><a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a><span class="pre">,</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a><span class="pre">)</span></code> instead of <code class="docutils literal notranslate"><span class="pre">[0,</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a><span class="pre">)</span></code>. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>IndexType</strong> – Type of the index.</p>
+</dd>
+</dl>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest19SymmetricIndexRange19SymmetricIndexRangeE10index_type">
+<span id="_CPPv3N4zest19SymmetricIndexRange19SymmetricIndexRangeE10index_type"></span><span id="_CPPv2N4zest19SymmetricIndexRange19SymmetricIndexRangeE10index_type"></span><span id="zest::SymmetricIndexRange::SymmetricIndexRange__index_typeCE"></span><span class="target" id="classzest_1_1SymmetricIndexRange_1abbc1382a418ab0276ac654ba2cde3a44"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SymmetricIndexRange</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">end</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest19SymmetricIndexRange19SymmetricIndexRangeE10index_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Constructs a range of indices <code class="docutils literal notranslate"><span class="pre">(-</span><a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a><span class="pre">,</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a><span class="pre">)</span></code>. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>end</strong> – end of index range </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4zest19SymmetricIndexRange19SymmetricIndexRangeE10index_type10index_type">
+<span id="_CPPv3N4zest19SymmetricIndexRange19SymmetricIndexRangeE10index_type10index_type"></span><span id="_CPPv2N4zest19SymmetricIndexRange19SymmetricIndexRangeE10index_type10index_type"></span><span id="zest::SymmetricIndexRange::SymmetricIndexRange__index_type.index_typeCE"></span><span class="target" id="classzest_1_1SymmetricIndexRange_1a5da9e332d8f35999f5e3f63e73d69f36"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SymmetricIndexRange</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">begin</span></span>, <span class="n"><span class="pre">index_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">end</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4zest19SymmetricIndexRange19SymmetricIndexRangeE10index_type10index_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Constructs a range of indices <code class="docutils literal notranslate"><span class="pre">[</span><a class="reference internal" href="#classzest_1_1BasicIndexRange_1a8c581f73076d42264f35af9ecdd515f2"><span class="std std-ref"><span class="pre">begin</span></span></a><span class="pre">,</span> <a class="reference internal" href="#classzest_1_1BasicIndexRange_1a0ed4ad2bf4e94333b39b901962ddd812"><span class="std std-ref"><span class="pre">end</span></span></a><span class="pre">)</span></code>. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>begin</strong> – start of index range </p></li>
+<li><p><strong>end</strong> – end of index range </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="type-aliases">
+<h2>Type aliases<a class="headerlink" href="#type-aliases" title="Link to this heading">¶</a></h2>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt8integralE_9IndexType_9IndexTypeEN4zest24StaticStandardIndexRangeE">
+<span id="_CPPv3I_NSt8integralE_9IndexType_9IndexTypeEN4zest24StaticStandardIndexRangeE"></span><span id="_CPPv2I_NSt8integralE_9IndexType_9IndexTypeEN4zest24StaticStandardIndexRangeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IndexType</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexTypeEN4zest24StaticStandardIndexRangeE" title="zest::StaticStandardIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">begin</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexTypeEN4zest24StaticStandardIndexRangeE" title="zest::StaticStandardIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">end</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="indexing_8hpp_1a661ceb07284ebc0c228d05bb32bd5390"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">StaticStandardIndexRange</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexType_9IndexTypeEN4zest21StaticBasicIndexRangeE" title="zest::StaticBasicIndexRange"><span class="n"><span class="pre">StaticBasicIndexRange</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexTypeEN4zest24StaticStandardIndexRangeE" title="zest::StaticStandardIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexTypeEN4zest24StaticStandardIndexRangeE" title="zest::StaticStandardIndexRange::begin"><span class="n"><span class="pre">begin</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexTypeEN4zest24StaticStandardIndexRangeE" title="zest::StaticStandardIndexRange::end"><span class="n"><span class="pre">end</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexTypeEN4zest24StaticStandardIndexRangeE" title="zest::StaticStandardIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="p"><span class="pre">{</span></span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">}</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexTypeEN4zest24StaticStandardIndexRangeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>A basic index range with unit stride defined entirely at compile time. </p>
+<p>
+This class is like <code class="docutils literal notranslate"><a class="reference internal" href="#classzest_1_1StandardIndexRange"><span class="std std-ref"><span class="pre">StandardIndexRange</span></span></a></code>, but its start and end index are defined at compile time. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>IndexType</strong> – Type of the indices. </p></li>
+<li><p><strong>begin_param</strong> – Starting index of the range. </p></li>
+<li><p><strong>end_param</strong> – End index of the range.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt8integralEEN4zest16SingleIndexRangeE">
+<span id="_CPPv3I_NSt8integralEEN4zest16SingleIndexRangeE"></span><span id="_CPPv2I_NSt8integralEEN4zest16SingleIndexRangeE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">integral</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IndexType</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="indexing_8hpp_1a68e3d52d0b56f445ad617b3126803730"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">zest</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">SingleIndexRange</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexTypeEN4zest24StaticStandardIndexRangeE" title="zest::StaticStandardIndexRange"><span class="n"><span class="pre">StaticStandardIndexRange</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_NSt8integralEEN4zest16SingleIndexRangeE" title="zest::SingleIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralEEN4zest16SingleIndexRangeE" title="zest::SingleIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="p"><span class="pre">{</span></span><span class="m"><span class="pre">0</span></span><span class="p"><span class="pre">}</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt8integralEEN4zest16SingleIndexRangeE" title="zest::SingleIndexRange::IndexType"><span class="n"><span class="pre">IndexType</span></span></a><span class="p"><span class="pre">{</span></span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">}</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4I_NSt8integralEEN4zest16SingleIndexRangeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Index range to a single-element collection. </p>
+<p>
+This class defines an index range for a collection of one element, containing only the index zero. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>IndexType</strong> – Type of the index.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="arrays_spans.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Arrays and spans</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="shape_intro.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Motivation</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Sebastian Sassi
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Index ranges</a><ul>
+<li><a class="reference internal" href="#enums">Enums</a><ul>
+<li><a class="reference internal" href="#_CPPv4N4zest6ParityE"><code class="docutils literal notranslate"><span class="pre">Parity</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N4zest6Parity4noneE"><code class="docutils literal notranslate"><span class="pre">none</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest6Parity5mixedE"><code class="docutils literal notranslate"><span class="pre">mixed</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest6Parity4evenE"><code class="docutils literal notranslate"><span class="pre">even</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest6Parity3oddE"><code class="docutils literal notranslate"><span class="pre">odd</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#types">Types</a><ul>
+<li><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexTypeEN4zest15BasicIndexRangeE"><code class="docutils literal notranslate"><span class="pre">zest::BasicIndexRange</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N4zest15BasicIndexRange15BasicIndexRangeE10index_type10index_type"><code class="docutils literal notranslate"><span class="pre">BasicIndexRange()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest15BasicIndexRange5beginEv"><code class="docutils literal notranslate"><span class="pre">begin()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest15BasicIndexRange3endEv"><code class="docutils literal notranslate"><span class="pre">end()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexType_9IndexTypeEN4zest21StaticBasicIndexRangeE"><code class="docutils literal notranslate"><span class="pre">zest::StaticBasicIndexRange</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4NK4zest21StaticBasicIndexRange5beginEv"><code class="docutils literal notranslate"><span class="pre">begin()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4zest21StaticBasicIndexRange3endEv"><code class="docutils literal notranslate"><span class="pre">end()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4I_NSt8integralEEN4zest18StandardIndexRangeE"><code class="docutils literal notranslate"><span class="pre">zest::StandardIndexRange</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N4zest18StandardIndexRange18StandardIndexRangeE10index_type"><code class="docutils literal notranslate"><span class="pre">StandardIndexRange()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest18StandardIndexRange18StandardIndexRangeE10index_type10index_type"><code class="docutils literal notranslate"><span class="pre">StandardIndexRange()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4I_NSt8integralE_6ParityEN4zest16ParityIndexRangeE"><code class="docutils literal notranslate"><span class="pre">zest::ParityIndexRange</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N4zest16ParityIndexRange16ParityIndexRangeE10index_type"><code class="docutils literal notranslate"><span class="pre">ParityIndexRange()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest16ParityIndexRange16ParityIndexRangeE10index_type10index_type"><code class="docutils literal notranslate"><span class="pre">ParityIndexRange()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4I_NSt15signed_integralEEN4zest19SymmetricIndexRangeE"><code class="docutils literal notranslate"><span class="pre">zest::SymmetricIndexRange</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N4zest19SymmetricIndexRange19SymmetricIndexRangeE10index_type"><code class="docutils literal notranslate"><span class="pre">SymmetricIndexRange()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4zest19SymmetricIndexRange19SymmetricIndexRangeE10index_type10index_type"><code class="docutils literal notranslate"><span class="pre">SymmetricIndexRange()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#type-aliases">Type aliases</a><ul>
+<li><a class="reference internal" href="#_CPPv4I_NSt8integralE_9IndexType_9IndexTypeEN4zest24StaticStandardIndexRangeE"><code class="docutils literal notranslate"><span class="pre">StaticStandardIndexRange</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I_NSt8integralEEN4zest16SingleIndexRangeE"><code class="docutils literal notranslate"><span class="pre">SingleIndexRange</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    </body>
+</html>

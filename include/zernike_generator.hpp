@@ -56,7 +56,7 @@ public:
     /**
         @brief Increase the maximum order for which recursion coefficients are cached.
 
-        @param max_order new maximum order
+        @param max_order New maximum order.
     */
     void expand(std::size_t max_order);
 
@@ -65,10 +65,10 @@ public:
 
         @tparam ZernikeType type of Zernike function buffer
 
-        @param lon longitude coordinate
-        @param colat colatitude coordinate
-        @param r radial coordinate
-        @param znlm buffer for Zernike function values
+        @param lon Longitude coordinate.
+        @param colat Colatitude coordinate.
+        @param r Radial coordinate.
+        @param expansion Buffer for Zernike function values.
     */
     template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
     void generate(
