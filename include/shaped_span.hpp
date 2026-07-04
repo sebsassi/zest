@@ -214,6 +214,17 @@ public:
         return ShapedSpan<element_type, NewShapeType>(m_data, shape);
     }
 
+    template <typename T>
+        requires (!std::is_const_v<element_type> || std::is_const_v<T>)
+            && representable_as<value_type, std::remove_cv_t<T>>
+    [[nodiscard]] constexpr auto
+    represent_as() const noexcept
+    {
+        using VT = std::conditional<std::is_volatile_v<element_type>, std::add_volatile_t<T>, T>;
+        using CVT = std::conditional<std::is_const_v<element_type>, std::add_const_t<VT>, VT>;
+        return ShapedSpan<CVT, shape_type>(reinterpret_cast<CVT*>(m_data), shape);
+    }
+
     /**
         @brief Shape of the view.
     */

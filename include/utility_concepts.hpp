@@ -37,6 +37,11 @@ concept shaped_contiguous_buffer = requires (T x)
         { x.shape() } -> std::same_as<const typename std::remove_cvref_t<T>::shape_type&>;
     };
 
+template <typename T, typename Rep>
+concept representable_as
+    = (sizeof(T) == sizeof(Rep)) && std::is_trivially_copyable_v<T>
+    && std::same_as<typename T::rep, Rep>;
+
 template <shaped_contiguous_buffer T>
 using value_type_of = typename std::remove_cvref_t<T>::value_type;
 
