@@ -69,6 +69,10 @@ public:
     template <typename T>
     using grid_span_type = SphereGLQGridSpan<T, grid_layout_type>;
 
+    using expansion_shape = SHShape<
+            IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param>;
+    using grid_shape = SphereGLQGridShape<grid_layout_type>;
+
     template <typename T>
     using sh_span_type = SHSpan<T, IndexingMode::zero_based, sh_norm_param, sh_phase_param>;
 
@@ -94,15 +98,18 @@ public:
         gl::gl_nodes_and_weights<gl::PackedLayout, gl::GLNodeStyle::cos>(
                 m_glq_nodes, m_glq_weights, grid_layout_type::lat_size(order) & 1);
 
-        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
+        if constexpr (
+            std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             AssLegVecSpan<double> ass_leg(m_ass_leg_grid, m_glq_nodes.size(), order);
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
                 m_recursion.generate_real(m_glq_nodes[i], ass_leg[i]);
         }
-        else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
+        else if constexpr (
+            std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            AssLegSpan<double, std::dynamic_extent> ass_leg(m_ass_leg_grid, order, m_glq_nodes.size());
+            AssLegSpan<double, std::dynamic_extent> ass_leg(
+                    m_ass_leg_grid, order, m_glq_nodes.size());
             m_recursion.generate_real(m_glq_nodes, ass_leg);
         }
 
@@ -140,13 +147,15 @@ public:
                 m_glq_nodes, m_glq_weights, grid_layout_type::lat_size(order) & 1);
         m_ass_leg_grid.resize(m_glq_weights.size()*AssLegShape::size(order));
 
-        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
+        if constexpr (
+            std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             AssLegVecSpan<double> ass_leg(m_ass_leg_grid, m_glq_nodes.size(), order);
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
                 m_recursion.generate_real(m_glq_nodes[i], ass_leg[i]);
         }
-        else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
+        else if constexpr (
+            std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
             AssLegSpan<double, std::dynamic_extent> ass_leg(m_ass_leg_grid, order, m_glq_nodes.size());
             m_recursion.generate_real(m_glq_nodes, ass_leg);
@@ -177,22 +186,49 @@ public:
         @param expansion Output buffer for coefficients of the spherical
         harmonic expansion.
     */
-    void forward_transform(
-        SphereGLQGridSpan<const double, grid_layout_type> values,
-        SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase> expansion)
+    template <
+        contiguous_buffer_shaped_like<grid_shape> GridType,
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
+    >
+        requires representable_as<value_type_of<GridType>, double>
+            && std::same_as<value_type_of<GridType>, value_type_of<ExpansionType>>
+    void forward_transform(const GridType& values, ExpansionType&& expansion)
     {
         resize(values.order());
 
-        integrate_longitudinal(values);
+        integrate_longitudinal(values.template represent_as<double>());
 
         fft_to_symm_asymm();
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
         SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase>
-        truncated_expansion(expansion.flatten(), min_order);
+        truncated_expansion{
+            std::forward<ExpansionType>(expansion).template represent_as<double>().flatten(),
+            min_order
+        };
 
         integrate_latitudinal(truncated_expansion);
+    }
+
+    /**
+        @brief Forward transform from Gauss-Legendre quadrature grid to
+        spherical harmonic coefficients.
+
+        @param values Values on the spherical quadrature grid.
+        @param order Order of the spherical harmonic expansion.
+
+        @return Spherical harmonic coefficients of the expansion.
+    */
+    template <contiguous_buffer_shaped_like<grid_shape> GridType>
+        requires representable_as<value_type_of<GridType>, double>
+    [[nodiscard]] auto forward_transform(const GridType& values, std::size_t order)
+    {
+        SHExpansion<value_type_of<GridType>, IndexingMode::zero_based, sh_norm, sh_phase>
+        expansion{order};
+
+        forward_transform(values, expansion);
+        return expansion;
     }
 
     /**
@@ -202,20 +238,24 @@ public:
         @param expansion Coefficients of the spherical harmonic expansion.
         @param values Output buffer for values on the spherical quadrature grid.
     */
-    void backward_transform(
-        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
-        SphereGLQGridSpan<double, grid_layout_type> values)
+    template <
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType,
+        contiguous_buffer_shaped_like<grid_shape> GridType
+    >
+        requires representable_as<value_type_of<ExpansionType>, double>
+            && std::same_as<value_type_of<ExpansionType>, value_type_of<GridType>>
+    void backward_transform(const ExpansionType& expansion, GridType&& values)
     {
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
         SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase>
-        truncated_expansion(expansion.flatten(), min_order);
+        truncated_expansion{expansion.template represent_as<double>.flatten(), min_order};
 
         sum_l(truncated_expansion);
         symm_asymm_to_fft();
-        sum_m(values);
+        sum_m(std::forward<GridType>(values).template represent_as<double>());
     }
 
     /**
@@ -230,41 +270,27 @@ public:
         @note A spherical harmonic expansion has even/odd parity if the first
         index of all nonzero coefficients has even/odd parity.
     */
-    template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
+    template <
+        st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType,
+        contiguous_buffer_shaped_like<grid_shape> GridType
+    >
         requires (st::sh_norm_of<ExpansionType>() == sh_norm)
             && (st::sh_phase_of<ExpansionType>() == sh_phase)
             && st::has_inner_rank<ExpansionType, 0>
+            && representable_as<value_type_of<ExpansionType>, double>
     void backward_transform(
-        const ExpansionType& expansion, SphereGLQGridSpan<double, grid_layout_type> values)
+        const ExpansionType& expansion, GridType&& values)
     {
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        typename std::remove_cvref_t<ExpansionType>::const_view
-        truncated_expansion(expansion.flatten(), min_order);
+        ShapedSpan<const double, std::remove_cvref_t<ExpansionType>::shape_type>
+        truncated_expansion{expansion.template represent_as<double>().flatten(), min_order};
 
         sum_l(truncated_expansion);
         symm_asymm_to_fft();
-        sum_m(values);
-    }
-
-    /**
-        @brief Forward transform from Gauss-Legendre quadrature grid to
-        spherical harmonic coefficients.
-
-        @param values Values on the spherical quadrature grid.
-        @param order Order of the spherical harmonic expansion.
-
-        @return Spherical harmonic coefficients of the expansion.
-    */
-    [[nodiscard]] SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase>
-    forward_transform(
-        SphereGLQGridSpan<const double, grid_layout_type> values, std::size_t order)
-    {
-        SHExpansion<double, IndexingMode::zero_based, sh_norm, sh_phase> expansion(order);
-        forward_transform(values, expansion);
-        return expansion;
+        sum_m(std::forward<GridType>(values));
     }
 
     /**
@@ -276,11 +302,11 @@ public:
 
         @return Values on the spherical quadrature grid.
     */
-    [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
-        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
-        std::size_t order)
+    template <contiguous_buffer_shaped_like<expansion_shape> ExpansionType>
+        requires representable_as<value_type_of<ExpansionType>, double>
+    [[nodiscard]] auto backward_transform(const ExpansionType& expansion, std::size_t order)
     {
-        SphereGLQGrid<double, grid_layout_type> grid(order);
+        SphereGLQGrid<T, grid_layout_type> grid(order);
         backward_transform(expansion, grid);
         return grid;
     }
@@ -301,10 +327,10 @@ public:
         requires (st::sh_norm_of<ExpansionType>() == sh_norm)
             && (st::sh_phase_of<ExpansionType>() == sh_phase)
             && st::has_inner_rank<ExpansionType, 0>
-    [[nodiscard]] SphereGLQGrid<double, grid_layout_type>
-    backward_transform(const ExpansionType& expansion, std::size_t order)
+            && representable_as<value_type_of<ExpansionType>, double>
+    [[nodiscard]] auto backward_transform(const ExpansionType& expansion, std::size_t order)
     {
-        SphereGLQGrid<double, grid_layout_type> grid(order);
+        SphereGLQGrid<value_type_of<ExpansionType>, grid_layout_type> grid(order);
         backward_transform(expansion, grid);
         return grid;
     }
@@ -315,7 +341,8 @@ private:
     {
         constexpr std::size_t lon_axis = grid_layout_type::lon_axis;
         constexpr double sh_normalization = normalization<sh_norm>();
-        const double prefactor = sh_normalization*(2.0*std::numbers::pi)/double(values.extent(lon_axis));
+        const double prefactor
+            = sh_normalization*(2.0*std::numbers::pi)/double(values.extent(lon_axis));
         pocketfft::r2c(
             m_pocketfft_shape_grid, m_pocketfft_stride_grid, m_pocketfft_stride_fft,
             lon_axis, pocketfft::FORWARD, values.flatten().data(), m_ffts.data(),
@@ -326,7 +353,8 @@ private:
     {
         const std::size_t num_lat = m_glq_weights.size();
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
-        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
+        if constexpr (
+            std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t i = 0; i < num_lat; ++i)
             {
@@ -338,7 +366,8 @@ private:
                 }
             }
         }
-        else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
+        else if constexpr (
+            std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t m = 0; m < fft_order; ++m)
             {
@@ -392,7 +421,8 @@ private:
         const std::size_t south_offset = num_unique_nodes - 1;
         const std::size_t north_offset = central_offset;
 
-        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
+        if constexpr (
+            std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t i = 0; i < num_unique_nodes; ++i)
             {
@@ -423,7 +453,8 @@ private:
                 }
             }
         }
-        if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
+        if constexpr (
+            std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
             std::span<std::complex<double>> symm_asymm(
                 m_symm_asymm.begin(), num_unique_nodes*fft_order);
@@ -466,7 +497,8 @@ private:
         const std::size_t num_ass_leg = m_glq_weights.size();
 
         std::ranges::fill(expansion.flatten(), 0.0);
-        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
+        if constexpr (
+            std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             AssLegVecSpan<const double> ass_leg(m_ass_leg_grid, num_ass_leg, m_order);
             for (std::size_t i = 0; i < num_ass_leg; ++i)
@@ -486,16 +518,20 @@ private:
                 }
             }
         }
-        else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
+        else if constexpr (
+            std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            AssLegSpan<const double, std::dynamic_extent> ass_leg(m_ass_leg_grid, m_order, num_ass_leg);
+            AssLegSpan<const double, std::dynamic_extent>
+            ass_leg(m_ass_leg_grid, m_order, num_ass_leg);
+
             for (auto l : expansion.indices())
             {
                 auto expansion_l = expansion[l];
                 auto ass_leg_l = ass_leg[l];
                 std::span<const std::complex<double>> ffts;
                 ffts = std::span<const std::complex<double>>(
-                    m_symm_asymm.begin() + (l & 1)*num_ass_leg*fft_order, num_ass_leg*fft_order);
+                        m_symm_asymm.begin() + (l & 1)*num_ass_leg*fft_order,
+                        num_ass_leg*fft_order);
                 for (auto m : expansion_l.indices())
                 {
                     auto ass_leg_lm = ass_leg_l[m];
@@ -510,12 +546,18 @@ private:
                             coeff[1] = ass_leg_lm[0]*fft[0].imag();
                             break;
                         case 2:
-                            coeff[0] = ass_leg_lm[0]*fft[0].real() + ass_leg_lm[1]*fft[1].real();
-                            coeff[1] = ass_leg_lm[0]*fft[0].imag() + ass_leg_lm[1]*fft[1].imag();
+                            coeff[0] = ass_leg_lm[0]*fft[0].real()
+                                    + ass_leg_lm[1]*fft[1].real();
+                            coeff[1] = ass_leg_lm[0]*fft[0].imag()
+                                    + ass_leg_lm[1]*fft[1].imag();
                             break;
                         case 3:
-                            coeff[0] = ass_leg_lm[0]*fft[0].real() + ass_leg_lm[1]*fft[1].real() + ass_leg_lm[2]*fft[2].real();
-                            coeff[1] = ass_leg_lm[0]*fft[0].imag() + ass_leg_lm[1]*fft[1].imag() + ass_leg_lm[2]*fft[2].imag();
+                            coeff[0] = ass_leg_lm[0]*fft[0].real()
+                                    + ass_leg_lm[1]*fft[1].real()
+                                    + ass_leg_lm[2]*fft[2].real();
+                            coeff[1] = ass_leg_lm[0]*fft[0].imag()
+                                    + ass_leg_lm[1]*fft[1].imag()
+                                    + ass_leg_lm[2]*fft[2].imag();
                             break;
                     }
 
@@ -553,7 +595,8 @@ private:
 
         std::ranges::fill(m_symm_asymm, std::complex<double>{});
 
-        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
+        if constexpr (
+            std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             AssLegVecSpan<const double> ass_leg(m_ass_leg_grid, num_ass_leg, m_order);
             for (std::size_t i = 0; i < num_ass_leg; ++i)
@@ -580,9 +623,11 @@ private:
                 }
             }
         }
-        else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
+        else if constexpr (
+            std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            AssLegSpan<const double, std::dynamic_extent> ass_leg(m_ass_leg_grid, m_order, num_ass_leg);
+            AssLegSpan<const double, std::dynamic_extent>
+            ass_leg(m_ass_leg_grid, m_order, num_ass_leg);
 
             std::span coeffs = expansion.flatten();
             for (auto l : expansion.indices())
@@ -603,7 +648,8 @@ private:
                 {
                     auto ass_leg_lm = ass_leg_l[m];
                     std::span<std::complex<double>> symm_asymm(
-                        m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_ass_leg, num_ass_leg);
+                        m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_ass_leg,
+                        num_ass_leg);
                     for (std::size_t i = 0; i < num_ass_leg; ++i)
                     {
                         const double weight = 0.5*ass_leg_lm[i];
@@ -626,7 +672,8 @@ private:
 
         std::ranges::fill(m_symm_asymm, std::complex<double>{});
 
-        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
+        if constexpr (
+            std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             AssLegVecSpan<const double> ass_leg(m_ass_leg_grid, num_ass_leg, m_order);
             for (std::size_t i = 0; i < num_ass_leg; ++i)
@@ -653,9 +700,11 @@ private:
                 }
             }
         }
-        else if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
+        else if constexpr (
+            std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
-            AssLegSpan<const double, std::dynamic_extent> ass_leg(m_ass_leg_grid, m_order, num_ass_leg);
+            AssLegSpan<const double, std::dynamic_extent>
+            ass_leg(m_ass_leg_grid, m_order, num_ass_leg);
 
             for (auto l : expansion.indices())
             {
@@ -675,7 +724,8 @@ private:
                 {
                     auto ass_leg_lm = ass_leg_l[m];
                     std::span<std::complex<double>> symm_asymm(
-                        m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_ass_leg, num_ass_leg);
+                        m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_ass_leg,
+                        num_ass_leg);
                     for (std::size_t i = 0; i < num_ass_leg; ++i)
                     {
                         const double weight = 0.5*ass_leg_lm[i];
@@ -698,7 +748,8 @@ private:
         const std::size_t south_offset = num_unique_nodes - 1;
         const std::size_t north_offset = central_offset;
 
-        if constexpr (std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
+        if constexpr (
+            std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t i = 0; i < num_unique_nodes; ++i)
             {
@@ -720,7 +771,8 @@ private:
                 }
             }
         }
-        if constexpr (std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
+        if constexpr (
+            std::same_as<grid_layout_type, LonLatLayout<typename grid_layout_type::Alignment>>)
         {
             std::span<std::complex<double>> symm_asymm(
                 m_symm_asymm.begin(), num_unique_nodes*fft_order);
@@ -849,14 +901,21 @@ public:
         @param f function to transform
         @param expansion buffer to store the expansion
     */
-    template <spherical_function<double> FuncType>
-    void forward_transform(
-        FuncType&& f,
-        SHSpan<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param> expansion)
+    template <
+        spherical_function FuncType,
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
+    >
+        requires representable_as<std::invoke_result_t<FuncType, double, double>, double>
+    void forward_transform(FuncType&& f, ExpansionType&& expansion)
     {
         resize(expansion.order());
-        m_points.generate_values(m_grid, std::forward<FuncType>(f));
-        m_transformer.forward_transform(m_grid, expansion);
+
+        using ResultType = std::invoke_result_t<FuncType, double, double>;
+        m_points.generate_values(
+                m_grid.template represent_as<ResultType>(), std::forward<FuncType>(f));
+        m_transformer.forward_transform(
+                m_grid.template represent_as<ResultType>(),
+                std::forward<ExpansionType>(expansion));
     }
 
     /**
@@ -870,86 +929,45 @@ public:
 
         @returns spherical harmonic expansion
     */
-    template <spherical_function<double> FuncType>
-    [[nodiscard]] SHExpansion<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param>
-    forward_transform(FuncType&& f, std::size_t order)
+    template <spherical_function FuncType>
+    [[nodiscard]] auto forward_transform(FuncType&& f, std::size_t order)
     {
         resize(order);
-        m_points.generate_values(m_grid, std::forward<FuncType>(f));
-        return m_transformer.forward_transform(m_grid, order);
+
+        using ResultType = std::invoke_result_t<FuncType, double, double>;
+        m_points.generate_values(
+                m_grid.template represent_as<ResultType>(), std::forward<FuncType>(f));
+        return m_transformer.forward_transform(
+                m_grid.template represent_as<ResultType>(), order);
     }
 
-    /**
-        @brief Get spherical harmonic expansion of a function expressed in
-        Cartesian coordinates.
-
-        @tparam FuncType type of function
-
-        @param f function to transform
-        @param expansion buffer to store the expansion
-    */
-    template <cartesian_function<double> FuncType>
-    void forward_transform(
-        FuncType&& f, 
-        SHSpan<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param> expansion)
+    template <
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType,
+        contiguous_buffer_shaped_like<grid_shape> GridType
+    >
+        requires representable_as<value_type_of<ExpansionType>, double>
+            && std::same_as<value_type_of<ExpansionType>, value_type_of<GridType>>
+    void backward_transform(const ExpansionType& expansion, GridType&& values)
     {
-        auto f_spherical = [&](double lon, double colat) {
-            const double scolat = std::sin(colat);
-            const std::array<double, 3> x = {
-                scolat*std::cos(lon), scolat*std::sin(lon), std::cos(colat)
-            };
-            return std::forward<FuncType>(f)(x);
-        };
-        resize(expansion.order());
-        m_points.generate_values(m_grid, f_spherical);
-        m_transformer.forward_transform(m_grid, expansion);
+        m_transformer.backward_transform(expansion, std::forward<GridType>(values));
     }
 
-    /**
-        @brief Get spherical harmonic expansion of a function expressed in
-        Cartesian coordinates.
-
-        @tparam FuncType type of function
-
-        @param f function to transform
-
-        @returns spherical harmonic expansion
-    */
-    template <cartesian_function<double> FuncType>
-    [[nodiscard]] SHExpansion<double, IndexingMode::zero_based, sh_norm_param, sh_phase_param>
-    forward_transform(FuncType&& f, std::size_t order)
-    {
-        auto f_spherical = [&](double lon, double colat) {
-            const double scolat = std::sin(colat);
-            const std::array<double, 3> x = {
-                scolat*std::cos(lon), scolat*std::sin(lon), std::cos(colat)
-            };
-            return std::forward<FuncType>(f)(x);
-        };
-        resize(order);
-        m_points.generate_values(m_grid, f_spherical);
-        return m_transformer.forward_transform(m_grid, order);
-    }
-
-    void backward_transform(
-        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
-        SphereGLQGridSpan<double, grid_layout_type> values)
-    {
-        m_transformer.backward_transform(expansion, values);
-    }
-
-    template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
+    template <
+        st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType,
+        contiguous_buffer_shaped_like<grid_shape> GridType
+    >
         requires (st::sh_norm_of<ExpansionType>() == sh_norm)
             && (st::sh_phase_of<ExpansionType>() == sh_phase)
             && st::has_inner_rank<ExpansionType, 0>
-    void backward_transform(
-        const ExpansionType& expansion, SphereGLQGridSpan<double, grid_layout_type> values)
+            && representable_as<value_type_of<ExpansionType>, double>
+    void backward_transform(const ExpansionType& expansion, GridType&& values)
     {
-        m_transformer.backward_transform(expansion, values);
+        m_transformer.backward_transform(expansion, std::forward<GridType>(valuese));
     }
-    [[nodiscard]] SphereGLQGrid<double, grid_layout_type> backward_transform(
-        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion,
-        std::size_t order)
+
+    template <contiguous_buffer_shaped_like<expansion_shape> ExpansionType>
+        requires representable_as<value_type_of<ExpansionType>, double>
+    [[nodiscard]] auto backward_transform(const ExpansionType& expansion, std::size_t order)
     {
         return m_transformer.backward_transform(expansion, order);
     }
@@ -958,7 +976,8 @@ public:
         requires (st::sh_norm_of<ExpansionType>() == sh_norm)
             && (st::sh_phase_of<ExpansionType>() == sh_phase)
             && st::has_inner_rank<ExpansionType, 0>
-    [[nodiscard]] SphereGLQGrid<double, grid_layout_type>
+            && representable_as<value_type_of<ExpansionType>, double>
+    [[nodiscard]] SphereGLQGrid<value_type_of<ExpansionType>, grid_layout_type>
     backward_transform(const ExpansionType& expansion, std::size_t order)
     {
         return m_transformer.backward_transform(expansion, order);

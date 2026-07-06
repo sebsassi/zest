@@ -187,7 +187,9 @@ public:
     }
 
     template <typename T>
-        requires std::is_const_v<T> && representable_as<value_type, std::remove_cv_t<T>>
+        requires std::is_const_v<T>
+            && (representable_as<value_type, std::remove_cv_t<T>>
+                || representation_of<value_type, std::remove_cv_t<T>>)
     [[nodiscard]] auto
     represent_as() const noexcept
     {
@@ -197,7 +199,9 @@ public:
     }
 
     template <typename T>
-        requires (!std::is_const_v<T>) && representable_as<value_type, std::remove_cv_t<T>>
+        requires (!std::is_const_v<T>)
+            && (representable_as<value_type, std::remove_cv_t<T>>
+                || representation_of<value_type, std::remove_cv_t<T>>)
     [[nodiscard]] auto
     represent_as() noexcept
     {

@@ -216,7 +216,8 @@ public:
 
     template <typename T>
         requires (!std::is_const_v<element_type> || std::is_const_v<T>)
-            && representable_as<value_type, std::remove_cv_t<T>>
+            && (representable_as<value_type, std::remove_cv_t<T>>
+                || representation_of<value_type, std::remove_cv_t<T>>)
     [[nodiscard]] constexpr auto
     represent_as() const noexcept
     {

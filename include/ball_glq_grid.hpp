@@ -142,7 +142,8 @@ private:
 };
 
 /**
-    @brief A non-owning view of gridded data in spherical coordinates in the unit ball.
+    @brief A non-owning view of gridded data in spherical coordinates in the
+    unit ball.
 
     @tparam ElementType type of elements in the grid
     @tparam LayoutType grid layout
@@ -168,7 +169,7 @@ template <typename LayoutType = DefaultLayout>
 class BallGLQGridPoints
 {
 public:
-    using GridLayout = LayoutType;
+    using layout_type = LayoutType;
     BallGLQGridPoints() = default;
     explicit BallGLQGridPoints(std::size_t order) { resize(order); }
 
@@ -177,10 +178,10 @@ public:
     */
     void resize(std::size_t order)
     {
-        constexpr std::size_t lon_axis = GridLayout::lon_axis;
-        constexpr std::size_t lat_axis = GridLayout::lat_axis;
-        constexpr std::size_t rad_axis = GridLayout::rad_axis;
-        const auto shape = GridLayout::extents(order);
+        constexpr std::size_t lon_axis = layout_type::lon_axis;
+        constexpr std::size_t lat_axis = layout_type::lat_axis;
+        constexpr std::size_t rad_axis = layout_type::rad_axis;
+        const auto shape = layout_type::extents(order);
         resize(shape[lon_axis], shape[lat_axis], shape[rad_axis]);
     }
 
@@ -216,13 +217,19 @@ public:
         @param grid grid to place the values in
         @param f function to generate values
     */
-    template <typename FuncType>
-        requires std::same_as<std::invoke_result_t<FuncType, double, double, double>, double>
-    void generate_values(BallGLQGridSpan<double, GridLayout> grid, FuncType&& f)
+    template <
+        ball_function FuncType,
+        contiguous_buffer_shaped_like<BallGLQGridShape<layout_type>> GridType
+    >
+        requires std::same_as<
+            std::invoke_result_t<FuncType, double, double, double>,
+            value_type_of<GridType>>
+    void generate_values(GridType&& grid, FuncType&& f)
     {
         resize(grid.order());
 
-        if constexpr (std::same_as<GridLayout, LonLatRadLayout<typename GridLayout::Alignment>>)
+        if constexpr (
+            std::same_as<layout_type, LonLatRadLayout<typename layout_type::Alignment>>)
         {
             for (std::size_t i = 0; i < m_longitudes.size(); ++i)
             {
@@ -233,7 +240,8 @@ public:
                     for (std::size_t k = 0; k < m_rad_glq_nodes.size(); ++k)
                     {
                         const double r = m_rad_glq_nodes[k];
-                        grid(i, j, k) = std::forward<FuncType>(f)(lon, colatitude, r);
+                        std::forward<GridType>(grid)[i, j, k]
+                            = std::forward<FuncType>(f)(lon, colatitude, r);
                     }
                 }
             }
@@ -245,76 +253,16 @@ public:
 
         @tparam FuncType type of function
 
-        @param grid grid to place the values in
         @param f function to generate values
     */
-    template <typename FuncType>
-        requires std::same_as<std::invoke_result_t<FuncType, double, double, double>, double>
-    void generate_values(BallGLQGrid<double, GridLayout>& grid, FuncType&& f)
-    {
-        generate_values((typename BallGLQGrid<double, GridLayout>::view)(grid), std::forward<FuncType>(f));
-    }
-
-    /**
-        @brief Generate Gauss-Legendre quadrature grid values from a function.
-
-        @tparam FuncType type of function
-
-        @param f function to generate values
-    */
-    template <typename FuncType>
-        requires std::same_as<std::invoke_result_t<FuncType, double, double, double>, double>
+    template <ball_function FuncType>
     [[nodiscard]] auto generate_values(FuncType&& f, std::size_t order)
     {
-        BallGLQGrid<double, GridLayout> grid(order);
-        generate_values((typename BallGLQGrid<double, GridLayout>::view)(grid), std::forward<FuncType>(f));
+        using ResultType = std::invoke_result_t<FuncType, double, double, double>;
+        BallGLQGrid<ResultType, layout_type> grid(order);
+        generate_values(grid, std::forward<FuncType>(f));
         return grid;
     }
-
-#ifdef ZEST_USE_OMP
-    template <ball_glq_grid GridType, typename FuncType>
-        requires std::same_as<
-            typename std::remove_cvref_t<GridType>::Layout, GridLayout>
-    void generate_values(
-        BallGLQGridSpan<double> grid, FuncType&& f, std::size_t num_threads)
-    {
-        constexpr std::size_t lon_axis = GridLayout::lon_axis;
-        constexpr std::size_t lat_axis = GridLayout::lat_axis;
-        constexpr std::size_t rad_axis = GridLayout::rad_axis;
-        const auto shape = grid.shape();
-        resize(shape[lon_axis], shape[lat_axis], shape[rad_axis]);
-
-        std::size_t nthreads = (num_threads) ?
-                num_threads : std::size_t(omp_get_max_threads());
-        if constexpr (std::same_as<GridLayout, LonLatRadLayout<typename GridLayout::Alignment>>)
-        {
-            #pragma omp parallel for num_threads(nthreads) collapse(2)
-            for (std::size_t i = 0; i < m_longitudes.size(); ++i)
-            {
-                for (std::size_t j = 0; j < m_lat_glq_nodes.size(); ++j)
-                {
-                    const double lon = m_longitudes[i];
-                    const double colatitude = m_lat_glq_nodes[j];
-                    for (std::size_t k = 0; k < m_rad_glq_nodes.size(); ++k)
-                    {
-                        const double r = m_rad_glq_nodes[k];
-                        grid(i, j, k) = f(r, lon, colatitude);
-                    }
-                }
-            }
-        }
-    }
-
-    template <typename FuncType>
-    [[nodiscard]] auto generate_values(
-        FuncType&& f, std::size_t order, std::size_t num_threads)
-    {
-        using CodomainType = std::invoke_result_t<FuncType, double, double, double>;
-        BallGLQGrid<CodomainType, GridLayout> grid(order);
-        generate_values(grid, f, num_threads);
-        return grid;
-    }
-#endif
 
 private:
     void resize(std::size_t num_lon, std::size_t num_lat, std::size_t num_rad)
@@ -329,12 +277,14 @@ private:
         if (num_lat != m_lat_glq_nodes.size())
         {
             m_lat_glq_nodes.resize(num_lat);
-            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::angle>(m_lat_glq_nodes, m_lat_glq_nodes.size() & 1);
+            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::angle>(
+                    m_lat_glq_nodes, m_lat_glq_nodes.size() & 1);
         }
         if (num_rad != m_rad_glq_nodes.size())
         {
             m_rad_glq_nodes.resize(num_rad);
-            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::cos>(m_rad_glq_nodes, m_rad_glq_nodes.size() & 1);
+            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::cos>(
+                    m_rad_glq_nodes, m_rad_glq_nodes.size() & 1);
             for (auto& node : m_rad_glq_nodes)
                 node = 0.5*(1.0 + node);
         }

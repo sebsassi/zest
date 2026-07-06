@@ -108,10 +108,12 @@ public:
     RadialGLQGridShape(size_type order) requires (Base::dynamic_rank == 1):
         Base{layout_type::extents(order)[0]}, m_order{order} {}
 
-    RadialGLQGridShape(size_type order, size_type inner_extent) requires (Base::dynamic_rank == 2):
+    RadialGLQGridShape(size_type order, size_type inner_extent)
+        requires (Base::dynamic_rank == 2):
         Base{append(layout_type::extents(order), inner_extent)}, m_order{order} {}
 
-    RadialGLQGridShape(size_type order, const std::array<size_type, Base::rank - 1>& inner_extents):
+    RadialGLQGridShape(
+        size_type order, const std::array<size_type, Base::rank - 1>& inner_extents):
         Base{concatenate(layout_type::extents(order), inner_extents)}, m_order{order} {}
 
     RadialGLQGridShape(size_type order, const Base::extent_type& extents):
@@ -150,7 +152,8 @@ public:
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] Inds... inds) const noexcept
     {
-        return subshape_type<sizeof...(Inds)>(take_last<Base::rank - sizeof...(Inds)>(extents()));
+        return subshape_type<sizeof...(Inds)>(
+                take_last<Base::rank - sizeof...(Inds)>(extents()));
     }
 
     template <std::integral... Inds>
@@ -178,7 +181,9 @@ private:
         requires (sizeof...(Inds) + 1 == Base::rank - N && 1 <= N && N < Base::rank - 1)
     struct subshape_helper<N, std::index_sequence<Inds...>>
     {
-        using type = RadialGLQGridTensorShape<AlignmentType, std::get<Inds>(Base::static_extents)...>;
+        using type = RadialGLQGridTensorShape<
+                AlignmentType, std::get<Inds>(Base::static_extents)...
+            >;
     };
 
     template <std::size_t N>
@@ -203,7 +208,9 @@ public:
 
     template <std::size_t N>
         requires (0 < N && N <= Base::rank)
-    using subshape_type = subshape_helper<N, std::make_index_sequence<Base::rank - std::min(N + 1, Base::rank)>>::type;
+    using subshape_type = subshape_helper<
+            N, std::make_index_sequence<Base::rank - std::min(N + 1, Base::rank)>
+        >::type;
 
     RadialGLQGridTensorShape() = default;
 
@@ -244,7 +251,8 @@ public:
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] Inds... inds) const noexcept
     {
-        return subshape_type<sizeof...(Inds)>(m_order, zest::take_last<Base::rank - sizeof...(Inds)>(extents()));
+        return subshape_type<sizeof...(Inds)>(
+                m_order, zest::take_last<Base::rank - sizeof...(Inds)>(extents()));
     }
 
     template <std::integral... Inds>
@@ -269,7 +277,8 @@ private:
 };
 
 template <typename AlignmentType>
-using RadialGLQGridVectorShape = RadialGLQGridTensorShape<AlignmentType, std::dynamic_extent>;
+using RadialGLQGridVectorShape
+    = RadialGLQGridTensorShape<AlignmentType, std::dynamic_extent>;
 
 /**
     @brief A non-owning view of a radial Gauss-Legendre quadrature grid.
@@ -278,8 +287,12 @@ using RadialGLQGridVectorShape = RadialGLQGridTensorShape<AlignmentType, std::dy
     @tparam AlignmentType Byte alignment of the data.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, typename AlignmentType = CacheLineAlignment, std::size_t... inner_extents>
-using RadialGLQGridSpan = ShapedSpan<ElementType, RadialGLQGridShape<AlignmentType, inner_extents...>>;
+template <
+    typename ElementType, typename AlignmentType = CacheLineAlignment,
+    std::size_t... inner_extents
+>
+using RadialGLQGridSpan
+    = ShapedSpan<ElementType, RadialGLQGridShape<AlignmentType, inner_extents...>>;
 
 /**
     @brief Container for radial Gauss-Legendre quadrature gridded data.
@@ -288,8 +301,12 @@ using RadialGLQGridSpan = ShapedSpan<ElementType, RadialGLQGridShape<AlignmentTy
     @tparam AlignmentType Byte alignment of the data.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, typename AlignmentType = CacheLineAlignment, std::size_t... inner_extents>
-using RadialGLQGrid = ShapedArray<ElementType, RadialGLQGridShape<AlignmentType, inner_extents...>>;
+template <
+    typename ElementType, typename AlignmentType = CacheLineAlignment,
+std::size_t... inner_extents
+>
+using RadialGLQGrid
+    = ShapedArray<ElementType, RadialGLQGridShape<AlignmentType, inner_extents...>>;
 
 /**
     @brief A non-owning view of a multidiemensional array of radial
@@ -299,8 +316,12 @@ using RadialGLQGrid = ShapedArray<ElementType, RadialGLQGridShape<AlignmentType,
     @tparam AlignmentType Byte alignment of the data.
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
-template <typename ElementType, typename AlignmentType = CacheLineAlignment, std::size_t... outer_extents>
-using RadialGLQGridTensorSpan = ShapedSpan<ElementType, RadialGLQGridTensorShape<AlignmentType, outer_extents...>>;
+template <
+    typename ElementType, typename AlignmentType = CacheLineAlignment,
+    std::size_t... outer_extents
+>
+using RadialGLQGridTensorSpan
+    = ShapedSpan<ElementType, RadialGLQGridTensorShape<AlignmentType, outer_extents...>>;
 
 /**
     @brief A non-owning view of an array of radial Gauss-Legendre quadrature
@@ -310,7 +331,8 @@ using RadialGLQGridTensorSpan = ShapedSpan<ElementType, RadialGLQGridTensorShape
     @tparam AlignmentType Byte alignment of the data.
 */
 template <typename ElementType, typename AlignmentType = CacheLineAlignment>
-using SphereGLQGridVectorSpan = RadialGLQGridTensorSpan<ElementType, AlignmentType, std::dynamic_extent>;
+using SphereGLQGridVectorSpan
+    = RadialGLQGridTensorSpan<ElementType, AlignmentType, std::dynamic_extent>;
 
 /**
     @brief Container for a multidimensional array of radial Gauss-Legendre
@@ -320,8 +342,12 @@ using SphereGLQGridVectorSpan = RadialGLQGridTensorSpan<ElementType, AlignmentTy
     @tparam AlignmentType Byte alignment of the data.
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
-template <typename ElementType, typename AlignmentType = CacheLineAlignment, std::size_t... outer_extents>
-using RadialGLQGridTensor = ShapedArray<ElementType, RadialGLQGridTensorShape<AlignmentType, outer_extents...>>;
+template <
+    typename ElementType, typename AlignmentType = CacheLineAlignment,
+    std::size_t... outer_extents
+>
+using RadialGLQGridTensor
+    = ShapedArray<ElementType, RadialGLQGridTensorShape<AlignmentType, outer_extents...>>;
 
 /**
     @brief Container for an array of radial Gauss-Legendre quadrature grids.
@@ -330,7 +356,8 @@ using RadialGLQGridTensor = ShapedArray<ElementType, RadialGLQGridTensorShape<Al
     @tparam AlignmentType Byte alignment of the data.
 */
 template <typename ElementType, typename AlignmentType = CacheLineAlignment>
-using RadialGLQGridVector = RadialGLQGridTensorSpan<ElementType, AlignmentType, std::dynamic_extent>;
+using RadialGLQGridVector
+    = RadialGLQGridTensorSpan<ElementType, AlignmentType, std::dynamic_extent>;
 
 /**
     @brief Points defining a Gauss-Legendre quadrature grid on the sphere.
@@ -378,8 +405,12 @@ public:
         @param grid grid to place the values in
         @param f function to generate values
     */
-    template <isotropic_function<double> FuncType>
-    void generate_values(RadialGLQGridSpan<double, alignment_type> grid, FuncType&& f)
+    template <
+        isotropic_function FuncType,
+        contiguous_buffer_shaped_like<RadialGLQGridShape<layout_type>> GridType,
+    >
+        requires std::same_as<std::invoke_result_t<FuncType, double>, value_type_of<GridType>>
+    void generate_values(GridType&& grid, FuncType&& f)
     {
         resize(grid.order());
         assert(grid.extent(0) == m_glq_nodes.size());
@@ -387,7 +418,7 @@ public:
         for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
         {
             const double radius = m_glq_nodes[i];
-            grid[i] = std::forward<FuncType>(f)(radius);
+            std::forward<GridType>(grid)[i] = std::forward<FuncType>(f)(radius);
         }
     }
 
@@ -396,27 +427,14 @@ public:
 
         @tparam FuncType type of function
 
-        @param grid grid to place the values in
         @param f function to generate values
     */
-    template <isotropic_function<double> FuncType>
-    void generate_values(RadialGLQGrid<double, alignment_type>& grid, FuncType&& f)
-    {
-        generate_values((typename RadialGLQGrid<double, alignment_type>::view)(grid), std::forward<FuncType>(f));
-    }
-
-    /**
-        @brief Generate Gauss-Legendre quadrature grid values from a function.
-
-        @tparam FuncType type of function
-
-        @param f function to generate values
-    */
-    template <isotropic_function<double> FuncType>
+    template <isotropic_function FuncType>
     auto generate_values(FuncType&& f, std::size_t order)
     {
-        auto grid = RadialGLQGrid<double, alignment_type>(order);
-        generate_values((typename RadialGLQGrid<double, alignment_type>::view)(grid), std::forward<FuncType>(f));
+        using ResultType = std::invoke_result_t<FuncType, double>;
+        auto grid = RadialGLQGrid<ResultType, alignment_type>(order);
+        generate_values(grid, std::forward<FuncType>(f));
         return grid;
     }
 
@@ -426,7 +444,8 @@ private:
         if (num_rad != m_glq_nodes.size())
         {
             m_glq_nodes.resize(num_rad);
-            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::cos>(m_glq_nodes, m_glq_nodes.size() & 1);
+            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::cos>(
+                    m_glq_nodes, m_glq_nodes.size() & 1);
             for (auto& node : m_glq_nodes)
                 node = 0.5*(1 + node);
         }

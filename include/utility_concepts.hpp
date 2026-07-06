@@ -37,11 +37,21 @@ concept shaped_contiguous_buffer = requires (T x)
         { x.shape() } -> std::same_as<const typename std::remove_cvref_t<T>::shape_type&>;
     };
 
+template <typename T, typename Shape>
+concept shaped_like = std::same_as<typename std::remove_cvref_t<T>::shape_type, Shape>;
+
+template <typename T, typename Shape>
+concept contiguous_buffer_shaped_like = shaped_contiguous_buffer<T> && shaped_like<T, Shape>;
+
 template <typename T, typename Rep>
 concept representable_as
     = std::same_as<T, Rep>
-    || (sizeof(T) == sizeof(Rep)) && std::is_trivially_copyable_v<T>
-        && std::same_as<typename T::rep, Rep>;
+    || ((sizeof(T) == sizeof(Rep))
+        && std::is_trivially_copyable_v<T> && std::is_trivially_copyable_v<Rep>
+        && std::same_as<typename T::rep, Rep>);
+
+template <typename Rep, typename T>
+concept representation_of = representable_as<T, Rep>;
 
 template <shaped_contiguous_buffer T>
 using value_type_of = typename std::remove_cvref_t<T>::value_type;
@@ -65,24 +75,24 @@ using remove_tags = detail::remove_tags_helper<T>::type;
     @brief Function concept taking Cartesian coordinates as inputs.
 */
 template <typename Func, typename T>
-concept cartesian_function = std::same_as<std::invoke_result_t<Func, std::array<double, 3>>, T>;
+concept cartesian_function = std::invocable<Func, T> && std::constructible_from<std::array<double, 3>>;
 
 /**
     @brief Function concept taking spherical angles as inputs.
 */
-template <typename Func, typename T>
-concept spherical_function = std::same_as<std::invoke_result_t<Func, double, double>, T>;
+template <typename Func>
+concept spherical_function = std::invocable<Func, double, double>;
 
 /**
     @brief Function concept taking spherical coordinates as inputs.
 */
-template <typename Func, typename T>
-concept ball_function = std::same_as<std::invoke_result_t<Func, double, double, double>, T>;
+template <typename Func>
+concept ball_function = std::invocable<Func, double, double, double>;
 
 /**
     @brief Function concept taking radial coordinate as input.
 */
-template <typename Func, typename T>
-concept isotropic_function = std::same_as<std::invoke_result_t<Func, double>, T>;
+template <typename Func>
+concept isotropic_function = std::invocable<Func, double>;
 
 } // namespace zest

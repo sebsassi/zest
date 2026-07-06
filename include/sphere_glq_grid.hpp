@@ -29,6 +29,7 @@ SOFTWARE.
 #include "shape.hpp"
 #include "shaped_array.hpp"
 #include "shaped_span.hpp"
+#include "utility_concepts.hpp"
 
 namespace zest::st
 {
@@ -245,7 +246,9 @@ private:
         requires (sizeof...(Inds) + 1 == Base::rank - N && N == 1)
     struct subshape_helper<N, std::index_sequence<I, Inds...>>
     {
-        using type = SphereGLQSubGridShape<LayoutType, std::get<N + 1 + Inds>(Base::static_extents)...>;
+        using type = SphereGLQSubGridShape<
+                LayoutType, std::get<N + 1 + Inds>(Base::static_extents)...
+            >;
     };
 
     template <std::size_t N, std::size_t... Inds>
@@ -325,7 +328,8 @@ public:
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] Inds... inds) const noexcept
     {
-        return subshape_type<sizeof...(Inds)>(m_order, take_last<Base::rank - sizeof...(Inds)>(extents()));
+        return subshape_type<sizeof...(Inds)>(
+                m_order, take_last<Base::rank - sizeof...(Inds)>(extents()));
     }
 
     template <std::integral... Inds>
@@ -333,7 +337,8 @@ public:
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] Inds... inds) const noexcept
     {
-        return subshape_type<sizeof...(Inds)>(take_last<Base::rank - sizeof...(Inds)>(extents()));
+        return subshape_type<sizeof...(Inds)>(
+                take_last<Base::rank - sizeof...(Inds)>(extents()));
     }
 
     template <std::integral... Inds>
@@ -360,7 +365,9 @@ private:
         requires (sizeof...(Inds) + 2 == Base::rank - N && 1 <= N && N < Base::rank - 2)
     struct subshape_helper<N, std::index_sequence<Inds...>>
     {
-        using type = SphereGLQGridTensorShape<LayoutType, std::get<Inds>(Base::static_extents)...>;
+        using type = SphereGLQGridTensorShape<
+                LayoutType, std::get<Inds>(Base::static_extents)...
+            >;
     };
 
     template <std::size_t N>
@@ -391,7 +398,9 @@ public:
 
     template <std::size_t N>
         requires (0 < N && N <= Base::rank)
-    using subshape_type = subshape_helper<N, std::make_index_sequence<Base::rank - std::min(N + 2, Base::rank)>>::type;
+    using subshape_type = subshape_helper<
+            N, std::make_index_sequence<Base::rank - std::min(N + 2, Base::rank)>
+        >::type;
 
     SphereGLQGridTensorShape() = default;
 
@@ -432,7 +441,8 @@ public:
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] Inds... inds) const noexcept
     {
-        return subshape_type<sizeof...(Inds)>(m_order, take_last<Base::rank - sizeof...(Inds)>(extents()));
+        return subshape_type<sizeof...(Inds)>(
+                m_order, take_last<Base::rank - sizeof...(Inds)>(extents()));
     }
 
     template <std::integral... Inds>
@@ -456,7 +466,8 @@ private:
 };
 
 template <typename LayoutType>
-using SphereGLQGridVectorShape = SphereGLQGridTensorShape<LayoutType, std::dynamic_extent>;
+using SphereGLQGridVectorShape
+    = SphereGLQGridTensorShape<LayoutType, std::dynamic_extent>;
 
 /**
     @brief A non-owning view of a Gauss-Legendre quadrature grid on the sphere.
@@ -465,8 +476,11 @@ using SphereGLQGridVectorShape = SphereGLQGridTensorShape<LayoutType, std::dynam
     @tparam LayoutType Layout of the grid.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, typename LayoutType = DefaultLayout, std::size_t... inner_extents>
-using SphereGLQGridSpan = ShapedSpan<ElementType, SphereGLQGridShape<LayoutType, inner_extents...>>;
+template <
+    typename ElementType, typename LayoutType = DefaultLayout, std::size_t... inner_extents
+>
+using SphereGLQGridSpan
+    = ShapedSpan<ElementType, SphereGLQGridShape<LayoutType, inner_extents...>>;
 
 /**
     @brief Container for Gauss-Legendre quadrature gridded data on the sphere.
@@ -475,8 +489,11 @@ using SphereGLQGridSpan = ShapedSpan<ElementType, SphereGLQGridShape<LayoutType,
     @tparam LayoutType grid layout
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, typename LayoutType = DefaultLayout, std::size_t... inner_extents>
-using SphereGLQGrid = ShapedArray<ElementType, SphereGLQGridShape<LayoutType, inner_extents...>>;
+template <
+    typename ElementType, typename LayoutType = DefaultLayout, std::size_t... inner_extents
+>
+using SphereGLQGrid
+    = ShapedArray<ElementType, SphereGLQGridShape<LayoutType, inner_extents...>>;
 
 /**
     @brief A non-owning view of a multidiemensional array of Gauss-Legendre
@@ -486,8 +503,11 @@ using SphereGLQGrid = ShapedArray<ElementType, SphereGLQGridShape<LayoutType, in
     @tparam LayoutType Layout of the grid.
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
-template <typename ElementType, typename LayoutType = DefaultLayout, std::size_t... outer_extents>
-using SphereGLQGridTensorSpan = ShapedSpan<ElementType, SphereGLQGridTensorShape<LayoutType, outer_extents...>>;
+template <
+    typename ElementType, typename LayoutType = DefaultLayout, std::size_t... outer_extents
+>
+using SphereGLQGridTensorSpan
+    = ShapedSpan<ElementType, SphereGLQGridTensorShape<LayoutType, outer_extents...>>;
 
 /**
     @brief A non-owning view of an array of Gauss-Legendre quadrature grids on
@@ -497,7 +517,8 @@ using SphereGLQGridTensorSpan = ShapedSpan<ElementType, SphereGLQGridTensorShape
     @tparam LayoutType Layout of the grid.
 */
 template <typename ElementType, typename LayoutType = DefaultLayout>
-using SphereGLQGridVectorSpan = SphereGLQGridTensorSpan<ElementType, LayoutType, std::dynamic_extent>;
+using SphereGLQGridVectorSpan
+    = SphereGLQGridTensorSpan<ElementType, LayoutType, std::dynamic_extent>;
 
 /**
     @brief Container for a multidimensional array of Gauss-Legendre quadrature
@@ -507,8 +528,11 @@ using SphereGLQGridVectorSpan = SphereGLQGridTensorSpan<ElementType, LayoutType,
     @tparam LayoutType grid layout
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
-template <typename ElementType, typename LayoutType = DefaultLayout, std::size_t... outer_extents>
-using SphereGLQGridTensor = ShapedArray<ElementType, SphereGLQGridTensorShape<LayoutType, outer_extents...>>;
+template <
+    typename ElementType, typename LayoutType = DefaultLayout, std::size_t... outer_extents
+>
+using SphereGLQGridTensor
+    = ShapedArray<ElementType, SphereGLQGridTensorShape<LayoutType, outer_extents...>>;
 
 /**
     @brief Container for an array of Gauss-Legendre quadrature grids on the
@@ -518,7 +542,8 @@ using SphereGLQGridTensor = ShapedArray<ElementType, SphereGLQGridTensorShape<La
     @tparam LayoutType grid layout
 */
 template <typename ElementType, typename LayoutType = DefaultLayout>
-using SphereGLQGridVector = SphereGLQGridTensor<ElementType, LayoutType, std::dynamic_extent>;
+using SphereGLQGridVector
+    = SphereGLQGridTensor<ElementType, LayoutType, std::dynamic_extent>;
 
 /**
     @brief Points defining a Gauss-Legendre quadrature grid on the sphere.
@@ -529,7 +554,7 @@ template <typename LayoutType = DefaultLayout>
 class SphereGLQGridPoints
 {
 public:
-    using GridLayout = LayoutType;
+    using layout_type = LayoutType;
     SphereGLQGridPoints() = default;
     explicit SphereGLQGridPoints(std::size_t order) { resize(order); }
 
@@ -538,9 +563,9 @@ public:
     */
     void resize(std::size_t order)
     {
-        constexpr std::size_t lon_axis = GridLayout::lon_axis;
-        constexpr std::size_t lat_axis = GridLayout::lat_axis;
-        const auto shape = GridLayout::extents(order);
+        constexpr std::size_t lon_axis = layout_type::lon_axis;
+        constexpr std::size_t lat_axis = layout_type::lat_axis;
+        const auto shape = layout_type::extents(order);
         resize(shape[lon_axis], shape[lat_axis]);
     }
 
@@ -576,13 +601,18 @@ public:
         @param grid grid to place the values in
         @param f function to generate values
     */
-    template <typename FuncType>
-        requires std::same_as<std::invoke_result_t<FuncType, double, double>, double>
-    void generate_values(SphereGLQGridSpan<double, GridLayout> grid, FuncType&& f)
+    template <
+        spherical_function FuncType,
+        contiguous_buffer_shaped_like<SphereGLQGridShape<layout_type>> GridType
+    >
+        requires std::same_as<
+            std::invoke_result_t<FuncType, double, double>, value_type_of<GridType>>
+    void generate_values(GridType&& grid, FuncType&& f)
     {
         resize(grid.order());
 
-        if constexpr (std::same_as<GridLayout, LatLonLayout<typename LayoutType::Alignment>>)
+        if constexpr (
+            std::same_as<layout_type, LatLonLayout<typename LayoutType::Alignment>>)
         {
             for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
             {
@@ -590,11 +620,13 @@ public:
                 for (std::size_t j = 0; j < m_longitudes.size(); ++j)
                 {
                     const double lon = m_longitudes[j];
-                    grid[i, j] = std::forward<FuncType>(f)(lon, colatitude);
+                    std::forward<GridType>(grid)[i, j]
+                        = std::forward<FuncType>(f)(lon, colatitude);
                 }
             }
         }
-        else if constexpr (std::same_as<GridLayout, LonLatLayout<typename LayoutType::Alignment>>)
+        else if constexpr (
+            std::same_as<layout_type, LonLatLayout<typename LayoutType::Alignment>>)
         {
             for (std::size_t i = 0; i < m_longitudes.size(); ++i)
             {
@@ -602,7 +634,8 @@ public:
                 for (std::size_t j = 0; j < m_glq_nodes.size(); ++j)
                 {
                     const double colatitude = m_glq_nodes[j];
-                    grid[i, j] = std::forward<FuncType>(f)(lon, colatitude);
+                    std::forward<GridType>(grid)[i, j]
+                        = std::forward<FuncType>(f)(lon, colatitude);
                 }
             }
         }
@@ -613,29 +646,14 @@ public:
 
         @tparam FuncType type of function
 
-        @param grid grid to place the values in
         @param f function to generate values
     */
-    template <typename FuncType>
-        requires std::same_as<std::invoke_result_t<FuncType, double, double>, double>
-    void generate_values(SphereGLQGrid<double, GridLayout>& grid, FuncType&& f)
-    {
-        generate_values((typename SphereGLQGrid<double, GridLayout>::view)(grid), std::forward<FuncType>(f));
-    }
-
-    /**
-        @brief Generate Gauss-Legendre quadrature grid values from a function.
-
-        @tparam FuncType type of function
-
-        @param f function to generate values
-    */
-    template <typename FuncType>
-        requires std::same_as<std::invoke_result_t<FuncType, double, double>, double>
+    template <spherical_function FuncType>
     auto generate_values(FuncType&& f, std::size_t order)
     {
-        auto grid = SphereGLQGrid<double, GridLayout>(order);
-        generate_values((typename SphereGLQGrid<double, GridLayout>::view)(grid), std::forward<FuncType>(f));
+        using ResultType = std::invoke_result_t<FuncType, double, double>;
+        auto grid = SphereGLQGrid<ResultType, layout_type>(order);
+        generate_values(grid, std::forward<FuncType>(f));
         return grid;
     }
 
@@ -652,7 +670,8 @@ private:
         if (num_lat != m_glq_nodes.size())
         {
             m_glq_nodes.resize(num_lat);
-            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::angle>(m_glq_nodes, m_glq_nodes.size() & 1);
+            gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::angle>(
+                    m_glq_nodes, m_glq_nodes.size() & 1);
         }
     }
 

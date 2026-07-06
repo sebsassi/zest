@@ -71,6 +71,9 @@ private:
 
 public:
     using grid_layout_type = GridLayoutType;
+    using expansion_shape = ZernikeShape<
+            IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param>;
+    using grid_shape = BallGLQGridShape<grid_layout_type>;
 
     static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
     static constexpr st::SHNorm sh_norm = sh_norm_param;
@@ -200,44 +203,29 @@ public:
         @param values Values on the quadrature grid.
         @param expansion Output buffer for coefficients of the Zernike expansion.
     */
-    void forward_transform(
-        BallGLQGridSpan<const double, grid_layout_type> values,
-        ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion)
+    template <
+        contiguous_buffer_shaped_like<grid_shape> GridType,
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
+    >
+        requires representable_as<value_type_of<GridType>, double>
+            && std::same_as<value_type_of<GridType>, value_type_of<ExpansionType>>
+    void forward_transform(const GridType& values, ExpansionType&& expansion)
     {
         resize(values.order());
 
-        integrate_longitudinal(values);
+        integrate_longitudinal(values.template represent_as<double>());
         apply_weights();
 
         std::size_t min_order = std::min(expansion.order(), values.order());
         integrate_latitudinal(min_order);
 
         ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>
-        truncated_expansion(expansion.flatten(), min_order);
+        truncated_expansion{
+            std::forward<ExpansionType>(expansion).template represent_as<double>().flatten(),
+            min_order
+        };
 
         integrate_radial(truncated_expansion);
-    }
-
-    /**
-        @brief Backward transform from Zernike expansion to Gauss-Legendre quadrature grid.
-
-        @param expansion Coefficients of the Zernike expansion.
-        @param values Output buffer for values on the ball quadrature grid.
-    */
-    void backward_transform(
-        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
-        BallGLQGridSpan<double, grid_layout_type> values)
-    {
-        resize(values.order());
-
-        std::size_t min_order = std::min(expansion.order(), values.order());
-
-        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>
-        truncated_expansion(expansion.flatten(), min_order);
-
-        sum_n(truncated_expansion);
-        sum_l(min_order);
-        sum_m(values);
     }
 
     /**
@@ -248,14 +236,41 @@ public:
 
         @return Coefficients of the Zernike expansion.
     */
-    [[nodiscard]] ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>
-    forward_transform(BallGLQGridSpan<const double, grid_layout_type> values, std::size_t order)
+    template <contiguous_buffer_shaped_like<grid_shape> GridType>
+        requires representable_as<value_type_of<GridType>, double>
+    [[nodiscard]] auto forward_transform(const GridType& values, std::size_t order)
     {
-        ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>
+        ZernikeExpansion<T, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>
         expansion(order);
 
         forward_transform(values, expansion);
         return expansion;
+    }
+
+    /**
+        @brief Backward transform from Zernike expansion to Gauss-Legendre quadrature grid.
+
+        @param expansion Coefficients of the Zernike expansion.
+        @param values Output buffer for values on the ball quadrature grid.
+    */
+    template <
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType,
+        contiguous_buffer_shaped_like<grid_shape> GridType
+    >
+        requires representable_as<value_type_of<ExpansionType>, double>
+            && std::same_as<value_type_of<ExpansionType>, value_type_of<GridType>>
+    void backward_transform(const ExpansionType& expansion, GridType&& values)
+    {
+        resize(values.order());
+
+        std::size_t min_order = std::min(expansion.order(), values.order());
+
+        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>
+        truncated_expansion{expansion.template represent_as<double>().flatten(), min_order};
+
+        sum_n(truncated_expansion);
+        sum_l(min_order);
+        sum_m(std::forward<GridType>(values).template represent_as<double>());
     }
 
     /**
@@ -266,12 +281,11 @@ public:
 
         @return Function values on a ball quadrature grid.
     */
-    [[nodiscard]] BallGLQGrid<double, grid_layout_type>
-    backward_transform(
-        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
-        std::size_t order)
+    template <contiguous_buffer_shaped_like<expansion_shape> ExpansionType>
+        requires representable_as<value_type_of<ExpansionType>, double>
+    [[nodiscard]] auto backward_transform(const ExpansionType& expansion, std::size_t order)
     {
-        BallGLQGrid<double, grid_layout_type> grid(order);
+        BallGLQGrid<value_type_of<ExpansionType>, grid_layout_type> grid(order);
         backward_transform(expansion, grid);
         return grid;
     }
@@ -610,11 +624,20 @@ using GLQTransformerNormalGeo
     @tparam sh_phase_param phase convention of spherical harmonics
     @tparam GridLayoutType
 */
-template <ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param, typename GridLayoutType = DefaultLayout>
+template <
+    ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param,
+    typename GridLayoutType = DefaultLayout
+>
 class ZernikeTransformer
 {
+private:
+    using Transformer
+        = GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param, grid_layout_type>;
+
 public:
     using grid_layout_type = GridLayoutType;
+    using expansion_shape = typename Transformer::expansion_shape;
+    using grid_shape = typename Transformer::grid_shape;
 
     static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
     static constexpr st::SHNorm sh_norm = sh_norm_param;
@@ -645,17 +668,27 @@ public:
         @param radius Radius of the ball `f` is defined on.
         @param expansion Output buffer for the Zernike expansion coefficients.
     */
-    template <ball_function<double> FuncType>
-    void forward_transform(
-        FuncType&& f, double radius,
-        ZernikeSpan<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
+    template <
+        ball_function FuncType, typename RadiusType,
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
+    >
+        requires representable_as<
+                std::invoke_result_t<FuncType, double, double, RadiusType>, double>
+            && std::same_as<
+                std::invoke_result_t<FuncType, double, double, RadiusType>,
+                value_type_of<ExpansionType>>
+    void forward_transform(FuncType&& f, RadiusType radius, ExpansionType&& expansion)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
             return std::forward<FuncType>(f)(lon, colat, r*radius);
         };
         resize(expansion.order());
-        m_points.generate_values(m_grid, f_scaled);
-        m_transformer.forward_transform(m_grid, expansion);
+
+        using ResultType = std::invoke_result_t<FuncType, double, double, RadiusType>;
+        m_points.generate_values(m_grid.template represent_as<ResultType>(), f_scaled);
+        m_transformer.forward_transform(
+                m_grid.template represent_as<ResultType>(),
+                std::forward<ExpansionType>(expansion));
     }
 
     /**
@@ -670,16 +703,26 @@ public:
 
         @returns Zernike expansion
     */
-    template <ball_function<double> FuncType>
-    [[nodiscard]] ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param>
-    forward_transform(FuncType&& f, double radius, std::size_t order)
+    template <
+        ball_function FuncType, typename RadiusType,
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
+    >
+        requires representable_as<
+                std::invoke_result_t<FuncType, double, double, RadiusType>, double>
+            && std::same_as<
+                std::invoke_result_t<FuncType, double, double, RadiusType>,
+                value_type_of<ExpansionType>>
+    [[nodiscard]] auto forward_transform(FuncType&& f, RadiusType radius, std::size_t order)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
             return std::forward<FuncType>(f)(lon, colat, r*radius);
         };
         resize(order);
-        m_points.generate_values(m_grid, f_scaled);
-        return m_transformer.forward_transform(m_grid, order);
+
+        using ResultType = std::invoke_result_t<FuncType, double, double, RadiusType>;
+        m_points.generate_values(m_grid.template represent_as<ResultType>(), f_scaled);
+        return m_transformer.forward_transform(
+                m_grid.template represent_as<ResultType>(), order);
     }
 
     /**
@@ -692,23 +735,31 @@ public:
         @param radius Radius of the ball `f` is defined on.
         @param expansion Output buffer for the Zernike expansion coefficients.
     */
-    template <cartesian_function<double> FuncType>
-    void forward_transform(
-        FuncType&& f, double radius,
-        ZernikeSpan<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
+    template <
+        typename VectorType, cartesian_function<VectorType> FuncType, typename RadiusType,
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
+    >
+        requires representable_as<std::invoke_result_t<FuncType, VectorType>, double>
+            && std::same_as<
+                std::invoke_result_t<FuncType, double, double, RadiusType>,
+                value_type_of<ExpansionType>>
+    void forward_transform(FuncType&& f, RadiusType radius, ExpansionType&& expansion)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
-            const double rad = r*radius;
+            const auto rad = r*radius;
             const double scolat = std::sin(colat);
-            const std::array<double, 3> x = {
-                rad*scolat*std::cos(lon), rad*scolat*std::sin(lon),
-                rad*std::cos(colat)
+            const std::array<double, 3> dir = {
+                scolat*std::cos(lon), scolat*std::sin(lon), std::cos(colat)
             };
-            return std::forward<FuncType>(f)(x);
+            return std::forward<FuncType>(f)(rad*VectorType{dir});
         };
         resize(expansion.order());
-        m_points.generate_values(m_grid, f_scaled);
-        m_transformer.forward_transform(m_grid, expansion);
+
+        using ResultType = std::invoke_result_t<FuncType, VectorType>;
+        m_points.generate_values(m_grid.template represent_as<ResultType>(), f_scaled);
+        m_transformer.forward_transform(
+                m_grid.template represent_as<ResultType>(),
+                std::forward<ExpansionType>(expansion));
     }
 
     /**
@@ -723,22 +774,30 @@ public:
 
         @return Coefficients of the Zernike expansion.
     */
-    template <cartesian_function<double> FuncType>
-    [[nodiscard]] ZernikeExpansion<double, IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param>
-    forward_transform(FuncType&& f, double radius, std::size_t order)
+    template <
+        typename VectorType, cartesian_function<VectorType> FuncType, typename RadiusType,
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
+    >
+        requires representable_as<std::invoke_result_t<FuncType, VectorType>, double>
+            && std::same_as<
+                std::invoke_result_t<FuncType, double, double, RadiusType>,
+                value_type_of<ExpansionType>>
+    [[nodiscard]] auto forward_transform(FuncType&& f, RadiusType radius, std::size_t order)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
-            const double rad = r*radius;
+            const auto rad = r*radius;
             const double scolat = std::sin(colat);
-            const std::array<double, 3> x = {
-                rad*scolat*std::cos(lon), rad*scolat*std::sin(lon),
-                rad*std::cos(colat)
+            const std::array<double, 3> dir = {
+                scolat*std::cos(lon), scolat*std::sin(lon),
+                std::cos(colat)
             };
-            return std::forward<FuncType>(f)(x);
+            return std::forward<FuncType>(f)(rad*VectorType{dir});
         };
         resize(order);
-        m_points.generate_values(m_grid, f_scaled);
-        return m_transformer.forward_transform(m_grid, order);
+
+        using ResultType = std::invoke_result_t<FuncType, VectorType>;
+        m_points.generate_values(m_grid.template represent_as<ResultType>(), f_scaled);
+        return m_transformer.forward_transform(m_grid.template represent_as<ResultType>(), order);
     }
 
     /**
@@ -747,11 +806,15 @@ public:
         @param expansion Coefficients of the Zernike expansion.
         @param values Output buffer for values on the ball quadrature grid.
     */
-    void backward_transform(
-        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
-        BallGLQGridSpan<double, grid_layout_type> values)
+    template <
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType,
+        contiguous_buffer_shaped_like<grid_shape> GridType
+    >
+        requires representable_as<value_type_of<ExpansionType>, double>
+            && std::same_as<value_type_of<ExpansionType>, value_type_of<GridType>>
+    void backward_transform(const ExpansionType& expansion, GridType&& values)
     {
-        m_transformer.backward_transform(expansion, values);
+        m_transformer.backward_transform(expansion, std::forward<GridType>(values));
     }
 
     /**
@@ -762,10 +825,9 @@ public:
 
         @return Function values on a ball quadrature grid.
     */
-    [[nodiscard]] BallGLQGrid<double, grid_layout_type>
-    backward_transform(
-        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion,
-        std::size_t order)
+    template <contiguous_buffer_shaped_like<expansion_shape> ExpansionType>
+        requires representable_as<value_type_of<ExpansionType>, double>
+    [[nodiscard]] auto backward_transform(const ExpansionType& expansion, std::size_t order)
     {
         return m_transformer.backward_transform(expansion, order);
     }
@@ -850,6 +912,8 @@ class IsotropicGLQTransformer
 public:
     using grid_layout_type = RadialGridLayout<AlignmentType>;
     using alignment_type = AlignmentType;
+    using expansion_shape = IsotropicZernikeShape<zernike_norm_param, sh_norm_param, sh_phase_param>;
+    using grid_shape = RadialGLQGridShape<grid_layout_type>;
 
     IsotropicGLQTransformer() = default;
     IsotropicGLQTransformer(std::size_t order):
@@ -899,21 +963,29 @@ public:
         @param values Values on the radial quadrature grid.
         @param expansion Coefficients of the Zernike expansion.
     */
-    void forward_transform(
-        RadialGLQGridSpan<const double, alignment_type> values,
-        IsotropicZernikeSpan<double, zernike_norm, sh_norm, sh_phase> expansion)
+    template <
+        contiguous_buffer_shaped_like<grid_shape> GridType,
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
+    >
+        requires representable_as<value_type_of<GridType>, double>
+            && std::same_as<value_type_of<GridType>, value_type_of<ExpansionType>>
+    void forward_transform(const GridType& values, ExpansionType&& expansion)
     {
         resize(values.order());
 
         std::size_t min_order = std::min(values.order(), expansion.order());
 
         IsotropicZernikeSpan<double, zernike_norm, sh_norm, sh_phase>
-        truncated_expansion{expansion.flatten(), min_order};
+        truncated_expansion{
+            std::forward<ExpansionType>(expansion).template represent_as<double>().flatten(),
+            min_order
+        };
 
-        for (std::size_t i = 0; i < values.size(); ++i)
+        auto values_as_double = values.template represent_as<double>();
+        for (std::size_t i = 0; i < values_as_double.size(); ++i)
         {
             const double r = m_glq_nodes[i];
-            m_weighted_values[i] = r*r*m_glq_weights[i]*values[i];
+            m_weighted_values[i] = r*r*m_glq_weights[i]*values_as_double[i];
         }
 
         m_recursion.init();
@@ -922,7 +994,7 @@ public:
             auto radial_zernike = m_recursion.current();
             double& element = truncated_expansion[n];
             element = 0.0;
-            for (std::size_t i = 0; i < values.size(); ++i)
+            for (std::size_t i = 0; i < values_as_double.size(); ++i)
                 element += m_weighted_values[i]*radial_zernike[i];
 
             m_recursion.iterate();
@@ -944,10 +1016,11 @@ public:
 
         @return Coefficients of the Zernike expansion.
     */
-    [[nodiscard]] IsotropicZernikeExpansion<double, zernike_norm, sh_norm, sh_phase>
-    forward_transform(RadialGLQGridSpan<const double, alignment_type> values, std::size_t order)
+    template <contiguous_buffer_shaped_like<grid_shape> GridType>
+        requires representable_as<value_type_of<GridType>, double>
+    [[nodiscard]] auto forward_transform(const GridType& values, std::size_t order)
     {
-        IsotropicZernikeExpansion<double, zernike_norm, sh_norm, sh_phase>
+        IsotropicZernikeExpansion<value_type_of<GridType>, zernike_norm, sh_norm, sh_phase>
         expansion{order};
 
         forward_transform(values, expansion);
@@ -960,18 +1033,24 @@ public:
         @param expansion Coefficients of the Zernike expansion.
         @param values Values on the radial quadrature grid.
     */
-    void backward_transform(
-        IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion,
-        RadialGLQGridSpan<double, alignment_type> values)
+    template <
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType,
+        contiguous_buffer_shaped_like<grid_shape> GridType
+    >
+        requires representable_as<value_type_of<ExpansionType>, double>
+            && std::same_as<value_type_of<ExpansionType>, value_type_of<GridType>>
+    void backward_transform(const ExpansionType& expansion, GridType&& values)
     {
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
         IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase>
-        truncated_expansion{expansion.flatten(), min_order};
+        truncated_expansion{expansion.template represent_as<double>().flatten(), min_order};
 
         m_recursion.init();
+
+        auto values_as_double = std::forward<GridType>(values).template represent_as<double>();
         for (auto n : truncated_expansion.indices())
         {
             auto radial_zernike = m_recursion.current();
@@ -979,7 +1058,7 @@ public:
                 1.0 : 0.5*std::numbers::inv_sqrtpi;
             const double element = spherical_harmonic*truncated_expansion[n];
             for (std::size_t i = 0; i < values.size(); ++i)
-                values[i] += element*radial_zernike[i];
+                values_as_double[i] += element*radial_zernike[i];
 
             m_recursion.iterate();
         }
@@ -993,13 +1072,12 @@ public:
 
         @return Function values on a radial quadrature grid.
     */
-    [[nodiscard]] RadialGLQGrid<double>
-    backward_transform(
-        IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion,
-        std::size_t order)
+    template <contiguous_buffer_shaped_like<expansion_shape> ExpansionType>
+        requires representable_as<value_type_of<ExpansionType>, double>
+    [[nodiscard]] auto
+    backward_transform(const ExpansionType& expansion, std::size_t order)
     {
-        RadialGLQGrid<double, alignment_type> grid{order};
-
+        RadialGLQGrid<value_type_of<ExpansionType>, alignment_type> grid{order};
         backward_transform(expansion, grid);
         return grid;
     }
@@ -1087,11 +1165,21 @@ using IsotropicGLQTransformerNormalGeo
     @tparam sh_phase_param phase convention of spherical harmonics
     @tparam GridLayoutType
 */
-template <ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param, typename AlignmentType = CacheLineAlignment>
+template <
+    ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param,
+    typename AlignmentType = CacheLineAlignment
+>
 class IsotropicZernikeTransformer
 {
+private:
+    using Transformer
+        = IsotropicGLQTransformer<
+            zernike_norm_param, sh_norm_param, sh_phase_param, alignment_type>;
+
 public:
     using alignment_type = AlignmentType;
+    using expansion_shape = typename Transformer::expansion_shape;
+    using grid_shape = typename Transformer::grid_shape;
 
     static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
     static constexpr st::SHNorm sh_norm = sh_norm_param;
@@ -1124,17 +1212,23 @@ public:
         @param radius Radius of the ball `f` is defined on.
         @param expansion Buffer to store the expansion.
     */
-    template <isotropic_function<double> FuncType>
-    void forward_transform(
-        FuncType&& f, double radius,
-        IsotropicZernikeSpan<double, zernike_norm_param, sh_norm_param, sh_phase_param> expansion)
+    template <
+        isotropic_function FuncType, typename RadiusType,
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
+    >
+        requires representable_as<std::invoke_result_t<FuncType, RadiusType>, double>
+    void forward_transform(FuncType&& f, RadiusType radius, ExpansionType&& expansion)
     {
         auto f_scaled = [&](double r) {
             return std::forward<FuncType>(f)(r*radius);
         };
         resize(expansion.order());
-        m_points.generate_values(m_grid, f_scaled);
-        m_transformer.forward_transform(m_grid, expansion);
+
+        using ResultType = std::invoke_result_t<FuncType, RadiusType>;
+        m_points.generate_values(m_grid.template represent_as<ResultType>(), f_scaled);
+        m_transformer.forward_transform(
+                m_grid.template represent_as<ResultType>(),
+                std::forward<ExpansionType>(expansion));
     }
 
     /**
@@ -1149,16 +1243,19 @@ public:
 
         @return Zernike expansion coefficients of the function.
     */
-    template <isotropic_function<double> FuncType>
-    [[nodiscard]] IsotropicZernikeExpansion<double, zernike_norm_param, sh_norm_param, sh_phase_param>
-    forward_transform(FuncType&& f, double radius, std::size_t order)
+    template <isotropic_function FuncType, typename RadiusType>
+        requires representable_as<std::invoke_result_t<FuncType, RadiusType>, double>
+    [[nodiscard]] auto forward_transform(FuncType&& f, RadiusType radius, std::size_t order)
     {
         auto f_scaled = [&](double r) {
             return std::forward<FuncType>(f)(r*radius);
         };
         resize(order);
-        m_points.generate_values(m_grid, f_scaled);
-        return m_transformer.forward_transform(m_grid, order);
+
+        using ResultType = std::invoke_result_t<FuncType, RadiusType>;
+        m_points.generate_values(m_grid.template represent_as<ResultType>(), f_scaled);
+        return m_transformer.forward_transform(
+                m_grid.template represent_as<ResultType>(), order);
     }
 
     /**
@@ -1168,11 +1265,15 @@ public:
         @param values Values on the ball quadrature grid.
         @param expansion Coefficients of the expansion.
     */
-    void backward_transform(
-        IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion,
-        RadialGLQGridSpan<double, alignment_type> values)
+    template <
+        contiguous_buffer_shaped_like<expansion_shape> ExpansionType,
+        contiguous_buffer_shaped_like<grid_shape> GridType
+    >
+        requires representable_as<value_type_of<ExpansionType>, double>
+            && std::same_as<value_type_of<ExpansionType>, value_type_of<GridType>>
+    void backward_transform(const ExpansionType& expansion, GridType&& values)
     {
-        m_transformer.backward_transform(expansion, values);
+        m_transformer.backward_transform(expansion, std::forward<GridType>(values));
     }
 
     /**
@@ -1184,10 +1285,9 @@ public:
         @return Values of the corresponding function on a radial quadrature
         grid.
     */
-    [[nodiscard]] RadialGLQGrid<double, alignment_type>
-    backward_transform(
-        IsotropicZernikeSpan<const double, zernike_norm, sh_norm, sh_phase> expansion,
-        std::size_t order)
+    template <contiguous_buffer_shaped_like<expansion_shape> ExpansionType>
+        requires representable_as<value_type_of<ExpansionType>, double>
+    [[nodiscard]] auto backward_transform(const ExpansionType& expansion, std::size_t order)
     {
         return m_transformer.backward_transform(expansion, order);
     }

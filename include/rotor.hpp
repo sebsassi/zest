@@ -134,7 +134,7 @@ public:
         convention is: right-handed, intrinsic, ZYZ.
     */
     template <st::sh_expansion<IndexingMode::zero_based> ExpansionType>
-        requires std::floating_point<value_type_of<ExpansionType>>
+        requires representable_as<value_type_of<ExpansionType>, double>
             && st::has_inner_rank<ExpansionType, 0>
     void rotate(
         ExpansionType&& expansion, const zest::WignerdPiHalfCollection& wigner_d_pi2,
@@ -143,7 +143,8 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        auto complex_expansion = encode_as_complex_expansion(std::forward<ExpansionType>(expansion));
+        auto complex_expansion = encode_as_complex_expansion(
+                std::forward<ExpansionType>(expansion).template represent_as<double>());
 
         set_up_euler_rotations(euler_angles, type, order);
 
@@ -171,7 +172,7 @@ public:
         convention is: right-handed, intrinsic, ZYZ.
     */
     template <zt::zernike_expansion<IndexingMode::zero_based> ExpansionType>
-        requires std::floating_point<value_type_of<ExpansionType>>
+        requires representable_as<value_type_of<ExpansionType>, double>
             && zt::has_inner_rank<ExpansionType, 0>
     void rotate(
         ExpansionType&& expansion, const zest::WignerdPiHalfCollection& wigner_d_pi2,
@@ -180,7 +181,8 @@ public:
         const std::size_t order = expansion.order();
         expand(order);
 
-        auto complex_expansion = encode_as_complex_expansion(std::forward<ExpansionType>(expansion));
+        auto complex_expansion = encode_as_complex_expansion(
+                std::forward<ExpansionType>(expansion).template represent_as<double>());
 
         set_up_euler_rotations(euler_angles, type, order);
 
@@ -206,21 +208,23 @@ public:
         @param type type of rotation
     */
     template <st::sh_expansion<IndexingMode::zero_based> ExpansionType>
-        requires std::floating_point<value_type_of<ExpansionType>>
+        requires representable_as<value_type_of<ExpansionType>, double>
             && st::has_inner_rank<ExpansionType, 0>
     void polar_rotate(ExpansionType&& expansion, double angle, RotationType type)
     {
         const std::size_t order = expansion.order();
         expand(order);
 
-        auto complex_expansion = encode_as_complex_expansion(std::forward<ExpansionType>(expansion));
+        auto complex_expansion = encode_as_complex_expansion(
+                std::forward<ExpansionType>(expansion).template represent_as<double>());
 
         const double angle_rot = detail::convert(angle, type);
         for (std::size_t l = 0; l < order; ++l)
             m_exp_alpha[l] = std::polar(1.0, -double(l)*angle_rot);
 
         for (auto l : expansion.indices(1))
-            zest::polar_rotate_l(std::span<std::complex<double>>(complex_expansion[l]), m_exp_alpha);
+            zest::polar_rotate_l(
+                    std::span<std::complex<double>>(complex_expansion[l]), m_exp_alpha);
 
         decode_as_real_expansion(complex_expansion);
     }
@@ -235,14 +239,15 @@ public:
         @param type type of rotation
     */
     template <zt::zernike_expansion<IndexingMode::zero_based> ExpansionType>
-        requires std::floating_point<value_type_of<ExpansionType>>
+        requires representable_as<value_type_of<ExpansionType>, double>
             && zt::has_inner_rank<ExpansionType, 0>
     void polar_rotate(ExpansionType&& expansion, double angle, RotationType type)
     {
         const std::size_t order = expansion.order();
         expand(order);
 
-        auto complex_expansion = encode_as_complex_expansion(std::forward<ExpansionType>(expansion));
+        auto complex_expansion = encode_as_complex_expansion(
+                std::forward<ExpansionType>(expansion).template represent_as<double>());
 
         const double angle_rot = detail::convert(angle, type);
         for (std::size_t l = 0; l < order; ++l)
@@ -252,7 +257,8 @@ public:
         {
             auto expansion_n = complex_expansion[n];
             for (auto l : expansion_n.indices(1))
-                zest::polar_rotate_l(std::span<std::complex<double>>(expansion_n[l]), m_exp_alpha);
+                zest::polar_rotate_l(
+                        std::span<std::complex<double>>(expansion_n[l]), m_exp_alpha);
         }
 
         decode_as_real_expansion(complex_expansion);
