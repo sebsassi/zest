@@ -70,7 +70,7 @@ public:
     using grid_span_type = SphereGLQGridSpan<T, grid_layout_type>;
 
     using expansion_shape = SHShape<
-            IndexingMode::zero_based, zernike_norm_param, sh_norm_param, sh_phase_param>;
+            IndexingMode::zero_based, sh_norm_param, sh_phase_param>;
     using grid_shape = SphereGLQGridShape<grid_layout_type>;
 
     template <typename T>
@@ -251,7 +251,7 @@ public:
         std::size_t min_order = std::min(expansion.order(), values.order());
 
         SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase>
-        truncated_expansion{expansion.template represent_as<double>.flatten(), min_order};
+        truncated_expansion{expansion.template represent_as<double>().flatten(), min_order};
 
         sum_l(truncated_expansion);
         symm_asymm_to_fft();
@@ -285,7 +285,7 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        ShapedSpan<const double, std::remove_cvref_t<ExpansionType>::shape_type>
+        ShapedSpan<const double, shape_type_of<ExpansionType>>
         truncated_expansion{expansion.template represent_as<double>().flatten(), min_order};
 
         sum_l(truncated_expansion);
@@ -306,7 +306,7 @@ public:
         requires representable_as<value_type_of<ExpansionType>, double>
     [[nodiscard]] auto backward_transform(const ExpansionType& expansion, std::size_t order)
     {
-        SphereGLQGrid<T, grid_layout_type> grid(order);
+        SphereGLQGrid<value_type_of<ExpansionType>, grid_layout_type> grid(order);
         backward_transform(expansion, grid);
         return grid;
     }
@@ -865,8 +865,13 @@ template <
     typename GridLayoutType = DefaultLayout>
 class SHTransformer
 {
+private:
+    using Transformer = GLQTransformer<sh_norm_param, sh_phase_param, GridLayoutType>;
+
 public:
     using grid_layout_type = GridLayoutType;
+    using expansion_shape = typename Transformer::expansion_shape;
+    using grid_shape = typename Transformer::grid_shape;
 
     template <typename T>
     using grid_span_type = SphereGLQGridSpan<T, grid_layout_type>;
@@ -962,7 +967,7 @@ public:
             && representable_as<value_type_of<ExpansionType>, double>
     void backward_transform(const ExpansionType& expansion, GridType&& values)
     {
-        m_transformer.backward_transform(expansion, std::forward<GridType>(valuese));
+        m_transformer.backward_transform(expansion, std::forward<GridType>(values));
     }
 
     template <contiguous_buffer_shaped_like<expansion_shape> ExpansionType>

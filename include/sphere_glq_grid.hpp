@@ -40,7 +40,7 @@ namespace zest::st
 
     @tparam AlignmentType byte alignment of the grid
 */
-template <typename AlignmentType = CacheLineAlignment>
+template <valid_simd_alignment AlignmentType = CacheLineAlignment>
 struct LatLonLayout
 {
     using Alignment = AlignmentType;
@@ -118,7 +118,7 @@ struct LatLonLayout
 
     @tparam AlignmentType byte alignment of the grid
 */
-template <typename AlignmentType = CacheLineAlignment>
+template <valid_simd_alignment AlignmentType = CacheLineAlignment>
 struct LonLatLayout
 {
     using Alignment = AlignmentType;

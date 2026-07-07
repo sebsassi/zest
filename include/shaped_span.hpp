@@ -221,9 +221,8 @@ public:
     [[nodiscard]] constexpr auto
     represent_as() const noexcept
     {
-        using VT = std::conditional<std::is_volatile_v<element_type>, std::add_volatile_t<T>, T>;
-        using CVT = std::conditional<std::is_const_v<element_type>, std::add_const_t<VT>, VT>;
-        return ShapedSpan<CVT, shape_type>(reinterpret_cast<CVT*>(m_data), shape);
+        using CT = std::conditional_t<std::is_const_v<element_type>, std::add_const_t<T>, T>;
+        return ShapedSpan<CT, shape_type>(reinterpret_cast<CT*>(m_data), m_shape);
     }
 
     /**

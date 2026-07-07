@@ -36,7 +36,7 @@ SOFTWARE.
 namespace zest::zt
 {
 
-template <typename AlignmentType = zest::CacheLineAlignment>
+template <valid_simd_alignment AlignmentType = zest::CacheLineAlignment>
 struct RadialGridLayout
 {
     using Alignment = AlignmentType;
@@ -69,7 +69,10 @@ struct RadialGridLayout
     }
 };
 
-template <typename AlignmentType = CacheLineAlignment, std::size_t... inner_extent_params>
+template <
+    valid_simd_alignment AlignmentType = CacheLineAlignment,
+    std::size_t... inner_extent_params
+>
 class RadialGLQGridShape:
     public TensorShape<std::dynamic_extent, inner_extent_params...>
 {
@@ -166,7 +169,10 @@ private:
     size_type m_order{};
 };
 
-template <typename AlignmentType = CacheLineAlignment, std::size_t... outer_extent_params>
+template <
+    valid_simd_alignment AlignmentType = CacheLineAlignment,
+    std::size_t... outer_extent_params
+>
     requires (sizeof...(outer_extent_params) > 0)
 class RadialGLQGridTensorShape:
     public zest::TensorShape<outer_extent_params..., std::dynamic_extent>
@@ -276,7 +282,7 @@ private:
     size_type m_order{};
 };
 
-template <typename AlignmentType>
+template <valid_simd_alignment AlignmentType>
 using RadialGLQGridVectorShape
     = RadialGLQGridTensorShape<AlignmentType, std::dynamic_extent>;
 
@@ -288,7 +294,7 @@ using RadialGLQGridVectorShape
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    typename ElementType, typename AlignmentType = CacheLineAlignment,
+    typename ElementType, valid_simd_alignment AlignmentType = CacheLineAlignment,
     std::size_t... inner_extents
 >
 using RadialGLQGridSpan
@@ -302,7 +308,7 @@ using RadialGLQGridSpan
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    typename ElementType, typename AlignmentType = CacheLineAlignment,
+    typename ElementType, valid_simd_alignment AlignmentType = CacheLineAlignment,
 std::size_t... inner_extents
 >
 using RadialGLQGrid
@@ -317,7 +323,7 @@ using RadialGLQGrid
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
-    typename ElementType, typename AlignmentType = CacheLineAlignment,
+    typename ElementType, valid_simd_alignment AlignmentType = CacheLineAlignment,
     std::size_t... outer_extents
 >
 using RadialGLQGridTensorSpan
@@ -330,7 +336,7 @@ using RadialGLQGridTensorSpan
     @tparam ElementType Type of elements in the grid.
     @tparam AlignmentType Byte alignment of the data.
 */
-template <typename ElementType, typename AlignmentType = CacheLineAlignment>
+template <typename ElementType, valid_simd_alignment AlignmentType = CacheLineAlignment>
 using SphereGLQGridVectorSpan
     = RadialGLQGridTensorSpan<ElementType, AlignmentType, std::dynamic_extent>;
 
@@ -343,7 +349,7 @@ using SphereGLQGridVectorSpan
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
-    typename ElementType, typename AlignmentType = CacheLineAlignment,
+    typename ElementType, valid_simd_alignment AlignmentType = CacheLineAlignment,
     std::size_t... outer_extents
 >
 using RadialGLQGridTensor
@@ -355,7 +361,7 @@ using RadialGLQGridTensor
     @tparam ElementType Type of elements in the grid.
     @tparam AlignmentType Byte alignment of the data.
 */
-template <typename ElementType, typename AlignmentType = CacheLineAlignment>
+template <typename ElementType, valid_simd_alignment AlignmentType = CacheLineAlignment>
 using RadialGLQGridVector
     = RadialGLQGridTensorSpan<ElementType, AlignmentType, std::dynamic_extent>;
 
@@ -364,7 +370,7 @@ using RadialGLQGridVector
 
     @tparam LayoutType memory layout of the grid
 */
-template <typename AlignmentType = CacheLineAlignment>
+template <valid_simd_alignment AlignmentType = CacheLineAlignment>
 class RadialGLQGridPoints
 {
 public:
@@ -406,8 +412,8 @@ public:
         @param f function to generate values
     */
     template <
-        isotropic_function FuncType,
-        contiguous_buffer_shaped_like<RadialGLQGridShape<layout_type>> GridType,
+        contiguous_buffer_shaped_like<RadialGLQGridShape<AlignmentType>> GridType,
+        isotropic_function FuncType
     >
         requires std::same_as<std::invoke_result_t<FuncType, double>, value_type_of<GridType>>
     void generate_values(GridType&& grid, FuncType&& f)

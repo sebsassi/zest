@@ -187,15 +187,13 @@ public:
     }
 
     template <typename T>
-        requires std::is_const_v<T>
-            && (representable_as<value_type, std::remove_cv_t<T>>
+        requires (representable_as<value_type, std::remove_cv_t<T>>
                 || representation_of<value_type, std::remove_cv_t<T>>)
     [[nodiscard]] auto
     represent_as() const noexcept
     {
-        using VT = std::conditional<std::is_volatile_v<value_type>, std::add_volatile_t<T>, T>;
-        using CVT = std::conditional<std::is_const_v<value_type>, std::add_const_t<VT>, VT>;
-        return ShapedSpan<CVT, shape_type>(reinterpret_cast<CVT*>(m_data), shape);
+        return ShapedSpan<const T, shape_type>(
+                reinterpret_cast<const T*>(m_data.data()), m_shape);
     }
 
     template <typename T>
@@ -205,9 +203,8 @@ public:
     [[nodiscard]] auto
     represent_as() noexcept
     {
-        using VT = std::conditional<std::is_volatile_v<value_type>, std::add_volatile_t<T>, T>;
-        using CVT = std::conditional<std::is_const_v<value_type>, std::add_const_t<VT>, VT>;
-        return ShapedSpan<CVT, shape_type>(reinterpret_cast<CVT*>(m_data), shape);
+        return ShapedSpan<T, shape_type>(
+                reinterpret_cast<T*>(m_data.data()), m_shape);
     }
 
     /**

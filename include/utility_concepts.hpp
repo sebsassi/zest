@@ -56,6 +56,9 @@ concept representation_of = representable_as<T, Rep>;
 template <shaped_contiguous_buffer T>
 using value_type_of = typename std::remove_cvref_t<T>::value_type;
 
+template <shaped_contiguous_buffer T>
+using shape_type_of = typename std::remove_cvref_t<T>::shape_type;
+
 namespace detail
 {
 

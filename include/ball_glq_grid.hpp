@@ -41,7 +41,7 @@ namespace zest::zt
 
     @tparam AlignmentType byte alignment of the grid
 */
-template <typename AlignmentType = CacheLineAlignment>
+template <valid_simd_alignment AlignmentType = CacheLineAlignment>
 struct LonLatRadLayout
 {
     using Alignment = AlignmentType;

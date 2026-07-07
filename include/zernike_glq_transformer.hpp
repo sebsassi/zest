@@ -240,7 +240,9 @@ public:
         requires representable_as<value_type_of<GridType>, double>
     [[nodiscard]] auto forward_transform(const GridType& values, std::size_t order)
     {
-        ZernikeExpansion<T, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase>
+        ZernikeExpansion<
+            value_type_of<GridType>, IndexingMode::zero_based,
+            zernike_norm, sh_norm, sh_phase>
         expansion(order);
 
         forward_transform(values, expansion);
@@ -632,7 +634,7 @@ class ZernikeTransformer
 {
 private:
     using Transformer
-        = GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param, grid_layout_type>;
+        = GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param, GridLayoutType>;
 
 public:
     using grid_layout_type = GridLayoutType;
@@ -703,15 +705,9 @@ public:
 
         @returns Zernike expansion
     */
-    template <
-        ball_function FuncType, typename RadiusType,
-        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
-    >
+    template <ball_function FuncType, typename RadiusType>
         requires representable_as<
                 std::invoke_result_t<FuncType, double, double, RadiusType>, double>
-            && std::same_as<
-                std::invoke_result_t<FuncType, double, double, RadiusType>,
-                value_type_of<ExpansionType>>
     [[nodiscard]] auto forward_transform(FuncType&& f, RadiusType radius, std::size_t order)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
@@ -775,13 +771,9 @@ public:
         @return Coefficients of the Zernike expansion.
     */
     template <
-        typename VectorType, cartesian_function<VectorType> FuncType, typename RadiusType,
-        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
+        typename VectorType, cartesian_function<VectorType> FuncType, typename RadiusType
     >
         requires representable_as<std::invoke_result_t<FuncType, VectorType>, double>
-            && std::same_as<
-                std::invoke_result_t<FuncType, double, double, RadiusType>,
-                value_type_of<ExpansionType>>
     [[nodiscard]] auto forward_transform(FuncType&& f, RadiusType radius, std::size_t order)
     {
         auto f_scaled = [&](double lon, double colat, double r) {
@@ -906,14 +898,14 @@ using ZernikeTransformerNormalGeo
 
 template <
     zest::zt::ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase,
-    typename AlignmentType = CacheLineAlignment>
+    valid_simd_alignment AlignmentType = CacheLineAlignment>
 class IsotropicGLQTransformer
 {
 public:
     using grid_layout_type = RadialGridLayout<AlignmentType>;
     using alignment_type = AlignmentType;
-    using expansion_shape = IsotropicZernikeShape<zernike_norm_param, sh_norm_param, sh_phase_param>;
-    using grid_shape = RadialGLQGridShape<grid_layout_type>;
+    using expansion_shape = IsotropicZernikeShape<zernike_norm, sh_norm, sh_phase>;
+    using grid_shape = RadialGLQGridShape<AlignmentType>;
 
     IsotropicGLQTransformer() = default;
     IsotropicGLQTransformer(std::size_t order):
@@ -1096,7 +1088,7 @@ private:
 
     @tparam Alignment
 */
-template <typename Alignment = CacheLineAlignment>
+template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicGLQTransformerAcoustics
     = IsotropicGLQTransformer<
         ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none, Alignment>;
@@ -1107,7 +1099,7 @@ using IsotropicGLQTransformerAcoustics
 
     @tparam Alignment
 */
-template <typename Alignment = CacheLineAlignment>
+template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicGLQTransformerNormalAcoustics
     = IsotropicGLQTransformer<
         ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none, Alignment>;
@@ -1118,7 +1110,7 @@ using IsotropicGLQTransformerNormalAcoustics
 
     @tparam Alignment
 */
-template <typename Alignment = CacheLineAlignment>
+template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicGLQTransformerQM
     = IsotropicGLQTransformer<
         ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs, Alignment>;
@@ -1129,7 +1121,7 @@ using IsotropicGLQTransformerQM
 
     @tparam Alignment
 */
-template <typename Alignment = CacheLineAlignment>
+template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicGLQTransformerNormalQM
     = IsotropicGLQTransformer<
         ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs, Alignment>;
@@ -1140,7 +1132,7 @@ using IsotropicGLQTransformerNormalQM
 
     @tparam Alignment
 */
-template <typename Alignment = CacheLineAlignment>
+template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicGLQTransformerGeo
     = IsotropicGLQTransformer<
         ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none, Alignment>;
@@ -1151,7 +1143,7 @@ using IsotropicGLQTransformerGeo
 
     @tparam Alignment
 */
-template <typename Alignment = CacheLineAlignment>
+template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicGLQTransformerNormalGeo
     = IsotropicGLQTransformer<
         ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none, Alignment>;
@@ -1167,14 +1159,14 @@ using IsotropicGLQTransformerNormalGeo
 */
 template <
     ZernikeNorm zernike_norm_param, st::SHNorm sh_norm_param, st::SHPhase sh_phase_param,
-    typename AlignmentType = CacheLineAlignment
+    valid_simd_alignment AlignmentType = CacheLineAlignment
 >
 class IsotropicZernikeTransformer
 {
 private:
     using Transformer
         = IsotropicGLQTransformer<
-            zernike_norm_param, sh_norm_param, sh_phase_param, alignment_type>;
+            zernike_norm_param, sh_norm_param, sh_phase_param, AlignmentType>;
 
 public:
     using alignment_type = AlignmentType;
@@ -1304,7 +1296,7 @@ private:
 
     @tparam Alignment
 */
-template <typename Alignment = CacheLineAlignment>
+template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerAcoustics
     = IsotropicZernikeTransformer<
         ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::none, Alignment>;
@@ -1315,7 +1307,7 @@ using IsotropicZernikeTransformerAcoustics
 
     @tparam Alignment
 */
-template <typename Alignment = CacheLineAlignment>
+template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerNormalAcoustics
     = IsotropicZernikeTransformer<
         ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::none, Alignment>;
@@ -1326,7 +1318,7 @@ using IsotropicZernikeTransformerNormalAcoustics
 
     @tparam Alignment
 */
-template <typename Alignment = CacheLineAlignment>
+template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerQM
     = IsotropicZernikeTransformer<
         ZernikeNorm::unnormed, st::SHNorm::qm, st::SHPhase::cs, Alignment>;
@@ -1337,7 +1329,7 @@ using IsotropicZernikeTransformerQM
 
     @tparam Alignment
 */
-template <typename Alignment = CacheLineAlignment>
+template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerNormalQM
     = IsotropicZernikeTransformer<
         ZernikeNorm::normed, st::SHNorm::qm, st::SHPhase::cs, Alignment>;
@@ -1348,7 +1340,7 @@ using IsotropicZernikeTransformerNormalQM
 
     @tparam Alignment
 */
-template <typename Alignment = CacheLineAlignment>
+template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerGeo
     = IsotropicZernikeTransformer<
         ZernikeNorm::unnormed, st::SHNorm::geo, st::SHPhase::none, Alignment>;
@@ -1359,7 +1351,8 @@ using IsotropicZernikeTransformerGeo
 
     @tparam Alignment
 */
-template <typename Alignment = CacheLineAlignment>
+
+template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerNormalGeo
     = IsotropicZernikeTransformer<
         ZernikeNorm::normed, st::SHNorm::geo, st::SHPhase::none, Alignment>;
