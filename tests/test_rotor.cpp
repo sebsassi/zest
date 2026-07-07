@@ -260,9 +260,8 @@ bool test_rotation_completes()
     zest::WignerdPiHalfCollection wigner_d_pi2(order);
     zest::Rotor rotor(order);
     ExpansionType expansion(order);
-    rotor.rotate(
-            expansion, wigner_d_pi2, std::array<double, 3>{}, 
-            zest::RotationType::object);
+    rotor.rotate<zest::RotationType::object>(
+            expansion, wigner_d_pi2, std::array<double, 3>{});
 
     return true;
 }
@@ -292,9 +291,8 @@ bool test_sh_trivial_rotation_is_trivial_order_6()
 
     zest::WignerdPiHalfCollection wigner_d_pi2(order);
     zest::Rotor rotor(order);
-    rotor.rotate(
-            expansion, wigner_d_pi2, std::array<double, 3>{},
-            zest::RotationType::object);
+    rotor.rotate<zest::RotationType::object>(
+            expansion, wigner_d_pi2, std::array<double, 3>{});
 
     bool success = true;
     for (std::size_t l = 0; l < order; ++l)
@@ -347,9 +345,8 @@ bool test_zernike_trivial_rotation_is_trivial_order_6()
 
     zest::WignerdPiHalfCollection wigner_d_pi2(order);
     zest::Rotor rotor(order);
-    rotor.rotate(
-            expansion, wigner_d_pi2, std::array<double, 3>{}, 
-            zest::RotationType::object);
+    rotor.rotate<zest::RotationType::object>(
+            expansion, wigner_d_pi2, std::array<double, 3>{});
 
     bool success = true;
     for (std::size_t n = 0; n < order; ++n)
@@ -406,7 +403,7 @@ bool test_sh_trivial_polar_rotation_is_trivial_order_6()
 
     zest::WignerdPiHalfCollection wigner_d_pi2(order);
     zest::Rotor rotor(order);
-    rotor.polar_rotate(expansion, 0.0, zest::RotationType::object);
+    rotor.polar_rotate<zest::RotationType::object>(expansion, 0.0);
 
     bool success = true;
     for (std::size_t l = 0; l < order; ++l)
@@ -459,7 +456,7 @@ bool test_zernike_trivial_polar_rotation_is_trivial_order_6()
 
     zest::WignerdPiHalfCollection wigner_d_pi2(order);
     zest::Rotor rotor(order);
-    rotor.polar_rotate(expansion, 0.0, zest::RotationType::object);
+    rotor.polar_rotate<zest::RotationType::object>(expansion, 0.0);
 
 
     bool success = true;
@@ -500,10 +497,16 @@ int main()
 
     assert(test_wigner_d_pi2_is_correct_to_order_5());
 
-    using SHExpansionType = zest::st::SHExpansion<double, zest::IndexingMode::zero_based, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
+    using SHExpansionType
+        = zest::st::SHExpansion<
+            double, zest::IndexingMode::zero_based,
+            zest::st::SHNorm::geo, zest::st::SHPhase::none>;
     assert(test_rotation_completes<SHExpansionType>());
 
-    using ZernikeExpansionType = zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
+    using ZernikeExpansionType
+        = zest::zt::ZernikeExpansion<
+            double, zest::IndexingMode::zero_based,
+            zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
     assert(test_rotation_completes<ZernikeExpansionType>());
 
     assert(test_sh_trivial_rotation_is_trivial_order_6());

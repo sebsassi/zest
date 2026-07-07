@@ -28,10 +28,8 @@ SOFTWARE.
 #include "complex_view.hpp"
 #include "sequence.hpp"
 #include "sh_concepts.hpp"
-#include "sh_conventions.hpp"
 #include "wignerd_collection.hpp"
 #include "zernike_concepts.hpp"
-#include "zernike_conventions.hpp"
 
 namespace zest
 {
@@ -50,8 +48,9 @@ enum class RotationType
 namespace detail
 {
 
-[[nodiscard]] constexpr std::array<double, 3> convert(
-    const std::array<double, 3>& euler_angles, RotationType convention) noexcept
+template <RotationType convention>
+[[nodiscard]] constexpr std::array<double, 3>
+convert(const std::array<double, 3>& euler_angles) noexcept
 {
     const auto& [alpha, beta, gamma] = euler_angles;
 
@@ -59,17 +58,20 @@ namespace detail
     const double beta_rot = beta;
     const double gamma_rot = gamma + 0.5*std::numbers::pi;
 
-    if (convention == RotationType::object)
+    if constexpr (convention == RotationType::object)
         return {alpha_rot, beta_rot, gamma_rot};
     else
         return {-gamma_rot, -beta_rot, -alpha_rot};
 }
 
-[[nodiscard]] constexpr double convert(
-    double angle, RotationType convention) noexcept
+template <RotationType convention>
+[[nodiscard]] constexpr double
+convert(double angle) noexcept
 {
-    const double sign = (convention == RotationType::object) ? 1.0 : -1.0;
-    return angle*sign;
+    if constexpr (convention == RotationType::object)
+        return angle;
+    else
+        return -angle;
 }
 
 } // namespace detail
@@ -119,7 +121,8 @@ public:
     max_order() const noexcept { return m_temp.size(); }
 
     /**
-        @brief General rotation of a real spherical harmonic expansion via Wigner's D-matrix.
+        @brief General rotation of a real spherical harmonic expansion via
+        Wigner's D-matrix.
 
         @tparam ExpansionType type of expansion to rotate
 
@@ -133,12 +136,12 @@ public:
         and the third angle rotates about the new Z-axis again. In summary, the
         convention is: right-handed, intrinsic, ZYZ.
     */
-    template <st::sh_expansion<IndexingMode::zero_based> ExpansionType>
+    template <RotationType type, st::sh_expansion<IndexingMode::zero_based> ExpansionType>
         requires representable_as<value_type_of<ExpansionType>, double>
             && st::has_inner_rank<ExpansionType, 0>
     void rotate(
         ExpansionType&& expansion, const zest::WignerdPiHalfCollection& wigner_d_pi2,
-        const std::array<double, 3>& euler_angles, RotationType type)
+        const std::array<double, 3>& euler_angles)
     {
         const std::size_t order = expansion.order();
         expand(order);
@@ -146,7 +149,7 @@ public:
         auto complex_expansion = encode_as_complex_expansion(
                 std::forward<ExpansionType>(expansion).template represent_as<double>());
 
-        set_up_euler_rotations(euler_angles, type, order);
+        set_up_euler_rotations<type>(euler_angles, order);
 
         for (auto l : expansion.indices(1))
             zest::rotate_l(
@@ -171,12 +174,12 @@ public:
         and the third angle rotates about the new Z-axis again. In summary, the
         convention is: right-handed, intrinsic, ZYZ.
     */
-    template <zt::zernike_expansion<IndexingMode::zero_based> ExpansionType>
+    template <RotationType type, zt::zernike_expansion<IndexingMode::zero_based> ExpansionType>
         requires representable_as<value_type_of<ExpansionType>, double>
             && zt::has_inner_rank<ExpansionType, 0>
     void rotate(
         ExpansionType&& expansion, const zest::WignerdPiHalfCollection& wigner_d_pi2,
-        const std::array<double, 3>& euler_angles, RotationType type)
+        const std::array<double, 3>& euler_angles)
     {
         const std::size_t order = expansion.order();
         expand(order);
@@ -184,7 +187,7 @@ public:
         auto complex_expansion = encode_as_complex_expansion(
                 std::forward<ExpansionType>(expansion).template represent_as<double>());
 
-        set_up_euler_rotations(euler_angles, type, order);
+        set_up_euler_rotations<type>(euler_angles, order);
 
         for (auto n : expansion.indices(1))
         {
@@ -207,10 +210,10 @@ public:
         @param angle polar rotation angle
         @param type type of rotation
     */
-    template <st::sh_expansion<IndexingMode::zero_based> ExpansionType>
+    template <RotationType type, st::sh_expansion<IndexingMode::zero_based> ExpansionType>
         requires representable_as<value_type_of<ExpansionType>, double>
             && st::has_inner_rank<ExpansionType, 0>
-    void polar_rotate(ExpansionType&& expansion, double angle, RotationType type)
+    void polar_rotate(ExpansionType&& expansion, double angle)
     {
         const std::size_t order = expansion.order();
         expand(order);
@@ -218,7 +221,7 @@ public:
         auto complex_expansion = encode_as_complex_expansion(
                 std::forward<ExpansionType>(expansion).template represent_as<double>());
 
-        const double angle_rot = detail::convert(angle, type);
+        const double angle_rot = detail::convert<type>(angle);
         for (std::size_t l = 0; l < order; ++l)
             m_exp_alpha[l] = std::polar(1.0, -double(l)*angle_rot);
 
@@ -238,10 +241,10 @@ public:
         @param angle polar rotation angle
         @param type type of rotation
     */
-    template <zt::zernike_expansion<IndexingMode::zero_based> ExpansionType>
+    template <RotationType type, zt::zernike_expansion<IndexingMode::zero_based> ExpansionType>
         requires representable_as<value_type_of<ExpansionType>, double>
             && zt::has_inner_rank<ExpansionType, 0>
-    void polar_rotate(ExpansionType&& expansion, double angle, RotationType type)
+    void polar_rotate(ExpansionType&& expansion, double angle)
     {
         const std::size_t order = expansion.order();
         expand(order);
@@ -249,7 +252,7 @@ public:
         auto complex_expansion = encode_as_complex_expansion(
                 std::forward<ExpansionType>(expansion).template represent_as<double>());
 
-        const double angle_rot = detail::convert(angle, type);
+        const double angle_rot = detail::convert<type>(angle);
         for (std::size_t l = 0; l < order; ++l)
             m_exp_alpha[l] = std::polar(1.0, -double(l)*angle_rot);
 
@@ -265,11 +268,12 @@ public:
     }
 
 private:
+    template <RotationType convention>
     void set_up_euler_rotations(
-        const std::array<double, 3>& euler_angles, RotationType convention, std::size_t order)
+        const std::array<double, 3>& euler_angles, std::size_t order)
     {
         const auto& [alpha_rot, beta_rot, gamma_rot]
-                = detail::convert(euler_angles, convention);
+                = detail::convert<convention>(euler_angles);
 
         for (std::size_t m = 0; m < order; ++m)
             m_exp_alpha[m] = std::polar(1.0, -double(m)*alpha_rot);

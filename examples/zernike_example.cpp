@@ -50,7 +50,7 @@ int main()
     std::array<double, 3> angles = {alpha, beta, gamma};
     zest::WignerdPiHalfCollection wigner(order);
     zest::Rotor rotor{};
-    rotor.rotate(expansion, wigner, angles, zest::RotationType::coordinate);
+    rotor.rotate<zest::RotationType::coordinate>(expansion, wigner, angles);
 
     for (auto n : expansion.indices())
     {

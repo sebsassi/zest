@@ -57,7 +57,7 @@ int main()
 
     // We explicitly specify whether we are rotating the coordinate system
     // or the object in space.
-    rotor.rotate(expansion, wigner, angles, zest::RotationType::coordinate);
+    rotor.rotate<zest::RotationType::coordinate>(expansion, wigner, angles);
 
     // To minimize errors in indexing various layouts, the library provides
     // range-based indexing helpers.
