@@ -27,7 +27,6 @@ SOFTWARE.
 #include <cstddef>
 #include <numbers>
 #include <ranges>
-#include <type_traits>
 #include <utility>
 
 namespace zest::gl

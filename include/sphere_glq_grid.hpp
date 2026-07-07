@@ -477,7 +477,8 @@ using SphereGLQGridVectorShape
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    typename ElementType, typename LayoutType = DefaultLayout, std::size_t... inner_extents
+    typename ElementType, typename LayoutType = DefaultLayout,
+    std::size_t... inner_extents
 >
 using SphereGLQGridSpan
     = ShapedSpan<ElementType, SphereGLQGridShape<LayoutType, inner_extents...>>;
@@ -490,7 +491,8 @@ using SphereGLQGridSpan
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    typename ElementType, typename LayoutType = DefaultLayout, std::size_t... inner_extents
+    typename ElementType, typename LayoutType = DefaultLayout,
+    std::size_t... inner_extents
 >
 using SphereGLQGrid
     = ShapedArray<ElementType, SphereGLQGridShape<LayoutType, inner_extents...>>;
@@ -504,7 +506,8 @@ using SphereGLQGrid
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
-    typename ElementType, typename LayoutType = DefaultLayout, std::size_t... outer_extents
+    typename ElementType, typename LayoutType = DefaultLayout,
+    std::size_t... outer_extents
 >
 using SphereGLQGridTensorSpan
     = ShapedSpan<ElementType, SphereGLQGridTensorShape<LayoutType, outer_extents...>>;
@@ -529,7 +532,8 @@ using SphereGLQGridVectorSpan
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
-    typename ElementType, typename LayoutType = DefaultLayout, std::size_t... outer_extents
+    typename ElementType, typename LayoutType = DefaultLayout,
+    std::size_t... outer_extents
 >
 using SphereGLQGridTensor
     = ShapedArray<ElementType, SphereGLQGridTensorShape<LayoutType, outer_extents...>>;

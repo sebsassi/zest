@@ -44,11 +44,17 @@ concept zernike_tagged = std::derived_from<
     ZernikeTag<std::remove_cvref_t<T>::zernike_norm>>;
 
 template <zernike_tagged T>
-consteval ZernikeNorm zernike_norm_of() { return std::remove_cvref_t<T>::zernike_norm; }
+consteval ZernikeNorm zernike_norm_of()
+{
+    return std::remove_cvref_t<T>::zernike_norm;
+}
 
 template <typename T>
     requires zernike_tagged<typename std::remove_cvref_t<T>::shape_type>
-consteval ZernikeNorm zernike_norm_of() { return std::remove_cvref_t<T>::shape_type::zernike_norm; }
+consteval ZernikeNorm zernike_norm_of()
+{
+    return std::remove_cvref_t<T>::shape_type::zernike_norm;
+}
 
 /**
     @brief Normalization of Zernike polynomials.

@@ -91,7 +91,10 @@ public:
         m_zernike_grid(grid_layout_type::rad_size(order)*RadZerShape::size(order)),
         m_ass_leg_grid(grid_layout_type::lat_size(order)*AssLegShape::size(order)),
         m_flm_grid(grid_layout_type::rad_size(order)*AssLegShape::size(order)*2),
-        m_ffts(grid_layout_type::rad_size(order)*grid_layout_type::lat_size(order)*grid_layout_type::fft_size(order)),
+        m_ffts(
+            grid_layout_type::rad_size(order)
+                *grid_layout_type::lat_size(order)
+                *grid_layout_type::fft_size(order)),
         m_pocketfft_shape_grid(3),
         m_pocketfft_stride_grid(3),
         m_pocketfft_stride_fft(3),
@@ -108,13 +111,13 @@ public:
             node = 0.5*(1.0 + node);
 
         RadZerSpan<double, std::dynamic_extent>
-        zernike(m_zernike_grid, order, m_rad_glq_nodes.size());
+        zernike{m_zernike_grid, order, m_rad_glq_nodes.size()};
 
         m_zernike_recursion.generate<zernike_norm_param>(
                 m_rad_glq_nodes, zernike);
 
         AssLegSpan<double, std::dynamic_extent>
-        ass_leg(m_ass_leg_grid, order, m_lat_glq_nodes.size());
+        ass_leg{m_ass_leg_grid, order, m_lat_glq_nodes.size()};
 
         m_ass_leg_recursion.generate_real(m_lat_glq_nodes, ass_leg);
 
@@ -168,7 +171,7 @@ public:
         m_zernike_grid.resize(grid_layout_type::rad_size(order)*RadZerShape::size(order));
 
         RadZerSpan<double, std::dynamic_extent>
-        zernike(m_zernike_grid, order, m_rad_glq_nodes.size());
+        zernike{m_zernike_grid, order, m_rad_glq_nodes.size()};
 
         m_zernike_recursion.generate<zernike_norm_param>(
                 m_rad_glq_nodes, zernike);
@@ -176,10 +179,15 @@ public:
         m_ass_leg_grid.resize(grid_layout_type::lat_size(order)*AssLegShape::size(order));
         m_flm_grid.resize(grid_layout_type::rad_size(order)*AssLegShape::size(order)*2);
 
-        AssLegSpan<double, std::dynamic_extent> ass_leg(m_ass_leg_grid, order, m_lat_glq_nodes.size());
+        AssLegSpan<double, std::dynamic_extent>
+        ass_leg{m_ass_leg_grid, order, m_lat_glq_nodes.size()};
+
         m_ass_leg_recursion.generate_real(m_lat_glq_nodes, ass_leg);
 
-        m_ffts.resize(grid_layout_type::rad_size(order)*grid_layout_type::lat_size(order)*grid_layout_type::fft_size(order));
+        m_ffts.resize(
+                grid_layout_type::rad_size(order)
+                    *grid_layout_type::lat_size(order)
+                    *grid_layout_type::fft_size(order));
         std::array<std::size_t, 3> shape = grid_layout_type::extents(order);
         m_pocketfft_shape_grid[0] = shape[0];
         m_pocketfft_shape_grid[1] = shape[1];
@@ -313,10 +321,13 @@ private:
         const std::size_t lat_glq_size = m_lat_glq_weights.size();
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
 
-        MDSpan<std::complex<double>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
+        DynamicMDSpan<std::complex<double>, 3>
         fft(m_ffts, fft_order, lat_glq_size, rad_glq_size);
 
-        if constexpr (std::same_as<grid_layout_type, LonLatRadLayout<typename grid_layout_type::Alignment>>)
+        if constexpr (
+            std::same_as<
+                grid_layout_type,
+                LonLatRadLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t m = 0; m < fft_order; ++m)
             {
@@ -371,13 +382,13 @@ private:
         std::ranges::fill(m_flm_grid, 0.0);
 
         AssLegSpan<double, std::dynamic_extent, 2>
-        flm(m_flm_grid, min_order, rad_glq_size);
+        flm{m_flm_grid, min_order, rad_glq_size};
 
         AssLegSpan<const double, std::dynamic_extent>
-        ass_leg(m_ass_leg_grid, min_order, m_lat_glq_nodes.size());
+        ass_leg{m_ass_leg_grid, min_order, m_lat_glq_nodes.size()};
 
-        MDSpan<const std::complex<double>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
-        fft(m_ffts, fft_order, lat_glq_size, rad_glq_size);
+        DynamicMDSpan<const std::complex<double>, 3>
+        fft{m_ffts, fft_order, lat_glq_size, rad_glq_size};
 
         if constexpr (std::same_as<grid_layout_type, LonLatRadLayout<typename grid_layout_type::Alignment>>)
         {
@@ -406,18 +417,23 @@ private:
     }
 
     void integrate_radial(
-        ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion) noexcept
+        ZernikeSpan<
+            double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase
+        > expansion) noexcept
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
         std::ranges::fill(expansion.flatten(), 0.0);
 
         AssLegSpan<const double, std::dynamic_extent, 2>
-        flm(m_flm_grid, m_order, rad_glq_size);
+        flm{m_flm_grid, m_order, rad_glq_size};
 
         RadZerSpan<const double, std::dynamic_extent>
-        zernike(m_zernike_grid, m_order, m_rad_glq_nodes.size());
+        zernike{m_zernike_grid, m_order, m_rad_glq_nodes.size()};
 
-        if constexpr (std::same_as<grid_layout_type, LonLatRadLayout<typename grid_layout_type::Alignment>>)
+        if constexpr (
+            std::same_as<
+                grid_layout_type,
+                LonLatRadLayout<typename grid_layout_type::Alignment>>)
         {
             for (auto n : expansion.indices())
             {
@@ -452,16 +468,18 @@ private:
     }
 
     void sum_n(
-        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion) noexcept
+        ZernikeSpan<
+            const double, IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase
+        > expansion) noexcept
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
         std::ranges::fill(m_flm_grid, 0.0);
 
         RadZerSpan<const double, std::dynamic_extent>
-        zernike(m_zernike_grid, expansion.order(), rad_glq_size);
+        zernike{m_zernike_grid, expansion.order(), rad_glq_size};
 
         AssLegSpan<double, std::dynamic_extent, 2>
-        flm(m_flm_grid, expansion.order(), rad_glq_size);
+        flm{m_flm_grid, expansion.order(), rad_glq_size};
 
         for (auto n : expansion.indices())
         {
@@ -492,15 +510,15 @@ private:
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
 
         AssLegSpan<const double, std::dynamic_extent, 2>
-        flm(m_flm_grid, min_order, rad_glq_size);
+        flm{m_flm_grid, min_order, rad_glq_size};
 
         AssLegSpan<const double, std::dynamic_extent>
-        ass_leg(m_ass_leg_grid, m_order, m_lat_glq_nodes.size());
+        ass_leg{m_ass_leg_grid, m_order, m_lat_glq_nodes.size()};
 
         std::ranges::fill(m_ffts, std::complex<double>{});
 
-        MDSpan<std::complex<double>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
-        fft(m_ffts, fft_order, lat_glq_size, rad_glq_size);
+        DynamicMDSpan<std::complex<double>, 3>
+        fft{m_ffts, fft_order, lat_glq_size, rad_glq_size};
 
         for (auto l : flm.indices())
         {
@@ -827,7 +845,7 @@ public:
 private:
     BallGLQGrid<double, grid_layout_type> m_grid;
     BallGLQGridPoints<grid_layout_type> m_points;
-    GLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param, grid_layout_type> m_transformer;
+    Transformer m_transformer;
 };
 
 /**
@@ -1287,7 +1305,7 @@ public:
 private:
     RadialGLQGrid<double, alignment_type> m_grid;
     RadialGLQGridPoints<alignment_type> m_points;
-    IsotropicGLQTransformer<zernike_norm_param, sh_norm_param, sh_phase_param, alignment_type> m_transformer;
+    Transformer m_transformer;
 };
 
 /**

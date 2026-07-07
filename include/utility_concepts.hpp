@@ -28,7 +28,8 @@ namespace zest
 {
 
 template <typename T, std::size_t outer_rank, std::size_t inner_rank>
-concept has_inner_tensor_structure = (std::remove_cvref_t<T>::rank == outer_rank + inner_rank);
+concept has_inner_tensor_structure
+    = (std::remove_cvref_t<T>::rank == outer_rank + inner_rank);
 
 template <typename T>
 concept shaped_contiguous_buffer = requires (T x)
@@ -38,10 +39,12 @@ concept shaped_contiguous_buffer = requires (T x)
     };
 
 template <typename T, typename Shape>
-concept shaped_like = std::same_as<typename std::remove_cvref_t<T>::shape_type, Shape>;
+concept shaped_like
+    = std::same_as<typename std::remove_cvref_t<T>::shape_type, Shape>;
 
 template <typename T, typename Shape>
-concept contiguous_buffer_shaped_like = shaped_contiguous_buffer<T> && shaped_like<T, Shape>;
+concept contiguous_buffer_shaped_like
+    = shaped_contiguous_buffer<T> && shaped_like<T, Shape>;
 
 template <typename T, typename Rep>
 concept representable_as
@@ -78,7 +81,8 @@ using remove_tags = detail::remove_tags_helper<T>::type;
     @brief Function concept taking Cartesian coordinates as inputs.
 */
 template <typename Func, typename T>
-concept cartesian_function = std::invocable<Func, T> && std::constructible_from<std::array<double, 3>>;
+concept cartesian_function
+    = std::invocable<Func, T> && std::constructible_from<std::array<double, 3>>;
 
 /**
     @brief Function concept taking spherical angles as inputs.

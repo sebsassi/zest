@@ -36,8 +36,8 @@ namespace zest::zt
 /**
      @brief Generator of real Zernike functions.
 
-    This class enables generation of collections of real Zernike functions evaluated at
-    a point using recursion formulae.
+    This class enables generation of collections of real Zernike functions
+    evaluated at a point using recursion formulae.
 */
 class ZernikeGenerator
 {
@@ -54,7 +54,8 @@ public:
     }
 
     /**
-        @brief Increase the maximum order for which recursion coefficients are cached.
+        @brief Increase the maximum order for which recursion coefficients are
+        cached.
 
         @param max_order New maximum order.
     */
@@ -70,7 +71,10 @@ public:
         @param r Radial coordinate.
         @param expansion Buffer for Zernike function values.
     */
-    template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+    template <
+        IndexingMode indexing_mode, ZernikeNorm zernike_norm,
+        st::SHNorm sh_norm, st::SHPhase sh_phase
+    >
     void generate(
         double lon, double colat, double r,
         ZernikeSpan<double, indexing_mode, zernike_norm, sh_norm, sh_phase>& expansion)
@@ -129,7 +133,10 @@ public:
         }
     }
 
-    template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+    template <
+        IndexingMode indexing_mode, ZernikeNorm zernike_norm,
+        st::SHNorm sh_norm, st::SHPhase sh_phase
+    >
     void generate(
         double lon, double colat, double r,
         ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>& expansion)
@@ -139,7 +146,10 @@ public:
                 lon, colat, r, (typename ExpansionType::view)(expansion));
     }
 
-    template <IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase>
+    template <
+        IndexingMode indexing_mode, ZernikeNorm zernike_norm,
+        st::SHNorm sh_norm, st::SHPhase sh_phase
+    >
     [[nodiscard]] ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>
     generate(double lon, double colat, double r, std::size_t order)
     {

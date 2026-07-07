@@ -184,7 +184,9 @@ template <
     st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... inner_extents
 >
 using ZernikeSpan = ShapedSpan<
-    ElementType, ZernikeShape<indexing_mode, zernike_norm, sh_norm, sh_phase, inner_extents...>>;
+    ElementType,
+    ZernikeShape<
+        indexing_mode, zernike_norm, sh_norm, sh_phase, inner_extents...>>;
 
 /**
     @brief Convenient alias for `ZernikeSpan` with unnormalized Zernike
@@ -380,7 +382,9 @@ template <
     st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... outer_extents
 >
 using ZernikeTensorSpan = ShapedSpan<
-    ElementType, ZernikeTensorShape<indexing_mode, zernike_norm, sh_norm, sh_phase, outer_extents...>>;
+    ElementType,
+    ZernikeTensorShape<
+        indexing_mode, zernike_norm, sh_norm, sh_phase, outer_extents...>>;
 
 /**
     @brief Convenient alias for `ZernikeTensorSpan` with unnormalized Zernike
@@ -557,7 +561,9 @@ template <
     st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... outer_extents
 >
 using ZernikeExpansionTensor = ShapedArray<
-    ElementType, ZernikeTensorShape<indexing_mode, zernike_norm, sh_norm, sh_phase, outer_extents...>>;
+    ElementType,
+    ZernikeTensorShape<
+        indexing_mode, zernike_norm, sh_norm, sh_phase, outer_extents...>>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionTensor` with unnormalized Zernike
@@ -932,7 +938,9 @@ template <
     st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... outer_extents
 >
 using IsotropicZernikeTensorSpan = ShapedSpan<
-    ElementType, IsotropicZernikeTensorShape<zernike_norm, sh_norm, sh_phase, outer_extents...>>;
+    ElementType,
+    IsotropicZernikeTensorShape<
+        zernike_norm, sh_norm, sh_phase, outer_extents...>>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTensorSpan` with unnormalized
@@ -1108,7 +1116,9 @@ template <
     st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... outer_extents
 >
 using IsotropicZernikeExpansionTensor = ShapedArray<
-    ElementType, IsotropicZernikeTensorShape<zernike_norm, sh_norm, sh_phase, outer_extents...>>;
+    ElementType,
+    IsotropicZernikeTensorShape<
+        zernike_norm, sh_norm, sh_phase, outer_extents...>>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansionTensor` with

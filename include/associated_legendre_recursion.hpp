@@ -38,7 +38,8 @@ namespace zest::st
 /**
     @brief Recursion of associated Legendre polynomials.
 
-    @note The recursion described in (Holmes and Featherstone 2002, J. Geodesy, 76, 279-299).
+    @note The recursion described in (Holmes and Featherstone 2002, J. Geodesy,
+    76, 279-299).
 */
 class AssociatedLegendreRecursion
 {
@@ -81,7 +82,8 @@ public:
     }
 
     template <SHNorm sh_norm, SHPhase sh_phase>
-    void generate_real(double z, AssociatedLegendreExpansion<double, sh_norm, sh_phase>& ass_leg)
+    void generate_real(
+        double z, AssociatedLegendreExpansion<double, sh_norm, sh_phase>& ass_leg)
     {
         return generate_impl(
             z, std::numbers::sqrt2,
@@ -123,9 +125,11 @@ public:
         return generate_impl(z, 1.0, ass_leg);
     }
     template <SHNorm sh_norm, SHPhase sh_phase>
-    void generate_complex(double z, AssociatedLegendreExpansion<double, sh_norm, sh_phase>& ass_leg)
+    void generate_complex(
+        double z, AssociatedLegendreExpansion<double, sh_norm, sh_phase>& ass_leg)
     {
-        return generate_impl(z, 1.0, AssociatedLegendreSpan<double, sh_norm, sh_phase>(ass_leg));
+        return generate_impl(
+                z, 1.0, AssociatedLegendreSpan<double, sh_norm, sh_phase>(ass_leg));
     }
 
     /**
@@ -189,7 +193,9 @@ private:
         for (std::size_t l = 2; l < order; ++l)
         {
             const std::size_t ind = ass_leg.shape()(l);
-            ass_leg_flat[ind] = alm_flat[ind]*z*ass_leg_flat[ind - l] - blm_flat[ind]*ass_leg_flat[ind - 2*l + 1];
+            ass_leg_flat[ind]
+                = alm_flat[ind]*z*ass_leg_flat[ind - l]
+                    - blm_flat[ind]*ass_leg_flat[ind - 2*l + 1];
         }
 
         constexpr double underflow_compensation = 1.0e-280;
@@ -221,7 +227,9 @@ private:
             {
                 // P(l,m) = z*a(l,m)*P(l - 1,m) - b(l,m)*P(l - 2,m)
                 const std::size_t ind = ass_leg.shape()(l, m);
-                ass_leg_flat[ind] = z*alm_flat[ind]*ass_leg_flat[ind - l] - blm_flat[ind]*ass_leg_flat[ind - 2*l + 1];
+                ass_leg_flat[ind]
+                    = z*alm_flat[ind]*ass_leg_flat[ind - l]
+                        - blm_flat[ind]*ass_leg_flat[ind - 2*l + 1];
 
                 // Multiplication by `u` for `m <= l <= lmax - 2`
                 ass_leg_flat[ind - 2*l + 1] *= u_scaled;

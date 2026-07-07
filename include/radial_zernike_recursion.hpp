@@ -427,7 +427,9 @@ public:
             const double k2 = m_k[m_n, 1];
             const double k3 = m_k[m_n, 2];
             for (std::size_t i = 0; i < m_radius_sq.size(); ++i)
-                m_buffer_chain.current()[i] = (k1*m_radius_sq[i] + k2)*m_buffer_chain.previous<1>()[i] + k3*m_buffer_chain.previous<2>()[i];
+                m_buffer_chain.current()[i]
+                    = (k1*m_radius_sq[i] + k2)*m_buffer_chain.previous<1>()[i]
+                        + k3*m_buffer_chain.previous<2>()[i];
         }
 
     }
@@ -454,7 +456,9 @@ public:
             const double k2 = m_k[m_n, 1];
             const double k3 = m_k[m_n, 2];
             for (std::size_t i = 0; i < m_radius_sq.size(); ++i)
-                m_buffer_chain.current()[i] = (k1*m_radius_sq[i] + k2)*m_buffer_chain.previous<1>()[i] + k3*m_buffer_chain.previous<2>()[i];
+                m_buffer_chain.current()[i]
+                    = (k1*m_radius_sq[i] + k2)*m_buffer_chain.previous<1>()[i]
+                        + k3*m_buffer_chain.previous<2>()[i];
         }
 
     }
@@ -475,14 +479,21 @@ private:
             if constexpr (zernike_norm == ZernikeNorm::unnormed)
             {
                 m_k[n, 0] = double(2*n - 1)*double(2*n + 1)/(double(n)*double(n + 1));
-                m_k[n, 1] = -double(2*n - 1)*(1.0 + double(2*n + 1)*double(2*n - 3))/(2.0*double(n)*double(n + 1)*double(2*n - 3));
-                m_k[n, 2] = -double(n - 2)*double(n - 1)*double(2*n + 1)/(double(n)*double(n + 1)*double(2*n - 3));
+                m_k[n, 1] = -double(2*n - 1)*(1.0 + double(2*n + 1)*double(2*n - 3))
+                    /(2.0*double(n)*double(n + 1)*double(2*n - 3));
+                m_k[n, 2] = -double(n - 2)*double(n - 1)*double(2*n + 1)
+                    /(double(n)*double(n + 1)*double(2*n - 3));
             }
             else
             {
-                m_k[n, 0] = std::sqrt(double(2*n + 3)*double(2*n - 1))*double(2*n + 1)/(double(n)*double(n + 1));
-                m_k[n, 1] = -std::sqrt(double(2*n + 3)*double(2*n - 1))*(1.0 + double(2*n + 1)*double(2*n - 3))/(2.0*double(n)*double(n + 1)*double(2*n - 3));
-                m_k[n, 2] = -std::sqrt(double(2*n + 3)/double(2*n - 5))*double(n - 2)*double(n - 1)*double(2*n + 1)/(double(n)*double(n + 1)*double(2*n - 3));
+                m_k[n, 0] = std::sqrt(double(2*n + 3)*double(2*n - 1))*double(2*n + 1)
+                    /(double(n)*double(n + 1));
+                m_k[n, 1] = -std::sqrt(double(2*n + 3)*double(2*n - 1))
+                    *(1.0 + double(2*n + 1)*double(2*n - 3))
+                    /(2.0*double(n)*double(n + 1)*double(2*n - 3));
+                m_k[n, 2] = -std::sqrt(double(2*n + 3)/double(2*n - 5))
+                    *double(n - 2)*double(n - 1)*double(2*n + 1)
+                    /(double(n)*double(n + 1)*double(2*n - 3));
             }
         }
     }
