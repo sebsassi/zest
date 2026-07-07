@@ -146,7 +146,10 @@ template <std::floating_point FloatType>
     const FloatType ak = std::numbers::pi_v<FloatType>*(FloatType(k) - 0.25);
     const FloatType x = 0.125/ak;
     const FloatType x2 = x*x;
-    return ak + x*(c[0] + x2*(c[1] + x2*(c[2] + x2*(c[3] + x2*c[4]))));
+    const FloatType x4 = x2*x2;
+    const FloatType x8 = x4*x4;
+    // return ak + x*(c[0] + x2*(c[1] + x2*(c[2] + x2*(c[3] + x2*c[4]))));
+    return ak + x*((c[0] + x2*c[1]) + x4*(c[2] + x2*c[3]) + x8*c[4]);
 }
 
 /**
@@ -193,8 +196,12 @@ template <std::floating_point FloatType>
     const FloatType ak = std::numbers::pi_v<FloatType>*(FloatType(k) - 0.25);
     const FloatType x = 1.0/ak;
     const FloatType x2 = x*x;
+    const FloatType x4 = x2*x2;
+    const FloatType x8 = x4*x4;
+    // return (1.0/std::numbers::pi)*x*(
+    //     2.0 + x2*x2*(c[0] + x2*(c[1] + x2*(c[2] + x2*(c[3] + x2*c[4])))));
     return (1.0/std::numbers::pi)*x*(
-        2.0 + x2*x2*(c[0] + x2*(c[1] + x2*(c[2] + x2*(c[3] + x2*c[4])))));
+        2.0 + x4*((c[0] + x2*c[1]) + x4*(c[2] + x2*c[3]) + x8*c[4]));
 }
 
 template <std::floating_point FloatType, GLNodeStyle node_style>
@@ -231,9 +238,21 @@ template <std::floating_point FloatType, GLNodeStyle node_style>
         -2.97058225375526229899781956673e-8
     };
 
-    const FloatType f1_cheb = c_f1[0] + x*(c_f1[1] + x*(c_f1[2] + x*(c_f1[3] + x*(c_f1[4] + x*(c_f1[5] + x*c_f1[6])))));
-    const FloatType f2_cheb = c_f2[0] + x*(c_f2[1] + x*(c_f2[2] + x*(c_f2[3] + x*(c_f2[4] + x*(c_f2[5] + x*c_f2[6])))));
-    const FloatType f3_cheb = c_f3[0] + x*(c_f3[1] + x*(c_f3[2] + x*(c_f3[3] + x*(c_f3[4] + x*(c_f3[5] + x*c_f3[6])))));
+    const FloatType x2 = x*x;
+    const FloatType x4 = x2*x2;
+    // const FloatType f1_cheb = c_f1[0] + x*(c_f1[1] + x*(c_f1[2] + x*(c_f1[3] + x*(c_f1[4] + x*(c_f1[5] + x*c_f1[6])))));
+    const FloatType f1_cheb
+        = (c_f1[0] + x*c_f1[1]) + x2*(c_f1[2] + x*c_f1[3])
+            + x4*((c_f1[4] + x*c_f1[5]) + x2*c_f1[6]);
+    // const FloatType f2_cheb = c_f2[0] + x*(c_f2[1] + x*(c_f2[2] + x*(c_f2[3] + x*(c_f2[4] + x*(c_f2[5] + x*c_f2[6])))));
+    const FloatType f2_cheb
+        = (c_f2[0] + x*c_f2[1]) + x2*(c_f2[2] + x*c_f2[3])
+            + x4*((c_f2[4] + x*c_f2[5]) + x2*c_f2[6]);
+    // const FloatType f3_cheb = c_f3[0] + x*(c_f3[1] + x*(c_f3[2] + x*(c_f3[3] + x*(c_f3[4] + x*(c_f3[5] + x*c_f3[6])))));
+    const FloatType f3_cheb
+        = (c_f3[0] + x*c_f3[1]) + x2*(c_f3[2] + x*c_f3[3])
+            + x4*((c_f3[4] + x*c_f3[5]) + x2*c_f3[6]);
+
     const FloatType f_sum = f1_cheb + vis_sq*(f2_cheb + vis_sq*f3_cheb);
 
     if constexpr (node_style == GLNodeStyle::cos)
@@ -244,7 +263,8 @@ template <std::floating_point FloatType, GLNodeStyle node_style>
 
 template <std::floating_point FloatType>
 [[nodiscard]] constexpr FloatType gl_weight_bogaert(
-    FloatType vn_sq, FloatType inv_sinc_an_k, FloatType vis_sq, FloatType x, std::size_t k) noexcept
+    FloatType vn_sq, FloatType inv_sinc_an_k, FloatType vis_sq,
+    FloatType x, std::size_t k) noexcept
 {
     // Polynomial coefficients copied from FastGL
     constexpr std::array<FloatType, 10> c_w1 = {
@@ -285,9 +305,26 @@ template <std::floating_point FloatType>
     const FloatType J2_k = bessel_J2_k<FloatType>(k);
     const FloatType beta = J2_k*inv_sinc_an_k;
 
-    const FloatType w1_cheb = c_w1[0] + x*(c_w1[1] + x*(c_w1[2] + x*(c_w1[3] + x*(c_w1[4] + x*(c_w1[5] + x*(c_w1[6] + x*(c_w1[7] + x*(c_w1[8] + x*c_w1[9]))))))));
-    const FloatType w2_cheb = c_w2[0] + x*(c_w2[1] + x*(c_w2[2] + x*(c_w2[3] + x*(c_w2[4] + x*(c_w2[5] + x*(c_w2[6] + x*(c_w2[7] + x*c_w2[8])))))));
-    const FloatType w3_cheb = c_w3[0] + x*(c_w3[1] + x*(c_w3[2] + x*(c_w3[3] + x*(c_w3[4] + x*(c_w3[5] + x*(c_w3[6] + x*(c_w3[7] + x*c_w3[8])))))));
+    const FloatType x2 = x*x;
+    const FloatType x4 = x2*x2;
+    const FloatType x8 = x4*x4;
+
+    // const FloatType w1_cheb = c_w1[0] + x*(c_w1[1] + x*(c_w1[2] + x*(c_w1[3] + x*(c_w1[4] + x*(c_w1[5] + x*(c_w1[6] + x*(c_w1[7] + x*(c_w1[8] + x*c_w1[9]))))))));
+    const FloatType w1_cheb
+        = (c_w1[0] + x*c_w1[1]) + x2*(c_w1[2] + x*c_w1[3])
+            + x4*((c_w1[4] + x*c_w1[5]) + x2*(c_w1[6] + x*c_w1[7]))
+            + x8*(c_w1[8] + x*c_w1[9]);
+    // const FloatType w2_cheb = c_w2[0] + x*(c_w2[1] + x*(c_w2[2] + x*(c_w2[3] + x*(c_w2[4] + x*(c_w2[5] + x*(c_w2[6] + x*(c_w2[7] + x*c_w2[8])))))));
+    const FloatType w2_cheb
+        = (c_w2[0] + x*c_w2[1]) + x2*(c_w2[2] + x*c_w2[3])
+            + x4*((c_w2[4] + x*c_w2[5]) + x2*(c_w2[6] + x*c_w2[7]))
+            + x8*c_w2[8];
+    // const FloatType w3_cheb = c_w3[0] + x*(c_w3[1] + x*(c_w3[2] + x*(c_w3[3] + x*(c_w3[4] + x*(c_w3[5] + x*(c_w3[6] + x*(c_w3[7] + x*c_w3[8])))))));
+    const FloatType w3_cheb
+        = (c_w3[0] + x*c_w3[1]) + x2*(c_w3[2] + x*c_w3[3])
+            + x4*((c_w3[4] + x*c_w3[5]) + x2*(c_w3[6] + x*c_w3[7]))
+            + x8*c_w3[8];
+
     const FloatType w_sum = w1_cheb + vis_sq*(w2_cheb + vis_sq*w3_cheb);
 
     return 2.0*vn_sq/(beta*(1.0 + vis_sq*w_sum));
@@ -354,11 +391,10 @@ template <std::floating_point FloatType>
 }
 
 template <gl_layout Layout, GLNodeStyle node_style, std::ranges::random_access_range R>
-    requires std::floating_point<
-        typename std::remove_reference_t<R>::value_type>
-constexpr void gl_nodes_bogaert(R& nodes, std::size_t parity) noexcept
+    requires std::floating_point<std::ranges::range_value_t<R>>
+constexpr void gl_nodes_bogaert(R&& nodes, std::size_t parity) noexcept
 {
-    using FloatType = std::remove_reference_t<R>::value_type;
+    using FloatType = std::ranges::range_value_t<R>;
     if constexpr (std::same_as<Layout, PackedLayout>)
     {
         const std::size_t num_unique_nodes = std::ranges::size(nodes);
@@ -422,11 +458,10 @@ constexpr void gl_nodes_bogaert(R& nodes, std::size_t parity) noexcept
 }
 
 template <gl_layout Layout, std::ranges::random_access_range R>
-    requires std::floating_point<
-        typename std::remove_reference_t<R>::value_type>
-constexpr void gl_weights_bogaert(R& weights, std::size_t parity) noexcept
+    requires std::floating_point<std::ranges::range_value_t<R>>
+constexpr void gl_weights_bogaert(R&& weights, std::size_t parity) noexcept
 {
-    using FloatType = std::remove_reference_t<R>::value_type;
+    using FloatType = std::ranges::range_value_t<R>;
     if constexpr (std::same_as<Layout, PackedLayout>)
     {
         const std::size_t num_unique_nodes = std::ranges::size(weights);
@@ -474,12 +509,11 @@ constexpr void gl_weights_bogaert(R& weights, std::size_t parity) noexcept
 }
 
 template <gl_layout Layout, GLNodeStyle node_style, std::ranges::random_access_range R>
-    requires std::floating_point<
-        typename std::remove_reference_t<R>::value_type>
+    requires std::floating_point<std::ranges::range_value_t<R>>
 constexpr void gl_nodes_and_weights_bogaert(
-    R& nodes, R& weights, std::size_t parity) noexcept
+    R&& nodes, R&& weights, std::size_t parity) noexcept
 {
-    using FloatType = std::remove_reference_t<R>::value_type;
+    using FloatType = std::ranges::range_value_t<R>;
     if constexpr (std::same_as<Layout, PackedLayout>)
     {
         const std::size_t num_unique_nodes = std::ranges::size(weights);
@@ -535,11 +569,10 @@ constexpr void gl_nodes_and_weights_bogaert(
 }
 
 template <gl_layout Layout, GLNodeStyle node_style, std::ranges::random_access_range R>
-    requires std::floating_point<
-        typename std::remove_reference_t<R>::value_type>
+    requires std::floating_point<std::ranges::range_value_t<R>>
 constexpr void gl_nodes_table(R&& nodes, std::size_t parity) noexcept
 {
-    using FloatType = std::remove_reference_t<R>::value_type;
+    using FloatType = std::ranges::range_value_t<R>;
     // The theta values from FastGL for orders <= 70.
     static constexpr const FloatType nodes_2[1] = {
         0.9553166181245092781638573e0};
@@ -1341,11 +1374,10 @@ constexpr void gl_nodes_table(R&& nodes, std::size_t parity) noexcept
 }
 
 template <gl_layout Layout, std::ranges::random_access_range R>
-    requires std::floating_point<
-        typename std::remove_reference_t<R>::value_type>
+    requires std::floating_point<std::ranges::range_value_t<R>>
 constexpr void gl_weights_table(R&& weights, std::size_t parity) noexcept
 {
-    using FloatType = std::remove_reference_t<R>::value_type;
+    using FloatType = std::ranges::range_value_t<R>;
     // Weight values from FastGL for orders <= 70
     static constexpr const FloatType weights_2[] = {
         1.0000000000000000000000000};
@@ -2121,10 +2153,8 @@ constexpr void gl_weights_table(R&& weights, std::size_t parity) noexcept
 
 // Table lookup of nodes and weights where the Bogaert algorithm is inaccurate.
 template <gl_layout Layout, GLNodeStyle node_style, std::ranges::random_access_range R>
-    requires std::floating_point<
-        typename std::remove_reference_t<R>::value_type>
-constexpr void gl_nodes_and_weights_table(
-    R&& nodes, R&& weights, std::size_t parity) noexcept
+    requires std::floating_point<std::ranges::range_value_t<R>>
+constexpr void gl_nodes_and_weights_table(R&& nodes, R&& weights, std::size_t parity) noexcept
 {
     gl_nodes_table<Layout, node_style>(std::forward<R>(nodes), parity);
     gl_weights_table<Layout>(std::forward<R>(weights), parity);
@@ -2141,14 +2171,15 @@ constexpr void gl_nodes_and_weights_table(
     @param nodes range for storing the nodes
     @param parity parity of the total number of nodes
 
-    For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of
-    nodes Bogaert's iteration-free method is used: I. Bogaert, Iteration-free computation of
-    Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
+    For `num_nodes < 70` the nodes are read from a precomputed table. For
+    greater numbers of nodes Bogaert's iteration-free method is used:
+        I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature
+        nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
 
     The nodes returned are accurate to double macine epsilon.
 */
-template <gl_layout Layout, GLNodeStyle node_style, std::ranges::random_access_range R>requires std::floating_point<
-        typename std::remove_reference_t<R>::value_type>
+template <gl_layout Layout, GLNodeStyle node_style, std::ranges::random_access_range R>
+    requires std::floating_point<std::ranges::range_value_t<R>>
 constexpr void gl_nodes(R&& nodes, std::size_t parity) noexcept
 {
     if (nodes.size() == 0) return;
@@ -2167,15 +2198,15 @@ constexpr void gl_nodes(R&& nodes, std::size_t parity) noexcept
     @param weights range for storing the weights
     @param parity parity of the total number of nodes
 
-    For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of nodes
-    Bogaert's iteration-free method is used: I. Bogaert, Iteration-free computation of
-    Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
+    For `num_nodes < 70` the nodes are read from a precomputed table. For
+    greater numbers of nodes Bogaert's iteration-free method is used:
+        I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature
+        nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
 
     The weights returned are accurate to double macine epsilon.
 */
 template <gl_layout Layout, std::ranges::random_access_range R>
-    requires std::floating_point<
-        typename std::remove_reference_t<R>::value_type>
+    requires std::floating_point<std::ranges::range_value_t<R>>
 constexpr void gl_weights(R&& weights, std::size_t parity) noexcept
 {
     if (weights.size() == 0) return;
@@ -2195,17 +2226,16 @@ constexpr void gl_weights(R&& weights, std::size_t parity) noexcept
     @param weights range for storing the weights
     @param parity parity of the total number of nodes
 
-    For `num_nodes < 70` the nodes are read from a precomputed table. For greater numbers of
-    nodes Bogaert's iteration-free method is used: I. Bogaert, Iteration-free computation of
-    Gauss-Legendre quadrature nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
+    For `num_nodes < 70` the nodes are read from a precomputed table. For
+    greater numbers of nodes Bogaert's iteration-free method is used:
+        I. Bogaert, Iteration-free computation of Gauss-Legendre quadrature
+        nodes and weights, SIAM J. Sci. Comput., 36 (2014), pp. C1008-C1026).
 
     The nodes and weights returned are accurate to double macine epsilon.
 */
 template <gl_layout Layout, GLNodeStyle node_style, std::ranges::random_access_range R>
-    requires std::floating_point<
-        typename std::remove_reference_t<R>::value_type>
-constexpr void gl_nodes_and_weights(
-    R&& nodes, R&& weights, std::size_t parity) noexcept
+    requires std::floating_point<std::ranges::range_value_t<R>>
+constexpr void gl_nodes_and_weights(R&& nodes, R&& weights, std::size_t parity) noexcept
 {
     if (nodes.size() == 0) return;
     else if (Layout::total_nodes(nodes.size(), parity) < 70)
