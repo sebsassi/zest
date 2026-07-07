@@ -49,14 +49,16 @@ namespace zest
     new view over the same data.
 */
 template <st::complete_sh_expansion<IndexingMode::zero_based> ExpansionType>
-    requires std::same_as<typename std::remove_cvref_t<ExpansionType>::value_type, double>
+    requires std::same_as<value_type_of<ExpansionType>, double>
         && st::has_inner_rank<ExpansionType, 0>
 constexpr st::ComplexEncodedRealSHSpan<
-    std::complex<double>, st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()>
+    std::complex<double>, st::sh_norm_of<ExpansionType>(),
+    st::sh_phase_of<ExpansionType>()>
 encode_as_complex_expansion(ExpansionType&& expansion) noexcept
 {
     using ReturnType = st::ComplexEncodedRealSHSpan<
-        std::complex<double>, st::sh_norm_of<ExpansionType>(), st::sh_phase_of<ExpansionType>()>;
+        std::complex<double>, st::sh_norm_of<ExpansionType>(),
+        st::sh_phase_of<ExpansionType>()>;
 
     constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
 
@@ -131,7 +133,7 @@ decode_as_real_expansion(ExpansionType&& expansion) noexcept
     new view over the same data.
 */
 template <zt::zernike_expansion<IndexingMode::zero_based> ExpansionType>
-    requires std::same_as<typename std::remove_cvref_t<ExpansionType>::value_type, double>
+    requires std::same_as<value_type_of<ExpansionType>, double>
         && zt::has_inner_rank<ExpansionType, 0>
 constexpr zt::ComplexEncodedRealZernikeSpan<
     std::complex<double>, zt::zernike_norm_of<ExpansionType>(),
@@ -225,7 +227,7 @@ decode_as_real_expansion(ExpansionType&& expansion) noexcept
     new view over the same data.
 */
 template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
-    requires std::same_as<typename std::remove_cvref_t<ExpansionType>::value_type, double>
+    requires std::same_as<value_type_of<ExpansionType>, double>
         && st::has_inner_rank<ExpansionType, 0>
 constexpr typename zt::ComplexEncodedRealZernikeSpan<
     std::complex<double>, zt::zernike_norm_of<ExpansionType>(),

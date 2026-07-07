@@ -63,11 +63,17 @@ concept indexing_mode_tagged = std::derived_from<
     @brief Get the indexing mode of a type.
 */
 template <indexing_mode_tagged T>
-consteval IndexingMode indexing_mode_of() { return std::remove_cvref_t<T>::indexing_mode; }
+consteval IndexingMode indexing_mode_of()
+{
+    return std::remove_cvref_t<T>::indexing_mode;
+}
 
 template <typename T>
     requires indexing_mode_tagged<typename std::remove_cvref_t<T>::shape_type>
-consteval IndexingMode indexing_mode_of() { return std::remove_cvref_t<T>::shape_type::indexing_mode; }
+consteval IndexingMode indexing_mode_of()
+{
+    return std::remove_cvref_t<T>::shape_type::indexing_mode;
+}
 
 /**
     @brief Check if type has parity.
@@ -661,7 +667,10 @@ public:
         @param l Index to the sequence.
     */
     [[nodiscard]] static constexpr size_type
-    subextent([[maybe_unused]] index_type n, index_type l) noexcept { return size_type(l + 1); }
+    subextent([[maybe_unused]] index_type n, index_type l) noexcept
+    {
+        return size_type(l + 1);
+    }
 };
 
 } // namespace zest

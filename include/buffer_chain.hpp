@@ -43,17 +43,37 @@ public:
 
     template <std::size_t index>
         requires (index < N)
-    [[nodiscard]] std::span<double> previous() noexcept { return m_buffer[m_chain[index]].flatten(); }
+    [[nodiscard]] std::span<double> previous() noexcept
+    {
+        return m_buffer[m_chain[index]].flatten();
+    }
 
     template <std::size_t index>
         requires (index < N)
-    [[nodiscard]] std::span<const ElementType> previous() const noexcept { return m_buffer[m_chain[index]].flatten(); }
+    [[nodiscard]] std::span<const ElementType> previous() const noexcept
+    {
+        return m_buffer[m_chain[index]].flatten();
+    }
 
-    [[nodiscard]] std::span<ElementType> current() noexcept { return m_buffer[m_chain[0]].flatten(); }
-    [[nodiscard]] std::span<const ElementType> current() const noexcept { return m_buffer[m_chain[0]].flatten(); }
+    [[nodiscard]] std::span<ElementType> current() noexcept
+    {
+        return m_buffer[m_chain[0]].flatten();
+    }
 
-    [[nodiscard]] std::span<ElementType> next() noexcept { return m_buffer[m_chain.back()].flatten(); }
-    [[nodiscard]] std::span<const ElementType> next() const noexcept { return m_buffer[m_chain.back()].flatten(); }
+    [[nodiscard]] std::span<const ElementType> current() const noexcept
+    {
+        return m_buffer[m_chain[0]].flatten();
+    }
+
+    [[nodiscard]] std::span<ElementType> next() noexcept
+    {
+        return m_buffer[m_chain.back()].flatten();
+    }
+
+    [[nodiscard]] std::span<const ElementType> next() const noexcept
+    {
+        return m_buffer[m_chain.back()].flatten();
+    }
 
     void advance()
     {
@@ -67,7 +87,10 @@ public:
 private:
     MDArray<ElementType, N, std::dynamic_extent> m_buffer;
     std::array<std::size_t, N> m_chain
-        = []<std::size_t... I>(std::index_sequence<I...>){ return std::array{I...,}; }(std::make_index_sequence<N>{});
+        = []<std::size_t... I>(std::index_sequence<I...>)
+            {
+                return std::array{I...,};
+            }(std::make_index_sequence<N>{});
 };
 
 } // namespace zest

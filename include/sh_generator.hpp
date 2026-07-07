@@ -38,8 +38,8 @@ namespace zest::st
 /**
      @brief Generator of real spherical harmonics. 
 
-    This class enables generation of collections of real spherical harmonics evaluated at
-    a point using recursion formulae.
+    This class enables generation of collections of real spherical harmonics
+    evaluated at a point using recursion formulae.
 */
 class RealSHGenerator
 {
@@ -61,7 +61,8 @@ public:
     }
 
     /**
-        @brief Increase the maximum order for which recursion coefficients are cached.
+        @brief Increase the maximum order for which recursion coefficients are
+        cached.
 
         @param max_order new maximum order
     */
@@ -231,7 +232,9 @@ public:
     [[nodiscard]] SHExpansion<double, indexing_mode, sh_norm, sh_phase, std::dynamic_extent>
     generate(std::span<const double> lon, std::span<const double> colat, std::size_t order)
     {
-        SHExpansion<double, indexing_mode, sh_norm, sh_phase, std::dynamic_extent> expansion{order, lon.size()};
+        SHExpansion<double, indexing_mode, sh_norm, sh_phase, std::dynamic_extent>
+        expansion{order, lon.size()};
+
         generate(lon, colat, expansion);
         return expansion;
     }

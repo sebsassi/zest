@@ -235,7 +235,10 @@ public:
         @brief Order of the view if the shape is a sequenced shape.
     */
     [[nodiscard]] constexpr size_type
-    order() const noexcept requires sequence_shaped<shape_type> { return m_shape.order(); }
+    order() const noexcept requires sequence_shaped<shape_type>
+    {
+        return m_shape.order();
+    }
 
     /**
         @brief Extents of the view.
@@ -247,7 +250,10 @@ public:
         @brief Extent of a tensor-like view along a given dimension.
     */
     [[nodiscard]] constexpr size_type
-    extent(size_type i) const noexcept requires tensor_shaped<shape_type> { return m_shape.extent(i); }
+    extent(size_type i) const noexcept requires tensor_shaped<shape_type>
+    {
+        return m_shape.extent(i);
+    }
 
     /**
         @brief Size of the view.

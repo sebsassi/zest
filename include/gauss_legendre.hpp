@@ -193,12 +193,14 @@ template <std::floating_point FloatType>
     const FloatType ak = std::numbers::pi_v<FloatType>*(FloatType(k) - 0.25);
     const FloatType x = 1.0/ak;
     const FloatType x2 = x*x;
-    return (1.0/std::numbers::pi)*x*(2.0 + x2*x2*(c[0] + x2*(c[1] + x2*(c[2] + x2*(c[3] + x2*c[4])))));
+    return (1.0/std::numbers::pi)*x*(
+        2.0 + x2*x2*(c[0] + x2*(c[1] + x2*(c[2] + x2*(c[3] + x2*c[4])))));
 }
 
 template <std::floating_point FloatType, GLNodeStyle node_style>
 [[nodiscard]] constexpr FloatType gl_node_bogaert(
-    FloatType vn_sq, FloatType an_k, FloatType inv_sinc_an_k, FloatType vis_sq, FloatType x) noexcept
+    FloatType vn_sq, FloatType an_k, FloatType inv_sinc_an_k,
+    FloatType vis_sq, FloatType x) noexcept
 {
     // Polynomial coefficients copied from FastGL
     constexpr std::array<FloatType, 7> c_f1 = {

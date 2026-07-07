@@ -43,7 +43,9 @@ namespace zest
     tensor and multidimensional arrays to datasets whose indices don't
     necessarily form a rectangular grid.
 */
-template <typename ElementType, typename ShapeType, typename Allocator = std::allocator<ElementType>>
+template <
+    typename ElementType, typename ShapeType,
+    typename Allocator = std::allocator<ElementType>>
 class ShapedArray
 {
 public:
@@ -117,7 +119,10 @@ public:
     template <typename... ExtentTypes>
         requires std::constructible_from<shape_type, ExtentTypes...>
     [[nodiscard]] static constexpr size_type
-    size(const ExtentTypes&... extents) noexcept { return shape_type::size(extents...); }
+    size(const ExtentTypes&... extents) noexcept
+    {
+        return shape_type::size(extents...);
+    }
 
     /**
         @brief Convert to a view.
@@ -186,6 +191,9 @@ public:
         return ShapedSpan<value_type, NewShapeType>(m_data.data(), shape);
     }
 
+    /**
+        @brief Represent the data as compatible type
+    */
     template <typename T>
         requires (representable_as<value_type, std::remove_cv_t<T>>
                 || representation_of<value_type, std::remove_cv_t<T>>)
@@ -196,6 +204,9 @@ public:
                 reinterpret_cast<const T*>(m_data.data()), m_shape);
     }
 
+    /**
+        @brief Represent the data as compatible type
+    */
     template <typename T>
         requires (!std::is_const_v<T>)
             && (representable_as<value_type, std::remove_cv_t<T>>
@@ -228,7 +239,10 @@ public:
         @brief Order of the view if the shape is a sequenced shape.
     */
     [[nodiscard]] size_type
-    order() const noexcept requires sequence_shaped<shape_type> { return m_shape.order(); }
+    order() const noexcept requires sequence_shaped<shape_type>
+    {
+        return m_shape.order();
+    }
 
     /**
         @brief Extents of the view.
@@ -240,7 +254,10 @@ public:
         @brief Extent of a tensor-like view along a given dimension.
     */
     [[nodiscard]] constexpr size_type
-    extent(size_type i) const noexcept requires tensor_shaped<shape_type> { return m_shape.extent(i); }
+    extent(size_type i) const noexcept requires tensor_shaped<shape_type>
+    {
+        return m_shape.extent(i);
+    }
 
     /**
         @brief Size of the view.

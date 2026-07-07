@@ -30,16 +30,26 @@ SOFTWARE.
 namespace zest
 {
 
-template <typename ElementType, IndexingMode indexing_mode_param, std::size_t... inner_extents>
-using TriangleSpan = ShapedSpan<ElementType, TriangleShape<indexing_mode_param, inner_extents...>>;
+template <
+    typename ElementType, IndexingMode indexing_mode_param,
+    std::size_t... inner_extents
+>
+using TriangleSpan
+    = ShapedSpan<ElementType, TriangleShape<indexing_mode_param, inner_extents...>>;
 
-template <typename ElementType, IndexingMode indexing_mode_param, std::size_t... inner_extents>
-using TriangleArray = ShapedArray<ElementType, TriangleShape<indexing_mode_param, inner_extents...>>;
+template <
+    typename ElementType, IndexingMode indexing_mode_param,
+    std::size_t... inner_extents
+>
+using TriangleArray
+    = ShapedArray<ElementType, TriangleShape<indexing_mode_param, inner_extents...>>;
 
 template <typename ElementType, std::size_t... inner_extents>
-using EvenTriangleSpan = ShapedSpan<ElementType, EvenTriangleShape<inner_extents...>>;
+using EvenTriangleSpan
+    = ShapedSpan<ElementType, EvenTriangleShape<inner_extents...>>;
 
 template <typename ElementType, std::size_t... inner_extents>
-using EvenTriangleArray = ShapedArray<ElementType, EvenTriangleShape<inner_extents...>>;
+using EvenTriangleArray
+    = ShapedArray<ElementType, EvenTriangleShape<inner_extents...>>;
 
 } // namespace zest

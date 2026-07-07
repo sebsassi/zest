@@ -34,14 +34,19 @@ namespace zest
 namespace array::detail
 {
 
-template <std::integral SizeType, std::size_t rank, std::integral IndexType, std::integral... Inds>
+template <
+    std::integral SizeType, std::size_t rank, std::integral IndexType,
+    std::integral... Inds
+>
     requires (0 <= sizeof...(Inds) && sizeof...(Inds) + 1 <= rank)
 [[nodiscard]] constexpr auto
 index(const std::array<SizeType, rank>& extents, IndexType ind, Inds... inds) noexcept
 {
     auto impl = [&]<std::size_t... I>(std::index_sequence<I...>)
     {
-        assert(ind < IndexType(extents[0]) && ((IndexType(inds) < IndexType(extents[1 + I])) && ...));
+        assert(
+                ind < IndexType(extents[0])
+                && ((IndexType(inds) < IndexType(extents[1 + I])) && ...));
         IndexType res = ind;
         ([&]{ res = res*IndexType(extents[1 + I]) + IndexType(inds); }(), ...);
         if constexpr (sizeof...(Inds) + 1 == rank)
@@ -52,32 +57,11 @@ index(const std::array<SizeType, rank>& extents, IndexType ind, Inds... inds) no
     return impl(std::make_index_sequence<sizeof...(Inds)>{});
 }
 
-// template <std::size_t static_extent, std::size_t... static_extents, std::integral SizeType, std::size_t N, std::integral IndexType, std::integral... Inds>
-// [[nodiscard]] constexpr auto
-// index(const std::array<SizeType, N>& dynamic_extents, IndexType ind, Inds... inds) noexcept
-// {
-//     auto impl = [&]<std::size_t... I>(std::index_sequence<I...>)
-//     {
-//         std::size_t i = (static_extent == std::dynamic_extent) ? 1 : 0;
-//         IndexType res = ind;
-//         ([&]{
-//             if constexpr (static_extents == std::dynamic_extent)
-//             {
-//                 res = res*IndexType(dynamic_extents[i]) + IndexType(inds);
-//                 ++i;
-//             }
-//             else
-//                 res = res*IndexType(static_extents) + IndexType(inds);
-//         }(),...);
-//         return res;
-//     };
-//     return impl(std::make_index_sequence<sizeof...(Inds)>{});
-// }
-
 } // namespace array::detail
 
 /**
-    @brief Iterator presenting an infinite arithmetic sequence of integer indices with arbitrary stride.
+    @brief Iterator presenting an infinite arithmetic sequence of integer
+    indices with arbitrary stride.
 
     @tparam IndexType type of the index
     @tparam stride_param stride of the index
@@ -398,13 +382,13 @@ public:
             - `Parity::odd`: `[1, end + 1)`
     */
     explicit constexpr ParityIndexRange(index_type end) requires (parity == Parity::mixed):
-        BasicIndexRange<index_type, index_type{2}>(1 & (end + 1), end + 1) {}
+        BasicIndexRange<index_type, index_type{2}>{1 & (end + 1), end + 1} {}
 
     explicit constexpr ParityIndexRange(index_type end) requires (parity == Parity::even):
-        BasicIndexRange<index_type, index_type{2}>(0, (end + 1) & (~1UL)) {}
+        BasicIndexRange<index_type, index_type{2}>{0, (end + 1) & (~1UL)} {}
 
     explicit constexpr ParityIndexRange(index_type end) requires (parity == Parity::odd):
-        BasicIndexRange<index_type, index_type{2}>(1, (end & (~1UL)) + 1) {}
+        BasicIndexRange<index_type, index_type{2}>{1, (end & (~1UL)) + 1} {}
 
     /**
         @brief Constructs a range of indices `[2*floor(begin/2) + (end + 1) % 2, end + 1)`.
@@ -417,14 +401,23 @@ public:
             - `Parity::even`: `[2*floor(begin/2), end + 1)`
             - `Parity::odd`: `[2*floor(begin/2) + 1, end + 1)`
     */
-    explicit constexpr ParityIndexRange(index_type begin, index_type end) requires (parity == Parity::mixed):
-        BasicIndexRange<index_type, index_type{2}>(begin + (1 & (begin ^ (end + 1))), end + 1) {}
+    explicit constexpr ParityIndexRange(index_type begin, index_type end)
+        requires (parity == Parity::mixed):
+        BasicIndexRange<index_type, index_type{2}>{
+            begin + (1 & (begin ^ (end + 1))), end + 1
+        } {}
 
-    explicit constexpr ParityIndexRange(index_type begin, index_type end) requires (parity == Parity::even):
-        BasicIndexRange<index_type, index_type{2}>((begin + 1) & (~1UL), (end + 1) & (~1UL)) {}
+    explicit constexpr ParityIndexRange(index_type begin, index_type end)
+        requires (parity == Parity::even):
+        BasicIndexRange<index_type, index_type{2}>{
+            (begin + 1) & (~1UL), (end + 1) & (~1UL)
+        } {}
 
-    explicit constexpr ParityIndexRange(index_type begin, index_type end) requires (parity == Parity::odd):
-        BasicIndexRange<index_type, index_type{2}>((begin & (~1UL)) + 1, (end & (~1UL)) + 1) {}
+    explicit constexpr ParityIndexRange(index_type begin, index_type end)
+        requires (parity == Parity::odd):
+        BasicIndexRange<index_type, index_type{2}>{
+            (begin & (~1UL)) + 1, (end & (~1UL)) + 1
+        } {}
 };
 
 /**
@@ -449,7 +442,7 @@ public:
         @param end end of index range
     */
     explicit constexpr SymmetricIndexRange(index_type end):
-        BasicIndexRange<index_type, index_type{1}>(1 - end, end) {}
+        BasicIndexRange<index_type, index_type{1}>{1 - end, end} {}
 
     /**
         @brief Constructs a range of indices `[begin, end)`.
@@ -458,7 +451,7 @@ public:
         @param end end of index range
     */
     constexpr SymmetricIndexRange(index_type begin, index_type end): 
-        BasicIndexRange<index_type, index_type{1}>(begin, end) {}
+        BasicIndexRange<index_type, index_type{1}>{begin, end} {}
 };
 
 } // namespace zest

@@ -176,7 +176,8 @@ struct AlignedAllocator
             = (std::numeric_limits<std::size_t>::max() - Alignment::bytes)/sizeof(T);
         if (n > max_count) throw std::bad_array_new_length();
  
-        auto p = static_cast<T*>(std::aligned_alloc(Alignment::bytes, aligned_size<T, Alignment>(n)));
+        auto p = static_cast<T*>(
+                std::aligned_alloc(Alignment::bytes, aligned_size<T, Alignment>(n)));
         if (!p) throw std::bad_alloc();
 
         return p;

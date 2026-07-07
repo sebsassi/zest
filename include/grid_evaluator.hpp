@@ -250,7 +250,8 @@ public:
             && zt::has_inner_rank<ExpansionType, 0>
     [[nodiscard]] DynamicMDArray<double, 3> evaluate(
         const ExpansionType& expansion,
-        std::span<const double> longitudes, std::span<const double> colatitudes, std::span<const double> radii)
+        std::span<const double> longitudes, std::span<const double> colatitudes,
+        std::span<const double> radii)
     {
         if (longitudes.size() == 0 || colatitudes.size() == 0 || radii.size() == 0)
             return {};
