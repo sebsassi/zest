@@ -413,7 +413,7 @@ public:
     */
     template <
         contiguous_buffer_shaped_like<RadialGLQGridShape<AlignmentType>> GridType,
-        isotropic_function FuncType
+        isotropic_function<double> FuncType
     >
         requires std::same_as<std::invoke_result_t<FuncType, double>, value_type_of<GridType>>
     void generate_values(GridType&& grid, FuncType&& f)
@@ -435,7 +435,7 @@ public:
 
         @param f function to generate values
     */
-    template <isotropic_function FuncType>
+    template <isotropic_function<double> FuncType>
     auto generate_values(FuncType&& f, std::size_t order)
     {
         using ResultType = std::invoke_result_t<FuncType, double>;

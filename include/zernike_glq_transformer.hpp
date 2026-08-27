@@ -689,7 +689,7 @@ public:
         @param expansion Output buffer for the Zernike expansion coefficients.
     */
     template <
-        ball_function FuncType, typename RadiusType,
+        typename RadiusType, ball_function<RadiusType> FuncType,
         contiguous_buffer_shaped_like<expansion_shape> ExpansionType
     >
         requires representable_as<
@@ -723,7 +723,7 @@ public:
 
         @returns Zernike expansion
     */
-    template <ball_function FuncType, typename RadiusType>
+    template <typename RadiusType, ball_function<RadiusType> FuncType>
         requires representable_as<
                 std::invoke_result_t<FuncType, double, double, RadiusType>, double>
     [[nodiscard]] auto forward_transform(FuncType&& f, RadiusType radius, std::size_t order)
@@ -1223,7 +1223,7 @@ public:
         @param expansion Buffer to store the expansion.
     */
     template <
-        isotropic_function FuncType, typename RadiusType,
+        typename RadiusType, isotropic_function<RadiusType> FuncType,
         contiguous_buffer_shaped_like<expansion_shape> ExpansionType
     >
         requires representable_as<std::invoke_result_t<FuncType, RadiusType>, double>
@@ -1253,7 +1253,7 @@ public:
 
         @return Zernike expansion coefficients of the function.
     */
-    template <isotropic_function FuncType, typename RadiusType>
+    template <typename RadiusType, isotropic_function<RadiusType> FuncType>
         requires representable_as<std::invoke_result_t<FuncType, RadiusType>, double>
     [[nodiscard]] auto forward_transform(FuncType&& f, RadiusType radius, std::size_t order)
     {

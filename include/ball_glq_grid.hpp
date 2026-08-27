@@ -218,7 +218,7 @@ public:
         @param f function to generate values
     */
     template <
-        ball_function FuncType,
+        ball_function<double> FuncType,
         contiguous_buffer_shaped_like<BallGLQGridShape<layout_type>> GridType
     >
         requires std::same_as<
@@ -255,7 +255,7 @@ public:
 
         @param f function to generate values
     */
-    template <ball_function FuncType>
+    template <ball_function<double> FuncType>
     [[nodiscard]] auto generate_values(FuncType&& f, std::size_t order)
     {
         using ResultType = std::invoke_result_t<FuncType, double, double, double>;

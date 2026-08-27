@@ -93,13 +93,13 @@ concept spherical_function = std::invocable<Func, double, double>;
 /**
     @brief Function concept taking spherical coordinates as inputs.
 */
-template <typename Func>
-concept ball_function = std::invocable<Func, double, double, double>;
+template <typename Func, typename RadiusType>
+concept ball_function = std::invocable<Func, double, double, RadiusType>;
 
 /**
     @brief Function concept taking radial coordinate as input.
 */
-template <typename Func>
-concept isotropic_function = std::invocable<Func, double>;
+template <typename Func, typename RadiusType>
+concept isotropic_function = std::invocable<Func, RadiusType>;
 
 } // namespace zest
