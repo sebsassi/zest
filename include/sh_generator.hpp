@@ -90,7 +90,7 @@ public:
 
         constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
         constexpr st::SHPhase sh_phase = sh_phase_of<ExpansionType>();
-        constexpr IndexingMode indexing_mode = indexing_mode_of<ExpansionType>();
+        constexpr Indexing indexing = indexing_of<ExpansionType>();
 
         const double z = std::cos(colat);
         AssociatedLegendreSpan<double, st::SHConvention<sh_norm, sh_phase>>
@@ -108,9 +108,9 @@ public:
         {
             const auto expansion_l = std::forward<ExpansionType>(expansion)[l];
             const auto ass_leg_l = ass_leg[l];
-            if constexpr (indexing_mode == IndexingMode::symmetric)
+            if constexpr (indexing == Indexing::symmetric)
                 expansion_l[0] = ass_leg_l[0];
-            else if constexpr (indexing_mode == IndexingMode::zero_based)
+            else if constexpr (indexing == Indexing::zero_based)
             {
                 expansion_l[0, 0] = ass_leg_l[0];
                 expansion_l[0, 1] = 0.0;
@@ -120,12 +120,12 @@ public:
             {
                 const double ass_leg_lm = ass_leg_l[m];
 
-                if constexpr (indexing_mode == IndexingMode::symmetric)
+                if constexpr (indexing == Indexing::symmetric)
                 {
                     expansion_l[int(m)] = ass_leg_lm*m_cossin[m][0];
                     expansion_l[-int(m)] = ass_leg_lm*m_cossin[m][1];
                 }
-                else if constexpr (indexing_mode == IndexingMode::zero_based)
+                else if constexpr (indexing == Indexing::zero_based)
                 {
                     expansion_l[m, 0] = ass_leg_lm*m_cossin[m][0];
                     expansion_l[m, 1] = ass_leg_lm*m_cossin[m][1];
@@ -149,7 +149,7 @@ public:
 
         constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
         constexpr st::SHPhase sh_phase = sh_phase_of<ExpansionType>();
-        constexpr IndexingMode indexing_mode = indexing_mode_of<ExpansionType>();
+        constexpr Indexing indexing = indexing_of<ExpansionType>();
 
         for (std::size_t i = 0; i < colat.size(); ++i)
             m_z[i] = std::cos(colat[i]);
@@ -177,13 +177,13 @@ public:
             const auto ass_leg_l = ass_leg[l];
 
             auto ass_leg_l0 = ass_leg_l[0];
-            if constexpr (indexing_mode == IndexingMode::symmetric)
+            if constexpr (indexing == Indexing::symmetric)
             {
                 auto expansion_l0 = expansion_l[0];
                 for (std::size_t i = 0; i < colat.size(); ++i)
                     expansion_l0[i] = ass_leg_l0[i];
             }
-            else if constexpr (indexing_mode == IndexingMode::zero_based)
+            else if constexpr (indexing == Indexing::zero_based)
             {
                 auto expansion_l00 = expansion_l[0, 0];
                 auto expansion_l01 = expansion_l[0, 1];
@@ -198,7 +198,7 @@ public:
                 auto ass_leg_lm = ass_leg_l[m];
                 auto cossin_m = cossin[m];
 
-                if constexpr (indexing_mode == IndexingMode::symmetric)
+                if constexpr (indexing == Indexing::symmetric)
                 {
                     auto expansion_lpm = expansion_l[int(m)];
                     auto expansion_lmm = expansion_l[-int(m)];
@@ -207,7 +207,7 @@ public:
                     for (std::size_t i = 0; i < lon.size(); ++i)
                         expansion_lmm = ass_leg_lm[i]*cossin_m[i][1];
                 }
-                else if constexpr (indexing_mode == IndexingMode::zero_based)
+                else if constexpr (indexing == Indexing::zero_based)
                 {
                     auto expansion_lm0 = expansion_l[m, 0];
                     auto expansion_lm1 = expansion_l[m, 1];
@@ -220,20 +220,20 @@ public:
         }
     }
 
-    template <IndexingMode indexing_mode, sh_convention Convention>
-    [[nodiscard]] SHExpansion<double, indexing_mode, Convention>
+    template <Indexing indexing, sh_convention Convention>
+    [[nodiscard]] SHExpansion<double, indexing, Convention>
     generate(double lon, double colat, std::size_t order)
     {
-        SHExpansion<double, indexing_mode, Convention> expansion{order};
+        SHExpansion<double, indexing, Convention> expansion{order};
         generate(lon, colat, expansion);
         return expansion;
     }
 
-    template <IndexingMode indexing_mode, sh_convention Convention>
-    [[nodiscard]] SHExpansion<double, indexing_mode, Convention, std::dynamic_extent>
+    template <Indexing indexing, sh_convention Convention>
+    [[nodiscard]] SHExpansion<double, indexing, Convention, std::dynamic_extent>
     generate(std::span<const double> lon, std::span<const double> colat, std::size_t order)
     {
-        SHExpansion<double, indexing_mode, Convention, std::dynamic_extent>
+        SHExpansion<double, indexing, Convention, std::dynamic_extent>
         expansion{order, lon.size()};
 
         generate(lon, colat, expansion);

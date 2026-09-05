@@ -34,7 +34,7 @@ namespace zest
 /**
     @brief Enum for tagging index sequences as either symmetric or zero based.
 */
-enum class IndexingMode
+enum class Indexing
 {
     symmetric, // Index from `-n` to `n`, inclusive.
     zero_based // Index from `0` to `n`, inclusive.
@@ -43,36 +43,36 @@ enum class IndexingMode
 /**
     @brief Type for associating an indexing mode with another type.
 
-    @tparam indexing_mode_param Associated indexing mode.
+    @tparam indexing_param Associated indexing mode.
 */
-template <IndexingMode indexing_mode_param>
-struct IndexingModeTag
+template <Indexing indexing_param>
+struct IndexingTag
 {
-    static constexpr IndexingMode indexing_mode = indexing_mode_param;
+    static constexpr Indexing indexing = indexing_param;
 };
 
 /**
     @brief Check if a type has been tagged with an indexing mode.
 */
 template <typename T>
-concept indexing_mode_tagged = std::derived_from<
+concept indexing_tagged = std::derived_from<
     std::remove_cvref_t<T>,
-    IndexingModeTag<std::remove_cvref_t<T>::indexing_mode>>;
+    IndexingTag<std::remove_cvref_t<T>::indexing>>;
 
 /**
     @brief Get the indexing mode of a type.
 */
-template <indexing_mode_tagged T>
-consteval IndexingMode indexing_mode_of()
+template <indexing_tagged T>
+consteval Indexing indexing_of()
 {
-    return std::remove_cvref_t<T>::indexing_mode;
+    return std::remove_cvref_t<T>::indexing;
 }
 
 template <typename T>
-    requires indexing_mode_tagged<typename std::remove_cvref_t<T>::shape_type>
-consteval IndexingMode indexing_mode_of()
+    requires indexing_tagged<typename std::remove_cvref_t<T>::shape_type>
+consteval Indexing indexing_of()
 {
-    return std::remove_cvref_t<T>::shape_type::indexing_mode;
+    return std::remove_cvref_t<T>::shape_type::indexing;
 }
 
 /**
@@ -84,7 +84,7 @@ concept has_parity = requires (T x) { { x.parity() } -> std::same_as<Parity>; };
 /**
     @brief Contiguous 1d sequence, which is indexed exactly as you would expect.
 
-    @tparam indexing_mode Determines if indexing is symmetric about zero
+    @tparam indexing Determines if indexing is symmetric about zero
     or starts at zero.
 
     With zero based indexing, a sequence to order `n` is indexed as
@@ -96,16 +96,16 @@ concept has_parity = requires (T x) { { x.parity() } -> std::same_as<Parity>; };
     -n + 1 ... -2 -1 0 1 2 ... n - 1
     ```
 */
-template <IndexingMode indexing_mode_param>
+template <Indexing indexing_param>
 struct StandardLinearSequence
 {
-    using index_type = std::conditional_t<(indexing_mode_param == IndexingMode::symmetric),
+    using index_type = std::conditional_t<(indexing_param == Indexing::symmetric),
         int, std::size_t>;
     using size_type = std::size_t;
-    using index_range = std::conditional_t<(indexing_mode_param == IndexingMode::symmetric),
+    using index_range = std::conditional_t<(indexing_param == Indexing::symmetric),
         SymmetricIndexRange<int>, StandardIndexRange<std::size_t>>;
 
-    static constexpr IndexingMode indexing_mode = indexing_mode_param;
+    static constexpr Indexing indexing = indexing_param;
     static constexpr size_type rank = 1;
 
     /**
@@ -116,7 +116,7 @@ struct StandardLinearSequence
     [[nodiscard]] static constexpr size_type
     size(size_type order) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::zero_based)
+        if constexpr (indexing == Indexing::zero_based)
             return order;
         else
             return 2*order - std::min(1UL, order);
@@ -186,7 +186,7 @@ struct ParityLinearSequence
 /**
     @brief Contiguous 2D sequence for index pairs on a triangular grid.
 
-    @tparam indexing_mode_param Determines if indexing is symmetric about zero
+    @tparam indexing_param Determines if indexing is symmetric about zero
     or starts at zero.
 
     This sequence represents index pairs `(l,m)` subject to the condition
@@ -207,15 +207,15 @@ struct ParityLinearSequence
     ...
     ```
 */
-template <IndexingMode indexing_mode_param>
+template <Indexing indexing_param>
 struct TriangleSequence
 {
-    using index_type = std::conditional_t<indexing_mode_param == IndexingMode::symmetric,
+    using index_type = std::conditional_t<indexing_param == Indexing::symmetric,
         int, std::size_t>;
     using size_type = std::size_t;
     using index_range = StandardIndexRange<index_type>;
 
-    static constexpr IndexingMode indexing_mode = indexing_mode_param;
+    static constexpr Indexing indexing = indexing_param;
     static constexpr size_type rank = 2;
 
 private:
@@ -225,7 +225,7 @@ private:
         requires (N == 1)
     struct subsequence_helper<N>
     {
-        using type = StandardLinearSequence<indexing_mode_param>;
+        using type = StandardLinearSequence<indexing_param>;
     };
 
 public:
@@ -241,7 +241,7 @@ public:
     [[nodiscard]] static constexpr size_type
     size(size_type order) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::zero_based)
+        if constexpr (indexing == Indexing::zero_based)
             return (order*(order + 1)) >> 1;
         else
             return order*order;
@@ -256,7 +256,7 @@ public:
     [[nodiscard]] static constexpr index_type
     index(index_type l, index_type m) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::zero_based)
+        if constexpr (indexing == Indexing::zero_based)
         {
             assert(m <= l);
             return ((l*(l + 1)) >> 1) + m;
@@ -275,7 +275,7 @@ public:
     [[nodiscard]] static constexpr index_type
     index(index_type l) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::zero_based)
+        if constexpr (indexing == Indexing::zero_based)
             return ((l*(l + 1)) >> 1);
         else
             return l*(l + 1);
@@ -381,7 +381,7 @@ public:
     @brief Contiguous 2D sequence for index pairs on a triangular grid with
     only even or odd indices in one direction.
 
-    @tparam indexing_mode_param Determines if indexing is symmetric about zero
+    @tparam indexing_param Determines if indexing is symmetric about zero
     or starts at zero.
 
     This sequence represents index pairs `(l,m)` subject to the condition
@@ -428,16 +428,16 @@ public:
     `(0,0)` and `(1,0)` fall on the same index. It is therefore erroneous to
     mix even and odd `l` values when accessing data.
 */
-template <IndexingMode indexing_mode_param>
+template <Indexing indexing_param>
 struct ParityRowTriangleSequence
 {
-    using SubLayout = StandardLinearSequence<indexing_mode_param>;
-    using index_type = std::conditional_t<indexing_mode_param == IndexingMode::symmetric,
+    using SubLayout = StandardLinearSequence<indexing_param>;
+    using index_type = std::conditional_t<indexing_param == Indexing::symmetric,
         int, std::size_t>;
     using size_type = std::size_t;
     using index_range = ParityIndexRange<index_type, Parity::mixed>;
 
-    static constexpr IndexingMode indexing_mode = indexing_mode_param;
+    static constexpr Indexing indexing = indexing_param;
     static constexpr size_type rank = 2;
 
 private:
@@ -447,7 +447,7 @@ private:
         requires (N == 1)
     struct subsequence_helper<N>
     {
-        using type = StandardLinearSequence<indexing_mode_param>;
+        using type = StandardLinearSequence<indexing_param>;
     };
 
 public:
@@ -463,7 +463,7 @@ public:
     static constexpr size_type
     size(size_type order) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::zero_based)
+        if constexpr (indexing == Indexing::zero_based)
             return ((order + 1)*(order + 1)) >> 2;
         else
             return (order*(order + 1)) >> 1;
@@ -478,7 +478,7 @@ public:
     static constexpr index_type
     index(index_type l, index_type m) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::zero_based)
+        if constexpr (indexing == Indexing::zero_based)
         {
             assert(m <= l);
             return ((l*l) >> 2) + m;
@@ -498,7 +498,7 @@ public:
     static constexpr index_type
     index(index_type l) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::zero_based)
+        if constexpr (indexing == Indexing::zero_based)
             return ((l*l) >> 2);
         else
             return (l*(l + 1)) >> 1;
@@ -517,7 +517,7 @@ public:
     @brief Contiguous 3D sequence for index triples laid out in a tetrahedral
     shape.
 
-    @tparam indexing_mode_param Determines if indexing is symmetric about zero
+    @tparam indexing_param Determines if indexing is symmetric about zero
     or starts at zero.
 
     This sequences represents index triples `(n,l,m)`, which are subject to the
@@ -547,16 +547,16 @@ public:
     valid. It is erroneous to access data using this sequence with indices
     `(n,l)`.
 */
-template <IndexingMode indexing_mode_param>
+template <Indexing indexing_param>
 struct ZernikeTetrahedralSequence
 {
-    using SubLayout = ParityRowTriangleSequence<indexing_mode_param>;
-    using index_type = std::conditional_t<indexing_mode_param == IndexingMode::symmetric,
+    using SubLayout = ParityRowTriangleSequence<indexing_param>;
+    using index_type = std::conditional_t<indexing_param == Indexing::symmetric,
         int, std::size_t>;
     using size_type = std::size_t;
     using index_range = StandardIndexRange<index_type>;
 
-    static constexpr IndexingMode indexing_mode = indexing_mode_param;
+    static constexpr Indexing indexing = indexing_param;
     static constexpr size_type rank = 3;
 
 private:
@@ -566,14 +566,14 @@ private:
         requires (N == 1)
     struct subsequence_helper<N>
     {
-        using type = ParityRowTriangleSequence<indexing_mode_param>;
+        using type = ParityRowTriangleSequence<indexing_param>;
     };
 
     template <std::size_t N>
         requires (N == 2)
     struct subsequence_helper<N>
     {
-        using type = StandardLinearSequence<indexing_mode_param>;
+        using type = StandardLinearSequence<indexing_param>;
     };
 
 public:
@@ -589,7 +589,7 @@ public:
     [[nodiscard]] static constexpr size_type
     size(size_type order) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::zero_based)
+        if constexpr (indexing == Indexing::zero_based)
             return (order + 1)*(order + 3)*(2*order + 1)/24; // OEIS A002623
         else
             return order*(order + 1)*(order + 2)/6; // OEIS A000292
@@ -605,7 +605,7 @@ public:
     [[nodiscard]] static constexpr index_type
     index(index_type n, index_type l, index_type m) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::zero_based)
+        if constexpr (indexing == Indexing::zero_based)
         {
             assert(m <= l && l <= n && ((n - l) % 2) == 0);
             return (n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2) + m;
@@ -626,7 +626,7 @@ public:
     [[nodiscard]] static constexpr index_type
     index(index_type n, index_type l) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::zero_based)
+        if constexpr (indexing == Indexing::zero_based)
         {
             assert(l <= n && ((n - l) % 2) == 0);
             return (n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2);
@@ -646,7 +646,7 @@ public:
     [[nodiscard]] static constexpr index_type
     index(index_type n) noexcept
     {
-        if constexpr (indexing_mode == IndexingMode::zero_based)
+        if constexpr (indexing == Indexing::zero_based)
             return (n + 1)*(n + 3)*(2*n + 1)/24;
         else
             return n*(n + 1)*(n + 2)/6;

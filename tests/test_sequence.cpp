@@ -29,11 +29,11 @@ SOFTWARE.
 namespace
 {
 
-template <zest::IndexingMode indexing_mode>
+template <zest::Indexing indexing>
 bool test_standard_linear_sequence_size(
     std::size_t order, std::size_t expected_size)
 {
-    using Sequence = zest::StandardLinearSequence<indexing_mode>;
+    using Sequence = zest::StandardLinearSequence<indexing>;
 
     return Sequence::size(order) == expected_size;
 }
@@ -41,7 +41,7 @@ bool test_standard_linear_sequence_size(
 bool test_standard_linear_sequence_index_zero_based(
     std::size_t index, std::size_t expected_linear_index)
 {
-    using Sequence = zest::StandardLinearSequence<zest::IndexingMode::zero_based>;
+    using Sequence = zest::StandardLinearSequence<zest::Indexing::zero_based>;
 
     return Sequence::index(index) == expected_linear_index;
 }
@@ -49,7 +49,7 @@ bool test_standard_linear_sequence_index_zero_based(
 bool test_standard_linear_sequence_index_symmetric(
     int index, int expected_linear_index)
 {
-    using Sequence = zest::StandardLinearSequence<zest::IndexingMode::symmetric>;
+    using Sequence = zest::StandardLinearSequence<zest::Indexing::symmetric>;
 
     return Sequence::index(index) == expected_linear_index;
 }
@@ -58,7 +58,7 @@ template <std::size_t N>
 bool test_standard_linear_sequence_index_range_zero_based(
     std::size_t order, std::array<std::size_t, N> expected_indices)
 {
-    using Sequence = zest::StandardLinearSequence<zest::IndexingMode::zero_based>;
+    using Sequence = zest::StandardLinearSequence<zest::Indexing::zero_based>;
     using index_range = typename Sequence::index_range;
 
     bool success = true;
@@ -76,7 +76,7 @@ template <std::size_t N>
 bool test_standard_linear_sequence_index_range_symmetric(
     std::size_t order, std::array<int, N> expected_indices)
 {
-    using Sequence = zest::StandardLinearSequence<zest::IndexingMode::symmetric>;
+    using Sequence = zest::StandardLinearSequence<zest::Indexing::symmetric>;
     using index_range = typename Sequence::index_range;
 
     bool success = true;
@@ -124,11 +124,11 @@ bool test_parity_linear_sequence_index_range(
     return success;
 }
 
-template <zest::IndexingMode indexing_mode>
+template <zest::Indexing indexing>
 bool test_triangle_sequence_size(
     std::size_t order, std::size_t expected_size)
 {
-    using Sequence = zest::TriangleSequence<indexing_mode>;
+    using Sequence = zest::TriangleSequence<indexing>;
 
     return Sequence::size(order) == expected_size;
 }
@@ -136,14 +136,14 @@ bool test_triangle_sequence_size(
 bool test_triangle_sequence_index_both_zero_based(
     std::size_t l, std::size_t m, std::size_t expected_linear_index)
 {
-    using Sequence = zest::TriangleSequence<zest::IndexingMode::zero_based>;
+    using Sequence = zest::TriangleSequence<zest::Indexing::zero_based>;
 
     return Sequence::index(l, m) == expected_linear_index;
 }
 
 bool test_triangle_sequence_index_first_zero_based(std::size_t l)
 {
-    using Sequence = zest::TriangleSequence<zest::IndexingMode::zero_based>;
+    using Sequence = zest::TriangleSequence<zest::Indexing::zero_based>;
 
     return Sequence::index(l) == Sequence::index(l, 0);
 }
@@ -151,14 +151,14 @@ bool test_triangle_sequence_index_first_zero_based(std::size_t l)
 bool test_triangle_sequence_index_both_symmetric(
     int l, int m, int expected_linear_index)
 {
-    using Sequence = zest::TriangleSequence<zest::IndexingMode::symmetric>;
+    using Sequence = zest::TriangleSequence<zest::Indexing::symmetric>;
 
     return Sequence::index(l, m) == expected_linear_index;
 }
 
 bool test_triangle_sequence_index_first_symmetric(int l)
 {
-    using Sequence = zest::TriangleSequence<zest::IndexingMode::symmetric>;
+    using Sequence = zest::TriangleSequence<zest::Indexing::symmetric>;
 
     return Sequence::index(l) == Sequence::index(l, 0);
 }
@@ -167,7 +167,7 @@ template <std::size_t N>
 bool test_triangle_sequence_index_range_zero_based(
     std::size_t order, std::array<std::size_t, N> expected_indices)
 {
-    using Sequence = zest::TriangleSequence<zest::IndexingMode::zero_based>;
+    using Sequence = zest::TriangleSequence<zest::Indexing::zero_based>;
     using index_range = typename Sequence::index_range;
 
     bool success = true;
@@ -185,7 +185,7 @@ template <std::size_t N>
 bool test_triangle_sequence_index_range_symmetric(
     std::size_t order, std::array<int, N> expected_indices)
 {
-    using Sequence = zest::TriangleSequence<zest::IndexingMode::symmetric>;
+    using Sequence = zest::TriangleSequence<zest::Indexing::symmetric>;
     using index_range = typename Sequence::index_range;
 
     bool success = true;
@@ -242,7 +242,7 @@ bool test_even_triangle_sequence_index_range(
 bool test_parity_row_triangle_sequence_size_zero_based(
     std::size_t order, std::size_t expected_size)
 {
-    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::zero_based>;
+    using Sequence = zest::ParityRowTriangleSequence<zest::Indexing::zero_based>;
 
     return Sequence::size(order) == expected_size;
 }
@@ -250,14 +250,14 @@ bool test_parity_row_triangle_sequence_size_zero_based(
 bool test_parity_row_triangle_sequence_index_both_zero_based(
     std::size_t l, std::size_t m, std::size_t expected_linear_index)
 {
-    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::zero_based>;
+    using Sequence = zest::ParityRowTriangleSequence<zest::Indexing::zero_based>;
 
     return Sequence::index(l, m) == expected_linear_index;
 }
 
 bool test_parity_row_triangle_sequence_index_first_zero_based(std::size_t n)
 {
-    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::zero_based>;
+    using Sequence = zest::ParityRowTriangleSequence<zest::Indexing::zero_based>;
 
     return Sequence::index(n) == Sequence::index(n, 0);
 }
@@ -266,7 +266,7 @@ template <std::size_t N>
 bool test_parity_row_triangle_sequence_index_range_zero_based(
     std::size_t order, std::array<std::size_t, N> expected_indices)
 {
-    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::zero_based>;
+    using Sequence = zest::ParityRowTriangleSequence<zest::Indexing::zero_based>;
     using index_range = typename Sequence::index_range;
 
     bool success = true;
@@ -283,7 +283,7 @@ bool test_parity_row_triangle_sequence_index_range_zero_based(
 bool test_parity_row_triangle_sequence_size_symmetric(
     std::size_t order, std::size_t expected_size)
 {
-    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::symmetric>;
+    using Sequence = zest::ParityRowTriangleSequence<zest::Indexing::symmetric>;
 
     return Sequence::size(order) == expected_size;
 }
@@ -291,14 +291,14 @@ bool test_parity_row_triangle_sequence_size_symmetric(
 bool test_parity_row_triangle_sequence_index_both_symmetric(
     int l, int m, int expected_linear_index)
 {
-    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::symmetric>;
+    using Sequence = zest::ParityRowTriangleSequence<zest::Indexing::symmetric>;
 
     return Sequence::index(l, m) == expected_linear_index;
 }
 
 bool test_parity_row_triangle_sequence_index_first_symmetric(int l)
 {
-    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::symmetric>;
+    using Sequence = zest::ParityRowTriangleSequence<zest::Indexing::symmetric>;
 
     return Sequence::index(l) == Sequence::index(l, 0);
 }
@@ -307,7 +307,7 @@ template <std::size_t N>
 bool test_parity_row_triangle_sequence_index_range_symmetric(
     std::size_t order, std::array<int, N> expected_indices)
 {
-    using Sequence = zest::ParityRowTriangleSequence<zest::IndexingMode::symmetric>;
+    using Sequence = zest::ParityRowTriangleSequence<zest::Indexing::symmetric>;
     using index_range = typename Sequence::index_range;
 
     bool success = true;
@@ -324,7 +324,7 @@ bool test_parity_row_triangle_sequence_index_range_symmetric(
 bool test_zernike_tetrahedral_sequence_size_zero_based(
     std::size_t order, std::size_t expected_size)
 {
-    using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::zero_based>;
+    using Sequence = zest::ZernikeTetrahedralSequence<zest::Indexing::zero_based>;
 
     return Sequence::size(order) == expected_size;
 }
@@ -332,21 +332,21 @@ bool test_zernike_tetrahedral_sequence_size_zero_based(
 bool test_zernike_tetrahedral_sequence_index_all_zero_based(
     std::size_t n, std::size_t l, std::size_t m, std::size_t expected_linear_index)
 {
-    using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::zero_based>;
+    using Sequence = zest::ZernikeTetrahedralSequence<zest::Indexing::zero_based>;
 
     return Sequence::index(n, l, m) == expected_linear_index;
 }
 
 bool test_zernike_tetrahedral_sequence_index_first_two_zero_based(std::size_t n, std::size_t l)
 {
-    using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::zero_based>;
+    using Sequence = zest::ZernikeTetrahedralSequence<zest::Indexing::zero_based>;
 
     return Sequence::index(n, l) == Sequence::index(n, l, 0);
 }
 
 bool test_zernike_tetrahedral_sequence_index_first_zero_based(std::size_t n)
 {
-    using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::zero_based>;
+    using Sequence = zest::ZernikeTetrahedralSequence<zest::Indexing::zero_based>;
 
     return Sequence::index(n) == Sequence::index(n, n & 1, 0);
 }
@@ -355,7 +355,7 @@ template <std::size_t N>
 bool test_zernike_tetrahedral_sequence_index_range_zero_based(
     std::size_t order, std::array<std::size_t, N> expected_indices)
 {
-    using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::zero_based>;
+    using Sequence = zest::ZernikeTetrahedralSequence<zest::Indexing::zero_based>;
     using index_range = typename Sequence::index_range;
 
     bool success = true;
@@ -372,7 +372,7 @@ bool test_zernike_tetrahedral_sequence_index_range_zero_based(
 bool test_zernike_tetrahedral_sequence_size_symmetric(
     std::size_t order, std::size_t expected_size)
 {
-    using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::symmetric>;
+    using Sequence = zest::ZernikeTetrahedralSequence<zest::Indexing::symmetric>;
 
     return Sequence::size(order) == expected_size;
 }
@@ -380,21 +380,21 @@ bool test_zernike_tetrahedral_sequence_size_symmetric(
 bool test_zernike_tetrahedral_sequence_index_all_symmetric(
     int n, int l, int m, int expected_linear_index)
 {
-        using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::symmetric>;
+        using Sequence = zest::ZernikeTetrahedralSequence<zest::Indexing::symmetric>;
 
     return Sequence::index(n, l, m) == expected_linear_index;
 }
 
 bool test_zernike_tetrahedral_sequence_index_first_two_symmetric(int n, int l)
 {
-        using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::symmetric>;
+        using Sequence = zest::ZernikeTetrahedralSequence<zest::Indexing::symmetric>;
 
     return Sequence::index(n, l) == Sequence::index(n, l, 0);
 }
 
 bool test_zernike_tetrahedral_sequence_index_first_symmetric(int n)
 {
-        using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::symmetric>;
+        using Sequence = zest::ZernikeTetrahedralSequence<zest::Indexing::symmetric>;
 
     return Sequence::index(n) == Sequence::index(n, n & 1, (~n & 1) - 1);
 }
@@ -403,7 +403,7 @@ template <std::size_t N>
 bool test_zernike_tetrahedral_sequence_index_range_symmetric(
     std::size_t order, std::array<int, N> expected_indices)
 {
-    using Sequence = zest::ZernikeTetrahedralSequence<zest::IndexingMode::symmetric>;
+    using Sequence = zest::ZernikeTetrahedralSequence<zest::Indexing::symmetric>;
     using index_range = typename Sequence::index_range;
 
     bool success = true;
@@ -421,14 +421,14 @@ bool test_zernike_tetrahedral_sequence_index_range_symmetric(
 
 int main()
 {
-    assert(test_standard_linear_sequence_size<zest::IndexingMode::zero_based>(0, 0));
-    assert(test_standard_linear_sequence_size<zest::IndexingMode::zero_based>(1, 1));
-    assert(test_standard_linear_sequence_size<zest::IndexingMode::zero_based>(7, 7));
+    assert(test_standard_linear_sequence_size<zest::Indexing::zero_based>(0, 0));
+    assert(test_standard_linear_sequence_size<zest::Indexing::zero_based>(1, 1));
+    assert(test_standard_linear_sequence_size<zest::Indexing::zero_based>(7, 7));
 
-    assert(test_standard_linear_sequence_size<zest::IndexingMode::symmetric>(0, 0));
-    assert(test_standard_linear_sequence_size<zest::IndexingMode::symmetric>(1, 1));
-    assert(test_standard_linear_sequence_size<zest::IndexingMode::symmetric>(2, 3));
-    assert(test_standard_linear_sequence_size<zest::IndexingMode::symmetric>(7, 13));
+    assert(test_standard_linear_sequence_size<zest::Indexing::symmetric>(0, 0));
+    assert(test_standard_linear_sequence_size<zest::Indexing::symmetric>(1, 1));
+    assert(test_standard_linear_sequence_size<zest::Indexing::symmetric>(2, 3));
+    assert(test_standard_linear_sequence_size<zest::Indexing::symmetric>(7, 13));
 
     assert(test_standard_linear_sequence_index_zero_based(0, 0));
     assert(test_standard_linear_sequence_index_zero_based(1, 1));
@@ -473,15 +473,15 @@ int main()
     assert(test_parity_linear_sequence_index_range(7, std::array<std::size_t, 4>{0, 2, 4, 6}));
     assert(test_parity_linear_sequence_index_range(8, std::array<std::size_t, 4>{1, 3, 5, 7}));
 
-    assert(test_triangle_sequence_size<zest::IndexingMode::zero_based>(0, 0));
-    assert(test_triangle_sequence_size<zest::IndexingMode::zero_based>(1, 1));
-    assert(test_triangle_sequence_size<zest::IndexingMode::zero_based>(2, 3));
-    assert(test_triangle_sequence_size<zest::IndexingMode::zero_based>(7, 28));
+    assert(test_triangle_sequence_size<zest::Indexing::zero_based>(0, 0));
+    assert(test_triangle_sequence_size<zest::Indexing::zero_based>(1, 1));
+    assert(test_triangle_sequence_size<zest::Indexing::zero_based>(2, 3));
+    assert(test_triangle_sequence_size<zest::Indexing::zero_based>(7, 28));
 
-    assert(test_triangle_sequence_size<zest::IndexingMode::symmetric>(0, 0));
-    assert(test_triangle_sequence_size<zest::IndexingMode::symmetric>(1, 1));
-    assert(test_triangle_sequence_size<zest::IndexingMode::symmetric>(2, 4));
-    assert(test_triangle_sequence_size<zest::IndexingMode::symmetric>(7, 49));
+    assert(test_triangle_sequence_size<zest::Indexing::symmetric>(0, 0));
+    assert(test_triangle_sequence_size<zest::Indexing::symmetric>(1, 1));
+    assert(test_triangle_sequence_size<zest::Indexing::symmetric>(2, 4));
+    assert(test_triangle_sequence_size<zest::Indexing::symmetric>(7, 49));
 
     assert(test_triangle_sequence_index_both_zero_based(0, 0, 0));
     assert(test_triangle_sequence_index_both_zero_based(1, 0, 1));

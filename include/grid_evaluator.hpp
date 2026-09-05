@@ -107,7 +107,7 @@ public:
         grid with shape `{longitudes.size(), colatitudes.size()}` in row-major
         order.
     */
-    template <sh_expansion<IndexingMode::zero_based> ExpansionType>
+    template <sh_expansion<Indexing::zero_based> ExpansionType>
         requires std::floating_point<value_type_of<ExpansionType>>
             && st::has_inner_rank<ExpansionType, 0>
     [[nodiscard]] DynamicMDArray<double, 2> evaluate(
@@ -147,7 +147,7 @@ public:
     }
 
 private:
-    template <sh_expansion<IndexingMode::zero_based> ExpansionType>
+    template <sh_expansion<Indexing::zero_based> ExpansionType>
         requires std::floating_point<value_type_of<ExpansionType>>
     void sum_l(const ExpansionType& expansion) noexcept
     {
@@ -245,7 +245,7 @@ public:
         the grid with shape `{longitudes.size(), colatitudes.size(),
         radii.size()}` in row-major order.
     */
-    template <zernike_expansion<IndexingMode::zero_based> ExpansionType>
+    template <zernike_expansion<Indexing::zero_based> ExpansionType>
         requires std::floating_point<value_type_of<ExpansionType>>
             && zt::has_inner_rank<ExpansionType, 0>
     [[nodiscard]] DynamicMDArray<double, 3> evaluate(
@@ -296,7 +296,7 @@ public:
     }
 
 private:
-    template <zernike_expansion<IndexingMode::zero_based> ExpansionType>
+    template <zernike_expansion<Indexing::zero_based> ExpansionType>
         requires std::floating_point<value_type_of<ExpansionType>>
     void sum_n(const ExpansionType& expansion) noexcept
     {
@@ -308,7 +308,7 @@ private:
 
         std::ranges::fill(m_flm_grid, 0.0);
 
-        TriangleSpan<double, IndexingMode::zero_based, std::dynamic_extent, 2>
+        TriangleSpan<double, Indexing::zero_based, std::dynamic_extent, 2>
         flm(m_flm_grid, order, m_rad_size);
 
         for (auto n : expansion.indices())

@@ -29,11 +29,11 @@ SOFTWARE.
 namespace zest
 {
 
-template <IndexingMode indexing_mode, std::size_t... inner_extents>
-using TriangleShape = TensorSequenceShape<TriangleSequence<indexing_mode>, inner_extents...>;
+template <Indexing indexing, std::size_t... inner_extents>
+using TriangleShape = TensorSequenceShape<TriangleSequence<indexing>, inner_extents...>;
 
-template <IndexingMode indexing_mode, std::size_t... inner_extents>
-using TriangleTensorShape = SequenceTensorShape<TriangleSequence<indexing_mode>, inner_extents...>;
+template <Indexing indexing, std::size_t... inner_extents>
+using TriangleTensorShape = SequenceTensorShape<TriangleSequence<indexing>, inner_extents...>;
 
 template <std::size_t... inner_extents>
 using EvenTriangleShape = TensorSequenceShape<EvenTriangleSequence, inner_extents...>;

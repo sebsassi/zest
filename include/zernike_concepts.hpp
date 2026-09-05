@@ -34,21 +34,21 @@ namespace zest::zt
 template <typename T, std::size_t inner_rank>
 concept has_inner_rank
     = has_inner_tensor_structure<
-            T, ((indexing_mode_of<T>() == IndexingMode::zero_based) ? 4 : 3), inner_rank>;
+            T, ((indexing_of<T>() == Indexing::zero_based) ? 4 : 3), inner_rank>;
 
-template <typename T, IndexingMode indexing_mode>
+template <typename T, Indexing indexing>
 concept zernike_shape
-    = st::sh_tagged<T> && zernike_tagged<T> && indexing_mode_tagged<T>
+    = st::sh_tagged<T> && zernike_tagged<T> && indexing_tagged<T>
         && st::azimuthal_indexed<
-            typename std::remove_cvref_t<T>::template subshape_type<2>, indexing_mode>;
+            typename std::remove_cvref_t<T>::template subshape_type<2>, indexing>;
 
 template <typename T>
-concept any_zernike_shape = zernike_shape<T, indexing_mode_of<T>()>;
+concept any_zernike_shape = zernike_shape<T, indexing_of<T>()>;
 
 template <typename T>
 concept zernike_nonnegative_shape
-    = st::sh_tagged<T> && zernike_tagged<T> && indexing_mode_tagged<T>
-        && (indexing_mode_of<T>() == IndexingMode::zero_based)
+    = st::sh_tagged<T> && zernike_tagged<T> && indexing_tagged<T>
+        && (indexing_of<T>() == Indexing::zero_based)
         && std::same_as<
             remove_tags<typename std::remove_cvref_t<T>::template subshape_type<3>>,
             NullShape>;
@@ -58,10 +58,10 @@ concept zernike_buffer
     = zernike_tagged<typename std::remove_cvref_t<T>::shape_type>
         && shaped_contiguous_buffer<T>;
 
-template <typename T, IndexingMode indexing_mode>
+template <typename T, Indexing indexing>
 concept zernike_expansion
     = shaped_contiguous_buffer<T>
-        && zernike_shape<typename std::remove_cvref_t<T>::shape_type, indexing_mode>;
+        && zernike_shape<typename std::remove_cvref_t<T>::shape_type, indexing>;
 
 template <typename T>
 concept any_zernike_expansion
@@ -80,7 +80,7 @@ concept compatible_with
         && (std::remove_cvref_t<T>::shape_type::sh_norm == std::remove_cvref_t<S>::shape_type::sh_norm)
         && (std::remove_cvref_t<T>::shape_type::sh_norm == std::remove_cvref_t<S>::shape_type::sh_norm)
         && (std::remove_cvref_t<T>::shape_type::zernike_norm == std::remove_cvref_t<S>::shape_type::zernike_norm)
-        && (std::remove_cvref_t<T>::shape_type::indexing_mode == std::remove_cvref_t<S>::shape_type::indexing_mode);
+        && (std::remove_cvref_t<T>::shape_type::indexing == std::remove_cvref_t<S>::shape_type::indexing);
 
 } // namespace zest::zt
 

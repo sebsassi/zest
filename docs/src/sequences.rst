@@ -13,13 +13,13 @@ index tuples to contiguous indices).
 Enums
 -----
 
-.. doxygenenum:: zest::IndexingMode
+.. doxygenenum:: zest::Indexing
     :project: zest
 
 Concepts
 --------
 
-.. doxygenconcept:: zest::indexing_mode_tagged
+.. doxygenconcept:: zest::indexing_tagged
     :project: zest
 
 .. doxygenconcept:: zest::has_parity
@@ -28,7 +28,7 @@ Concepts
 Types
 -----
 
-.. doxygenstruct:: zest::IndexingModeTag
+.. doxygenstruct:: zest::IndexingTag
 
 .. doxygenstruct:: zest::StandardLinearSequence
     :project: zest
@@ -57,4 +57,4 @@ Types
 Functions
 ---------
 
-.. doxygenfunction:: zest::indexing_mode_of
+.. doxygenfunction:: zest::indexing_of

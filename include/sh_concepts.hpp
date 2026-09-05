@@ -36,29 +36,29 @@ namespace zest::st
 template <typename T, std::size_t inner_rank>
 concept has_inner_rank
     = has_inner_tensor_structure<
-            T, ((indexing_mode_of<T>() == IndexingMode::zero_based) ? 3 : 2), inner_rank>;
+            T, ((indexing_of<T>() == Indexing::zero_based) ? 3 : 2), inner_rank>;
 
 template <typename T>
 concept paired_azimuthal_indexed
-    = (indexing_mode_of<T>() == IndexingMode::zero_based)
+    = (indexing_of<T>() == Indexing::zero_based)
         && (std::remove_cvref_t<T>::template subshape_type<1>::static_extents[0] == 2);
 
 template <typename T>
 concept symmetric_azimuthal_indexed
-    = (indexing_mode_of<T>() == IndexingMode::symmetric)
+    = (indexing_of<T>() == Indexing::symmetric)
         && (std::same_as<
                 remove_tags<typename std::remove_cvref_t<T>::template subshape_type<1>>,
                 NullShape>
             || tensor_shaped<typename std::remove_cvref_t<T>::template subshape_type<1>>);
 
-template <typename T, IndexingMode indexing_mode>
+template <typename T, Indexing indexing>
 concept azimuthal_indexed
-    = (indexing_mode_of<T>() == indexing_mode)
+    = (indexing_of<T>() == indexing)
         && (paired_azimuthal_indexed<T> || symmetric_azimuthal_indexed<T>);
 
 template <typename T>
 concept zero_based_azimuthal_indexed
-    = (indexing_mode_of<T>() == IndexingMode::zero_based)
+    = (indexing_of<T>() == Indexing::zero_based)
         && (std::same_as<
                 remove_tags<typename std::remove_cvref_t<T>::template subshape_type<1>>,
                 NullShape>
@@ -66,7 +66,7 @@ concept zero_based_azimuthal_indexed
 
 template <typename T>
 concept associated_legendre_shape
-    = sh_tagged<T> && indexing_mode_tagged<T>
+    = sh_tagged<T> && indexing_tagged<T>
         && zero_based_azimuthal_indexed<
             typename std::remove_cvref_t<T>::template subshape_type<1>>;
 
@@ -84,53 +84,53 @@ concept parity_associated_legendre_shape
             typename std::remove_cvref_t<T>::index_range,
             ParityIndexRange<std::size_t>>;
 
-template <typename T, IndexingMode indexing_mode>
+template <typename T, Indexing indexing>
 concept sh_shape
-    = sh_tagged<T> && indexing_mode_tagged<T>
+    = sh_tagged<T> && indexing_tagged<T>
         && azimuthal_indexed<
-            typename std::remove_cvref_t<T>::template subshape_type<1>, indexing_mode>;
+            typename std::remove_cvref_t<T>::template subshape_type<1>, indexing>;
 
 template <typename T>
-concept any_sh_shape = sh_shape<T, indexing_mode_of<T>()>;
+concept any_sh_shape = sh_shape<T, indexing_of<T>()>;
 
-template <typename T, IndexingMode indexing_mode>
+template <typename T, Indexing indexing>
 concept complete_sh_shape
-    = sh_shape<T, indexing_mode>
+    = sh_shape<T, indexing>
         && std::same_as<
             typename std::remove_cvref_t<T>::index_range,
             StandardIndexRange<typename std::remove_cvref_t<T>::index_type>>;
 
 template <typename T>
-concept any_complete_sh_shape = complete_sh_shape<T, indexing_mode_of<T>()>;
+concept any_complete_sh_shape = complete_sh_shape<T, indexing_of<T>()>;
 
-template <typename T, IndexingMode indexing_mode>
+template <typename T, Indexing indexing>
 concept zernike_sh_subshape
-    = sh_shape<T, indexing_mode>
+    = sh_shape<T, indexing>
         && std::same_as<
             typename std::remove_cvref_t<T>::index_range,
             ParityIndexRange<std::size_t>>;
 
 template <typename T>
-concept any_zernike_sh_subshape = zernike_sh_subshape<T, indexing_mode_of<T>()>;
+concept any_zernike_sh_subshape = zernike_sh_subshape<T, indexing_of<T>()>;
 
 template <typename T>
 concept sh_buffer
     = sh_tagged<typename std::remove_cvref_t<T>::shape_type> && shaped_contiguous_buffer<T>;
 
-template <typename T, IndexingMode indexing_mode>
+template <typename T, Indexing indexing>
 concept sh_expansion
     = shaped_contiguous_buffer<T>
-        && sh_shape<typename std::remove_cvref_t<T>::shape_type, indexing_mode>;
+        && sh_shape<typename std::remove_cvref_t<T>::shape_type, indexing>;
 
-template <typename T, IndexingMode indexing_mode>
+template <typename T, Indexing indexing>
 concept complete_sh_expansion
     = shaped_contiguous_buffer<T>
-        && complete_sh_shape<typename std::remove_cvref_t<T>::shape_type, indexing_mode>;
+        && complete_sh_shape<typename std::remove_cvref_t<T>::shape_type, indexing>;
 
-template <typename T, IndexingMode indexing_mode>
+template <typename T, Indexing indexing>
 concept zernike_sh_subspan
     = shaped_contiguous_buffer<T>
-        && zernike_sh_subshape<typename std::remove_cvref_t<T>::shape_type, indexing_mode>;
+        && zernike_sh_subshape<typename std::remove_cvref_t<T>::shape_type, indexing>;
 
 template <typename T>
 concept any_sh_expansion
@@ -142,7 +142,7 @@ concept any_complete_sh_expansion
     = shaped_contiguous_buffer<T>
         && any_complete_sh_shape<typename std::remove_cvref_t<T>::shape_type>;
 
-template <typename T, IndexingMode indexing_mode>
+template <typename T, Indexing indexing>
 concept any_zernike_sh_subspan
     = shaped_contiguous_buffer<T>
         && any_zernike_sh_subshape<typename std::remove_cvref_t<T>::shape_type>;
@@ -164,7 +164,7 @@ concept compatible_with
     = any_sh_expansion<T> && any_sh_expansion<S>
         && (std::remove_cvref_t<T>::shape_type::sh_norm == std::remove_cvref_t<S>::shape_type::sh_norm)
         && (std::remove_cvref_t<T>::shape_type::sh_norm == std::remove_cvref_t<S>::shape_type::sh_norm)
-        && (std::remove_cvref_t<T>::shape_type::indexing_mode == std::remove_cvref_t<S>::shape_type::indexing_mode);
+        && (std::remove_cvref_t<T>::shape_type::indexing == std::remove_cvref_t<S>::shape_type::indexing);
 
 } // namespace zest::st
 

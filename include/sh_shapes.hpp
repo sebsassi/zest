@@ -34,62 +34,58 @@ namespace zest::st
     @brief Shape representing an efficient layout of associated Legendre
     functions, tagged with normalization and phase conventions.
 
-    @tparam sh_norm Normalization convention of the spherical harmonics.
-    @tparam sh_phase Phase convention of the spherical harmonics.
+    @tparam Convention Spherical harmonic convention.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <sh_convention Convention, std::size_t... inner_extents>
 using AssociatedLegendreShape = TaggedShape<
-    TriangleShape<IndexingMode::zero_based, inner_extents...>,
-    Convention, IndexingModeTag<IndexingMode::zero_based>>;
+    TriangleShape<Indexing::zero_based, inner_extents...>,
+    Convention, IndexingTag<Indexing::zero_based>>;
 
 /**
     @brief Shape representing an efficient layout of a multidimensional array
     of associated Legendre functions, tagged with normalization and phase
     conventions.
 
-    @tparam sh_norm Normalization convention of the spherical harmonics.
-    @tparam sh_phase Phase convention of the spherical harmonics.
+    @tparam Convention Spherical harmonic convention.
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <sh_convention Convention, std::size_t... outer_extents>
 using AssociatedLegendreTensorShape = TaggedShape<
-    TriangleTensorShape<IndexingMode::zero_based, outer_extents...>,
-    Convention, IndexingModeTag<IndexingMode::zero_based>>;
+    TriangleTensorShape<Indexing::zero_based, outer_extents...>,
+    Convention, IndexingTag<Indexing::zero_based>>;
 
 /**
     @brief Tagged shape representing layout and conventions of spherical
     harmonic data.
 
-    @tparam indexing_mode Determines azimuthal index order.
-    @tparam sh_norm Normalization convention of the spherical harmonics.
-    @tparam sh_phase Phase convention of the spherical harmonics.
+    @tparam indexing Determines azimuthal index order.
+    @tparam Convention Spherical harmonic convention.
     @tparam inner_extents extents of an inner multidimensional array structure.
 */
-template <IndexingMode indexing_mode, sh_convention Convention, std::size_t... inner_extents>
+template <Indexing indexing, sh_convention Convention, std::size_t... inner_extents>
 using SHShape = TaggedShape<
-    std::conditional_t<(indexing_mode == IndexingMode::symmetric),
-        TriangleShape<indexing_mode, inner_extents...>,
-        TriangleShape<indexing_mode, 2, inner_extents...>>,
-    Convention, IndexingModeTag<indexing_mode>>;
+    std::conditional_t<(indexing == Indexing::symmetric),
+        TriangleShape<indexing, inner_extents...>,
+        TriangleShape<indexing, 2, inner_extents...>>,
+    Convention, IndexingTag<indexing>>;
 
 /**
     @brief Shape representing an efficient layout of a multidimensional array of
     spherical harmonics, tagged with normalization and phase conventions.
 
-    @tparam indexing_mode Determines azimuthal index order.
-    @tparam sh_norm Normalization convention of the spherical harmonics.
-    @tparam sh_phase Phase convention of the spherical harmonics.
+    @tparam indexing Determines azimuthal index order.
+    @tparam Convention Spherical harmonic convention.
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
-template <IndexingMode indexing_mode, sh_convention Convention, std::size_t... outer_extents>
+template <Indexing indexing, sh_convention Convention, std::size_t... outer_extents>
 using SHTensorShape = TaggedShape<
-    std::conditional_t<(indexing_mode == IndexingMode::symmetric),
-        TriangleTensorShape<indexing_mode, outer_extents...>,
+    std::conditional_t<(indexing == Indexing::symmetric),
+        TriangleTensorShape<indexing, outer_extents...>,
         CompositeShape<
             TensorShape<outer_extents...>,
-            TriangleShape<indexing_mode, 2>>>,
-    Convention, IndexingModeTag<indexing_mode>>;
+            TriangleShape<indexing, 2>>>,
+    Convention, IndexingTag<indexing>>;
 
 
 } // namespace zest::st

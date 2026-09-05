@@ -83,7 +83,7 @@ bool test_sh_grid_evaluator_does_constant_function()
         }
     }
 
-    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, Convention> expansion(order);
+    zest::st::SHExpansion<double, zest::Indexing::zero_based, Convention> expansion(order);
 
     expansion[0, 0, 0] = 1.0;
 
@@ -146,7 +146,7 @@ bool test_sh_grid_evaluator_does_Y10()
         }
     }
 
-    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, Convention> expansion(order);
+    zest::st::SHExpansion<double, zest::Indexing::zero_based, Convention> expansion(order);
 
     expansion[1, 0, 0] = 1.0;
 
@@ -222,7 +222,7 @@ bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
         }
     }
 
-    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, Convention> expansion(order);
+    zest::st::SHExpansion<double, zest::Indexing::zero_based, Convention> expansion(order);
 
     expansion[3, 1, 0] = 1.0;
     expansion[4, 3, 1] = 1.0;
@@ -300,7 +300,7 @@ bool test_zernike_grid_evaluator_does_constant_function()
         }
     }
 
-    zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zernike_norm, Convention> expansion(order);
+    zest::zt::ZernikeExpansion<double, zest::Indexing::zero_based, zernike_norm, Convention> expansion(order);
 
     expansion[0, 0, 0, 0] = 1.0;
 
@@ -375,7 +375,7 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
         }
     }
 
-    zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zernike_norm, Convention> expansion(order);
+    zest::zt::ZernikeExpansion<double, zest::Indexing::zero_based, zernike_norm, Convention> expansion(order);
 
     expansion[3, 3, 2, 1] = 1.0;
     expansion[5, 3, 1, 0] = 1.0;

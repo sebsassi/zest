@@ -75,7 +75,7 @@ public:
 
     using grid_layout_type = GridLayoutType;
     using expansion_shape = ZernikeShape<
-            IndexingMode::zero_based, zernike_norm_param, Convention>;
+            Indexing::zero_based, zernike_norm_param, Convention>;
     using grid_shape = BallGLQGridShape<grid_layout_type>;
 
     static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
@@ -228,7 +228,7 @@ public:
         std::size_t min_order = std::min(expansion.order(), values.order());
         integrate_latitudinal(min_order);
 
-        ZernikeSpan<double, IndexingMode::zero_based, zernike_norm, Convention>
+        ZernikeSpan<double, Indexing::zero_based, zernike_norm, Convention>
         truncated_expansion{
             std::forward<ExpansionType>(expansion).template represent_as<double>().flatten(),
             min_order
@@ -250,7 +250,7 @@ public:
     [[nodiscard]] auto forward_transform(const GridType& values, std::size_t order)
     {
         ZernikeExpansion<
-            value_type_of<GridType>, IndexingMode::zero_based,
+            value_type_of<GridType>, Indexing::zero_based,
             zernike_norm, Convention>
         expansion(order);
 
@@ -276,7 +276,7 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        ZernikeSpan<const double, IndexingMode::zero_based, zernike_norm, Convention>
+        ZernikeSpan<const double, Indexing::zero_based, zernike_norm, Convention>
         truncated_expansion{expansion.template represent_as<double>().flatten(), min_order};
 
         sum_n(truncated_expansion);
@@ -418,7 +418,7 @@ private:
 
     void integrate_radial(
         ZernikeSpan<
-            double, IndexingMode::zero_based, zernike_norm, Convention
+            double, Indexing::zero_based, zernike_norm, Convention
         > expansion) noexcept
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
@@ -469,7 +469,7 @@ private:
 
     void sum_n(
         ZernikeSpan<
-            const double, IndexingMode::zero_based, zernike_norm, Convention
+            const double, Indexing::zero_based, zernike_norm, Convention
         > expansion) noexcept
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();

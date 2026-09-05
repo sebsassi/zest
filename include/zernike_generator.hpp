@@ -72,12 +72,12 @@ public:
         @param expansion Buffer for Zernike function values.
     */
     template <
-        IndexingMode indexing_mode, ZernikeNorm zernike_norm,
+        Indexing indexing, ZernikeNorm zernike_norm,
         st::sh_convention Convention
     >
     void generate(
         double lon, double colat, double r,
-        ZernikeSpan<double, indexing_mode, zernike_norm, Convention>& expansion)
+        ZernikeSpan<double, indexing, zernike_norm, Convention>& expansion)
     {
         expand(expansion.order());
 
@@ -105,9 +105,9 @@ public:
                 const double radial_zernike_nl = radial_zernike_n[l];
                 auto ass_leg_l = ass_leg[l];
                 auto znlm_nl = znlm_n[l];
-                if constexpr (indexing_mode == IndexingMode::symmetric)
+                if constexpr (indexing == Indexing::symmetric)
                     znlm_nl[0] = ass_leg_l[0];
-                else if constexpr (indexing_mode == IndexingMode::zero_based)
+                else if constexpr (indexing == Indexing::zero_based)
                 {
                     znlm_nl[0, 0] = radial_zernike_nl*ass_leg_l[0];
                     znlm_nl[0, 1] = 0.0;
@@ -117,13 +117,13 @@ public:
                 {
                     const double ass_leg_lm = ass_leg_l[m];
                     const double prefactor = radial_zernike_nl*ass_leg_lm;
-                    if constexpr (indexing_mode == IndexingMode::symmetric)
+                    if constexpr (indexing == Indexing::symmetric)
                     {
                         znlm_nl[m] = prefactor*m_cossin[m][0];
                         znlm_n[-m] = prefactor*m_cossin[m][1];
                     }
                     else if constexpr (
-                        indexing_mode == IndexingMode::zero_based)
+                        indexing == Indexing::zero_based)
                     {
                         znlm_nl[m, 0] = prefactor*m_cossin[m][0];
                         znlm_nl[m, 1] = prefactor*m_cossin[m][1];
@@ -134,28 +134,28 @@ public:
     }
 
     template <
-        IndexingMode indexing_mode, ZernikeNorm zernike_norm,
+        Indexing indexing, ZernikeNorm zernike_norm,
         st::sh_convention Convention
     >
     void generate(
         double lon, double colat, double r,
-        ZernikeExpansion<double, indexing_mode, zernike_norm, Convention>& expansion)
+        ZernikeExpansion<double, indexing, zernike_norm, Convention>& expansion)
     {
-        using ExpansionType = ZernikeExpansion<double, indexing_mode, zernike_norm, Convention>;
-        generate<indexing_mode, zernike_norm, Convention>(
+        using ExpansionType = ZernikeExpansion<double, indexing, zernike_norm, Convention>;
+        generate<indexing, zernike_norm, Convention>(
                 lon, colat, r, (typename ExpansionType::view)(expansion));
     }
 
     template <
-        IndexingMode indexing_mode, ZernikeNorm zernike_norm,
+        Indexing indexing, ZernikeNorm zernike_norm,
         st::sh_convention Convention
     >
-    [[nodiscard]] ZernikeExpansion<double, indexing_mode, zernike_norm, Convention>
+    [[nodiscard]] ZernikeExpansion<double, indexing, zernike_norm, Convention>
     generate(double lon, double colat, double r, std::size_t order)
     {
-        using ExpansionType = ZernikeExpansion<double, indexing_mode, zernike_norm, Convention>;
+        using ExpansionType = ZernikeExpansion<double, indexing, zernike_norm, Convention>;
         ExpansionType expansion{order};
-        generate<indexing_mode, zernike_norm, Convention>(
+        generate<indexing, zernike_norm, Convention>(
                 lon, colat, r, (typename ExpansionType::view)(expansion));
         return expansion;
     }

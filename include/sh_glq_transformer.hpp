@@ -45,8 +45,7 @@ namespace zest::st
     @brief Transformations between a Gauss-Legendre quadrature grid
     representation and spherical harmonic expansion representation of real data.
 
-    @tparam sh_norm_param Normalization convention of spherical harmonics.
-    @tparam sh_phase_param Phase convention of spherical harmonics.
+    @tparam Convention Spherical harmonic convention.
     @tparam GridLayoutType Memory layout of the grid.
 */
 template <sh_convention Convention, typename GridLayoutType = DefaultLayout>
@@ -70,11 +69,11 @@ public:
     template <typename T>
     using grid_span_type = SphereGLQGridSpan<T, grid_layout_type>;
 
-    using expansion_shape = SHShape<IndexingMode::zero_based, Convention>;
+    using expansion_shape = SHShape<Indexing::zero_based, Convention>;
     using grid_shape = SphereGLQGridShape<grid_layout_type>;
 
     template <typename T>
-    using sh_span_type = SHSpan<T, IndexingMode::zero_based, Convention>;
+    using sh_span_type = SHSpan<T, Indexing::zero_based, Convention>;
 
     GLQTransformer(): 
         m_pocketfft_shape_grid(2),
@@ -199,7 +198,7 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        SHSpan<double, IndexingMode::zero_based, Convention>
+        SHSpan<double, Indexing::zero_based, Convention>
         truncated_expansion{
             std::forward<ExpansionType>(expansion).template represent_as<double>().flatten(),
             min_order
@@ -221,7 +220,7 @@ public:
         requires representable_as<value_type_of<GridType>, double>
     [[nodiscard]] auto forward_transform(const GridType& values, std::size_t order)
     {
-        SHExpansion<value_type_of<GridType>, IndexingMode::zero_based, Convention>
+        SHExpansion<value_type_of<GridType>, Indexing::zero_based, Convention>
         expansion{order};
 
         forward_transform(values, expansion);
@@ -247,7 +246,7 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        SHSpan<const double, IndexingMode::zero_based, Convention>
+        SHSpan<const double, Indexing::zero_based, Convention>
         truncated_expansion{expansion.template represent_as<double>().flatten(), min_order};
 
         sum_l(truncated_expansion);
@@ -268,7 +267,7 @@ public:
         index of all nonzero coefficients has even/odd parity.
     */
     template <
-        st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType,
+        st::zernike_sh_subspan<Indexing::zero_based> ExpansionType,
         contiguous_buffer_shaped_like<grid_shape> GridType
     >
         requires (st::sh_norm_of<ExpansionType>() == sh_norm)
@@ -320,7 +319,7 @@ public:
         @note A spherical harmonic expansion has even/odd parity if the first
         index of all nonzero coefficients has even/odd parity.
     */
-    template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
+    template <st::zernike_sh_subspan<Indexing::zero_based> ExpansionType>
         requires (st::sh_norm_of<ExpansionType>() == sh_norm)
             && (st::sh_phase_of<ExpansionType>() == sh_phase)
             && st::has_inner_rank<ExpansionType, 0>
@@ -488,7 +487,7 @@ private:
     }
 
     void integrate_latitudinal(
-        SHSpan<double, IndexingMode::zero_based, Convention> expansion) noexcept
+        SHSpan<double, Indexing::zero_based, Convention> expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_ass_leg = m_glq_weights.size();
@@ -585,7 +584,7 @@ private:
     }
 
     void sum_l(
-        SHSpan<const double, IndexingMode::zero_based, Convention> expansion) noexcept
+        SHSpan<const double, Indexing::zero_based, Convention> expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_ass_leg = m_glq_weights.size();
@@ -659,7 +658,7 @@ private:
         }
     }
 
-    template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
+    template <st::zernike_sh_subspan<Indexing::zero_based> ExpansionType>
         requires (st::sh_norm_of<ExpansionType>() == sh_norm)
             && (st::sh_phase_of<ExpansionType>() == sh_phase)
     void sum_l(const ExpansionType& expansion) noexcept
@@ -850,8 +849,7 @@ using GLQTransformerGeo = GLQTransformer<Geo, GridLayout>;
     @brief High-level interface for taking SH transforms of functions on balls
     of arbitrary radii.
 
-    @tparam sh_norm_param normalization convention of spherical harmonics
-    @tparam sh_phase_param phase convention of spherical harmonics
+    @tparam Convention Spherical harmonic convention.
     @tparam GridLayoutType
 */
 template <st::sh_convention Convention, typename GridLayoutType = DefaultLayout>
@@ -872,7 +870,7 @@ public:
     using grid_span_type = SphereGLQGridSpan<T, grid_layout_type>;
 
     template <typename T>
-    using sh_span_type = SHSpan<T, IndexingMode::zero_based, Convention>;
+    using sh_span_type = SHSpan<T, Indexing::zero_based, Convention>;
 
     SHTransformer() = default;
     explicit SHTransformer(std::size_t order):
@@ -950,7 +948,7 @@ public:
     }
 
     template <
-        st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType,
+        st::zernike_sh_subspan<Indexing::zero_based> ExpansionType,
         contiguous_buffer_shaped_like<grid_shape> GridType
     >
         requires (st::sh_norm_of<ExpansionType>() == sh_norm)
@@ -969,7 +967,7 @@ public:
         return m_transformer.backward_transform(expansion, order);
     }
 
-    template <st::zernike_sh_subspan<IndexingMode::zero_based> ExpansionType>
+    template <st::zernike_sh_subspan<Indexing::zero_based> ExpansionType>
         requires (st::sh_norm_of<ExpansionType>() == sh_norm)
             && (st::sh_phase_of<ExpansionType>() == sh_phase)
             && st::has_inner_rank<ExpansionType, 0>

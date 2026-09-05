@@ -29,7 +29,7 @@ namespace
 
 bool test_sequenced_shape_zernike_tetrahedral_sequence_subshape_matches_call_operator(std::size_t n, std::size_t l, std::size_t m)
 {
-    using Shape = zest::SequencedShape<zest::ZernikeTetrahedralSequence<zest::IndexingMode::zero_based>>;
+    using Shape = zest::SequencedShape<zest::ZernikeTetrahedralSequence<zest::Indexing::zero_based>>;
 
     assert(m <= l && l <= n && (n - l) % 2 == 0);
 

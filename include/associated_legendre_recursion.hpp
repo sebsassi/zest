@@ -377,8 +377,8 @@ private:
     }
 
     std::vector<double> m_sqrl;
-    TriangleArray<double, IndexingMode::zero_based> m_alm;
-    TriangleArray<double, IndexingMode::zero_based> m_blm;
+    TriangleArray<double, Indexing::zero_based> m_alm;
+    TriangleArray<double, Indexing::zero_based> m_blm;
     std::vector<double> m_u_scaled;
     std::vector<double> m_u;
     std::size_t m_max_order{};

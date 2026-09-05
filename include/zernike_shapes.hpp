@@ -81,43 +81,43 @@ using IsotropicRadialZernikeTensorShape = TaggedShape<
     @brief Shape of an efficient layout of 3D Zernike functions,
     tagged with normalizaton and phase conventions.
 
-    @tparam indexing_mode Determines azimuthal index layout.
+    @tparam indexing Determines azimuthal index layout.
     @tparam zernike_norm Radial Zernike function normalization convention.
     @tparam sh_norm Spherical harmonic normalization convention.
     @tparam sh_phase Spherical harmonic phase convention.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::sh_convention Convention,
+    Indexing indexing, ZernikeNorm zernike_norm, st::sh_convention Convention,
     std::size_t... inner_extents
 >
 using ZernikeShape = TaggedShape<
-    std::conditional_t<(indexing_mode == IndexingMode::symmetric), 
-        TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode>, inner_extents...>,
-        TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode>, 2, inner_extents...>>,
-    ZernikeTag<zernike_norm>, Convention, IndexingModeTag<indexing_mode>>;
+    std::conditional_t<(indexing == Indexing::symmetric), 
+        TensorSequenceShape<ZernikeTetrahedralSequence<indexing>, inner_extents...>,
+        TensorSequenceShape<ZernikeTetrahedralSequence<indexing>, 2, inner_extents...>>,
+    ZernikeTag<zernike_norm>, Convention, IndexingTag<indexing>>;
 
 /**
     @brief Shape of an efficient layout of a multidimensional array
     of 3D Zernike functions, tagged with normalization and phase conventions.
 
-    @tparam indexing_mode Determines azimuthal index layout.
+    @tparam indexing Determines azimuthal index layout.
     @tparam zernike_norm Radial Zernike function normalization convention.
     @tparam sh_norm Spherical harmonic normalization convention.
     @tparam sh_phase Spherical harmonic phase convention.
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <
-    IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::sh_convention Convention,
+    Indexing indexing, ZernikeNorm zernike_norm, st::sh_convention Convention,
     std::size_t... outer_extents
 >
 using ZernikeTensorShape = TaggedShape<
-    std::conditional_t<(indexing_mode == IndexingMode::symmetric),
-        SequenceTensorShape<ZernikeTetrahedralSequence<indexing_mode>, outer_extents...>,
+    std::conditional_t<(indexing == Indexing::symmetric),
+        SequenceTensorShape<ZernikeTetrahedralSequence<indexing>, outer_extents...>,
         CompositeShape<
             TensorShape<outer_extents...>,
-            TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode>, 2>>>,
-        ZernikeTag<zernike_norm>, Convention, IndexingModeTag<indexing_mode>>;
+            TensorSequenceShape<ZernikeTetrahedralSequence<indexing>, 2>>>,
+        ZernikeTag<zernike_norm>, Convention, IndexingTag<indexing>>;
 
 /**
     @brief Shape of an efficient layout of 3D Zernike functions with
@@ -133,8 +133,8 @@ template <
     ZernikeNorm zernike_norm, st::sh_convention Convention, std::size_t... inner_extents
 >
 using ZernikeNonnegativeShape = TaggedShape<
-    TensorSequenceShape<ZernikeTetrahedralSequence<IndexingMode::zero_based>, inner_extents...>,
-    ZernikeTag<zernike_norm>, Convention, IndexingModeTag<IndexingMode::zero_based>>;
+    TensorSequenceShape<ZernikeTetrahedralSequence<Indexing::zero_based>, inner_extents...>,
+    ZernikeTag<zernike_norm>, Convention, IndexingTag<Indexing::zero_based>>;
 
 /**
     @brief Shape of an efficient layout of isotropic Zernike functions, tagged

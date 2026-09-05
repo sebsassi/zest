@@ -50,7 +50,7 @@ void cross_power_spectrum(
     const ExpansionTypeA& a, const ExpansionTypeB& b, std::span<double> out) noexcept
 {
     constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionTypeA>();
-    constexpr IndexingMode indexing_mode = indexing_mode_of<ExpansionTypeA>();
+    constexpr Indexing indexing = indexing_of<ExpansionTypeA>();
 
     std::size_t min_order
             = std::min(std::min(a.order(), b.order()), out.size());
@@ -60,7 +60,7 @@ void cross_power_spectrum(
         auto a_l = a[l];
         auto b_l = b[l];
         auto& out_l = out[l];
-        if constexpr (indexing_mode == IndexingMode::symmetric)
+        if constexpr (indexing == Indexing::symmetric)
         {
             out_l = 0.0;
             for (auto m : a_l.indices())
@@ -110,7 +110,7 @@ template <any_sh_expansion ExpansionType>
 void power_spectrum(const ExpansionType& expansion, std::span<double> out) noexcept
 {
     constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
-    constexpr IndexingMode indexing_mode = indexing_mode_of<ExpansionType>();
+    constexpr Indexing indexing = indexing_of<ExpansionType>();
 
     std::size_t min_order = std::min(out.size(), expansion.order());
 
@@ -118,7 +118,7 @@ void power_spectrum(const ExpansionType& expansion, std::span<double> out) noexc
     {
         auto expansion_l = expansion[l];
         auto& out_l = out[l];
-        if constexpr (indexing_mode == IndexingMode::symmetric)
+        if constexpr (indexing == Indexing::symmetric)
         {
             out_l = 0.0;
             for (auto m : expansion_l.indices())
@@ -174,7 +174,7 @@ void power_spectrum(
     RadialZernikeSpan<double, zernike_norm_of<ExpansionType>()> out) noexcept
 {
     constexpr st::SHNorm sh_norm = st::sh_norm_of<ExpansionType>();
-    constexpr IndexingMode indexing_mode = indexing_mode_of<ExpansionType>();
+    constexpr Indexing indexing = indexing_of<ExpansionType>();
     std::size_t min_order = std::min(out.order(), expansion.order());
 
     for (std::size_t n = 0; n < min_order; ++n)
@@ -185,7 +185,7 @@ void power_spectrum(
         {
             auto expansion_nl = expansion_n[l];
             auto& out_nl = out_n[l];
-            if constexpr (indexing_mode == IndexingMode::symmetric)
+            if constexpr (indexing == Indexing::symmetric)
             {
                 out_nl = 0.0;
                 for (auto m : expansion_nl.indices())
