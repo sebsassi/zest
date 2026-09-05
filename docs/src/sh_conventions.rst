@@ -23,7 +23,7 @@ Concepts
 Types
 -----
 
-.. doxygenstruct:: zest::st::SHTag
+.. doxygenstruct:: zest::st::SHConvention
     :project: zest
     :members:
 

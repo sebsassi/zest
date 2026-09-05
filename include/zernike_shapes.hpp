@@ -88,14 +88,14 @@ using IsotropicRadialZernikeTensorShape = TaggedShape<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    IndexingMode indexing_mode, ZernikeNorm zernike_norm,
-    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... inner_extents
+    IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::sh_convention Convention,
+    std::size_t... inner_extents
 >
 using ZernikeShape = TaggedShape<
     std::conditional_t<(indexing_mode == IndexingMode::symmetric), 
         TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode>, inner_extents...>,
         TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode>, 2, inner_extents...>>,
-    ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>, IndexingModeTag<indexing_mode>>;
+    ZernikeTag<zernike_norm>, Convention, IndexingModeTag<indexing_mode>>;
 
 /**
     @brief Shape of an efficient layout of a multidimensional array
@@ -108,8 +108,8 @@ using ZernikeShape = TaggedShape<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <
-    IndexingMode indexing_mode, ZernikeNorm zernike_norm,
-    st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... outer_extents
+    IndexingMode indexing_mode, ZernikeNorm zernike_norm, st::sh_convention Convention,
+    std::size_t... outer_extents
 >
 using ZernikeTensorShape = TaggedShape<
     std::conditional_t<(indexing_mode == IndexingMode::symmetric),
@@ -117,7 +117,7 @@ using ZernikeTensorShape = TaggedShape<
         CompositeShape<
             TensorShape<outer_extents...>,
             TensorSequenceShape<ZernikeTetrahedralSequence<indexing_mode>, 2>>>,
-        ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>, IndexingModeTag<indexing_mode>>;
+        ZernikeTag<zernike_norm>, Convention, IndexingModeTag<indexing_mode>>;
 
 /**
     @brief Shape of an efficient layout of 3D Zernike functions with
@@ -130,11 +130,11 @@ using ZernikeTensorShape = TaggedShape<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase, std::size_t... inner_extents
+    ZernikeNorm zernike_norm, st::sh_convention Convention, std::size_t... inner_extents
 >
 using ZernikeNonnegativeShape = TaggedShape<
     TensorSequenceShape<ZernikeTetrahedralSequence<IndexingMode::zero_based>, inner_extents...>,
-    ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>, IndexingModeTag<IndexingMode::zero_based>>;
+    ZernikeTag<zernike_norm>, Convention, IndexingModeTag<IndexingMode::zero_based>>;
 
 /**
     @brief Shape of an efficient layout of isotropic Zernike functions, tagged
@@ -146,11 +146,10 @@ using ZernikeNonnegativeShape = TaggedShape<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase,
-    std::size_t... inner_extents>
+    ZernikeNorm zernike_norm, st::sh_convention Convention, std::size_t... inner_extents>
 using IsotropicZernikeShape = TaggedShape<
     TensorSequenceShape<ParityLinearSequence<Parity::even>, inner_extents...>,
-    ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>>;
+    ZernikeTag<zernike_norm>, Convention>;
 
 /**
     @brief Shape of an efficient layout of a multidimensional array of
@@ -163,10 +162,9 @@ using IsotropicZernikeShape = TaggedShape<
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
 template <
-    ZernikeNorm zernike_norm, st::SHNorm sh_norm, st::SHPhase sh_phase,
-    std::size_t... outer_extents>
+    ZernikeNorm zernike_norm, st::sh_convention Convention, std::size_t... outer_extents>
 using IsotropicZernikeTensorShape = TaggedShape<
     SequenceTensorShape<ParityLinearSequence<Parity::even>, outer_extents...>,
-    ZernikeTag<zernike_norm>, st::SHTag<sh_norm, sh_phase>>;
+    ZernikeTag<zernike_norm>, Convention>;
 
 } // namespace zest::zt

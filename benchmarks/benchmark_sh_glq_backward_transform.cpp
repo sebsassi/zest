@@ -35,8 +35,7 @@ void benchmark_sh_backward_transform(
     
     zest::st::GLQTransformerGeo transformer(order);
 
-    zest::st::RealSHExpansion<zest::st::SHNorm::four_pi, zest::st::SHPhase::none>
-    expansion(order);
+    zest::st::RealSHExpansion<zest::st::Geo> expansion(order);
 
     for (auto& value : expansion.flatten())
         value = {dist(gen), dist(gen)};

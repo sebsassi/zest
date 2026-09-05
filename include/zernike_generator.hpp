@@ -73,16 +73,16 @@ public:
     */
     template <
         IndexingMode indexing_mode, ZernikeNorm zernike_norm,
-        st::SHNorm sh_norm, st::SHPhase sh_phase
+        st::sh_convention Convention
     >
     void generate(
         double lon, double colat, double r,
-        ZernikeSpan<double, indexing_mode, zernike_norm, sh_norm, sh_phase>& expansion)
+        ZernikeSpan<double, indexing_mode, zernike_norm, Convention>& expansion)
     {
         expand(expansion.order());
 
         const double z = std::cos(colat);
-        auto ass_leg = st::AssociatedLegendreSpan<double, sh_norm, sh_phase>(
+        auto ass_leg = st::AssociatedLegendreSpan<double, Convention>(
                 m_ass_leg_poly, expansion.order());
         m_ass_leg_recursion.generate_real(z, ass_leg);
 
@@ -135,27 +135,27 @@ public:
 
     template <
         IndexingMode indexing_mode, ZernikeNorm zernike_norm,
-        st::SHNorm sh_norm, st::SHPhase sh_phase
+        st::sh_convention Convention
     >
     void generate(
         double lon, double colat, double r,
-        ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>& expansion)
+        ZernikeExpansion<double, indexing_mode, zernike_norm, Convention>& expansion)
     {
-        using ExpansionType = ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>;
-        generate<indexing_mode, zernike_norm, sh_norm, sh_phase>(
+        using ExpansionType = ZernikeExpansion<double, indexing_mode, zernike_norm, Convention>;
+        generate<indexing_mode, zernike_norm, Convention>(
                 lon, colat, r, (typename ExpansionType::view)(expansion));
     }
 
     template <
         IndexingMode indexing_mode, ZernikeNorm zernike_norm,
-        st::SHNorm sh_norm, st::SHPhase sh_phase
+        st::sh_convention Convention
     >
-    [[nodiscard]] ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>
+    [[nodiscard]] ZernikeExpansion<double, indexing_mode, zernike_norm, Convention>
     generate(double lon, double colat, double r, std::size_t order)
     {
-        using ExpansionType = ZernikeExpansion<double, indexing_mode, zernike_norm, sh_norm, sh_phase>;
+        using ExpansionType = ZernikeExpansion<double, indexing_mode, zernike_norm, Convention>;
         ExpansionType expansion{order};
-        generate<indexing_mode, zernike_norm, sh_norm, sh_phase>(
+        generate<indexing_mode, zernike_norm, Convention>(
                 lon, colat, r, (typename ExpansionType::view)(expansion));
         return expansion;
     }

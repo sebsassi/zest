@@ -129,7 +129,7 @@ public:
         constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
         constexpr st::SHPhase sh_phase = sh_phase_of<ExpansionType>();
 
-        AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>
+        AssociatedLegendreSpan<double, st::SHConvention<sh_norm, sh_phase>, std::dynamic_extent>
         ass_leg(m_ass_leg_grid, order, m_lat_size);
 
         m_ass_leg_recursion.generate_real(m_cos_colat, ass_leg);
@@ -154,7 +154,7 @@ private:
         constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
         constexpr st::SHPhase sh_phase = sh_phase_of<ExpansionType>();
 
-        AssociatedLegendreSpan<const double, sh_norm, sh_phase, std::dynamic_extent>
+        AssociatedLegendreSpan<const double, st::SHConvention<sh_norm, sh_phase>, std::dynamic_extent>
         ass_leg(m_ass_leg_grid, expansion.order(), m_lat_size);
         for (auto l : expansion.indices())
         {
@@ -277,7 +277,7 @@ public:
         for (std::size_t i = 0; i < m_lat_size; ++i)
             m_cos_colat[i] = std::cos(colatitudes[i]);
 
-        st::AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>
+        st::AssociatedLegendreSpan<double, st::SHConvention<sh_norm, sh_phase>, std::dynamic_extent>
         ass_leg(m_ass_leg_grid, order, m_lat_size);
 
         m_ass_leg_recursion.generate_real(m_cos_colat, ass_leg);

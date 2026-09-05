@@ -31,13 +31,13 @@ constexpr bool is_close(double a, double b, double tol)
     return std::fabs(a - b) < tol;
 }
 
-template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
+template <zest::st::sh_convention Convention>
 bool test_real_sh_generator_generates_correct_up_to_order_5_symmetric(
     double lon, double colat)
 {
     constexpr std::size_t order = 5;
-    constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
-    constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
+    constexpr double phase = (Convention::sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
+    constexpr double shnorm = (Convention::sh_norm == zest::st::SHNorm::unit) ?
         0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double z = std::cos(colat);
@@ -72,7 +72,7 @@ bool test_real_sh_generator_generates_correct_up_to_order_5_symmetric(
     const double Y44 = shnorm*std::sqrt(315.0/64.0)*(1.0 - z*z)*(1.0 - z*z)*std::cos(4.0*lon);
 
     auto expansion = zest::st::RealSHGenerator{}
-        .generate<zest::IndexingMode::symmetric, sh_norm, sh_phase>(lon, colat, order);
+        .generate<zest::IndexingMode::symmetric, Convention>(lon, colat, order);
 
     bool success = is_close(expansion[0, 0], Y00, 1.0e-10)
             && is_close(expansion[1, -1], Y1m1, 1.0e-10)
@@ -133,13 +133,13 @@ bool test_real_sh_generator_generates_correct_up_to_order_5_symmetric(
     }
 }
 
-template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
+template <zest::st::sh_convention Convention>
 bool test_real_sh_generator_generates_correct_up_to_order_5_zero_based(
     double lon, double colat)
 {
     constexpr std::size_t order = 5;
-    constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
-    constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
+    constexpr double phase = (Convention::sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
+    constexpr double shnorm = (Convention::sh_norm == zest::st::SHNorm::unit) ?
         0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double z = std::cos(colat);
@@ -174,7 +174,7 @@ bool test_real_sh_generator_generates_correct_up_to_order_5_zero_based(
     const double Y44 = shnorm*std::sqrt(315.0/64.0)*(1.0 - z*z)*(1.0 - z*z)*std::cos(4.0*lon);
 
     auto expansion = zest::st::RealSHGenerator{}
-        .generate<zest::IndexingMode::zero_based, sh_norm, sh_phase>(lon, colat, order);
+        .generate<zest::IndexingMode::zero_based, Convention>(lon, colat, order);
 
     bool success = is_close(expansion[0, 0, 0], Y00, 1.0e-10)
             && is_close(expansion[1, 1, 1], Y1m1, 1.0e-10)
@@ -235,28 +235,28 @@ bool test_real_sh_generator_generates_correct_up_to_order_5_zero_based(
     }
 }
 
-template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
+template <zest::st::sh_convention Convention>
 void test_sh_generator()
 {
-    assert((test_real_sh_generator_generates_correct_up_to_order_5_symmetric<sh_norm, sh_phase>(0.0, 0.0)));
-    assert((test_real_sh_generator_generates_correct_up_to_order_5_symmetric<sh_norm, sh_phase>(0.5*std::numbers::pi, 0.0)));
-    assert((test_real_sh_generator_generates_correct_up_to_order_5_symmetric<sh_norm, sh_phase>(0.0, 0.5*std::numbers::pi)));
-    assert((test_real_sh_generator_generates_correct_up_to_order_5_symmetric<sh_norm, sh_phase>(0.5*std::numbers::pi, 0.5*std::numbers::pi)));
-    assert((test_real_sh_generator_generates_correct_up_to_order_5_symmetric<sh_norm, sh_phase>(1.0, 1.0)));
+    assert((test_real_sh_generator_generates_correct_up_to_order_5_symmetric<Convention>(0.0, 0.0)));
+    assert((test_real_sh_generator_generates_correct_up_to_order_5_symmetric<Convention>(0.5*std::numbers::pi, 0.0)));
+    assert((test_real_sh_generator_generates_correct_up_to_order_5_symmetric<Convention>(0.0, 0.5*std::numbers::pi)));
+    assert((test_real_sh_generator_generates_correct_up_to_order_5_symmetric<Convention>(0.5*std::numbers::pi, 0.5*std::numbers::pi)));
+    assert((test_real_sh_generator_generates_correct_up_to_order_5_symmetric<Convention>(1.0, 1.0)));
 
-    assert((test_real_sh_generator_generates_correct_up_to_order_5_zero_based<sh_norm, sh_phase>(0.0, 0.0)));
-    assert((test_real_sh_generator_generates_correct_up_to_order_5_zero_based<sh_norm, sh_phase>(0.5*std::numbers::pi, 0.0)));
-    assert((test_real_sh_generator_generates_correct_up_to_order_5_zero_based<sh_norm, sh_phase>(0.0, 0.5*std::numbers::pi)));
-    assert((test_real_sh_generator_generates_correct_up_to_order_5_zero_based<sh_norm, sh_phase>(0.5*std::numbers::pi, 0.5*std::numbers::pi)));
-    assert((test_real_sh_generator_generates_correct_up_to_order_5_zero_based<sh_norm, sh_phase>(1.0, 1.0)));
+    assert((test_real_sh_generator_generates_correct_up_to_order_5_zero_based<Convention>(0.0, 0.0)));
+    assert((test_real_sh_generator_generates_correct_up_to_order_5_zero_based<Convention>(0.5*std::numbers::pi, 0.0)));
+    assert((test_real_sh_generator_generates_correct_up_to_order_5_zero_based<Convention>(0.0, 0.5*std::numbers::pi)));
+    assert((test_real_sh_generator_generates_correct_up_to_order_5_zero_based<Convention>(0.5*std::numbers::pi, 0.5*std::numbers::pi)));
+    assert((test_real_sh_generator_generates_correct_up_to_order_5_zero_based<Convention>(1.0, 1.0)));
 }
 
 } // namespace
 
 int main()
 {
-    test_sh_generator<zest::st::SHNorm::four_pi, zest::st::SHPhase::none>();
-    test_sh_generator<zest::st::SHNorm::four_pi, zest::st::SHPhase::cs>();
-    test_sh_generator<zest::st::SHNorm::unit, zest::st::SHPhase::none>();
-    test_sh_generator<zest::st::SHNorm::unit, zest::st::SHPhase::cs>();
+    test_sh_generator<zest::st::SHConvention<zest::st::SHNorm::four_pi, zest::st::SHPhase::none>>();
+    test_sh_generator<zest::st::SHConvention<zest::st::SHNorm::four_pi, zest::st::SHPhase::cs>>();
+    test_sh_generator<zest::st::SHConvention<zest::st::SHNorm::unit, zest::st::SHPhase::none>>();
+    test_sh_generator<zest::st::SHConvention<zest::st::SHNorm::unit, zest::st::SHPhase::cs>>();
 }

@@ -55,7 +55,7 @@ std::vector<T> linspace(T start, T stop, std::size_t count)
     return res;
 }
 
-template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
+template <zest::st::sh_convention Convention>
 bool test_sh_grid_evaluator_does_constant_function()
 {
     constexpr std::size_t order = 6;
@@ -64,15 +64,13 @@ bool test_sh_grid_evaluator_does_constant_function()
 
     auto function = []([[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
+        constexpr double shnorm = (Convention::sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm;
     };
 
-    std::vector<double> longitudes = linspace(
-            0.0, 2.0*std::numbers::pi, num_lon);
-    std::vector<double> colatitudes = linspace(
-            0.0, std::numbers::pi, num_lat);
+    std::vector<double> longitudes = linspace(0.0, 2.0*std::numbers::pi, num_lon);
+    std::vector<double> colatitudes = linspace(0.0, std::numbers::pi, num_lat);
 
     zest::DynamicMDArray<double, 2> test_grid{num_lon, num_lat};
 
@@ -85,7 +83,7 @@ bool test_sh_grid_evaluator_does_constant_function()
         }
     }
 
-    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, sh_norm, sh_phase> expansion(order);
+    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, Convention> expansion(order);
 
     expansion[0, 0, 0] = 1.0;
 
@@ -119,7 +117,7 @@ bool test_sh_grid_evaluator_does_constant_function()
     return success;
 }
 
-template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
+template <zest::st::sh_convention Convention>
 bool test_sh_grid_evaluator_does_Y10()
 {
     constexpr std::size_t order = 6;
@@ -129,15 +127,13 @@ bool test_sh_grid_evaluator_does_Y10()
     auto function = []([[maybe_unused]] double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
+        constexpr double shnorm = (Convention::sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm*std::numbers::sqrt3*z;
     };
 
-    std::vector<double> longitudes = linspace(
-            0.0, 2.0*std::numbers::pi, num_lon);
-    std::vector<double> colatitudes = linspace(
-            0.0, std::numbers::pi, num_lat);
+    std::vector<double> longitudes = linspace(0.0, 2.0*std::numbers::pi, num_lon);
+    std::vector<double> colatitudes = linspace(0.0, std::numbers::pi, num_lat);
 
     zest::DynamicMDArray<double, 2> test_grid{num_lon, num_lat};
 
@@ -150,12 +146,12 @@ bool test_sh_grid_evaluator_does_Y10()
         }
     }
 
-    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, sh_norm, sh_phase> expansion(order);
+    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, Convention> expansion(order);
 
     expansion[1, 0, 0] = 1.0;
 
-    auto grid = zest::st::GridEvaluator(order).evaluate(
-            expansion, longitudes, colatitudes);
+    auto grid = zest::st::GridEvaluator(order)
+            .evaluate(expansion, longitudes, colatitudes);
 
     constexpr double tol = 1.0e-13;
 
@@ -195,7 +191,7 @@ bool test_sh_grid_evaluator_does_Y10()
     return success;
 }
 
-template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
+template <zest::st::sh_convention Convention>
 bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
 {
     constexpr std::size_t order = 6;
@@ -205,16 +201,15 @@ bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
     auto function = [](double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
+        constexpr double phase = (Convention::sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
+        constexpr double shnorm = (Convention::sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
-        return phase*shnorm*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
+        return phase*shnorm*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon)
+                + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
     };
 
-    std::vector<double> longitudes = linspace(
-            0.0, 2.0*std::numbers::pi, num_lon);
-    std::vector<double> colatitudes = linspace(
-            0.0, std::numbers::pi, num_lat);
+    std::vector<double> longitudes = linspace(0.0, 2.0*std::numbers::pi, num_lon);
+    std::vector<double> colatitudes = linspace(0.0, std::numbers::pi, num_lat);
 
     zest::DynamicMDArray<double, 2> test_grid{num_lon, num_lat};
 
@@ -227,7 +222,7 @@ bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
         }
     }
 
-    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, sh_norm, sh_phase> expansion(order);
+    zest::st::SHExpansion<double, zest::IndexingMode::zero_based, Convention> expansion(order);
 
     expansion[3, 1, 0] = 1.0;
     expansion[4, 3, 1] = 1.0;
@@ -273,7 +268,7 @@ bool test_sh_grid_evaluator_does_Y31_plus_Y4m3()
     return success;
 }
 
-template <zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
+template <zest::zt::ZernikeNorm zernike_norm, zest::st::sh_convention Convention>
 bool test_zernike_grid_evaluator_does_constant_function()
 {
     constexpr std::size_t order = 6;
@@ -285,7 +280,7 @@ bool test_zernike_grid_evaluator_does_constant_function()
     {
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
+        constexpr double shnorm = (Convention::sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm;
     };
@@ -305,7 +300,7 @@ bool test_zernike_grid_evaluator_does_constant_function()
         }
     }
 
-    zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion(order);
+    zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zernike_norm, Convention> expansion(order);
 
     expansion[0, 0, 0, 0] = 1.0;
 
@@ -342,7 +337,7 @@ bool test_zernike_grid_evaluator_does_constant_function()
     return success;
 }
 
-template <zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
+template <zest::zt::ZernikeNorm zernike_norm, zest::st::sh_convention Convention>
 bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
 {
     constexpr std::size_t order = 6;
@@ -355,12 +350,12 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
     auto function = [](double r, double lon, double colat)
     {
         const double z = std::cos(colat);
-        constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
+        constexpr double phase = (Convention::sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
         constexpr double znorm3
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ? 3.0 : 1.0;
         const double znorm5
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
+        constexpr double shnorm = (Convention::sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm*(
             znorm3*r*r*r*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon)
@@ -380,7 +375,7 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
         }
     }
 
-    zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zernike_norm, sh_norm, sh_phase> expansion(order);
+    zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zernike_norm, Convention> expansion(order);
 
     expansion[3, 3, 2, 1] = 1.0;
     expansion[5, 3, 1, 0] = 1.0;
@@ -431,36 +426,36 @@ bool test_zernike_grid_evaluator_does_Z33m2_plus_Z531()
     return success;
 }
 
-template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
+template <zest::st::sh_convention Convention>
 void test_sh_grid_evaluator()
 {
-    assert((test_sh_grid_evaluator_does_constant_function<sh_norm, sh_phase>()));
-    assert((test_sh_grid_evaluator_does_Y10<sh_norm, sh_phase>()));
-    assert((test_sh_grid_evaluator_does_Y31_plus_Y4m3<sh_norm, sh_phase>()));
+    assert((test_sh_grid_evaluator_does_constant_function<Convention>()));
+    assert((test_sh_grid_evaluator_does_Y10<Convention>()));
+    assert((test_sh_grid_evaluator_does_Y31_plus_Y4m3<Convention>()));
 }
 
-template <zest::zt::ZernikeNorm zernike_norm, zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
+template <zest::zt::ZernikeNorm zernike_norm, zest::st::sh_convention Convention>
 void test_zernike_grid_evaluator()
 {
-    assert((test_zernike_grid_evaluator_does_constant_function<zernike_norm, sh_norm, sh_phase>()));
-    assert((test_zernike_grid_evaluator_does_Z33m2_plus_Z531<zernike_norm, sh_norm, sh_phase>()));
+    assert((test_zernike_grid_evaluator_does_constant_function<zernike_norm, Convention>()));
+    assert((test_zernike_grid_evaluator_does_Z33m2_plus_Z531<zernike_norm, Convention>()));
 }
 
 } // namespace
 
 int main()
 {
-    test_sh_grid_evaluator<zest::st::SHNorm::four_pi, zest::st::SHPhase::none>();
-    test_sh_grid_evaluator<zest::st::SHNorm::four_pi, zest::st::SHPhase::cs>();
-    test_sh_grid_evaluator<zest::st::SHNorm::unit, zest::st::SHPhase::none>();
-    test_sh_grid_evaluator<zest::st::SHNorm::unit, zest::st::SHPhase::cs>();
+    test_sh_grid_evaluator<zest::st::SHConvention<zest::st::SHNorm::four_pi, zest::st::SHPhase::none>>();
+    test_sh_grid_evaluator<zest::st::SHConvention<zest::st::SHNorm::four_pi, zest::st::SHPhase::cs>>();
+    test_sh_grid_evaluator<zest::st::SHConvention<zest::st::SHNorm::unit, zest::st::SHPhase::none>>();
+    test_sh_grid_evaluator<zest::st::SHConvention<zest::st::SHNorm::unit, zest::st::SHPhase::cs>>();
 
-    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::normed, zest::st::SHNorm::four_pi, zest::st::SHPhase::none>();
-    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::normed, zest::st::SHNorm::four_pi, zest::st::SHPhase::cs>();
-    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::normed, zest::st::SHNorm::unit, zest::st::SHPhase::none>();
-    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::normed, zest::st::SHNorm::unit, zest::st::SHPhase::cs>();
-    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::unnormed, zest::st::SHNorm::four_pi, zest::st::SHPhase::none>();
-    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::unnormed, zest::st::SHNorm::four_pi, zest::st::SHPhase::cs>();
-    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::unnormed, zest::st::SHNorm::unit, zest::st::SHPhase::none>();
-    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::unnormed, zest::st::SHNorm::unit, zest::st::SHPhase::cs>();
+    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::normed, zest::st::SHConvention<zest::st::SHNorm::four_pi, zest::st::SHPhase::none>>();
+    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::normed, zest::st::SHConvention<zest::st::SHNorm::four_pi, zest::st::SHPhase::cs>>();
+    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::normed, zest::st::SHConvention<zest::st::SHNorm::unit, zest::st::SHPhase::none>>();
+    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::normed, zest::st::SHConvention<zest::st::SHNorm::unit, zest::st::SHPhase::cs>>();
+    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::unnormed, zest::st::SHConvention<zest::st::SHNorm::four_pi, zest::st::SHPhase::none>>();
+    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::unnormed, zest::st::SHConvention<zest::st::SHNorm::four_pi, zest::st::SHPhase::cs>>();
+    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::unnormed, zest::st::SHConvention<zest::st::SHNorm::unit, zest::st::SHPhase::none>>();
+    test_zernike_grid_evaluator<zest::zt::ZernikeNorm::unnormed, zest::st::SHConvention<zest::st::SHNorm::unit, zest::st::SHPhase::cs>>();
 }

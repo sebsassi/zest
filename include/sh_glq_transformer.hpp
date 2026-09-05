@@ -49,35 +49,32 @@ namespace zest::st
     @tparam sh_phase_param Phase convention of spherical harmonics.
     @tparam GridLayoutType Memory layout of the grid.
 */
-template <
-    SHNorm sh_norm_param, SHPhase sh_phase_param,
-    typename GridLayoutType = DefaultLayout>
-class GLQTransformer
+template <sh_convention Convention, typename GridLayoutType = DefaultLayout>
+class GLQTransformer: public Convention
 {
 private:
     template <typename T, std::size_t... Ns>
-    using AssLegSpan = AssociatedLegendreSpan<T, sh_norm_param, sh_phase_param, Ns...>;
+    using AssLegSpan = AssociatedLegendreSpan<T, Convention, Ns...>;
 
     template <typename T>
-    using AssLegVecSpan = AssociatedLegendreVectorSpan<T, sh_norm_param, sh_phase_param>;
+    using AssLegVecSpan = AssociatedLegendreVectorSpan<T, Convention>;
 
-    using AssLegShape = AssociatedLegendreShape<sh_norm_param, sh_phase_param>;
+    using AssLegShape = AssociatedLegendreShape<Convention>;
 
 public:
+    using Convention::sh_norm;
+    using Convention::sh_phase;
+
     using grid_layout_type = GridLayoutType;
 
     template <typename T>
     using grid_span_type = SphereGLQGridSpan<T, grid_layout_type>;
 
-    using expansion_shape = SHShape<
-            IndexingMode::zero_based, sh_norm_param, sh_phase_param>;
+    using expansion_shape = SHShape<IndexingMode::zero_based, Convention>;
     using grid_shape = SphereGLQGridShape<grid_layout_type>;
 
     template <typename T>
-    using sh_span_type = SHSpan<T, IndexingMode::zero_based, sh_norm_param, sh_phase_param>;
-
-    static constexpr SHNorm sh_norm = sh_norm_param;
-    static constexpr SHPhase sh_phase = sh_phase_param;
+    using sh_span_type = SHSpan<T, IndexingMode::zero_based, Convention>;
 
     GLQTransformer(): 
         m_pocketfft_shape_grid(2),
@@ -202,7 +199,7 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase>
+        SHSpan<double, IndexingMode::zero_based, Convention>
         truncated_expansion{
             std::forward<ExpansionType>(expansion).template represent_as<double>().flatten(),
             min_order
@@ -224,7 +221,7 @@ public:
         requires representable_as<value_type_of<GridType>, double>
     [[nodiscard]] auto forward_transform(const GridType& values, std::size_t order)
     {
-        SHExpansion<value_type_of<GridType>, IndexingMode::zero_based, sh_norm, sh_phase>
+        SHExpansion<value_type_of<GridType>, IndexingMode::zero_based, Convention>
         expansion{order};
 
         forward_transform(values, expansion);
@@ -250,7 +247,7 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase>
+        SHSpan<const double, IndexingMode::zero_based, Convention>
         truncated_expansion{expansion.template represent_as<double>().flatten(), min_order};
 
         sum_l(truncated_expansion);
@@ -491,7 +488,7 @@ private:
     }
 
     void integrate_latitudinal(
-        SHSpan<double, IndexingMode::zero_based, sh_norm, sh_phase> expansion) noexcept
+        SHSpan<double, IndexingMode::zero_based, Convention> expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_ass_leg = m_glq_weights.size();
@@ -588,7 +585,7 @@ private:
     }
 
     void sum_l(
-        SHSpan<const double, IndexingMode::zero_based, sh_norm, sh_phase> expansion) noexcept
+        SHSpan<const double, IndexingMode::zero_based, Convention> expansion) noexcept
     {
         const std::size_t fft_order = grid_layout_type::fft_size(m_order);
         const std::size_t num_ass_leg = m_glq_weights.size();
@@ -829,8 +826,7 @@ private:
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerAcoustics
-    = GLQTransformer<SHNorm::unit, SHPhase::none, GridLayout>;
+using GLQTransformerAcoustics = GLQTransformer<Acoustics, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with orthonormal spherical
@@ -839,8 +835,7 @@ using GLQTransformerAcoustics
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerQM
-    = GLQTransformer<SHNorm::unit, SHPhase::cs, GridLayout>;
+using GLQTransformerQM = GLQTransformer<QM, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with 4-pi normal spherical
@@ -849,8 +844,7 @@ using GLQTransformerQM
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerGeo
-    = GLQTransformer<SHNorm::four_pi, SHPhase::none, GridLayout>;
+using GLQTransformerGeo = GLQTransformer<Geo, GridLayout>;
 
 /**
     @brief High-level interface for taking SH transforms of functions on balls
@@ -860,15 +854,16 @@ using GLQTransformerGeo
     @tparam sh_phase_param phase convention of spherical harmonics
     @tparam GridLayoutType
 */
-template <
-    st::SHNorm sh_norm_param, st::SHPhase sh_phase_param,
-    typename GridLayoutType = DefaultLayout>
-class SHTransformer
+template <st::sh_convention Convention, typename GridLayoutType = DefaultLayout>
+class SHTransformer: Convention
 {
 private:
-    using Transformer = GLQTransformer<sh_norm_param, sh_phase_param, GridLayoutType>;
+    using Transformer = GLQTransformer<Convention, GridLayoutType>;
 
 public:
+    using Convention::sh_norm;
+    using Convention::sh_phase;
+
     using grid_layout_type = GridLayoutType;
     using expansion_shape = typename Transformer::expansion_shape;
     using grid_shape = typename Transformer::grid_shape;
@@ -877,10 +872,7 @@ public:
     using grid_span_type = SphereGLQGridSpan<T, grid_layout_type>;
 
     template <typename T>
-    using sh_span_type = SHSpan<T, IndexingMode::zero_based, sh_norm_param, sh_phase_param>;
-
-    static constexpr SHNorm sh_norm = sh_norm_param;
-    static constexpr SHPhase sh_phase = sh_phase_param;
+    using sh_span_type = SHSpan<T, IndexingMode::zero_based, Convention>;
 
     SHTransformer() = default;
     explicit SHTransformer(std::size_t order):
@@ -991,7 +983,7 @@ public:
 private:
     SphereGLQGrid<double, grid_layout_type> m_grid;
     SphereGLQGridPoints<grid_layout_type> m_points;
-    GLQTransformer<sh_norm_param, sh_phase_param, grid_layout_type> m_transformer;
+    GLQTransformer<Convention, grid_layout_type> m_transformer;
 };
 
 /**
@@ -1001,8 +993,7 @@ private:
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using SHTransformerAcoustics
-    = SHTransformer<SHNorm::unit, SHPhase::none, GridLayout>;
+using SHTransformerAcoustics = SHTransformer<Acoustics, GridLayout>;
 
 /**
     @brief Convenient alias for `SHTransformer` with orthonormal spherical
@@ -1011,8 +1002,7 @@ using SHTransformerAcoustics
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using SHTransformerQM
-    = SHTransformer<SHNorm::unit, SHPhase::cs, GridLayout>;
+using SHTransformerQM = SHTransformer<QM, GridLayout>;
 
 /**
     @brief Convenient alias for `SHTransformer` with 4-pi normal spherical
@@ -1021,8 +1011,7 @@ using SHTransformerQM
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using SHTransformerGeo
-    = SHTransformer<SHNorm::four_pi, SHPhase::none, GridLayout>;
+using SHTransformerGeo = SHTransformer<Geo, GridLayout>;
 
 } // namespace zest::st
 

@@ -75,19 +75,19 @@ public:
         @param z point at which the polynomials are evaluated
         @param ass_leg output buffer for the evaluated polynomials
     */
-    template <SHNorm sh_norm, SHPhase sh_phase>
-    void generate_real(double z, AssociatedLegendreSpan<double, sh_norm, sh_phase> ass_leg)
+    template <sh_convention Convention>
+    void generate_real(double z, AssociatedLegendreSpan<double, Convention> ass_leg)
     {
         return generate_impl(z, std::numbers::sqrt2, ass_leg);
     }
 
-    template <SHNorm sh_norm, SHPhase sh_phase>
+    template <sh_convention Convention>
     void generate_real(
-        double z, AssociatedLegendreExpansion<double, sh_norm, sh_phase>& ass_leg)
+        double z, AssociatedLegendreExpansion<double, Convention>& ass_leg)
     {
         return generate_impl(
             z, std::numbers::sqrt2,
-            AssociatedLegendreSpan<double, sh_norm, sh_phase>(ass_leg));
+            AssociatedLegendreSpan<double, Convention>(ass_leg));
     }
 
     /**
@@ -96,21 +96,21 @@ public:
         @param z points at which the polynomials are evaluated
         @param ass_leg output buffer for the evaluated polynomials
     */
-    template <SHNorm sh_norm, SHPhase sh_phase>
+    template <sh_convention Convention>
     void generate_real(
         std::span<const double> z,
-        AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent> ass_leg)
+        AssociatedLegendreSpan<double, Convention, std::dynamic_extent> ass_leg)
     {
         return generate_impl(z, std::numbers::sqrt2, ass_leg);
     }
-    template <SHNorm sh_norm, SHPhase sh_phase>
+    template <sh_convention Convention>
     void generate_real(
         std::span<const double> z,
-        AssociatedLegendreExpansion<double, sh_norm, sh_phase, std::dynamic_extent>& ass_leg)
+        AssociatedLegendreExpansion<double, Convention, std::dynamic_extent>& ass_leg)
     {
         return generate_impl(
             z, std::numbers::sqrt2,
-            AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>(ass_leg));
+            AssociatedLegendreSpan<double, Convention, std::dynamic_extent>(ass_leg));
     }
 
     /**
@@ -119,17 +119,17 @@ public:
         @param z point at which the polynomials are evaluated
         @param ass_leg utput buffer for the evaluated polynomials
     */
-    template <SHNorm sh_norm, SHPhase sh_phase>
-    void generate_complex(double z, AssociatedLegendreSpan<double, sh_norm, sh_phase> ass_leg)
+    template <sh_convention Convention>
+    void generate_complex(double z, AssociatedLegendreSpan<double, Convention> ass_leg)
     {
         return generate_impl(z, 1.0, ass_leg);
     }
-    template <SHNorm sh_norm, SHPhase sh_phase>
+    template <sh_convention Convention>
     void generate_complex(
-        double z, AssociatedLegendreExpansion<double, sh_norm, sh_phase>& ass_leg)
+        double z, AssociatedLegendreExpansion<double, Convention>& ass_leg)
     {
         return generate_impl(
-                z, 1.0, AssociatedLegendreSpan<double, sh_norm, sh_phase>(ass_leg));
+                z, 1.0, AssociatedLegendreSpan<double, Convention>(ass_leg));
     }
 
     /**
@@ -138,29 +138,29 @@ public:
         @param ass_leg utput buffer for the evaluated polynomials
         @param z points at which the polynomials are evaluated
     */
-    template <SHNorm sh_norm, SHPhase sh_phase>
+    template <sh_convention Convention>
     void generate_complex(
         std::span<const double> z,
-        AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent> ass_leg)
+        AssociatedLegendreSpan<double, Convention, std::dynamic_extent> ass_leg)
     {
         return generate_impl(z, 1.0, ass_leg);
     }
 
-    template <SHNorm sh_norm, SHPhase sh_phase>
+    template <sh_convention Convention>
     void generate_complex(
         std::span<const double> z,
-        AssociatedLegendreExpansion<double, sh_norm, sh_phase, std::dynamic_extent>& ass_leg)
+        AssociatedLegendreExpansion<double, Convention, std::dynamic_extent>& ass_leg)
     {
         return generate_impl(
             z, 1.0, 
-            AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>(ass_leg));
+            AssociatedLegendreSpan<double, Convention, std::dynamic_extent>(ass_leg));
     }
 
 private:
-    template <SHNorm sh_norm, SHPhase sh_phase>
+    template <sh_convention Convention>
     void generate_impl(
         double z, double complex_norm,
-        AssociatedLegendreSpan<double, sh_norm, sh_phase> ass_leg)
+        AssociatedLegendreSpan<double, Convention> ass_leg)
     {
         constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
 
@@ -173,16 +173,16 @@ private:
 
         const double u = std::sqrt((1.0 - z)*(1.0 + z));
 
-        if constexpr (sh_norm == SHNorm::four_pi)
+        if constexpr (Convention::sh_norm == SHNorm::four_pi)
             ass_leg[0, 0] = 1.0;
-        else if constexpr (sh_norm == SHNorm::unit)
+        else if constexpr (Convention::sh_norm == SHNorm::unit)
             ass_leg[0, 0] = inv_sqrt_4pi;
 
         if (order == 1) return;
 
-        if constexpr (sh_norm == SHNorm::four_pi)
+        if constexpr (Convention::sh_norm == SHNorm::four_pi)
             ass_leg[1, 0] = m_sqrl[3]*z;
-        else if constexpr (sh_norm == SHNorm::unit)
+        else if constexpr (Convention::sh_norm == SHNorm::unit)
             ass_leg[1, 0] = m_sqrl[3]*z*inv_sqrt_4pi;
 
         std::span<double> ass_leg_flat = ass_leg.flatten();
@@ -201,9 +201,9 @@ private:
         constexpr double underflow_compensation = 1.0e-280;
 
         double pmm;
-        if constexpr (sh_norm == SHNorm::four_pi)
+        if constexpr (Convention::sh_norm == SHNorm::four_pi)
             pmm = underflow_compensation*complex_norm;
-        else if constexpr (sh_norm == SHNorm::unit)
+        else if constexpr (Convention::sh_norm == SHNorm::unit)
             pmm = underflow_compensation*complex_norm*inv_sqrt_4pi;
 
         // This number is repeatedly multiplied by u < 1. To avoid underflow
@@ -217,7 +217,7 @@ private:
 
             // `P(m,m) = u*sqrt((2m + 1)/(2m))*P(m - 1,m - 1)`
             // NOTE: multiplication by `u` happens later
-            pmm *= double(sh_phase)*m_sqrl[2*m + 1]/m_sqrl[2*m];
+            pmm *= double(Convention::sh_phase)*m_sqrl[2*m + 1]/m_sqrl[2*m];
             ass_leg[m, m] = pmm;
 
             // `P(m+1,m) = z*sqrt(2m + 3)*P(m,m)`
@@ -236,23 +236,23 @@ private:
             }
 
             // Multiplication by `u` for `l = lmax`
-            ass_leg(order - 1, m) *= u_scaled;
+            ass_leg[order - 1, m] *= u_scaled;
 
             // Multiplication by `u` for `l = lmax - 1`
-            ass_leg(order - 2, m) *= u_scaled;
+            ass_leg[order - 2, m] *= u_scaled;
         }
 
         u_scaled *= u;
 
         // P(lmax,lmax)
         ass_leg[order - 1, order - 1]
-                = double(sh_phase)*pmm*u_scaled*m_sqrl[2*order - 1]/m_sqrl[2*order - 2];
+                = double(Convention::sh_phase)*pmm*u_scaled*m_sqrl[2*order - 1]/m_sqrl[2*order - 2];
     }
 
-    template <SHNorm sh_norm, SHPhase sh_phase>
+    template <sh_convention Convention>
     void generate_impl(
         std::span<const double> z, double complex_norm,
-        AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent> ass_leg)
+        AssociatedLegendreSpan<double, Convention, std::dynamic_extent> ass_leg)
     {
         constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
 
@@ -273,9 +273,9 @@ private:
         auto ass_leg_00 = ass_leg[0, 0];
         for (std::size_t i = 0; i < z.size(); ++i)
         {
-            if constexpr (sh_norm == SHNorm::four_pi)
+            if constexpr (Convention::sh_norm == SHNorm::four_pi)
                 ass_leg_00[i] = 1.0;
-            else if constexpr (sh_norm == SHNorm::unit)
+            else if constexpr (Convention::sh_norm == SHNorm::unit)
                 ass_leg_00[i] = inv_sqrt_4pi;
         }
 
@@ -284,9 +284,9 @@ private:
         auto ass_leg_10 = ass_leg[1, 0];
         for (std::size_t i = 0; i < z.size(); ++i)
         {
-            if constexpr (sh_norm == SHNorm::four_pi)
+            if constexpr (Convention::sh_norm == SHNorm::four_pi)
                 ass_leg_10[i] = z[i]*m_sqrl[3];
-            else if constexpr (sh_norm == SHNorm::unit)
+            else if constexpr (Convention::sh_norm == SHNorm::unit)
                 ass_leg_10[i] = z[i]*(m_sqrl[3]*inv_sqrt_4pi);
         }
 
@@ -309,9 +309,9 @@ private:
         constexpr double underflow_compensation = 1.0e-280;
 
         double pmm;
-        if constexpr (sh_norm == SHNorm::four_pi)
+        if constexpr (Convention::sh_norm == SHNorm::four_pi)
             pmm = underflow_compensation*complex_norm;
-        else if constexpr (sh_norm == SHNorm::unit)
+        else if constexpr (Convention::sh_norm == SHNorm::unit)
             pmm = underflow_compensation*complex_norm*inv_sqrt_4pi;
 
         // This number is repeatedly multiplied by u < 1. To avoid underflow
@@ -327,13 +327,13 @@ private:
 
             // `P(m, m) = u*sqrt((2m + 1)/(2m))*P(m - 1, m - 1)`
             // NOTE: multiplication by `u` happens later
-            pmm *= double(sh_phase)*m_sqrl[2*m + 1]/m_sqrl[2*m];
-            auto ass_leg_mm = ass_leg(m, m);
+            pmm *= double(Convention::sh_phase)*m_sqrl[2*m + 1]/m_sqrl[2*m];
+            auto ass_leg_mm = ass_leg[m, m];
             for (std::size_t i = 0; i < z.size(); ++i)
                 ass_leg_mm[i] = pmm;
 
             // `P(m+1, m) = z*sqrt(2m + 3)*P(m, m)`
-            auto ass_leg_mp1m = ass_leg(m + 1, m);
+            auto ass_leg_mp1m = ass_leg[m + 1, m];
             for (std::size_t i = 0; i < z.size(); ++i)
                 ass_leg_mp1m[i] = z[i]*(m_sqrl[2*m + 3]*pmm);
 
@@ -355,12 +355,12 @@ private:
             }
 
             // Multiplication by `u` for `l = lmax`
-            auto ass_leg_om1m = ass_leg(order - 1, m);
+            auto ass_leg_om1m = ass_leg[order - 1, m];
             for (std::size_t i = 0; i < z.size(); ++i)
                 ass_leg_om1m[i] *= m_u_scaled[i];
 
             // Multiplication by `u` for `l = lmax - 1`
-            auto ass_leg_om2m = ass_leg(order - 2, m);
+            auto ass_leg_om2m = ass_leg[order - 2, m];
             for (std::size_t i = 0; i < z.size(); ++i)
                 ass_leg_om2m[i] *= m_u_scaled[i];
         }
@@ -369,10 +369,10 @@ private:
             m_u_scaled[i] *= m_u[i];
 
         // P(lmax,lmax)
-        auto ass_leg_om1om1 = ass_leg(order - 1, order - 1);
+        auto ass_leg_om1om1 = ass_leg[order - 1, order - 1];
         for (std::size_t i = 0; i < z.size(); ++i)
             ass_leg_om1om1[i]
-                = m_u_scaled[i]*(double(sh_phase)*pmm*m_sqrl[2*order - 1]
+                = m_u_scaled[i]*(double(Convention::sh_phase)*pmm*m_sqrl[2*order - 1]
                 /m_sqrl[2*order - 2]);
     }
 

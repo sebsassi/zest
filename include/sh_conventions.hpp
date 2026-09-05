@@ -44,16 +44,25 @@ enum class SHNorm
 };
 
 template <SHNorm norm, SHPhase phase>
-struct SHTag
+struct SHConvention
 {
     static constexpr SHNorm sh_norm = norm;
     static constexpr SHPhase sh_phase = phase;
 };
 
+using Geo = SHConvention<SHNorm::four_pi, SHPhase::none>;
+using Acoustics = SHConvention<SHNorm::unit, SHPhase::none>;
+using QM = SHConvention<SHNorm::unit, SHPhase::cs>;
+
+template <typename T>
+concept sh_convention = std::same_as<
+    std::remove_cvref_t<T>,
+    SHConvention<std::remove_cvref_t<T>::sh_norm, std::remove_cvref_t<T>::sh_phase>>;
+
 template <typename T>
 concept sh_tagged = std::derived_from<
     std::remove_cvref_t<T>,
-    SHTag<std::remove_cvref_t<T>::sh_norm, std::remove_cvref_t<T>::sh_phase>>;
+    SHConvention<std::remove_cvref_t<T>::sh_norm, std::remove_cvref_t<T>::sh_phase>>;
 
 template <sh_tagged T>
 consteval SHNorm sh_norm_of() { return std::remove_cvref_t<T>::sh_norm; }
@@ -68,6 +77,10 @@ consteval SHNorm sh_phase_of() { return std::remove_cvref_t<T>::sh_norm; }
 template <typename T>
     requires sh_tagged<typename std::remove_cvref_t<T>::shape_type>
 consteval SHPhase sh_phase_of() { return std::remove_cvref_t<T>::shape_type::sh_phase; }
+
+template <typename T>
+    requires sh_tagged<T> || sh_tagged<typename std::remove_cvref_t<T>::shape_type>
+using convention_of = SHConvention<sh_norm_of<T>(), sh_phase_of<T>()>;
 
 /**
     @brief Normalization constant of spherical harmonics coefficients.

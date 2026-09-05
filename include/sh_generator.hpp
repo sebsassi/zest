@@ -93,7 +93,8 @@ public:
         constexpr IndexingMode indexing_mode = indexing_mode_of<ExpansionType>();
 
         const double z = std::cos(colat);
-        AssociatedLegendreSpan<double, sh_norm, sh_phase> ass_leg{m_ass_leg_poly, order};
+        AssociatedLegendreSpan<double, st::SHConvention<sh_norm, sh_phase>>
+        ass_leg{m_ass_leg_poly, order};
 
         m_recursion.generate_real(z, ass_leg);
 
@@ -153,7 +154,7 @@ public:
         for (std::size_t i = 0; i < colat.size(); ++i)
             m_z[i] = std::cos(colat[i]);
 
-        AssociatedLegendreSpan<double, sh_norm, sh_phase, std::dynamic_extent>
+        AssociatedLegendreSpan<double, st::SHConvention<sh_norm, sh_phase>, std::dynamic_extent>
         ass_leg{m_ass_leg_poly, order, m_z.size()};
 
         m_recursion.generate_real(m_z, ass_leg);
@@ -219,20 +220,20 @@ public:
         }
     }
 
-    template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
-    [[nodiscard]] SHExpansion<double, indexing_mode, sh_norm, sh_phase>
+    template <IndexingMode indexing_mode, sh_convention Convention>
+    [[nodiscard]] SHExpansion<double, indexing_mode, Convention>
     generate(double lon, double colat, std::size_t order)
     {
-        SHExpansion<double, indexing_mode, sh_norm, sh_phase> expansion{order};
+        SHExpansion<double, indexing_mode, Convention> expansion{order};
         generate(lon, colat, expansion);
         return expansion;
     }
 
-    template <IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase>
-    [[nodiscard]] SHExpansion<double, indexing_mode, sh_norm, sh_phase, std::dynamic_extent>
+    template <IndexingMode indexing_mode, sh_convention Convention>
+    [[nodiscard]] SHExpansion<double, indexing_mode, Convention, std::dynamic_extent>
     generate(std::span<const double> lon, std::span<const double> colat, std::size_t order)
     {
-        SHExpansion<double, indexing_mode, sh_norm, sh_phase, std::dynamic_extent>
+        SHExpansion<double, indexing_mode, Convention, std::dynamic_extent>
         expansion{order, lon.size()};
 
         generate(lon, colat, expansion);

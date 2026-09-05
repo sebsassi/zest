@@ -34,12 +34,12 @@ constexpr bool is_close(double a, double b, double tol)
     return std::fabs(a - b) < tol;
 }
 
-template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
+template <zest::st::sh_convention Convention>
 bool test_ass_leg_real_generates_real_correct_up_to_order_5(double z)
 {
     constexpr std::size_t order = 5;
-    constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
-    constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
+    constexpr double phase = (Convention::sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
+    constexpr double shnorm = (Convention::sh_norm == zest::st::SHNorm::unit) ?
         0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double P00 = shnorm;
@@ -64,7 +64,7 @@ bool test_ass_leg_real_generates_real_correct_up_to_order_5(double z)
 
     zest::st::AssociatedLegendreRecursion recursion(order);
 
-    zest::st::AssociatedLegendreExpansion<double, sh_norm, sh_phase> ass_leg(order);
+    zest::st::AssociatedLegendreExpansion<double, Convention> ass_leg(order);
 
     recursion.generate_real(z, ass_leg);
     bool success = is_close(ass_leg[0, 0], P00, 1.0e-10)
@@ -106,12 +106,12 @@ bool test_ass_leg_real_generates_real_correct_up_to_order_5(double z)
     }
 }
 
-template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
+template <zest::st::sh_convention Convention>
 bool test_ass_leg_real_generates_real_vec_correct_up_to_order_5(double z)
 {
     constexpr std::size_t order = 5;
-    constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
-    constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
+    constexpr double phase = (Convention::sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
+    constexpr double shnorm = (Convention::sh_norm == zest::st::SHNorm::unit) ?
         0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double P00 = shnorm;
@@ -136,7 +136,7 @@ bool test_ass_leg_real_generates_real_vec_correct_up_to_order_5(double z)
 
     zest::st::AssociatedLegendreRecursion recursion(order);
 
-    zest::st::AssociatedLegendreExpansion<double, sh_norm, sh_phase, std::dynamic_extent> ass_leg(order, 1UL);
+    zest::st::AssociatedLegendreExpansion<double, Convention, std::dynamic_extent> ass_leg(order, 1UL);
 
     recursion.generate_real(std::array<double, 1>{z}, ass_leg);
     bool success = is_close(ass_leg[0, 0, 0], P00, 1.0e-10)
@@ -178,26 +178,26 @@ bool test_ass_leg_real_generates_real_vec_correct_up_to_order_5(double z)
     }
 }
 
-template <zest::st::SHNorm sh_norm, zest::st::SHPhase sh_phase>
+template <zest::st::sh_convention Convention>
 void test_ass_leg_recursion()
 {
-    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<sh_norm, sh_phase>(1.0)));
-    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<sh_norm, sh_phase>(-1.0)));
-    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<sh_norm, sh_phase>(0.0)));
-    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<sh_norm, sh_phase>(0.9741683087648949)));
+    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<Convention>(1.0)));
+    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<Convention>(-1.0)));
+    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<Convention>(0.0)));
+    assert((test_ass_leg_real_generates_real_correct_up_to_order_5<Convention>(0.9741683087648949)));
 
-    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<sh_norm, sh_phase>(1.0)));
-    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<sh_norm, sh_phase>(-1.0)));
-    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<sh_norm, sh_phase>(0.0)));
-    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<sh_norm, sh_phase>(0.9741683087648949)));
+    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<Convention>(1.0)));
+    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<Convention>(-1.0)));
+    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<Convention>(0.0)));
+    assert((test_ass_leg_real_generates_real_vec_correct_up_to_order_5<Convention>(0.9741683087648949)));
 }
 
 } // namespace
 
 int main()
 {
-    test_ass_leg_recursion<zest::st::SHNorm::four_pi, zest::st::SHPhase::none>();
-    test_ass_leg_recursion<zest::st::SHNorm::four_pi, zest::st::SHPhase::cs>();
-    test_ass_leg_recursion<zest::st::SHNorm::unit, zest::st::SHPhase::none>();
-    test_ass_leg_recursion<zest::st::SHNorm::unit, zest::st::SHPhase::cs>();
+    test_ass_leg_recursion<zest::st::SHConvention<zest::st::SHNorm::four_pi, zest::st::SHPhase::none>>();
+    test_ass_leg_recursion<zest::st::SHConvention<zest::st::SHNorm::four_pi, zest::st::SHPhase::cs>>();
+    test_ass_leg_recursion<zest::st::SHConvention<zest::st::SHNorm::unit, zest::st::SHPhase::none>>();
+    test_ass_leg_recursion<zest::st::SHConvention<zest::st::SHNorm::unit, zest::st::SHPhase::cs>>();
 }

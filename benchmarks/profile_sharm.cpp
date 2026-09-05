@@ -38,8 +38,7 @@ void run_glq_transformer(std::size_t lmax)
     
     zest::st::GLQTransformer<GridLayout> transformer(lmax);
 
-    zest::st::RealSHExpansion<zest::st::SHNorm::four_pi, zest::st::SHPhase::none>
-    expansion(lmax);
+    zest::st::RealSHExpansion<zest::st::Geo> expansion(lmax);
 
     for (std::size_t i = 0; i < 1000000; ++i)
         transformer.forward_transform(grid, expansion);

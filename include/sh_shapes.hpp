@@ -38,10 +38,10 @@ namespace zest::st
     @tparam sh_phase Phase convention of the spherical harmonics.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <SHNorm sh_norm, SHPhase sh_phase, std::size_t... inner_extents>
+template <sh_convention Convention, std::size_t... inner_extents>
 using AssociatedLegendreShape = TaggedShape<
     TriangleShape<IndexingMode::zero_based, inner_extents...>,
-    SHTag<sh_norm, sh_phase>, IndexingModeTag<IndexingMode::zero_based>>;
+    Convention, IndexingModeTag<IndexingMode::zero_based>>;
 
 /**
     @brief Shape representing an efficient layout of a multidimensional array
@@ -52,10 +52,10 @@ using AssociatedLegendreShape = TaggedShape<
     @tparam sh_phase Phase convention of the spherical harmonics.
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
-template <SHNorm sh_norm, SHPhase sh_phase, std::size_t... outer_extents>
+template <sh_convention Convention, std::size_t... outer_extents>
 using AssociatedLegendreTensorShape = TaggedShape<
     TriangleTensorShape<IndexingMode::zero_based, outer_extents...>,
-    SHTag<sh_norm, sh_phase>, IndexingModeTag<IndexingMode::zero_based>>;
+    Convention, IndexingModeTag<IndexingMode::zero_based>>;
 
 /**
     @brief Tagged shape representing layout and conventions of spherical
@@ -66,15 +66,12 @@ using AssociatedLegendreTensorShape = TaggedShape<
     @tparam sh_phase Phase convention of the spherical harmonics.
     @tparam inner_extents extents of an inner multidimensional array structure.
 */
-template <
-    IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase,
-    std::size_t... inner_extents
->
+template <IndexingMode indexing_mode, sh_convention Convention, std::size_t... inner_extents>
 using SHShape = TaggedShape<
     std::conditional_t<(indexing_mode == IndexingMode::symmetric),
         TriangleShape<indexing_mode, inner_extents...>,
         TriangleShape<indexing_mode, 2, inner_extents...>>,
-    SHTag<sh_norm, sh_phase>, IndexingModeTag<indexing_mode>>;
+    Convention, IndexingModeTag<indexing_mode>>;
 
 /**
     @brief Shape representing an efficient layout of a multidimensional array of
@@ -85,17 +82,14 @@ using SHShape = TaggedShape<
     @tparam sh_phase Phase convention of the spherical harmonics.
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
-template <
-    IndexingMode indexing_mode, SHNorm sh_norm, SHPhase sh_phase,
-    std::size_t... outer_extents
->
+template <IndexingMode indexing_mode, sh_convention Convention, std::size_t... outer_extents>
 using SHTensorShape = TaggedShape<
     std::conditional_t<(indexing_mode == IndexingMode::symmetric),
         TriangleTensorShape<indexing_mode, outer_extents...>,
         CompositeShape<
             TensorShape<outer_extents...>,
             TriangleShape<indexing_mode, 2>>>,
-    SHTag<sh_norm, sh_phase>, IndexingModeTag<indexing_mode>>;
+    Convention, IndexingModeTag<indexing_mode>>;
 
 
 } // namespace zest::st
