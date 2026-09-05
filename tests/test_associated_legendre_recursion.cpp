@@ -39,7 +39,7 @@ bool test_ass_leg_real_generates_real_correct_up_to_order_5(double z)
 {
     constexpr std::size_t order = 5;
     constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
-    constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+    constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
         0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double P00 = shnorm;
@@ -111,7 +111,7 @@ bool test_ass_leg_real_generates_real_vec_correct_up_to_order_5(double z)
 {
     constexpr std::size_t order = 5;
     constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
-    constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+    constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
         0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double P00 = shnorm;
@@ -196,8 +196,8 @@ void test_ass_leg_recursion()
 
 int main()
 {
-    test_ass_leg_recursion<zest::st::SHNorm::geo, zest::st::SHPhase::none>();
-    test_ass_leg_recursion<zest::st::SHNorm::geo, zest::st::SHPhase::cs>();
-    test_ass_leg_recursion<zest::st::SHNorm::qm, zest::st::SHPhase::none>();
-    test_ass_leg_recursion<zest::st::SHNorm::qm, zest::st::SHPhase::cs>();
+    test_ass_leg_recursion<zest::st::SHNorm::four_pi, zest::st::SHPhase::none>();
+    test_ass_leg_recursion<zest::st::SHNorm::four_pi, zest::st::SHPhase::cs>();
+    test_ass_leg_recursion<zest::st::SHNorm::unit, zest::st::SHPhase::none>();
+    test_ass_leg_recursion<zest::st::SHNorm::unit, zest::st::SHPhase::cs>();
 }

@@ -42,7 +42,7 @@ bool test_glq_forward_transform_expands_Y00()
     auto function = [](
         [[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm;
     };
@@ -108,7 +108,7 @@ bool test_glq_forward_transform_expands_Y10()
     {
         const double z = std::cos(colat);
 
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm*std::numbers::sqrt3*z;
     };
@@ -175,7 +175,7 @@ bool test_glq_forward_transform_expands_Y21()
         const double z = std::cos(colat);
         constexpr double phase = (sh_phase == zest::st::SHPhase::none) ?
             -1.0 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
@@ -242,7 +242,7 @@ bool test_glq_forward_transform_expands_Y31()
         const double z = std::cos(colat);
         constexpr double phase = (sh_phase == zest::st::SHPhase::none) ?
             -1.0 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
@@ -309,7 +309,7 @@ bool test_glq_forward_transform_expands_Y4m3()
         const double z = std::cos(colat);
         constexpr double phase = (sh_phase == zest::st::SHPhase::none) ?
             -1.0 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
     };
@@ -376,7 +376,7 @@ bool test_glq_forward_transform_expands_Y31_plus_Y4m3()
         const double z = std::cos(colat);
         constexpr double phase = (sh_phase == zest::st::SHPhase::none) ?
             -1.0 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
     };
@@ -449,7 +449,7 @@ bool test_glq_backward_transform_evaluates_Y00()
     auto function = [](
         [[maybe_unused]] double lon, [[maybe_unused]] double colat)
     {
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm;
     };
@@ -506,7 +506,7 @@ bool test_glq_backward_transform_evaluates_Y10()
     {
         const double z = std::cos(colat);
 
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return shnorm*std::numbers::sqrt3*z;
     };
@@ -564,7 +564,7 @@ bool test_glq_backward_transform_evaluates_Y21()
         const double z = std::cos(colat);
         constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? 
             -1.0 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
     };
@@ -622,7 +622,7 @@ bool test_glq_backward_transform_evaluates_Y31()
         const double z = std::cos(colat);
         constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? 
             -1.0 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
     };
@@ -680,7 +680,7 @@ bool test_glq_backward_transform_evaluates_Y4m3()
         const double z = std::cos(colat);
         constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? 
             -1.0 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon);
     };
@@ -738,7 +738,7 @@ bool test_glq_backward_transform_evaluates_Y31_plus_Y4m3()
         const double z = std::cos(colat);
         constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? 
             -1.0 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return phase*shnorm*(std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon) + std::sqrt(315.0/8.0)*std::sqrt(1.0 - z*z)*(1.0 - z*z)*z*std::sin(3.0*lon));
     };
@@ -852,10 +852,10 @@ void test_glq()
 
 int main()
 {
-    test_glq<zest::st::LatLonLayout<>, zest::st::SHNorm::geo, zest::st::SHPhase::none>();
-    test_glq<zest::st::LonLatLayout<>, zest::st::SHNorm::geo, zest::st::SHPhase::none>();
+    test_glq<zest::st::LatLonLayout<>, zest::st::SHNorm::four_pi, zest::st::SHPhase::none>();
+    test_glq<zest::st::LonLatLayout<>, zest::st::SHNorm::four_pi, zest::st::SHPhase::none>();
 
-    test_glq<zest::st::LonLatLayout<>, zest::st::SHNorm::qm, zest::st::SHPhase::none>();
-    test_glq<zest::st::LonLatLayout<>, zest::st::SHNorm::geo, zest::st::SHPhase::cs>();
-    test_glq<zest::st::LonLatLayout<>, zest::st::SHNorm::qm, zest::st::SHPhase::cs>();
+    test_glq<zest::st::LonLatLayout<>, zest::st::SHNorm::unit, zest::st::SHPhase::none>();
+    test_glq<zest::st::LonLatLayout<>, zest::st::SHNorm::four_pi, zest::st::SHPhase::cs>();
+    test_glq<zest::st::LonLatLayout<>, zest::st::SHNorm::unit, zest::st::SHPhase::cs>();
 }

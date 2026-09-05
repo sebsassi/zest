@@ -43,7 +43,7 @@ bool to_real_is_inverse_of_to_complex()
 {
     constexpr std::size_t order = 6;
 
-    using Expansion = zest::st::SHExpansion<double, zest::IndexingMode::zero_based, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
+    using Expansion = zest::st::SHExpansion<double, zest::IndexingMode::zero_based, zest::st::SHNorm::four_pi, zest::st::SHPhase::none>;
 
     Expansion expansion(order);
     for (std::size_t l = 0; l < order; ++l)
@@ -270,7 +270,7 @@ bool test_sh_trivial_rotation_is_trivial_order_6()
 {
     constexpr std::size_t order = 6;
 
-    using Expansion = zest::st::SHExpansion<double, zest::IndexingMode::zero_based, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
+    using Expansion = zest::st::SHExpansion<double, zest::IndexingMode::zero_based, zest::st::SHNorm::four_pi, zest::st::SHPhase::none>;
 
     Expansion expansion(order);
 
@@ -321,7 +321,7 @@ bool test_zernike_trivial_rotation_is_trivial_order_6()
 {
     constexpr std::size_t order = 6;
 
-    using Expansion = zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
+    using Expansion = zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::four_pi, zest::st::SHPhase::none>;
 
     Expansion expansion(order);
 
@@ -382,7 +382,7 @@ bool test_sh_trivial_polar_rotation_is_trivial_order_6()
 {
     constexpr std::size_t order = 6;
 
-    using Expansion = zest::st::SHExpansion<double, zest::IndexingMode::zero_based, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
+    using Expansion = zest::st::SHExpansion<double, zest::IndexingMode::zero_based, zest::st::SHNorm::four_pi, zest::st::SHPhase::none>;
 
     Expansion expansion(order);
 
@@ -432,7 +432,7 @@ bool test_zernike_trivial_polar_rotation_is_trivial_order_6()
 {
     constexpr std::size_t order = 6;
 
-    using Expansion = zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
+    using Expansion = zest::zt::ZernikeExpansion<double, zest::IndexingMode::zero_based, zest::zt::ZernikeNorm::normed, zest::st::SHNorm::four_pi, zest::st::SHPhase::none>;
 
     Expansion expansion(order);
 
@@ -500,13 +500,13 @@ int main()
     using SHExpansionType
         = zest::st::SHExpansion<
             double, zest::IndexingMode::zero_based,
-            zest::st::SHNorm::geo, zest::st::SHPhase::none>;
+            zest::st::SHNorm::four_pi, zest::st::SHPhase::none>;
     assert(test_rotation_completes<SHExpansionType>());
 
     using ZernikeExpansionType
         = zest::zt::ZernikeExpansion<
             double, zest::IndexingMode::zero_based,
-            zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>;
+            zest::zt::ZernikeNorm::normed, zest::st::SHNorm::four_pi, zest::st::SHPhase::none>;
     assert(test_rotation_completes<ZernikeExpansionType>());
 
     assert(test_sh_trivial_rotation_is_trivial_order_6());

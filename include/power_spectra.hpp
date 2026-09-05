@@ -72,7 +72,7 @@ void cross_power_spectrum(
             for (auto m : a_l.indices(1))
                 out_l += a_l[m, 0]*b_l[m, 0] + a_l[m, 1]*b_l[m, 1];
         }
-        if constexpr (sh_norm == st::SHNorm::qm)
+        if constexpr (sh_norm == st::SHNorm::unit)
             out_l *= 1.0/(4.0*std::numbers::pi);
     }
 }
@@ -132,7 +132,7 @@ void power_spectrum(const ExpansionType& expansion, std::span<double> out) noexc
                 out_l += expansion_l[m, 0]*expansion_l[m, 0]
                         + expansion_l[m, 1]*expansion_l[m, 1];
         }
-        if constexpr (sh_norm == st::SHNorm::qm)
+        if constexpr (sh_norm == st::SHNorm::unit)
             out_l *= 1.0/(4.0*std::numbers::pi);
     }
 }
@@ -198,7 +198,7 @@ void power_spectrum(
                     out_nl += expansion_nl[m, 0]*expansion_nl[m, 0]
                             + expansion_nl[m, 1]*expansion_nl[m, 1];
             }
-            if constexpr (sh_norm == st::SHNorm::qm)
+            if constexpr (sh_norm == st::SHNorm::unit)
                 out_nl *= 3.0/(4.0*std::numbers::pi);
         }
     }

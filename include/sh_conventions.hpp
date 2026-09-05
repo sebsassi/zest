@@ -38,9 +38,9 @@ enum class SHPhase { none = -1, cs = 1 };
 enum class SHNorm
 {
     /** geodesy (4 pi) normalization */
-    geo,
+    four_pi,
     /** quantum mechanics (unit norm) normalization */
-    qm
+    unit
 };
 
 template <SHNorm norm, SHPhase phase>
@@ -79,9 +79,9 @@ consteval SHPhase sh_phase_of() { return std::remove_cvref_t<T>::shape_type::sh_
 template <SHNorm sh_norm>
 [[nodiscard]] constexpr double normalization() noexcept
 {
-    if constexpr (sh_norm == SHNorm::qm)
+    if constexpr (sh_norm == SHNorm::unit)
         return 1.0;
-    else if constexpr (sh_norm == SHNorm::geo)
+    else if constexpr (sh_norm == SHNorm::four_pi)
         return 1.0/(4.0*std::numbers::pi);
 }
 
@@ -99,14 +99,14 @@ template <SHNorm from, SHNorm to>
     constexpr double inv_sqrt_4pi = 0.5*std::numbers::inv_sqrtpi;
     constexpr double sqrt_4pi = 1.0/inv_sqrt_4pi;
     double norm;
-    if constexpr (from == SHNorm::qm)
+    if constexpr (from == SHNorm::unit)
         norm = 1.0;
-    else if constexpr (from == SHNorm::geo)
+    else if constexpr (from == SHNorm::four_pi)
         norm = sqrt_4pi;
 
-    if constexpr (to == SHNorm::qm)
+    if constexpr (to == SHNorm::unit)
         norm *= 1.0;
-    else if constexpr (to == SHNorm::geo)
+    else if constexpr (to == SHNorm::four_pi)
         norm *= inv_sqrt_4pi;
 
     return norm;

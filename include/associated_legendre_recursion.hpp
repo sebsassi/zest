@@ -173,16 +173,16 @@ private:
 
         const double u = std::sqrt((1.0 - z)*(1.0 + z));
 
-        if constexpr (sh_norm == SHNorm::geo)
+        if constexpr (sh_norm == SHNorm::four_pi)
             ass_leg[0, 0] = 1.0;
-        else if constexpr (sh_norm == SHNorm::qm)
+        else if constexpr (sh_norm == SHNorm::unit)
             ass_leg[0, 0] = inv_sqrt_4pi;
 
         if (order == 1) return;
 
-        if constexpr (sh_norm == SHNorm::geo)
+        if constexpr (sh_norm == SHNorm::four_pi)
             ass_leg[1, 0] = m_sqrl[3]*z;
-        else if constexpr (sh_norm == SHNorm::qm)
+        else if constexpr (sh_norm == SHNorm::unit)
             ass_leg[1, 0] = m_sqrl[3]*z*inv_sqrt_4pi;
 
         std::span<double> ass_leg_flat = ass_leg.flatten();
@@ -201,9 +201,9 @@ private:
         constexpr double underflow_compensation = 1.0e-280;
 
         double pmm;
-        if constexpr (sh_norm == SHNorm::geo)
+        if constexpr (sh_norm == SHNorm::four_pi)
             pmm = underflow_compensation*complex_norm;
-        else if constexpr (sh_norm == SHNorm::qm)
+        else if constexpr (sh_norm == SHNorm::unit)
             pmm = underflow_compensation*complex_norm*inv_sqrt_4pi;
 
         // This number is repeatedly multiplied by u < 1. To avoid underflow
@@ -273,9 +273,9 @@ private:
         auto ass_leg_00 = ass_leg[0, 0];
         for (std::size_t i = 0; i < z.size(); ++i)
         {
-            if constexpr (sh_norm == SHNorm::geo)
+            if constexpr (sh_norm == SHNorm::four_pi)
                 ass_leg_00[i] = 1.0;
-            else if constexpr (sh_norm == SHNorm::qm)
+            else if constexpr (sh_norm == SHNorm::unit)
                 ass_leg_00[i] = inv_sqrt_4pi;
         }
 
@@ -284,9 +284,9 @@ private:
         auto ass_leg_10 = ass_leg[1, 0];
         for (std::size_t i = 0; i < z.size(); ++i)
         {
-            if constexpr (sh_norm == SHNorm::geo)
+            if constexpr (sh_norm == SHNorm::four_pi)
                 ass_leg_10[i] = z[i]*m_sqrl[3];
-            else if constexpr (sh_norm == SHNorm::qm)
+            else if constexpr (sh_norm == SHNorm::unit)
                 ass_leg_10[i] = z[i]*(m_sqrl[3]*inv_sqrt_4pi);
         }
 
@@ -309,9 +309,9 @@ private:
         constexpr double underflow_compensation = 1.0e-280;
 
         double pmm;
-        if constexpr (sh_norm == SHNorm::geo)
+        if constexpr (sh_norm == SHNorm::four_pi)
             pmm = underflow_compensation*complex_norm;
-        else if constexpr (sh_norm == SHNorm::qm)
+        else if constexpr (sh_norm == SHNorm::unit)
             pmm = underflow_compensation*complex_norm*inv_sqrt_4pi;
 
         // This number is repeatedly multiplied by u < 1. To avoid underflow

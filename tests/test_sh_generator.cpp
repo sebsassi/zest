@@ -37,7 +37,7 @@ bool test_real_sh_generator_generates_correct_up_to_order_5_symmetric(
 {
     constexpr std::size_t order = 5;
     constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
-    constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+    constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
         0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double z = std::cos(colat);
@@ -139,7 +139,7 @@ bool test_real_sh_generator_generates_correct_up_to_order_5_zero_based(
 {
     constexpr std::size_t order = 5;
     constexpr double phase = (sh_phase == zest::st::SHPhase::none) ? -1.0 : 1.0;
-    constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+    constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
         0.5*std::numbers::inv_sqrtpi : 1.0;
 
     const double z = std::cos(colat);
@@ -255,8 +255,8 @@ void test_sh_generator()
 
 int main()
 {
-    test_sh_generator<zest::st::SHNorm::geo, zest::st::SHPhase::none>();
-    test_sh_generator<zest::st::SHNorm::geo, zest::st::SHPhase::cs>();
-    test_sh_generator<zest::st::SHNorm::qm, zest::st::SHPhase::none>();
-    test_sh_generator<zest::st::SHNorm::qm, zest::st::SHPhase::cs>();
+    test_sh_generator<zest::st::SHNorm::four_pi, zest::st::SHPhase::none>();
+    test_sh_generator<zest::st::SHNorm::four_pi, zest::st::SHPhase::cs>();
+    test_sh_generator<zest::st::SHNorm::unit, zest::st::SHPhase::none>();
+    test_sh_generator<zest::st::SHNorm::unit, zest::st::SHPhase::cs>();
 }

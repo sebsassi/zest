@@ -150,7 +150,7 @@ template <
     std::size_t... inner_extents
 >
 using SHSpanAcoustics = SHSpan<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::none, inner_extents...>;
+    ElementType, indexing_mode, SHNorm::unit, SHPhase::none, inner_extents...>;
 /**
     @brief Convenient alias for `SHSpan` with orthonormal spherical harmonics
     with Condon-Shortley phase.
@@ -164,7 +164,7 @@ template <
     std::size_t... inner_extents
 >
 using SHSpanQM = SHSpan<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::cs, inner_extents...>;
+    ElementType, indexing_mode, SHNorm::unit, SHPhase::cs, inner_extents...>;
 
 /**
     @brief Convenient alias for `SHSpan` with 4-pi normal spherical harmonics
@@ -179,7 +179,7 @@ template <
     std::size_t... Ns
 >
 using SHSpanGeo = SHSpan<
-    ElementType, indexing_mode, SHNorm::geo, SHPhase::none, Ns...>;
+    ElementType, indexing_mode, SHNorm::four_pi, SHPhase::none, Ns...>;
 
 /**
     @brief A container for spherical harmonic data.
@@ -210,7 +210,7 @@ template <
     std::size_t... inner_extents
 >
 using SHExpansionAcoustics = SHExpansion<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::none, inner_extents...>;
+    ElementType, indexing_mode, SHNorm::unit, SHPhase::none, inner_extents...>;
 
 /**
     @brief Convenient alias for `SHExpansion` with orthonormal spherical
@@ -225,7 +225,7 @@ template <
     std::size_t... inner_extents
 >
 using SHExpansionQM = SHExpansion<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::cs, inner_extents...>;
+    ElementType, indexing_mode, SHNorm::unit, SHPhase::cs, inner_extents...>;
 
 /**
     @brief Convenient alias for `SHExpansion` with 4-pi normal spherical
@@ -240,7 +240,7 @@ template <
     std::size_t... inner_extents
 >
 using SHExpansionGeo = SHExpansion<
-    ElementType, indexing_mode, SHNorm::geo, SHPhase::none, inner_extents...>;
+    ElementType, indexing_mode, SHNorm::four_pi, SHPhase::none, inner_extents...>;
 
 /**
     @brief A non-owning view of a multidimensional array of spherical harmonic
@@ -272,7 +272,7 @@ template <
     std::size_t... outer_extents
 >
 using SHTensorSpanAcoustics = SHTensorSpan<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::none, outer_extents...>;
+    ElementType, indexing_mode, SHNorm::unit, SHPhase::none, outer_extents...>;
 /**
     @brief Convenient alias for `SHTensorSpan` with orthonormal spherical
     harmonics with Condon-Shortley phase.
@@ -286,7 +286,7 @@ template <
     std::size_t... outer_extents
 >
 using SHTensorSpanQM = SHTensorSpan<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::cs, outer_extents...>;
+    ElementType, indexing_mode, SHNorm::unit, SHPhase::cs, outer_extents...>;
 
 /**
     @brief Convenient alias for `SHTensorSpan` with 4-pi normal spherical
@@ -301,7 +301,7 @@ template <
     std::size_t... outer_extents
 >
 using SHTensorSpanGeo = SHTensorSpan<
-    ElementType, indexing_mode, SHNorm::geo, SHPhase::none, outer_extents...>;
+    ElementType, indexing_mode, SHNorm::four_pi, SHPhase::none, outer_extents...>;
 
 /**
     @brief A non-owning view of a vector of spherical harmonic data.
@@ -329,7 +329,7 @@ template <
     complex_or_real_float ElementType, IndexingMode indexing_mode
 >
 using SHVectorSpanAcoustics = SHVectorSpan<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::none>;
+    ElementType, indexing_mode, SHNorm::unit, SHPhase::none>;
 /**
     @brief Convenient alias for `SHVectorSpan` with orthonormal spherical
     harmonics with Condon-Shortley phase.
@@ -341,7 +341,7 @@ template <
     complex_or_real_float ElementType, IndexingMode indexing_mode
 >
 using SHVectorSpanQM = SHVectorSpan<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::cs>;
+    ElementType, indexing_mode, SHNorm::unit, SHPhase::cs>;
 
 /**
     @brief Convenient alias for `SHVectorSpan` with 4-pi normal spherical
@@ -354,7 +354,7 @@ template <
     complex_or_real_float ElementType, IndexingMode indexing_mode
 >
 using SHVectorSpanGeo = SHVectorSpan<
-    ElementType, indexing_mode, SHNorm::geo, SHPhase::none>;
+    ElementType, indexing_mode, SHNorm::four_pi, SHPhase::none>;
 
 /**
     @brief A container for a multidimensional array of spherical harmonic data.
@@ -385,7 +385,7 @@ template <
     std::size_t... outer_extents
 >
 using SHExpansionTensorAcoustics = SHExpansionTensor<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::none, outer_extents...>;
+    ElementType, indexing_mode, SHNorm::unit, SHPhase::none, outer_extents...>;
 
 /**
     @brief Convenient alias for `SHExpansionTensor` with orthonormal spherical
@@ -400,7 +400,7 @@ template <
     std::size_t... outer_extents
 >
 using SHExpansionTensorQM = SHExpansionTensor<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::cs, outer_extents...>;
+    ElementType, indexing_mode, SHNorm::unit, SHPhase::cs, outer_extents...>;
 
 /**
     @brief Convenient alias for `SHExpansionTensor` with 4-pi normal spherical
@@ -415,7 +415,7 @@ template <
     std::size_t... outer_extents
 >
 using SHExpansionTensorGeo = SHExpansionTensor<
-    ElementType, indexing_mode, SHNorm::geo, SHPhase::none, outer_extents...>;
+    ElementType, indexing_mode, SHNorm::four_pi, SHPhase::none, outer_extents...>;
 
 /**
     @brief A container for a vector of spherical harmonic data.
@@ -443,7 +443,7 @@ template <
     complex_or_real_float ElementType, IndexingMode indexing_mode
 >
 using SHExpansionVectorAcoustics = SHExpansionVector<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::none>;
+    ElementType, indexing_mode, SHNorm::unit, SHPhase::none>;
 
 /**
     @brief Convenient alias for `SHExpansionVector` with orthonormal spherical
@@ -456,7 +456,7 @@ template <
     complex_or_real_float ElementType, IndexingMode indexing_mode
 >
 using SHExpansionVectorQM = SHExpansionVector<
-    ElementType, indexing_mode, SHNorm::qm, SHPhase::cs>;
+    ElementType, indexing_mode, SHNorm::unit, SHPhase::cs>;
 
 /**
     @brief Convenient alias for `SHExpansionVector` with 4-pi normal spherical
@@ -469,7 +469,7 @@ template <
     complex_or_real_float ElementType, IndexingMode indexing_mode
 >
 using SHExpansionVectorGeo = SHExpansionVector<
-    ElementType, indexing_mode, SHNorm::geo, SHPhase::none>;
+    ElementType, indexing_mode, SHNorm::four_pi, SHPhase::none>;
 
 /**
     @brief A non-owning view for storing real spherical harmonic data encoded

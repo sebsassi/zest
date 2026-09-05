@@ -830,7 +830,7 @@ private:
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerAcoustics
-    = GLQTransformer<SHNorm::qm, SHPhase::none, GridLayout>;
+    = GLQTransformer<SHNorm::unit, SHPhase::none, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with orthonormal spherical
@@ -840,7 +840,7 @@ using GLQTransformerAcoustics
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerQM
-    = GLQTransformer<SHNorm::qm, SHPhase::cs, GridLayout>;
+    = GLQTransformer<SHNorm::unit, SHPhase::cs, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with 4-pi normal spherical
@@ -850,7 +850,7 @@ using GLQTransformerQM
 */
 template <typename GridLayout = DefaultLayout>
 using GLQTransformerGeo
-    = GLQTransformer<SHNorm::geo, SHPhase::none, GridLayout>;
+    = GLQTransformer<SHNorm::four_pi, SHPhase::none, GridLayout>;
 
 /**
     @brief High-level interface for taking SH transforms of functions on balls
@@ -1002,7 +1002,7 @@ private:
 */
 template <typename GridLayout = DefaultLayout>
 using SHTransformerAcoustics
-    = SHTransformer<SHNorm::qm, SHPhase::none, GridLayout>;
+    = SHTransformer<SHNorm::unit, SHPhase::none, GridLayout>;
 
 /**
     @brief Convenient alias for `SHTransformer` with orthonormal spherical
@@ -1012,7 +1012,7 @@ using SHTransformerAcoustics
 */
 template <typename GridLayout = DefaultLayout>
 using SHTransformerQM
-    = SHTransformer<SHNorm::qm, SHPhase::cs, GridLayout>;
+    = SHTransformer<SHNorm::unit, SHPhase::cs, GridLayout>;
 
 /**
     @brief Convenient alias for `SHTransformer` with 4-pi normal spherical
@@ -1022,7 +1022,7 @@ using SHTransformerQM
 */
 template <typename GridLayout = DefaultLayout>
 using SHTransformerGeo
-    = SHTransformer<SHNorm::geo, SHPhase::none, GridLayout>;
+    = SHTransformer<SHNorm::four_pi, SHPhase::none, GridLayout>;
 
 } // namespace zest::st
 

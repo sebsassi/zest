@@ -22,6 +22,7 @@ SOFTWARE.
 #include "../glq_transformer.hpp"
 
 #include "nanobench.h"
+#include "sh_conventions.hpp"
 
 #include <random>
 
@@ -37,7 +38,7 @@ void run_glq_transformer(std::size_t lmax)
     
     zest::st::GLQTransformer<GridLayout> transformer(lmax);
 
-    zest::st::RealSHExpansion<zest::st::SHNorm::geo, zest::st::SHPhase::none>
+    zest::st::RealSHExpansion<zest::st::SHNorm::four_pi, zest::st::SHPhase::none>
     expansion(lmax);
 
     for (std::size_t i = 0; i < 1000000; ++i)

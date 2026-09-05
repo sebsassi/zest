@@ -62,7 +62,7 @@ bool test_glq_forward_transform_expands_Z000()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 std::numbers::sqrt3 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm;
     };
@@ -142,7 +142,7 @@ bool test_glq_forward_transform_expands_Z200()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 sqrt7 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm*(2.5*r*r - 1.5);
     };
@@ -220,7 +220,7 @@ bool test_glq_forward_transform_expands_Z110()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 sqrt5 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return znorm*shnorm*r*std::numbers::sqrt3*z;
@@ -302,7 +302,7 @@ bool test_glq_forward_transform_expands_Z221()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 sqrt7 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return phase*znorm*shnorm*r*r*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
@@ -379,7 +379,7 @@ bool test_glq_forward_transform_expands_Z33m2()
     {
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ? 3.0 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return znorm*shnorm*r*r*r*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon);
@@ -461,7 +461,7 @@ bool test_glq_forward_transform_expands_Z531()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 sqrt13 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return phase*znorm*shnorm*(5.5*r*r - 4.5)*r*r*r*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
@@ -541,7 +541,7 @@ bool test_glq_backward_transform_evaluates_Z000()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 std::numbers::sqrt3 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm;
     };
@@ -610,7 +610,7 @@ bool test_glq_backward_transform_evaluates_Z110()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 sqrt5 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return znorm*shnorm*r*std::numbers::sqrt3*z;
@@ -681,7 +681,7 @@ bool test_glq_backward_transform_evaluates_Z200()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 sqrt7 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm*(2.5*r*r - 1.5);
     };
@@ -752,7 +752,7 @@ bool test_glq_backward_transform_evaluates_Z221()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 sqrt7 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return phase*znorm*shnorm*r*r*std::sqrt(15.0)*std::sqrt(1.0 - z*z)*z*std::cos(lon);
@@ -819,7 +819,7 @@ bool test_glq_backward_transform_evaluates_Z33m2()
     {
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ? 3.0 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return znorm*shnorm*r*r*r*std::sqrt(105.0/4.0)*(1.0 - z*z)*z*std::sin(2.0*lon);
@@ -891,7 +891,7 @@ bool test_glq_backward_transform_evaluates_Z531()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 sqrt13 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         const double z = std::cos(colat);
         return phase*znorm*shnorm*(5.5*r*r - 4.5)*r*r*r*std::sqrt(21.0/8.0)*std::sqrt(1.0 - z*z)*(5.0*z*z - 1.0)*std::cos(lon);
@@ -1076,7 +1076,7 @@ bool test_isotropic_glq_forward_transform_expands_Z000()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 std::numbers::sqrt3 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm;
     };
@@ -1134,7 +1134,7 @@ bool test_isotropic_glq_forward_transform_expands_Z200()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 sqrt7 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm*(2.5*r*r - 1.5);
     };
@@ -1192,7 +1192,7 @@ bool test_isotropic_glq_forward_transform_expands_Z400()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 sqrt11 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm*((7.875*r*r - 8.75)*r*r + 1.875);
     };
@@ -1249,7 +1249,7 @@ bool test_isotropic_glq_backward_transform_evaluates_Z000()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 std::numbers::sqrt3 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm;
     };
@@ -1302,7 +1302,7 @@ bool test_isotropic_glq_backward_transform_evaluates_Z200()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 sqrt7 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm*(2.5*r*r - 1.5);
     };
@@ -1354,7 +1354,7 @@ bool test_isotropic_glq_backward_transform_evaluates_Z400()
         constexpr double znorm
             = (zernike_norm == zest::zt::ZernikeNorm::normed) ?
                 sqrt11 : 1.0;
-        constexpr double shnorm = (sh_norm == zest::st::SHNorm::qm) ?
+        constexpr double shnorm = (sh_norm == zest::st::SHNorm::unit) ?
             0.5*std::numbers::inv_sqrtpi : 1.0;
         return znorm*shnorm*((7.875*r*r - 8.75)*r*r + 1.875);
     };
@@ -1465,6 +1465,6 @@ void test_glq()
 
 int main()
 {
-    test_glq<zest::zt::ZernikeNorm::normed, zest::st::SHNorm::geo, zest::st::SHPhase::none>();
-    test_glq<zest::zt::ZernikeNorm::unnormed, zest::st::SHNorm::qm, zest::st::SHPhase::cs>();
+    test_glq<zest::zt::ZernikeNorm::normed, zest::st::SHNorm::four_pi, zest::st::SHPhase::none>();
+    test_glq<zest::zt::ZernikeNorm::unnormed, zest::st::SHNorm::unit, zest::st::SHPhase::cs>();
 }
