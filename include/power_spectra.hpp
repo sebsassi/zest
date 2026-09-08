@@ -171,7 +171,7 @@ template <any_zernike_expansion ExpansionType>
         && zt::has_inner_rank<ExpansionType, 0>
 void power_spectrum(
     const ExpansionType& expansion,
-    RadialZernikeSpan<double, zernike_norm_of<ExpansionType>()> out) noexcept
+    RadialZernikeSpan<double, norm_convention_of<ExpansionType>> out) noexcept
 {
     constexpr st::SHNorm sh_norm = st::sh_norm_of<ExpansionType>();
     constexpr Indexing indexing = indexing_of<ExpansionType>();
@@ -214,10 +214,10 @@ void power_spectrum(
 template <any_zernike_expansion ExpansionType>
     requires std::floating_point<value_type_of<ExpansionType>>
         && zt::has_inner_rank<ExpansionType, 0>
-[[nodiscard]] RadialZernikeExpansion<double, zernike_norm_of<ExpansionType>()>
+[[nodiscard]] RadialZernikeExpansion<double, norm_convention_of<ExpansionType>>
 power_spectrum(const ExpansionType& expansion)
 {
-    using OutType = RadialZernikeExpansion<double, zernike_norm_of<ExpansionType>()>;
+    using OutType = RadialZernikeExpansion<double, norm_convention_of<ExpansionType>>;
     OutType res{expansion.order()};
     power_spectrum(expansion, (typename OutType::view)(res));
     return res;

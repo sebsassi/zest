@@ -72,7 +72,7 @@ template <typename T>
 consteval SHNorm sh_norm_of() { return std::remove_cvref_t<T>::shape_type::sh_norm; }
 
 template <sh_tagged T>
-consteval SHNorm sh_phase_of() { return std::remove_cvref_t<T>::sh_norm; }
+consteval SHPhase sh_phase_of() { return std::remove_cvref_t<T>::sh_phase; }
 
 template <typename T>
     requires sh_tagged<typename std::remove_cvref_t<T>::shape_type>

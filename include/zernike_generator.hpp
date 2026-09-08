@@ -71,13 +71,10 @@ public:
         @param r Radial coordinate.
         @param expansion Buffer for Zernike function values.
     */
-    template <
-        Indexing indexing, ZernikeNorm zernike_norm,
-        st::sh_convention Convention
-    >
+    template <Indexing indexing, zernike_convention Convention>
     void generate(
         double lon, double colat, double r,
-        ZernikeSpan<double, indexing, zernike_norm, Convention>& expansion)
+        ZernikeSpan<double, indexing, Convention>& expansion)
     {
         expand(expansion.order());
 
@@ -86,7 +83,7 @@ public:
                 m_ass_leg_poly, expansion.order());
         m_ass_leg_recursion.generate_real(z, ass_leg);
 
-        auto radial_zernike = RadialZernikeSpan<double, zernike_norm>(
+        auto radial_zernike = RadialZernikeSpan<double, norm_convention_of<Convention>>(
                 m_radial_zernike, expansion.order());
         m_zernike_recursion.generate(r, radial_zernike);
 
@@ -133,29 +130,23 @@ public:
         }
     }
 
-    template <
-        Indexing indexing, ZernikeNorm zernike_norm,
-        st::sh_convention Convention
-    >
+    template <Indexing indexing, zernike_convention Convention>
     void generate(
         double lon, double colat, double r,
-        ZernikeExpansion<double, indexing, zernike_norm, Convention>& expansion)
+        ZernikeExpansion<double, indexing, Convention>& expansion)
     {
-        using ExpansionType = ZernikeExpansion<double, indexing, zernike_norm, Convention>;
-        generate<indexing, zernike_norm, Convention>(
+        using ExpansionType = ZernikeExpansion<double, indexing, Convention>;
+        generate<indexing, Convention>(
                 lon, colat, r, (typename ExpansionType::view)(expansion));
     }
 
-    template <
-        Indexing indexing, ZernikeNorm zernike_norm,
-        st::sh_convention Convention
-    >
-    [[nodiscard]] ZernikeExpansion<double, indexing, zernike_norm, Convention>
+    template <Indexing indexing, zernike_convention Convention>
+    [[nodiscard]] ZernikeExpansion<double, indexing, Convention>
     generate(double lon, double colat, double r, std::size_t order)
     {
-        using ExpansionType = ZernikeExpansion<double, indexing, zernike_norm, Convention>;
+        using ExpansionType = ZernikeExpansion<double, indexing, Convention>;
         ExpansionType expansion{order};
-        generate<indexing, zernike_norm, Convention>(
+        generate<indexing, Convention>(
                 lon, colat, r, (typename ExpansionType::view)(expansion));
         return expansion;
     }

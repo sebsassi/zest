@@ -38,9 +38,9 @@ namespace zest::zt
     @tparam zernike_norm Zernike function normalization conventions.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <ZernikeNorm zernike_norm, std::size_t... inner_extents>
+template <zernike_norm_convention Convention, std::size_t... inner_extents>
 using RadialZernikeShape = TaggedShape<
-    TensorSequenceShape<EvenTriangleSequence, inner_extents...>, ZernikeTag<zernike_norm>>;
+    TensorSequenceShape<EvenTriangleSequence, inner_extents...>, Convention>;
 
 /**
     @brief Shape of an efficient layout of a multidimensional array
@@ -50,9 +50,9 @@ using RadialZernikeShape = TaggedShape<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
-template <ZernikeNorm zernike_norm, std::size_t... outer_extents>
+template <zernike_norm_convention Convention, std::size_t... outer_extents>
 using RadialZernikeTensorShape = TaggedShape<
-    SequenceTensorShape<EvenTriangleSequence, outer_extents...>, ZernikeTag<zernike_norm>>;
+    SequenceTensorShape<EvenTriangleSequence, outer_extents...>, Convention>;
 
 /**
     @brief Shape of an efficient layout of isotropic 3D radial Zernike
@@ -61,9 +61,9 @@ using RadialZernikeTensorShape = TaggedShape<
     @tparam zernike_norm Zernike function normalization conventions.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <ZernikeNorm zernike_norm, std::size_t... inner_extents>
+template <zernike_norm_convention Convention, std::size_t... inner_extents>
 using IsotropicRadialZernikeShape = TaggedShape<
-    TensorSequenceShape<ParityLinearSequence<Parity::even>, inner_extents...>, ZernikeTag<zernike_norm>>;
+    TensorSequenceShape<ParityLinearSequence<Parity::even>, inner_extents...>, Convention>;
 
 /**
     @brief Shape of an efficient layout of a multidimensional array
@@ -73,9 +73,9 @@ using IsotropicRadialZernikeShape = TaggedShape<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
-template <ZernikeNorm zernike_norm, std::size_t... outer_extents>
+template <zernike_norm_convention Convention, std::size_t... outer_extents>
 using IsotropicRadialZernikeTensorShape = TaggedShape<
-    SequenceTensorShape<ParityLinearSequence<Parity::even>, outer_extents...>, ZernikeTag<zernike_norm>>;
+    SequenceTensorShape<ParityLinearSequence<Parity::even>, outer_extents...>, Convention>;
 
 /**
     @brief Shape of an efficient layout of 3D Zernike functions,
@@ -87,15 +87,12 @@ using IsotropicRadialZernikeTensorShape = TaggedShape<
     @tparam sh_phase Spherical harmonic phase convention.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <
-    Indexing indexing, ZernikeNorm zernike_norm, st::sh_convention Convention,
-    std::size_t... inner_extents
->
+template <Indexing indexing, zernike_convention Convention, std::size_t... inner_extents>
 using ZernikeShape = TaggedShape<
     std::conditional_t<(indexing == Indexing::symmetric), 
         TensorSequenceShape<ZernikeTetrahedralSequence<indexing>, inner_extents...>,
         TensorSequenceShape<ZernikeTetrahedralSequence<indexing>, 2, inner_extents...>>,
-    ZernikeTag<zernike_norm>, Convention, IndexingTag<indexing>>;
+    Convention, IndexingTag<indexing>>;
 
 /**
     @brief Shape of an efficient layout of a multidimensional array
@@ -107,17 +104,14 @@ using ZernikeShape = TaggedShape<
     @tparam sh_phase Spherical harmonic phase convention.
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <
-    Indexing indexing, ZernikeNorm zernike_norm, st::sh_convention Convention,
-    std::size_t... outer_extents
->
+template <Indexing indexing, zernike_convention Convention, std::size_t... outer_extents>
 using ZernikeTensorShape = TaggedShape<
     std::conditional_t<(indexing == Indexing::symmetric),
         SequenceTensorShape<ZernikeTetrahedralSequence<indexing>, outer_extents...>,
         CompositeShape<
             TensorShape<outer_extents...>,
             TensorSequenceShape<ZernikeTetrahedralSequence<indexing>, 2>>>,
-        ZernikeTag<zernike_norm>, Convention, IndexingTag<indexing>>;
+        Convention, IndexingTag<indexing>>;
 
 /**
     @brief Shape of an efficient layout of 3D Zernike functions with
@@ -129,12 +123,10 @@ using ZernikeTensorShape = TaggedShape<
     @tparam sh_phase Spherical harmonic phase convention.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <
-    ZernikeNorm zernike_norm, st::sh_convention Convention, std::size_t... inner_extents
->
+template <zernike_convention Convention, std::size_t... inner_extents>
 using ZernikeNonnegativeShape = TaggedShape<
     TensorSequenceShape<ZernikeTetrahedralSequence<Indexing::zero_based>, inner_extents...>,
-    ZernikeTag<zernike_norm>, Convention, IndexingTag<Indexing::zero_based>>;
+    Convention, IndexingTag<Indexing::zero_based>>;
 
 /**
     @brief Shape of an efficient layout of isotropic Zernike functions, tagged
@@ -145,11 +137,10 @@ using ZernikeNonnegativeShape = TaggedShape<
     @tparam sh_phase Spherical harmonic phase convention.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <
-    ZernikeNorm zernike_norm, st::sh_convention Convention, std::size_t... inner_extents>
+template <zernike_convention Convention, std::size_t... inner_extents>
 using IsotropicZernikeShape = TaggedShape<
     TensorSequenceShape<ParityLinearSequence<Parity::even>, inner_extents...>,
-    ZernikeTag<zernike_norm>, Convention>;
+    Convention>;
 
 /**
     @brief Shape of an efficient layout of a multidimensional array of
@@ -161,10 +152,9 @@ using IsotropicZernikeShape = TaggedShape<
     @tparam sh_phase Spherical harmonic phase convention.
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
-template <
-    ZernikeNorm zernike_norm, st::sh_convention Convention, std::size_t... outer_extents>
+template <zernike_convention Convention, std::size_t... outer_extents>
 using IsotropicZernikeTensorShape = TaggedShape<
     SequenceTensorShape<ParityLinearSequence<Parity::even>, outer_extents...>,
-    ZernikeTag<zernike_norm>, Convention>;
+    Convention>;
 
 } // namespace zest::zt

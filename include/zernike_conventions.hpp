@@ -24,6 +24,8 @@ SOFTWARE.
 #include <cmath>
 #include <cstddef>
 
+#include "sh_conventions.hpp"
+
 namespace zest::zt
 {
 
@@ -33,15 +35,37 @@ namespace zest::zt
 enum class ZernikeNorm { normed, unnormed };
 
 template <ZernikeNorm norm>
-struct ZernikeTag
+struct ZernikeNormConvention
 {
     static constexpr ZernikeNorm zernike_norm = norm;
 };
 
+template <ZernikeNorm norm, st::sh_convention SHConvention>
+struct ZernikeConvention: ZernikeNormConvention<norm>, SHConvention {};
+
+using Geo = ZernikeConvention<ZernikeNorm::unnormed, st::Geo>;
+using NormedGeo = ZernikeConvention<ZernikeNorm::normed, st::Geo>;
+using Acoustics = ZernikeConvention<ZernikeNorm::unnormed, st::Acoustics>;
+using NormedAcoustics = ZernikeConvention<ZernikeNorm::normed, st::Acoustics>;
+using QM = ZernikeConvention<ZernikeNorm::unnormed, st::QM>;
+using NormedQM = ZernikeConvention<ZernikeNorm::normed, st::QM>;
+
+template <typename T>
+concept zernike_convention = std::same_as<
+    std::remove_cvref_t<T>,
+    ZernikeConvention<
+        std::remove_cvref_t<T>::zernike_norm,
+        st::SHConvention<std::remove_cvref_t<T>::sh_norm, std::remove_cvref_t<T>::sh_phase>>>;
+
+template <typename T>
+concept zernike_norm_convention = std::same_as<
+    std::remove_cvref_t<T>,
+    ZernikeNormConvention<std::remove_cvref_t<T>::zernike_norm>>;
+
 template <typename T>
 concept zernike_tagged = std::derived_from<
     std::remove_cvref_t<T>,
-    ZernikeTag<std::remove_cvref_t<T>::zernike_norm>>;
+    ZernikeNormConvention<std::remove_cvref_t<T>::zernike_norm>>;
 
 template <zernike_tagged T>
 consteval ZernikeNorm zernike_norm_of()
@@ -55,6 +79,22 @@ consteval ZernikeNorm zernike_norm_of()
 {
     return std::remove_cvref_t<T>::shape_type::zernike_norm;
 }
+
+template <typename T>
+    requires zernike_tagged<T> || zernike_tagged<typename std::remove_cvref_t<T>::shape_type>
+using norm_convention_of = ZernikeNormConvention<zernike_norm_of<T>()>;
+
+template <typename T>
+    requires (zernike_tagged<T> && st::sh_tagged<T>)
+        || (zernike_tagged<typename std::remove_cvref_t<T>::shape_type>
+            && st::sh_tagged<typename std::remove_cvref_t<T>::shape_type>)
+using sh_convention_of = st::SHConvention<st::sh_norm_of<T>(), st::sh_phase_of<T>()>;
+
+template <typename T>
+    requires (zernike_tagged<T> && st::sh_tagged<T>)
+        || (zernike_tagged<typename std::remove_cvref_t<T>::shape_type>
+            && st::sh_tagged<typename std::remove_cvref_t<T>::shape_type>)
+using convention_of = ZernikeConvention<zernike_norm_of<T>(), st::convention_of<T>>;
 
 /**
     @brief Normalization of Zernike polynomials.

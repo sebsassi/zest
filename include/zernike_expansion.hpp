@@ -41,9 +41,9 @@ namespace zest::zt
     @tparam zernike_norm Zernike function normalization convention.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... inner_extents>
+template <typename ElementType, zernike_norm_convention Convention, std::size_t... inner_extents>
 using RadialZernikeSpan = ShapedSpan<
-    ElementType, RadialZernikeShape<zernike_norm, inner_extents...>>;
+    ElementType, RadialZernikeShape<Convention, inner_extents...>>;
 
 /**
     @brief A container of 3D radial Zernike polynomial data.
@@ -52,9 +52,9 @@ using RadialZernikeSpan = ShapedSpan<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... inner_extents>
+template <typename ElementType, zernike_norm_convention Convention, std::size_t... inner_extents>
 using RadialZernikeExpansion = ShapedArray<
-    ElementType, RadialZernikeShape<zernike_norm, inner_extents...>>;
+    ElementType, RadialZernikeShape<Convention, inner_extents...>>;
 
 /**
     @brief A non-owning view of multidimensional arrays of 3D radial Zernike
@@ -64,9 +64,9 @@ using RadialZernikeExpansion = ShapedArray<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
-template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... outer_extents>
+template <typename ElementType, zernike_norm_convention Convention, std::size_t... outer_extents>
 using RadialZernikeTensorSpan = ShapedSpan<
-    ElementType, RadialZernikeTensorShape<zernike_norm, outer_extents...>>;
+    ElementType, RadialZernikeTensorShape<Convention, outer_extents...>>;
 
 /**
     @brief A non-owning view of a vector of 3D radial Zernike polynomial data.
@@ -74,9 +74,9 @@ using RadialZernikeTensorSpan = ShapedSpan<
     @tparam ElementType Type of elements in the view.
     @tparam zernike_norm Zernike function normalization convention.
 */
-template <typename ElementType, ZernikeNorm zernike_norm>
+template <typename ElementType, zernike_norm_convention Convention>
 using RadialZernikeVectorSpan = RadialZernikeTensorSpan<
-    ElementType, zernike_norm, std::dynamic_extent>;
+    ElementType, Convention, std::dynamic_extent>;
 
 /**
     @brief A container for storing multidimensional arrays of 3D radial Zernike
@@ -86,9 +86,9 @@ using RadialZernikeVectorSpan = RadialZernikeTensorSpan<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... outer_extents>
+template <typename ElementType, zernike_norm_convention Convention, std::size_t... outer_extents>
 using RadialZernikeExpansionTensor = ShapedArray<
-    ElementType, RadialZernikeTensorShape<zernike_norm, outer_extents...>>;
+    ElementType, RadialZernikeTensorShape<Convention, outer_extents...>>;
 
 /**
     @brief A container for storing a vector of 3D radial Zernike polynomial
@@ -97,9 +97,9 @@ using RadialZernikeExpansionTensor = ShapedArray<
     @tparam ElementType Type of elements in the view.
     @tparam zernike_norm Zernike function normalization convention.
 */
-template <typename ElementType, ZernikeNorm zernike_norm>
+template <typename ElementType, zernike_norm_convention Convention>
 using RadialZernikeExpansionVector = RadialZernikeExpansionTensor<
-    ElementType, zernike_norm, std::dynamic_extent>;
+    ElementType, Convention, std::dynamic_extent>;
 
 /**
     @brief A non-owning view of isotropic 3D radial Zernike polynomial data.
@@ -108,9 +108,9 @@ using RadialZernikeExpansionVector = RadialZernikeExpansionTensor<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... inner_extents>
+template <typename ElementType, zernike_norm_convention Convention, std::size_t... inner_extents>
 using IsotropicRadialZernikeSpan = ShapedSpan<
-    ElementType, IsotropicRadialZernikeShape<zernike_norm, inner_extents...>>;
+    ElementType, IsotropicRadialZernikeShape<Convention, inner_extents...>>;
 
 /**
     @brief A container of isotropic 3D radial Zernike polynomial data.
@@ -119,9 +119,9 @@ using IsotropicRadialZernikeSpan = ShapedSpan<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... inner_extents>
+template <typename ElementType, zernike_norm_convention Convention, std::size_t... inner_extents>
 using IsotropicRadialZernikeExpansion = ShapedArray<
-    ElementType, IsotropicRadialZernikeShape<zernike_norm, inner_extents...>>;
+    ElementType, IsotropicRadialZernikeShape<Convention, inner_extents...>>;
 
 /**
     @brief A non-owning view of multidimensional arrays of isotropic 3D radial
@@ -131,9 +131,9 @@ using IsotropicRadialZernikeExpansion = ShapedArray<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam outer_extents Extents of an outer multidimensional array structure.
 */
-template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... outer_extents>
+template <typename ElementType, zernike_norm_convention Convention, std::size_t... outer_extents>
 using IsotropicRadialZernikeTensorSpan = ShapedSpan<
-    ElementType, IsotropicRadialZernikeTensorShape<zernike_norm, outer_extents...>>;
+    ElementType, IsotropicRadialZernikeTensorShape<Convention, outer_extents...>>;
 
 /**
     @brief A non-owning view of a vector of isotropic 3D radial Zernike
@@ -142,9 +142,9 @@ using IsotropicRadialZernikeTensorSpan = ShapedSpan<
     @tparam ElementType Type of elements in the view.
     @tparam zernike_norm Zernike function normalization convention.
 */
-template <typename ElementType, ZernikeNorm zernike_norm>
+template <typename ElementType, zernike_norm_convention Convention>
 using IsotropicRadialZernikeVectorSpan = IsotropicRadialZernikeTensorSpan<
-    ElementType, zernike_norm, std::dynamic_extent>;
+    ElementType, Convention, std::dynamic_extent>;
 
 /**
     @brief A container for storing multidimensional arrays of isotropic 3D
@@ -154,9 +154,9 @@ using IsotropicRadialZernikeVectorSpan = IsotropicRadialZernikeTensorSpan<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
-template <typename ElementType, ZernikeNorm zernike_norm, std::size_t... outer_extents>
+template <typename ElementType, zernike_norm_convention Convention, std::size_t... outer_extents>
 using IsotropicRadialZernikeExpansionTensor = ShapedArray<
-    ElementType, IsotropicRadialZernikeTensorShape<zernike_norm, outer_extents...>>;
+    ElementType, IsotropicRadialZernikeTensorShape<Convention, outer_extents...>>;
 
 /**
     @brief A container for storing a vector of isotropic 3D radial Zernike
@@ -165,9 +165,9 @@ using IsotropicRadialZernikeExpansionTensor = ShapedArray<
     @tparam ElementType Type of elements in the view.
     @tparam zernike_norm Zernike function normalization convention.
 */
-template <typename ElementType, ZernikeNorm zernike_norm>
+template <typename ElementType, zernike_norm_convention Convention>
 using IsotropicRadialZernikeExpansionVector = IsotropicRadialZernikeExpansionTensor<
-    ElementType, zernike_norm, std::dynamic_extent>;
+    ElementType, Convention, std::dynamic_extent>;
 
 /**
     @brief A non-owning view of 3D Zernike function data.
@@ -179,13 +179,12 @@ using IsotropicRadialZernikeExpansionVector = IsotropicRadialZernikeExpansionTen
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    typename ElementType, Indexing indexing, ZernikeNorm zernike_norm,
-    st::sh_convention Convention, std::size_t... inner_extents
+    typename ElementType, Indexing indexing, zernike_convention Convention,
+    std::size_t... inner_extents
 >
 using ZernikeSpan = ShapedSpan<
     ElementType,
-    ZernikeShape<
-        indexing, zernike_norm, Convention, inner_extents...>>;
+    ZernikeShape<indexing, Convention, inner_extents...>>;
 
 /**
     @brief Convenient alias for `ZernikeSpan` with unnormalized Zernike
@@ -197,8 +196,7 @@ using ZernikeSpan = ShapedSpan<
 */
 template <typename ElementType, Indexing indexing, std::size_t... inner_extents>
 using ZernikeSpanAcoustics = ZernikeSpan<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Acoustics,
-    inner_extents...>;
+    ElementType, indexing, Acoustics, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeSpan` with orthonormal Zernike
@@ -209,8 +207,8 @@ using ZernikeSpanAcoustics = ZernikeSpan<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, Indexing indexing, std::size_t... inner_extents>
-using ZernikeSpanNormalAcoustics = ZernikeSpan<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Acoustics, inner_extents...>;
+using ZernikeSpanNormedAcoustics = ZernikeSpan<
+    ElementType, indexing, NormedAcoustics, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeSpan` with unnormalized Zernike
@@ -222,7 +220,7 @@ using ZernikeSpanNormalAcoustics = ZernikeSpan<
 */
 template <typename ElementType, Indexing indexing, std::size_t... inner_extents>
 using ZernikeSpanQM = ZernikeSpan<
-    ElementType, indexing, ZernikeNorm::unnormed, st::QM, inner_extents...>;
+    ElementType, indexing, QM, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeSpan` with orthonormal Zernike
@@ -233,8 +231,8 @@ using ZernikeSpanQM = ZernikeSpan<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, Indexing indexing, std::size_t... inner_extents>
-using ZernikeSpanNormalQM = ZernikeSpan<
-    ElementType, indexing, ZernikeNorm::normed, st::QM, inner_extents...>;
+using ZernikeSpanNormedQM = ZernikeSpan<
+    ElementType, indexing, NormedQM, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeSpan` with unnormalized Zernike
@@ -246,7 +244,7 @@ using ZernikeSpanNormalQM = ZernikeSpan<
 */
 template <typename ElementType, Indexing indexing, std::size_t... inner_extents>
 using ZernikeSpanGeo = ZernikeSpan<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Geo, inner_extents...>;
+    ElementType, indexing, Geo, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeSpan` with orthonormal Zernike
@@ -257,8 +255,8 @@ using ZernikeSpanGeo = ZernikeSpan<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, Indexing indexing, std::size_t... inner_extents>
-using ZernikeSpanNormalGeo = ZernikeSpan<
-    ElementType, indexing, ZernikeNorm::normed, st::Geo, inner_extents...>;
+using ZernikeSpanNormedGeo = ZernikeSpan<
+    ElementType, indexing, NormedGeo, inner_extents...>;
 
 /**
     @brief A container for Zernike function data.
@@ -270,11 +268,11 @@ using ZernikeSpanNormalGeo = ZernikeSpan<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    typename ElementType, Indexing indexing, ZernikeNorm zernike_norm,
-    st::sh_convention Convention, std::size_t... inner_extents
+    typename ElementType, Indexing indexing, zernike_convention Convention,
+    std::size_t... inner_extents
 >
 using ZernikeExpansion = ShapedArray<
-    ElementType, ZernikeShape<indexing, zernike_norm, Convention, inner_extents...>>;
+    ElementType, ZernikeShape<indexing, Convention, inner_extents...>>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with unnormalized Zernike
@@ -286,7 +284,7 @@ using ZernikeExpansion = ShapedArray<
 */
 template <typename ElementType, Indexing indexing, std::size_t... inner_extents>
 using ZernikeExpansionAcoustics = ZernikeExpansion<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Acoustics, inner_extents...>;
+    ElementType, indexing, Acoustics, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with orthnormal Zernike
@@ -297,8 +295,8 @@ using ZernikeExpansionAcoustics = ZernikeExpansion<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, Indexing indexing, std::size_t... inner_extents>
-using ZernikeExpansionNormalAcoustics = ZernikeExpansion<
-    ElementType, indexing, ZernikeNorm::normed, st::Acoustics, inner_extents...>;
+using ZernikeExpansionNormedAcoustics = ZernikeExpansion<
+    ElementType, indexing, NormedAcoustics, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with unnormalized Zernike
@@ -311,7 +309,7 @@ using ZernikeExpansionNormalAcoustics = ZernikeExpansion<
 */
 template <typename ElementType, Indexing indexing, std::size_t... inner_extents>
 using ZernikeExpansionQM = ZernikeExpansion<
-    ElementType, indexing, ZernikeNorm::unnormed, st::QM, inner_extents...>;
+    ElementType, indexing, QM, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with orthonormal Zernike
@@ -323,8 +321,8 @@ using ZernikeExpansionQM = ZernikeExpansion<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, Indexing indexing, std::size_t... inner_extents>
-using ZernikeExpansionNormalQM = ZernikeExpansion<
-    ElementType, indexing, ZernikeNorm::normed, st::QM, inner_extents...>;
+using ZernikeExpansionNormedQM = ZernikeExpansion<
+    ElementType, indexing, NormedQM, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with unnormalized Zernike
@@ -337,7 +335,7 @@ using ZernikeExpansionNormalQM = ZernikeExpansion<
 */
 template <typename ElementType, Indexing indexing, std::size_t... inner_extents>
 using ZernikeExpansionGeo = ZernikeExpansion<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Geo, inner_extents...>;
+    ElementType, indexing, Geo, inner_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansion` with orthonormal Zernike
@@ -349,8 +347,8 @@ using ZernikeExpansionGeo = ZernikeExpansion<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, Indexing indexing, std::size_t... inner_extents>
-using ZernikeExpansionNormalGeo = ZernikeExpansion<
-    ElementType, indexing, ZernikeNorm::normed, st::Geo, inner_extents...>;
+using ZernikeExpansionNormedGeo = ZernikeExpansion<
+    ElementType, indexing, NormedGeo, inner_extents...>;
 
 /**
     @brief A non-owning view of a multidimensional array pf 3D Zernike function
@@ -363,12 +361,12 @@ using ZernikeExpansionNormalGeo = ZernikeExpansion<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <
-    typename ElementType, Indexing indexing, ZernikeNorm zernike_norm,
-    st::sh_convention Convention, std::size_t... outer_extents
+    typename ElementType, Indexing indexing, zernike_convention Convention,
+    std::size_t... outer_extents
 >
 using ZernikeTensorSpan = ShapedSpan<
     ElementType,
-    ZernikeTensorShape<indexing, zernike_norm, Convention, outer_extents...>>;
+    ZernikeTensorShape<indexing, Convention, outer_extents...>>;
 
 /**
     @brief Convenient alias for `ZernikeTensorSpan` with unnormalized Zernike
@@ -380,7 +378,7 @@ using ZernikeTensorSpan = ShapedSpan<
 */
 template <typename ElementType, Indexing indexing, std::size_t... outer_extents>
 using ZernikeTensorSpanAcoustics = ZernikeTensorSpan<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Acoustics, outer_extents...>;
+    ElementType, indexing, Acoustics, outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeTensorSpan` with orthonormal Zernike
@@ -391,8 +389,8 @@ using ZernikeTensorSpanAcoustics = ZernikeTensorSpan<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, Indexing indexing, std::size_t... outer_extents>
-using ZernikeTensorSpanNormalAcoustics = ZernikeTensorSpan<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Acoustics, outer_extents...>;
+using ZernikeTensorSpanNormedAcoustics = ZernikeTensorSpan<
+    ElementType, indexing, NormedAcoustics, outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeTensorSpan` with unnormalized Zernike
@@ -404,7 +402,7 @@ using ZernikeTensorSpanNormalAcoustics = ZernikeTensorSpan<
 */
 template <typename ElementType, Indexing indexing, std::size_t... outer_extents>
 using ZernikeTensorSpanQM = ZernikeTensorSpan<
-    ElementType, indexing, ZernikeNorm::unnormed, st::QM, outer_extents...>;
+    ElementType, indexing, QM, outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeTensorSpan` with orthonormal Zernike
@@ -415,8 +413,8 @@ using ZernikeTensorSpanQM = ZernikeTensorSpan<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, Indexing indexing, std::size_t... outer_extents>
-using ZernikeTensorSpanNormalQM = ZernikeTensorSpan<
-    ElementType, indexing, ZernikeNorm::normed, st::QM, outer_extents...>;
+using ZernikeTensorSpanNormedQM = ZernikeTensorSpan<
+    ElementType, indexing, NormedQM, outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeTensorSpan` with unnormalized Zernike
@@ -428,7 +426,7 @@ using ZernikeTensorSpanNormalQM = ZernikeTensorSpan<
 */
 template <typename ElementType, Indexing indexing, std::size_t... outer_extents>
 using ZernikeTensorSpanGeo = ZernikeTensorSpan<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Geo, outer_extents...>;
+    ElementType, indexing, Geo, outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeTensorSpan` with orthonormal Zernike
@@ -439,8 +437,8 @@ using ZernikeTensorSpanGeo = ZernikeTensorSpan<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, Indexing indexing, std::size_t... outer_extents>
-using ZernikeTensorSpanNormalGeo = ZernikeTensorSpan<
-    ElementType, indexing, ZernikeNorm::normed, st::Geo, outer_extents...>;
+using ZernikeTensorSpanNormedGeo = ZernikeTensorSpan<
+    ElementType, indexing, NormedGeo, outer_extents...>;
 
 /**
     @brief A non-owning view of a vector of 3D Zernike function data.
@@ -451,11 +449,10 @@ using ZernikeTensorSpanNormalGeo = ZernikeTensorSpan<
     @tparam Convention Spherical harmonic convention.
 */
 template <
-    typename ElementType, Indexing indexing, ZernikeNorm zernike_norm,
-    st::sh_convention Convention
+    typename ElementType, Indexing indexing, zernike_convention Convention
 >
 using ZernikeVectorSpan = ZernikeTensorSpan<
-    ElementType, indexing, zernike_norm, Convention, std::dynamic_extent>;
+    ElementType, indexing, Convention, std::dynamic_extent>;
 
 /**
     @brief Convenient alias for `ZernikeVectorSpan` with unnormalized Zernike
@@ -466,7 +463,7 @@ using ZernikeVectorSpan = ZernikeTensorSpan<
 */
 template <typename ElementType, Indexing indexing>
 using ZernikeVectorSpanAcoustics = ZernikeVectorSpan<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Acoustics>;
+    ElementType, indexing, Acoustics>;
 
 /**
     @brief Convenient alias for `ZernikeVectorSpan` with orthonormal Zernike
@@ -476,8 +473,8 @@ using ZernikeVectorSpanAcoustics = ZernikeVectorSpan<
     @tparam indexing Determines azimuthal index order.
 */
 template <typename ElementType, Indexing indexing>
-using ZernikeVectorSpanNormalAcoustics = ZernikeVectorSpan<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Acoustics>;
+using ZernikeVectorSpanNormedAcoustics = ZernikeVectorSpan<
+    ElementType, indexing, NormedAcoustics>;
 
 /**
     @brief Convenient alias for `ZernikeVectorSpan` with unnormalized Zernike
@@ -488,7 +485,7 @@ using ZernikeVectorSpanNormalAcoustics = ZernikeVectorSpan<
 */
 template <typename ElementType, Indexing indexing>
 using ZernikeVectorSpanQM = ZernikeVectorSpan<
-    ElementType, indexing, ZernikeNorm::unnormed, st::QM>;
+    ElementType, indexing, QM>;
 
 /**
     @brief Convenient alias for `ZernikeVectorSpan` with orthonormal Zernike
@@ -498,8 +495,8 @@ using ZernikeVectorSpanQM = ZernikeVectorSpan<
     @tparam indexing Determines azimuthal index order.
 */
 template <typename ElementType, Indexing indexing>
-using ZernikeVectorSpanNormalQM = ZernikeVectorSpan<
-    ElementType, indexing, ZernikeNorm::normed, st::QM>;
+using ZernikeVectorSpanNormedQM = ZernikeVectorSpan<
+    ElementType, indexing, NormedQM>;
 
 /**
     @brief Convenient alias for `ZernikeVectorSpan` with unnormalized Zernike
@@ -510,7 +507,7 @@ using ZernikeVectorSpanNormalQM = ZernikeVectorSpan<
 */
 template <typename ElementType, Indexing indexing>
 using ZernikeVectorSpanGeo = ZernikeVectorSpan<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Geo>;
+    ElementType, indexing, Geo>;
 
 /**
     @brief Convenient alias for `ZernikeVectorSpan` with orthonormal Zernike
@@ -520,8 +517,8 @@ using ZernikeVectorSpanGeo = ZernikeVectorSpan<
     @tparam indexing Determines azimuthal index order.
 */
 template <typename ElementType, Indexing indexing>
-using ZernikeVectorSpanNormalGeo = ZernikeVectorSpan<
-    ElementType, indexing, ZernikeNorm::normed, st::Geo>;
+using ZernikeVectorSpanNormedGeo = ZernikeVectorSpan<
+    ElementType, indexing, NormedGeo>;
 
 /**
     @brief A container for mutlidimensional arrays of Zernike function data.
@@ -533,12 +530,12 @@ using ZernikeVectorSpanNormalGeo = ZernikeVectorSpan<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <
-    typename ElementType, Indexing indexing, ZernikeNorm zernike_norm,
-    st::sh_convention Convention, std::size_t... outer_extents
+    typename ElementType, Indexing indexing, zernike_convention Convention,
+    std::size_t... outer_extents
 >
 using ZernikeExpansionTensor = ShapedArray<
     ElementType,
-    ZernikeTensorShape<indexing, zernike_norm, Convention, outer_extents...>>;
+    ZernikeTensorShape<indexing, Convention, outer_extents...>>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionTensor` with unnormalized Zernike
@@ -550,7 +547,7 @@ using ZernikeExpansionTensor = ShapedArray<
 */
 template <typename ElementType, Indexing indexing, std::size_t... outer_extents>
 using ZernikeExpansionTensorAcoustics = ZernikeExpansionTensor<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Acoustics, outer_extents...>;
+    ElementType, indexing, Acoustics, outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionTensor` with orthnormal Zernike
@@ -561,8 +558,8 @@ using ZernikeExpansionTensorAcoustics = ZernikeExpansionTensor<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, Indexing indexing, std::size_t... outer_extents>
-using ZernikeExpansionTensorNormalAcoustics = ZernikeExpansionTensor<
-    ElementType, indexing, ZernikeNorm::normed, st::Acoustics, outer_extents...>;
+using ZernikeExpansionTensorNormedAcoustics = ZernikeExpansionTensor<
+    ElementType, indexing, NormedAcoustics, outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionTensor` with unnormalized Zernike
@@ -574,7 +571,7 @@ using ZernikeExpansionTensorNormalAcoustics = ZernikeExpansionTensor<
 */
 template <typename ElementType, Indexing indexing, std::size_t... outer_extents>
 using ZernikeExpansionTensorQM = ZernikeExpansionTensor<
-    ElementType, indexing, ZernikeNorm::unnormed, st::QM, outer_extents...>;
+    ElementType, indexing, QM, outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionTensor` with orthonormal Zernike
@@ -585,8 +582,8 @@ using ZernikeExpansionTensorQM = ZernikeExpansionTensor<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, Indexing indexing, std::size_t... outer_extents>
-using ZernikeExpansionTensorNormalQM = ZernikeExpansionTensor<
-    ElementType, indexing, ZernikeNorm::normed, st::QM, outer_extents...>;
+using ZernikeExpansionTensorNormedQM = ZernikeExpansionTensor<
+    ElementType, indexing, NormedQM, outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionTensor` with unnormalized Zernike
@@ -598,7 +595,7 @@ using ZernikeExpansionTensorNormalQM = ZernikeExpansionTensor<
 */
 template <typename ElementType, Indexing indexing, std::size_t... outer_extents>
 using ZernikeExpansionTensorGeo = ZernikeExpansionTensor<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Geo, outer_extents...>;
+    ElementType, indexing, Geo, outer_extents...>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionTensor` with orthonormal Zernike
@@ -609,8 +606,8 @@ using ZernikeExpansionTensorGeo = ZernikeExpansionTensor<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, Indexing indexing, std::size_t... outer_extents>
-using ZernikeExpansionTensorNormalGeo = ZernikeExpansionTensor<
-    ElementType, indexing, ZernikeNorm::normed, st::Geo, outer_extents...>;
+using ZernikeExpansionTensorNormedGeo = ZernikeExpansionTensor<
+    ElementType, indexing, NormedGeo, outer_extents...>;
 
 /**
     @brief A container for a vector of Zernike function data.
@@ -621,11 +618,10 @@ using ZernikeExpansionTensorNormalGeo = ZernikeExpansionTensor<
     @tparam Convention Spherical harmonic convention.
 */
 template <
-    typename ElementType, Indexing indexing, ZernikeNorm zernike_norm,
-    st::sh_convention Convention
+    typename ElementType, Indexing indexing, zernike_convention Convention
 >
 using ZernikeExpansionVector = ZernikeExpansionTensor<
-    ElementType, indexing, zernike_norm, Convention, std::dynamic_extent>;
+    ElementType, indexing, Convention, std::dynamic_extent>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionVector` with unnormalized Zernike
@@ -636,7 +632,7 @@ using ZernikeExpansionVector = ZernikeExpansionTensor<
 */
 template <typename ElementType, Indexing indexing>
 using ZernikeExpansionVectorAcoustics = ZernikeExpansionVector<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Acoustics>;
+    ElementType, indexing, Acoustics>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionVector` with orthnormal Zernike
@@ -646,8 +642,8 @@ using ZernikeExpansionVectorAcoustics = ZernikeExpansionVector<
     @tparam indexing Determines azimuthal index order.
 */
 template <typename ElementType, Indexing indexing>
-using ZernikeExpansionVectorNormalAcoustics = ZernikeExpansionVector<
-    ElementType, indexing, ZernikeNorm::normed, st::Acoustics>;
+using ZernikeExpansionVectorNormedAcoustics = ZernikeExpansionVector<
+    ElementType, indexing, NormedAcoustics>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionVector` with unnormalized Zernike
@@ -658,7 +654,7 @@ using ZernikeExpansionVectorNormalAcoustics = ZernikeExpansionVector<
 */
 template <typename ElementType, Indexing indexing>
 using ZernikeExpansionVectorQM = ZernikeExpansionVector<
-    ElementType, indexing, ZernikeNorm::unnormed, st::QM>;
+    ElementType, indexing, QM>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionVector` with orthonormal Zernike
@@ -668,8 +664,8 @@ using ZernikeExpansionVectorQM = ZernikeExpansionVector<
     @tparam indexing Determines azimuthal index order.
 */
 template <typename ElementType, Indexing indexing>
-using ZernikeExpansionVectorNormalQM = ZernikeExpansionVector<
-    ElementType, indexing, ZernikeNorm::normed, st::QM>;
+using ZernikeExpansionVectorNormedQM = ZernikeExpansionVector<
+    ElementType, indexing, NormedQM>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionVector` with unnormalized Zernike
@@ -680,7 +676,7 @@ using ZernikeExpansionVectorNormalQM = ZernikeExpansionVector<
 */
 template <typename ElementType, Indexing indexing>
 using ZernikeExpansionVectorGeo = ZernikeExpansionVector<
-    ElementType, indexing, ZernikeNorm::unnormed, st::Geo>;
+    ElementType, indexing, Geo>;
 
 /**
     @brief Convenient alias for `ZernikeExpansionVector` with orthonormal Zernike
@@ -690,8 +686,8 @@ using ZernikeExpansionVectorGeo = ZernikeExpansionVector<
     @tparam indexing Determines azimuthal index order.
 */
 template <typename ElementType, Indexing indexing>
-using ZernikeExpansionVectorNormalGeo = ZernikeExpansionVector<
-    ElementType, indexing, ZernikeNorm::normed, st::Geo>;
+using ZernikeExpansionVectorNormedGeo = ZernikeExpansionVector<
+    ElementType, indexing, NormedGeo>;
 
 /**
     @brief A complex encoded view of real 3D Zernike function data.
@@ -702,11 +698,10 @@ using ZernikeExpansionVectorNormalGeo = ZernikeExpansionVector<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    typename ElementType, ZernikeNorm zernike_norm, st::sh_convention Convention,
-    std::size_t... inner_extents
+    typename ElementType, zernike_convention Convention, std::size_t... inner_extents
 >
 using ComplexEncodedRealZernikeSpan = ShapedSpan<
-    ElementType, ZernikeNonnegativeShape<zernike_norm, Convention, inner_extents...>>;
+    ElementType, ZernikeNonnegativeShape<Convention, inner_extents...>>;
 
 /**
     @brief A non-owning view of isotropic 3D Zernike function data.
@@ -717,11 +712,9 @@ using ComplexEncodedRealZernikeSpan = ShapedSpan<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    std::floating_point ElementType,
-    zt::ZernikeNorm zernike_norm, st::sh_convention Convention,
-    std::size_t... inner_extents>
+    typename ElementType, zernike_convention Convention, std::size_t... inner_extents>
 using IsotropicZernikeSpan = zest::ShapedSpan<
-    ElementType, IsotropicZernikeShape<zernike_norm, Convention, inner_extents...>>;
+    ElementType, IsotropicZernikeShape<Convention, inner_extents...>>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeSpan` with unnormalized Zernike
@@ -732,7 +725,7 @@ using IsotropicZernikeSpan = zest::ShapedSpan<
 */
 template <typename ElementType, std::size_t... inner_extents>
 using IsotropicZernikeSpanAcoustics = IsotropicZernikeSpan<
-    ElementType, ZernikeNorm::unnormed, st::Acoustics, inner_extents...>;
+    ElementType, Acoustics, inner_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeSpan` with orthonormal Zernike
@@ -742,8 +735,8 @@ using IsotropicZernikeSpanAcoustics = IsotropicZernikeSpan<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, std::size_t... inner_extents>
-using IsotropicZernikeSpanNormalAcoustics = IsotropicZernikeSpan<
-    ElementType, ZernikeNorm::unnormed, st::Acoustics, inner_extents...>;
+using IsotropicZernikeSpanNormedAcoustics = IsotropicZernikeSpan<
+    ElementType, NormedAcoustics, inner_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeSpan` with unnormalized Zernike
@@ -754,7 +747,7 @@ using IsotropicZernikeSpanNormalAcoustics = IsotropicZernikeSpan<
 */
 template <typename ElementType, std::size_t... inner_extents>
 using IsotropicZernikeSpanQM = IsotropicZernikeSpan<
-    ElementType, ZernikeNorm::unnormed, st::QM, inner_extents...>;
+    ElementType, QM, inner_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeSpan` with orthonormal Zernike
@@ -764,8 +757,8 @@ using IsotropicZernikeSpanQM = IsotropicZernikeSpan<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, std::size_t... inner_extents>
-using IsotropicZernikeSpanNormalQM = IsotropicZernikeSpan<
-    ElementType, ZernikeNorm::normed, st::QM, inner_extents...>;
+using IsotropicZernikeSpanNormedQM = IsotropicZernikeSpan<
+    ElementType, NormedQM, inner_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeSpan` with unnormalized Zernike
@@ -776,7 +769,7 @@ using IsotropicZernikeSpanNormalQM = IsotropicZernikeSpan<
 */
 template <typename ElementType, std::size_t... inner_extents>
 using IsotropicZernikeSpanGeo = IsotropicZernikeSpan<
-    ElementType, ZernikeNorm::unnormed, st::Geo, inner_extents...>;
+    ElementType, Geo, inner_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeSpan` with orthonormal Zernike
@@ -786,8 +779,8 @@ using IsotropicZernikeSpanGeo = IsotropicZernikeSpan<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, std::size_t... inner_extents>
-using IsotropicZernikeSpanNormalGeo = IsotropicZernikeSpan<
-    ElementType, ZernikeNorm::normed, st::Geo, inner_extents...>;
+using IsotropicZernikeSpanNormedGeo = IsotropicZernikeSpan<
+    ElementType, NormedGeo, inner_extents...>;
 
 /**
     @brief A container for isotropic 3D Zernike function data.
@@ -798,11 +791,9 @@ using IsotropicZernikeSpanNormalGeo = IsotropicZernikeSpan<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <
-    std::floating_point ElementType,
-    zest::zt::ZernikeNorm zernike_norm, st::sh_convention Convention,
-    std::size_t... inner_extents>
+    typename ElementType, zernike_convention Convention, std::size_t... inner_extents>
 using IsotropicZernikeExpansion = zest::ShapedArray<
-    ElementType, IsotropicZernikeShape<zernike_norm, Convention, inner_extents...>>;
+    ElementType, IsotropicZernikeShape<Convention, inner_extents...>>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansion` with unnormalized
@@ -814,7 +805,7 @@ using IsotropicZernikeExpansion = zest::ShapedArray<
 */
 template <typename ElementType, std::size_t... inner_extents>
 using IsotropicZernikeExpansionAcoustics = IsotropicZernikeExpansion<
-    ElementType, ZernikeNorm::unnormed, st::Acoustics, inner_extents...>;
+    ElementType, Acoustics, inner_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansion` with orthonormal
@@ -825,8 +816,8 @@ using IsotropicZernikeExpansionAcoustics = IsotropicZernikeExpansion<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, std::size_t... inner_extents>
-using IsotropicZernikeExpansionNormalAcoustics = IsotropicZernikeExpansion<
-    ElementType, ZernikeNorm::unnormed, st::Acoustics, inner_extents...>;
+using IsotropicZernikeExpansionNormedAcoustics = IsotropicZernikeExpansion<
+    ElementType, NormedAcoustics, inner_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansion` with unnormalized
@@ -838,7 +829,7 @@ using IsotropicZernikeExpansionNormalAcoustics = IsotropicZernikeExpansion<
 */
 template <typename ElementType, std::size_t... inner_extents>
 using IsotropicZernikeExpansionQM = IsotropicZernikeExpansion<
-    ElementType, ZernikeNorm::unnormed, st::QM, inner_extents...>;
+    ElementType, QM, inner_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansion` with orthonormal
@@ -849,8 +840,8 @@ using IsotropicZernikeExpansionQM = IsotropicZernikeExpansion<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, std::size_t... inner_extents>
-using IsotropicZernikeExpansionNormalQM = IsotropicZernikeExpansion<
-    ElementType, ZernikeNorm::normed, st::QM, inner_extents...>;
+using IsotropicZernikeExpansionNormedQM = IsotropicZernikeExpansion<
+    ElementType, NormedQM, inner_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansion` with unnormalized
@@ -862,7 +853,7 @@ using IsotropicZernikeExpansionNormalQM = IsotropicZernikeExpansion<
 */
 template <typename ElementType, std::size_t... inner_extents>
 using IsotropicZernikeExpansionGeo = IsotropicZernikeExpansion<
-    ElementType, ZernikeNorm::unnormed, st::Geo, inner_extents...>;
+    ElementType, Geo, inner_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansion` with orthonormal
@@ -873,8 +864,8 @@ using IsotropicZernikeExpansionGeo = IsotropicZernikeExpansion<
     @tparam inner_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, std::size_t... inner_extents>
-using IsotropicZernikeExpansionNormalGeo = IsotropicZernikeExpansion<
-    ElementType, ZernikeNorm::normed, st::Geo, inner_extents...>;
+using IsotropicZernikeExpansionNormedGeo = IsotropicZernikeExpansion<
+    ElementType, NormedGeo, inner_extents...>;
 
 /**
     @brief A non-owning view of a multidimensional array of isotropic 3D Zernike
@@ -886,12 +877,11 @@ using IsotropicZernikeExpansionNormalGeo = IsotropicZernikeExpansion<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <
-    typename ElementType, ZernikeNorm zernike_norm,
-    st::sh_convention Convention, std::size_t... outer_extents
+    typename ElementType, zernike_convention Convention, std::size_t... outer_extents
 >
 using IsotropicZernikeTensorSpan = ShapedSpan<
     ElementType,
-    IsotropicZernikeTensorShape<zernike_norm, Convention, outer_extents...>>;
+    IsotropicZernikeTensorShape<Convention, outer_extents...>>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTensorSpan` with unnormalized
@@ -903,7 +893,7 @@ using IsotropicZernikeTensorSpan = ShapedSpan<
 */
 template <typename ElementType, std::size_t... outer_extents>
 using IsotropicZernikeTensorSpanAcoustics = IsotropicZernikeTensorSpan<
-    ElementType, ZernikeNorm::unnormed, st::Acoustics, outer_extents...>;
+    ElementType, Acoustics, outer_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTensorSpan` with orthonormal
@@ -914,8 +904,8 @@ using IsotropicZernikeTensorSpanAcoustics = IsotropicZernikeTensorSpan<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, std::size_t... outer_extents>
-using IsotropicZernikeTensorSpanNormalAcoustics = IsotropicZernikeTensorSpan<
-    ElementType, ZernikeNorm::unnormed, st::Acoustics, outer_extents...>;
+using IsotropicZernikeTensorSpanNormedAcoustics = IsotropicZernikeTensorSpan<
+    ElementType, NormedAcoustics, outer_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTensorSpan` with unnormalized
@@ -927,7 +917,7 @@ using IsotropicZernikeTensorSpanNormalAcoustics = IsotropicZernikeTensorSpan<
 */
 template <typename ElementType, std::size_t... outer_extents>
 using IsotropicZernikeTensorSpanQM = IsotropicZernikeTensorSpan<
-    ElementType, ZernikeNorm::unnormed, st::QM, outer_extents...>;
+    ElementType, QM, outer_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTensorSpan` with orthonormal
@@ -938,8 +928,8 @@ using IsotropicZernikeTensorSpanQM = IsotropicZernikeTensorSpan<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, std::size_t... outer_extents>
-using IsotropicZernikeTensorSpanNormalQM = IsotropicZernikeTensorSpan<
-    ElementType, ZernikeNorm::normed, st::QM, outer_extents...>;
+using IsotropicZernikeTensorSpanNormedQM = IsotropicZernikeTensorSpan<
+    ElementType, NormedQM, outer_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTensorSpan` with unnormalized
@@ -951,7 +941,7 @@ using IsotropicZernikeTensorSpanNormalQM = IsotropicZernikeTensorSpan<
 */
 template <typename ElementType, std::size_t... outer_extents>
 using IsotropicZernikeTensorSpanGeo = IsotropicZernikeTensorSpan<
-    ElementType, ZernikeNorm::unnormed, st::Geo, outer_extents...>;
+    ElementType, Geo, outer_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTensorSpan` with orthonormal
@@ -962,8 +952,8 @@ using IsotropicZernikeTensorSpanGeo = IsotropicZernikeTensorSpan<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, std::size_t... outer_extents>
-using IsotropicZernikeTensorSpanNormalGeo = IsotropicZernikeTensorSpan<
-    ElementType, ZernikeNorm::normed, st::Geo, outer_extents...>;
+using IsotropicZernikeTensorSpanNormedGeo = IsotropicZernikeTensorSpan<
+    ElementType, NormedGeo, outer_extents...>;
 
 /**
     @brief A non-owning view of a vector of isotropic 3D Zernike function data.
@@ -972,9 +962,9 @@ using IsotropicZernikeTensorSpanNormalGeo = IsotropicZernikeTensorSpan<
     @tparam zernike_norm Zernike function normalization convention.
     @tparam Convention Spherical harmonic convention.
 */
-template <typename ElementType, ZernikeNorm zernike_norm, st::sh_convention Convention>
+template <typename ElementType, zernike_convention Convention>
 using IsotropicZernikeVectorSpan = IsotropicZernikeTensorSpan<
-    ElementType, zernike_norm, Convention, std::dynamic_extent>;
+    ElementType, Convention, std::dynamic_extent>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeVectorSpan` with unnormalized
@@ -985,7 +975,7 @@ using IsotropicZernikeVectorSpan = IsotropicZernikeTensorSpan<
 */
 template <typename ElementType>
 using IsotropicZernikeVectorSpanAcoustics = IsotropicZernikeVectorSpan<
-    ElementType, ZernikeNorm::unnormed, st::Acoustics>;
+    ElementType, Acoustics>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeVectorSpan` with orthonormal
@@ -995,8 +985,8 @@ using IsotropicZernikeVectorSpanAcoustics = IsotropicZernikeVectorSpan<
     @tparam ElementType Type of elements in the view.
 */
 template <typename ElementType>
-using IsotropicZernikeVectorSpanNormalAcoustics = IsotropicZernikeVectorSpan<
-    ElementType, ZernikeNorm::unnormed, st::Acoustics>;
+using IsotropicZernikeVectorSpanNormedAcoustics = IsotropicZernikeVectorSpan<
+    ElementType, NormedAcoustics>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeVectorSpan` with unnormalized
@@ -1007,7 +997,7 @@ using IsotropicZernikeVectorSpanNormalAcoustics = IsotropicZernikeVectorSpan<
 */
 template <typename ElementType>
 using IsotropicZernikeVectorSpanQM = IsotropicZernikeVectorSpan<
-    ElementType, ZernikeNorm::unnormed, st::QM>;
+    ElementType, QM>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeVectorSpan` with orthonormal
@@ -1017,8 +1007,8 @@ using IsotropicZernikeVectorSpanQM = IsotropicZernikeVectorSpan<
     @tparam ElementType Type of elements in the view.
 */
 template <typename ElementType>
-using IsotropicZernikeVectorSpanNormalQM = IsotropicZernikeVectorSpan<
-    ElementType, ZernikeNorm::normed, st::QM>;
+using IsotropicZernikeVectorSpanNormedQM = IsotropicZernikeVectorSpan<
+    ElementType, NormedQM>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeVectorSpan` with unnormalized
@@ -1029,7 +1019,7 @@ using IsotropicZernikeVectorSpanNormalQM = IsotropicZernikeVectorSpan<
 */
 template <typename ElementType>
 using IsotropicZernikeVectorSpanGeo = IsotropicZernikeVectorSpan<
-    ElementType, ZernikeNorm::unnormed, st::Geo>;
+    ElementType, Geo>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeVectorSpan` with orthonormal
@@ -1039,8 +1029,8 @@ using IsotropicZernikeVectorSpanGeo = IsotropicZernikeVectorSpan<
     @tparam ElementType Type of elements in the view.
 */
 template <typename ElementType>
-using IsotropicZernikeVectorSpanNormalGeo = IsotropicZernikeVectorSpan<
-    ElementType, ZernikeNorm::normed, st::Geo>;
+using IsotropicZernikeVectorSpanNormedGeo = IsotropicZernikeVectorSpan<
+    ElementType, NormedGeo>;
 
 /**
     @brief A container for mutlidimensional arrays of isotropic Zernike function
@@ -1052,12 +1042,11 @@ using IsotropicZernikeVectorSpanNormalGeo = IsotropicZernikeVectorSpan<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <
-    typename ElementType, ZernikeNorm zernike_norm,
-    st::sh_convention Convention, std::size_t... outer_extents
+    typename ElementType, zernike_convention Convention, std::size_t... outer_extents
 >
 using IsotropicZernikeExpansionTensor = ShapedArray<
     ElementType,
-    IsotropicZernikeTensorShape<zernike_norm, Convention, outer_extents...>>;
+    IsotropicZernikeTensorShape<Convention, outer_extents...>>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansionTensor` with
@@ -1069,7 +1058,7 @@ using IsotropicZernikeExpansionTensor = ShapedArray<
 */
 template <typename ElementType, std::size_t... outer_extents>
 using IsotropicZernikeExpansionTensorAcoustics = IsotropicZernikeExpansionTensor<
-    ElementType, ZernikeNorm::unnormed, st::Acoustics, outer_extents...>;
+    ElementType, Acoustics, outer_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansionTensor` with
@@ -1080,8 +1069,8 @@ using IsotropicZernikeExpansionTensorAcoustics = IsotropicZernikeExpansionTensor
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, std::size_t... outer_extents>
-using IsotropicZernikeExpansionTensorNormalAcoustics = IsotropicZernikeExpansionTensor<
-    ElementType, ZernikeNorm::normed, st::Acoustics, outer_extents...>;
+using IsotropicZernikeExpansionTensorNormedAcoustics = IsotropicZernikeExpansionTensor<
+    ElementType, NormedAcoustics, outer_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansionTensor` with
@@ -1093,7 +1082,7 @@ using IsotropicZernikeExpansionTensorNormalAcoustics = IsotropicZernikeExpansion
 */
 template <typename ElementType, std::size_t... outer_extents>
 using IsotropicZernikeExpansionTensorQM = IsotropicZernikeExpansionTensor<
-    ElementType, ZernikeNorm::unnormed, st::QM, outer_extents...>;
+    ElementType, QM, outer_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansionTensor` with
@@ -1104,8 +1093,8 @@ using IsotropicZernikeExpansionTensorQM = IsotropicZernikeExpansionTensor<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, std::size_t... outer_extents>
-using IsotropicZernikeExpansionTensorNormalQM = IsotropicZernikeExpansionTensor<
-    ElementType, ZernikeNorm::normed, st::QM, outer_extents...>;
+using IsotropicZernikeExpansionTensorNormedQM = IsotropicZernikeExpansionTensor<
+    ElementType, NormedQM, outer_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansionTensor` with
@@ -1117,7 +1106,7 @@ using IsotropicZernikeExpansionTensorNormalQM = IsotropicZernikeExpansionTensor<
 */
 template <typename ElementType, std::size_t... outer_extents>
 using IsotropicZernikeExpansionTensorGeo = IsotropicZernikeExpansionTensor<
-    ElementType, ZernikeNorm::unnormed, st::Geo, outer_extents...>;
+    ElementType, Geo, outer_extents...>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansionTensor` with
@@ -1128,8 +1117,8 @@ using IsotropicZernikeExpansionTensorGeo = IsotropicZernikeExpansionTensor<
     @tparam outer_extents Extents of an inner multidimensional array structure.
 */
 template <typename ElementType, std::size_t... outer_extents>
-using IsotropicZernikeExpansionTensorNormalGeo = IsotropicZernikeExpansionTensor<
-    ElementType, ZernikeNorm::normed, st::Geo, outer_extents...>;
+using IsotropicZernikeExpansionTensorNormedGeo = IsotropicZernikeExpansionTensor<
+    ElementType, NormedGeo, outer_extents...>;
 
 /**
     @brief A container for a vector of isotropic Zernike function data.
@@ -1138,9 +1127,9 @@ using IsotropicZernikeExpansionTensorNormalGeo = IsotropicZernikeExpansionTensor
     @tparam zernike_norm Zernike function normalization convention.
     @tparam Convention Spherical harmonic convention.
 */
-template <typename ElementType, ZernikeNorm zernike_norm, st::sh_convention Convention>
+template <typename ElementType, zernike_convention Convention>
 using IsotropicZernikeExpansionVector = IsotropicZernikeExpansionTensor<
-    ElementType, zernike_norm, Convention, std::dynamic_extent>;
+    ElementType, Convention, std::dynamic_extent>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansionVector` with
@@ -1151,7 +1140,7 @@ using IsotropicZernikeExpansionVector = IsotropicZernikeExpansionTensor<
 */
 template <typename ElementType>
 using IsotropicZernikeExpansionVectorAcoustics = IsotropicZernikeExpansionVector<
-    ElementType, ZernikeNorm::unnormed, st::Acoustics>;
+    ElementType, Acoustics>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansionVector` with
@@ -1161,8 +1150,8 @@ using IsotropicZernikeExpansionVectorAcoustics = IsotropicZernikeExpansionVector
     @tparam ElementType Type of elements in the view.
 */
 template <typename ElementType>
-using IsotropicZernikeExpansionVectorNormalAcoustics = IsotropicZernikeExpansionVector<
-    ElementType, ZernikeNorm::normed, st::Acoustics>;
+using IsotropicZernikeExpansionVectorNormedAcoustics = IsotropicZernikeExpansionVector<
+    ElementType, NormedAcoustics>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansionVector` with
@@ -1173,7 +1162,7 @@ using IsotropicZernikeExpansionVectorNormalAcoustics = IsotropicZernikeExpansion
 */
 template <typename ElementType>
 using IsotropicZernikeExpansionVectorQM = IsotropicZernikeExpansionVector<
-    ElementType, ZernikeNorm::unnormed, st::QM>;
+    ElementType, QM>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansionVector` with
@@ -1183,8 +1172,8 @@ using IsotropicZernikeExpansionVectorQM = IsotropicZernikeExpansionVector<
     @tparam ElementType Type of elements in the view.
 */
 template <typename ElementType>
-using IsotropicZernikeExpansionVectorNormalQM = IsotropicZernikeExpansionVector<
-    ElementType, ZernikeNorm::normed, st::QM>;
+using IsotropicZernikeExpansionVectorNormedQM = IsotropicZernikeExpansionVector<
+    ElementType, NormedQM>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansionVector` with
@@ -1195,7 +1184,7 @@ using IsotropicZernikeExpansionVectorNormalQM = IsotropicZernikeExpansionVector<
 */
 template <typename ElementType>
 using IsotropicZernikeExpansionVectorGeo = IsotropicZernikeExpansionVector<
-    ElementType, ZernikeNorm::unnormed, st::Geo>;
+    ElementType, Geo>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeExpansionVector` with
@@ -1205,7 +1194,7 @@ using IsotropicZernikeExpansionVectorGeo = IsotropicZernikeExpansionVector<
     @tparam ElementType Type of elements in the view.
 */
 template <typename ElementType>
-using IsotropicZernikeExpansionVectorNormalGeo = IsotropicZernikeExpansionVector<
-    ElementType, ZernikeNorm::normed, st::Geo>;
+using IsotropicZernikeExpansionVectorNormedGeo = IsotropicZernikeExpansionVector<
+    ElementType, NormedGeo>;
 
 } // namespace zest::zt

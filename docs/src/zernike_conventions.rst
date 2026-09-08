@@ -14,14 +14,21 @@ Enums
 Types
 -----
 
-.. doxygenstruct:: zest::zt::ZernikeTag
+.. doxygenstruct:: zest::zt::ZernikeNormConvention
+    :project: zest
+    :members:
+
+.. doxygenstruct:: zest::zt::ZernikeConvention
     :project: zest
     :members:
 
 Concepts
 --------
 
-.. doxygenconcept:: zest::zt::zernike_tagged
+.. doxygenconcept:: zest::zt::zernike_norm_convention
+    :project: zest
+
+.. doxygenconcept:: zest::zt::zernike_convention
     :project: zest
 
 Functions

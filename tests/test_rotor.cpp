@@ -321,7 +321,7 @@ bool test_zernike_trivial_rotation_is_trivial_order_6()
 {
     constexpr std::size_t order = 6;
 
-    using Expansion = zest::zt::ZernikeExpansion<double, zest::Indexing::zero_based, zest::zt::ZernikeNorm::normed, zest::st::Geo>;
+    using Expansion = zest::zt::ZernikeExpansion<double, zest::Indexing::zero_based, zest::zt::Geo>;
 
     Expansion expansion(order);
 
@@ -432,7 +432,7 @@ bool test_zernike_trivial_polar_rotation_is_trivial_order_6()
 {
     constexpr std::size_t order = 6;
 
-    using Expansion = zest::zt::ZernikeExpansion<double, zest::Indexing::zero_based, zest::zt::ZernikeNorm::normed, zest::st::Geo>;
+    using Expansion = zest::zt::ZernikeExpansion<double, zest::Indexing::zero_based, zest::zt::Geo>;
 
     Expansion expansion(order);
 
@@ -503,7 +503,7 @@ int main()
 
     using ZernikeExpansionType
         = zest::zt::ZernikeExpansion<
-            double, zest::Indexing::zero_based, zest::zt::ZernikeNorm::normed, zest::st::Geo>;
+            double, zest::Indexing::zero_based, zest::zt::Geo>;
     assert(test_rotation_completes<ZernikeExpansionType>());
 
     assert(test_sh_trivial_rotation_is_trivial_order_6());

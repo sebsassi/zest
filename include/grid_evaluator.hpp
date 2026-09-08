@@ -267,12 +267,12 @@ public:
 
         constexpr st::SHNorm sh_norm = st::sh_norm_of<ExpansionType>();
         constexpr st::SHPhase sh_phase = st::sh_phase_of<ExpansionType>();
-        constexpr zt::ZernikeNorm zernike_norm = zernike_norm_of<ExpansionType>();
+        constexpr ZernikeNorm zernike_norm = zernike_norm_of<ExpansionType>();
 
-        RadialZernikeSpan<double, zernike_norm, std::dynamic_extent>
+        RadialZernikeSpan<double, ZernikeNormConvention<zernike_norm>, std::dynamic_extent>
         zernike(m_zernike_grid, order, m_rad_size);
 
-        m_zernike_recursion.generate<zernike_norm>(radii, zernike);
+        m_zernike_recursion.generate<ZernikeNormConvention<zernike_norm>>(radii, zernike);
 
         for (std::size_t i = 0; i < m_lat_size; ++i)
             m_cos_colat[i] = std::cos(colatitudes[i]);
@@ -303,7 +303,7 @@ private:
         constexpr zt::ZernikeNorm zernike_norm = zernike_norm_of<ExpansionType>();
 
         const std::size_t order = expansion.order();
-        RadialZernikeSpan<const double, zernike_norm, std::dynamic_extent>
+        RadialZernikeSpan<const double, ZernikeNormConvention<zernike_norm>, std::dynamic_extent>
         zernike(m_zernike_grid, order, m_rad_size);
 
         std::ranges::fill(m_flm_grid, 0.0);

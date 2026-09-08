@@ -35,15 +35,15 @@ constexpr bool is_close(double a, double b, double tol)
     return std::fabs(a - b) < tol;
 }
 
-template <zest::zt::ZernikeNorm zernike_norm>
+template <zest::zt::zernike_norm_convention Convention>
 bool test_radial_zernike_recursion_correct_for_order_1()
 {
     constexpr std::size_t order = 1;
     zest::zt::RadialZernikeRecursion recursion(order);
 
-    const double R00 = 1.0*((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0);
+    const double R00 = 1.0*((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0);
 
-    zest::zt::RadialZernikeExpansion<double, zernike_norm> zernike(order);
+    zest::zt::RadialZernikeExpansion<double, Convention> zernike(order);
     recursion.generate(1.0, zernike);
     bool success = is_close(zernike[0, 0], R00, 1.0e-10);
 
@@ -53,53 +53,53 @@ bool test_radial_zernike_recursion_correct_for_order_1()
     return success;
 }
 
-template <zest::zt::ZernikeNorm zernike_norm>
+template <zest::zt::zernike_norm_convention Convention>
 bool test_radial_zernike_recursion_generates_correct_up_to_order_7(double r)
 {
     constexpr std::size_t order = 7;
 
     const double R00 = 1.0
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0);
 
     const double R11 = r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(5.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(5.0) : 1.0);
 
     const double R20 = (2.5*r*r - 1.5)
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(7.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(7.0) : 1.0);
     const double R22 = r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(7.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(7.0) : 1.0);
 
     const double R31 = (3.5*r*r - 2.5)*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(9.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(9.0) : 1.0);
     const double R33 = r*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(9.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(9.0) : 1.0);
 
     const double R40 = ((7.875*r*r - 8.75)*r*r + 1.875)
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(11.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(11.0) : 1.0);
     const double R42 = (4.5*r*r - 3.5)*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(11.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(11.0) : 1.0);
     const double R44 = r*r*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(11.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(11.0) : 1.0);
 
     const double R51 = ((12.375*r*r - 15.75)*r*r + 4.375)*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0);
     const double R53 = (5.5*r*r - 4.5)*r*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0);
     const double R55 = r*r*r*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0);
 
     const double R60 = (((26.8125*r*r - 43.3125)*r*r + 19.6875)*r*r - 2.1875)
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
     const double R62 = ((17.875*r*r - 24.75)*r*r + 7.875)*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
     const double R64 = (6.5*r*r - 5.5)*r*r*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
     const double R66 = r*r*r*r*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
 
     zest::zt::RadialZernikeRecursion recursion(order);
 
-    zest::zt::RadialZernikeExpansion<double, zernike_norm> zernike(order);
+    zest::zt::RadialZernikeExpansion<double, Convention> zernike(order);
     recursion.generate(r, zernike);
     bool success = is_close(zernike[0, 0], R00, 1.0e-10)
             && is_close(zernike[1, 1], R11, 1.0e-10)
@@ -153,13 +153,13 @@ bool test_radial_zernike_normed_recursion_is_orthonormal()
     zest::gl::gl_nodes_and_weights<zest::gl::UnpackedLayout, zest::gl::GLNodeStyle::cos>(
             glq_nodes, glq_weights, glq_weights.size() & 1);
 
-    zest::zt::RadialZernikeExpansionVector<double, zest::zt::ZernikeNorm::normed>
+    zest::zt::RadialZernikeExpansionVector<double, zest::zt::ZernikeNormConvention<zest::zt::ZernikeNorm::normed>>
     zernike_grid(glq_order, order);
 
     for (std::size_t i = 0; i < glq_nodes.size(); ++i)
     {
         const double r = 0.5*(1.0 + glq_nodes[i]);
-        recursion.generate<zest::zt::ZernikeNorm::normed>(r, zernike_grid[i]);
+        recursion.generate<zest::zt::ZernikeNormConvention<zest::zt::ZernikeNorm::normed>>(r, zernike_grid[i]);
     }
 
     const std::size_t matrix_size = (((order - 1) >> 1) + 1)*(((order - 1) >> 1) + 1);
@@ -226,19 +226,19 @@ bool test_radial_zernike_normed_recursion_is_orthonormal()
     return success;
 }
 
-template <zest::zt::ZernikeNorm zernike_norm>
+template <zest::zt::zernike_norm_convention Convention>
 bool test_radial_zernike_vec_recursion_correct_for_order_1()
 {
     constexpr std::size_t order = 1;
     constexpr std::size_t vec_size = 4;
     constexpr std::array<double, vec_size> rad = {0.0, 1.0, 0.5, 0.3};
 
-    zest::zt::RadialZernikeExpansion<double, zernike_norm, std::dynamic_extent>
+    zest::zt::RadialZernikeExpansion<double, Convention, std::dynamic_extent>
     zernike(order, vec_size);
     zest::zt::RadialZernikeRecursion recursion(order);
 
     constexpr double R00 = 1.0
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0);
 
     recursion.generate(rad, zernike);
     bool success = is_close(zernike[0, 0, 0], R00, 1.0e-10)
@@ -257,7 +257,7 @@ bool test_radial_zernike_vec_recursion_correct_for_order_1()
     return success;
 }
 
-template <zest::zt::ZernikeNorm zernike_norm>
+template <zest::zt::zernike_norm_convention Convention>
 bool test_radial_zernike_vec_recursion_generates_correct_up_to_order_7(double r)
 {
     constexpr std::size_t vec_size = 1;
@@ -265,45 +265,45 @@ bool test_radial_zernike_vec_recursion_generates_correct_up_to_order_7(double r)
     const std::array<double, 1> x = {r};
 
     const double R00 = 1.0
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0);
 
     const double R11 = r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(5.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(5.0) : 1.0);
 
     const double R20 = (2.5*r*r - 1.5)
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(7.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(7.0) : 1.0);
     const double R22 = r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(7.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(7.0) : 1.0);
 
     const double R31 = (3.5*r*r - 2.5)*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(9.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(9.0) : 1.0);
     const double R33 = r*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(9.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(9.0) : 1.0);
 
     const double R40 = ((7.875*r*r - 8.75)*r*r + 1.875)
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(11.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(11.0) : 1.0);
     const double R42 = (4.5*r*r - 3.5)*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(11.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(11.0) : 1.0);
     const double R44 = r*r*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(11.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(11.0) : 1.0);
 
     const double R51 = ((12.375*r*r - 15.75)*r*r + 4.375)*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0);
     const double R53 = (5.5*r*r - 4.5)*r*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0);
     const double R55 = r*r*r*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(13.0) : 1.0);
 
     const double R60 = (((26.8125*r*r - 43.3125)*r*r + 19.6875)*r*r - 2.1875)
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
     const double R62 = ((17.875*r*r - 24.75)*r*r + 7.875)*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
     const double R64 = (6.5*r*r - 5.5)*r*r*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
     const double R66 = r*r*r*r*r*r
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
 
-    zest::zt::RadialZernikeExpansion<double, zernike_norm, std::dynamic_extent>
+    zest::zt::RadialZernikeExpansion<double, Convention, std::dynamic_extent>
     zernike(order, vec_size);
 
     zest::zt::RadialZernikeRecursion recursion(order);
@@ -350,11 +350,11 @@ bool test_radial_zernike_vec_recursion_generates_correct_up_to_order_7(double r)
     }
 }
 
-template <zest::zt::ZernikeNorm zernike_norm>
+template <zest::zt::zernike_norm_convention Convention>
 bool test_radial_zernike_vec_recursion_end_points_correct_up_to(std::size_t order)
 {
     constexpr std::size_t vec_size = 2;
-    zest::zt::RadialZernikeExpansion<double, zernike_norm, std::dynamic_extent>
+    zest::zt::RadialZernikeExpansion<double, Convention, std::dynamic_extent>
     reference_zernike(order, vec_size);
 
     std::vector<double> zero_values(order/2);
@@ -372,19 +372,19 @@ bool test_radial_zernike_vec_recursion_end_points_correct_up_to(std::size_t orde
         {
             reference_zernike[n, 0, 0]
                 = zero_values[n/2]*((n % 2) ? 0.0 : 1.0);
-            if constexpr (zernike_norm == zest::zt::ZernikeNorm::normed)
+            if constexpr (Convention::zernike_norm == zest::zt::ZernikeNorm::normed)
                 reference_zernike[n, 0, 0] *= std::sqrt(double(2*n + 3));
         }
         for (std::size_t l = n & 1; l <= n; l += 2)
         {
-            if constexpr (zernike_norm == zest::zt::ZernikeNorm::normed)
+            if constexpr (Convention::zernike_norm == zest::zt::ZernikeNorm::normed)
                 reference_zernike[n, l, 1] = std::sqrt(2*n + 3);
             else
                 reference_zernike[n, l, 1] = 1.0;
         }
     }
 
-    zest::zt::RadialZernikeExpansion<double, zernike_norm, std::dynamic_extent>
+    zest::zt::RadialZernikeExpansion<double, Convention, std::dynamic_extent>
     zernike(order, vec_size);
 
     const std::array<double, vec_size> x = {0.0, 1.0};
@@ -416,15 +416,15 @@ bool test_radial_zernike_vec_recursion_end_points_correct_up_to(std::size_t orde
     return success;
 }
 
-template <zest::zt::ZernikeNorm zernike_norm>
+template <zest::zt::zernike_norm_convention Convention>
 bool test_isotropic_radial_zernike_recursion_correct_for_order_1()
 {
     constexpr std::size_t order = 1;
-    zest::zt::IsotropicRadialZernikeRecursion<zernike_norm> recursion(order, std::array<double, 1>{0.0});
+    zest::zt::IsotropicRadialZernikeRecursion<Convention> recursion(order, std::array<double, 1>{0.0});
 
-    const double R00 = 1.0*((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0);
+    const double R00 = 1.0*((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0);
 
-    zest::zt::IsotropicRadialZernikeExpansion<double, zernike_norm> zernike(order);
+    zest::zt::IsotropicRadialZernikeExpansion<double, Convention> zernike(order);
     zernike[0] = recursion.current()[0];
     bool success = is_close(zernike[0], R00, 1.0e-10);
 
@@ -434,23 +434,23 @@ bool test_isotropic_radial_zernike_recursion_correct_for_order_1()
     return success;
 }
 
-template <zest::zt::ZernikeNorm zernike_norm>
+template <zest::zt::zernike_norm_convention Convention>
 bool test_isotropic_radial_zernike_recursion_generates_correct_up_to_order_7(double r)
 {
     constexpr std::size_t order = 7;
 
     const double R00 = 1.0
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0);
     const double R20 = (2.5*r*r - 1.5)
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(7.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(7.0) : 1.0);
     const double R40 = ((7.875*r*r - 8.75)*r*r + 1.875)
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(11.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(11.0) : 1.0);
     const double R60 = (((26.8125*r*r - 43.3125)*r*r + 19.6875)*r*r - 2.1875)
-        *((zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
+        *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
 
-    zest::zt::IsotropicRadialZernikeRecursion<zernike_norm> recursion(order, std::array<double, 1>{r});
+    zest::zt::IsotropicRadialZernikeRecursion<Convention> recursion(order, std::array<double, 1>{r});
 
-    zest::zt::IsotropicRadialZernikeExpansion<double, zernike_norm> zernike(order);
+    zest::zt::IsotropicRadialZernikeExpansion<double, Convention> zernike(order);
     zernike[0] = recursion.current()[0];
     zernike[2] = recursion.next()[0];
     zernike[4] = recursion.next()[0];
@@ -472,31 +472,31 @@ bool test_isotropic_radial_zernike_recursion_generates_correct_up_to_order_7(dou
     }
 }
 
-template <zest::zt::ZernikeNorm zernike_norm>
+template <zest::zt::zernike_norm_convention Convention>
 void test_zernike()
 {
-    assert(test_radial_zernike_recursion_correct_for_order_1<zernike_norm>());
-    assert(test_radial_zernike_recursion_generates_correct_up_to_order_7<zernike_norm>(0.0));
-    assert(test_radial_zernike_recursion_generates_correct_up_to_order_7<zernike_norm>(1.0));
-    assert(test_radial_zernike_recursion_generates_correct_up_to_order_7<zernike_norm>(0.3));
-    assert(test_radial_zernike_vec_recursion_correct_for_order_1<zernike_norm>());
-    assert(test_radial_zernike_vec_recursion_generates_correct_up_to_order_7<zernike_norm>(0.0));
-    assert(test_radial_zernike_vec_recursion_generates_correct_up_to_order_7<zernike_norm>(1.0));
-    assert(test_radial_zernike_vec_recursion_generates_correct_up_to_order_7<zernike_norm>(0.3));
-    assert(test_radial_zernike_vec_recursion_end_points_correct_up_to<zernike_norm>(30));
+    assert(test_radial_zernike_recursion_correct_for_order_1<Convention>());
+    assert(test_radial_zernike_recursion_generates_correct_up_to_order_7<Convention>(0.0));
+    assert(test_radial_zernike_recursion_generates_correct_up_to_order_7<Convention>(1.0));
+    assert(test_radial_zernike_recursion_generates_correct_up_to_order_7<Convention>(0.3));
+    assert(test_radial_zernike_vec_recursion_correct_for_order_1<Convention>());
+    assert(test_radial_zernike_vec_recursion_generates_correct_up_to_order_7<Convention>(0.0));
+    assert(test_radial_zernike_vec_recursion_generates_correct_up_to_order_7<Convention>(1.0));
+    assert(test_radial_zernike_vec_recursion_generates_correct_up_to_order_7<Convention>(0.3));
+    assert(test_radial_zernike_vec_recursion_end_points_correct_up_to<Convention>(30));
 
-    assert(test_isotropic_radial_zernike_recursion_correct_for_order_1<zernike_norm>());
-    assert(test_isotropic_radial_zernike_recursion_generates_correct_up_to_order_7<zernike_norm>(0.0));
-    assert(test_isotropic_radial_zernike_recursion_generates_correct_up_to_order_7<zernike_norm>(1.0));
-    assert(test_isotropic_radial_zernike_recursion_generates_correct_up_to_order_7<zernike_norm>(0.3));
+    assert(test_isotropic_radial_zernike_recursion_correct_for_order_1<Convention>());
+    assert(test_isotropic_radial_zernike_recursion_generates_correct_up_to_order_7<Convention>(0.0));
+    assert(test_isotropic_radial_zernike_recursion_generates_correct_up_to_order_7<Convention>(1.0));
+    assert(test_isotropic_radial_zernike_recursion_generates_correct_up_to_order_7<Convention>(0.3));
 }
 
 } // namespace
 
 int main()
 {
-    test_zernike<zest::zt::ZernikeNorm::unnormed>();
-    test_zernike<zest::zt::ZernikeNorm::normed>();
+    test_zernike<zest::zt::ZernikeNormConvention<zest::zt::ZernikeNorm::unnormed>>();
+    test_zernike<zest::zt::ZernikeNormConvention<zest::zt::ZernikeNorm::normed>>();
 
     assert(test_radial_zernike_normed_recursion_is_orthonormal());
 }

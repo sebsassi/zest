@@ -130,12 +130,11 @@ template <zt::zernike_expansion<Indexing::zero_based> ExpansionType>
     requires std::same_as<value_type_of<ExpansionType>, double>
         && zt::has_inner_rank<ExpansionType, 0>
 constexpr zt::ComplexEncodedRealZernikeSpan<
-    std::complex<double>, zt::zernike_norm_of<ExpansionType>(), st::convention_of<ExpansionType>>
+    std::complex<double>, zt::convention_of<ExpansionType>>
 encode_as_complex_expansion(ExpansionType&& expansion) noexcept
 {
     using ReturnType = zt::ComplexEncodedRealZernikeSpan<
-        std::complex<double>, zt::zernike_norm_of<ExpansionType>(),
-        st::convention_of<ExpansionType>>;
+        std::complex<double>, zt::convention_of<ExpansionType>>;
 
     constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
 
@@ -174,13 +173,11 @@ encode_as_complex_expansion(ExpansionType&& expansion) noexcept
 */
 template <zt::complex_encoded_real_zernike_expansion ExpansionType>
 constexpr zt::ZernikeSpan<
-    double, Indexing::zero_based, zt::zernike_norm_of<ExpansionType>(),
-    st::convention_of<ExpansionType>>
+    double, Indexing::zero_based, zt::convention_of<ExpansionType>>
 decode_as_real_expansion(ExpansionType&& expansion) noexcept
 {
     using ReturnType = zt::ZernikeSpan<
-        double, Indexing::zero_based, zt::zernike_norm_of<ExpansionType>(),
-        st::convention_of<ExpansionType>>;
+        double, Indexing::zero_based, zt::convention_of<ExpansionType>>;
 
     constexpr double complex_conversion_norm = std::numbers::sqrt2;
 
@@ -223,13 +220,12 @@ template <st::zernike_sh_subspan<Indexing::zero_based> ExpansionType>
     requires std::same_as<value_type_of<ExpansionType>, double>
         && st::has_inner_rank<ExpansionType, 0>
 constexpr typename zt::ComplexEncodedRealZernikeSpan<
-    std::complex<double>, zt::zernike_norm_of<ExpansionType>(), st::convention_of<ExpansionType>
+    std::complex<double>, zt::convention_of<ExpansionType>
 >::template subspan_type<1>
 encode_as_complex_expansion(ExpansionType&& expansion) noexcept
 {
     using ReturnType = typename zt::ComplexEncodedRealZernikeSpan<
-            std::complex<double>, zt::zernike_norm_of<ExpansionType>(),
-            st::convention_of<ExpansionType>
+            std::complex<double>, zt::convention_of<ExpansionType>
         >::template subspan_type<1>;
 
     constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
@@ -265,14 +261,12 @@ encode_as_complex_expansion(ExpansionType&& expansion) noexcept
 */
 template <st::complex_encoded_zernike_sh_subspan ExpansionType>
 constexpr typename zt::ZernikeExpansion<
-    double, Indexing::zero_based, zt::zernike_norm_of<ExpansionType>(),
-    st::convention_of<ExpansionType>
+    double, Indexing::zero_based, zt::convention_of<ExpansionType>
 >::template subspan_type<1>
 decode_as_real_expansion(ExpansionType&& expansion) noexcept
 {
     using ReturnType = typename zt::ZernikeExpansion<
-            double, Indexing::zero_based, zt::zernike_norm_of<ExpansionType>(),
-            st::convention_of<ExpansionType>
+            double, Indexing::zero_based, zt::convention_of<ExpansionType>
         >::template subspan_type<1>;
 
     constexpr double complex_conversion_norm = std::numbers::sqrt2;

@@ -57,9 +57,9 @@ public:
         @param zernike storage for the evaluated polynomials
         @param r point at which the polynomials are evaluated
     */
-    template <ZernikeNorm zernike_norm>
+    template <zernike_norm_convention Convention>
     void generate(
-        double r, RadialZernikeSpan<double, zernike_norm> zernike)
+        double r, RadialZernikeSpan<double, Convention> zernike)
     {
         constexpr double sqrt5 = 2.2360679774997896964091737;
         constexpr double sqrt7 = 2.6457513110645905905016158;
@@ -76,7 +76,7 @@ public:
         zernike[0, 0] = 1.0;
         if (order == 1)
         {
-            if constexpr (zernike_norm == ZernikeNorm::normed)
+            if constexpr (Convention::zernike_norm == ZernikeNorm::normed)
                 zernike[0, 0] *= std::numbers::sqrt3;
             return;
         }
@@ -84,7 +84,7 @@ public:
         zernike[1, 1] = r;
         if (order == 2)
         {
-            if constexpr (zernike_norm == ZernikeNorm::normed)
+            if constexpr (Convention::zernike_norm == ZernikeNorm::normed)
             {
                 zernike[0, 0] *= std::numbers::sqrt3;
                 zernike[1, 1] *= sqrt5;
@@ -96,7 +96,7 @@ public:
         zernike[2, 2] = r2;
         if (order == 3)
         {
-            if constexpr (zernike_norm == ZernikeNorm::normed)
+            if constexpr (Convention::zernike_norm == ZernikeNorm::normed)
             {
                 zernike[0, 0] *= std::numbers::sqrt3;
                 zernike[1, 1] *= sqrt5;
@@ -122,7 +122,7 @@ public:
             {
                 zernike_n[l] = (k2_n[l] + k1_n[l]*r2)*zernike_nm2[l] + k3_n[l]*zernike_nm4[l];
 
-                if constexpr (zernike_norm == ZernikeNorm::normed)
+                if constexpr (Convention::zernike_norm == ZernikeNorm::normed)
                     zernike_nm4[l] *= m_norms[n - 4];
             }
 
@@ -131,7 +131,7 @@ public:
             zernike_n[n - 2] = (dn + 0.5)*zernike_n[n] - (dn - 0.5)*zernike_nm2[n - 2];
         }
 
-        if constexpr (zernike_norm == ZernikeNorm::normed)
+        if constexpr (Convention::zernike_norm == ZernikeNorm::normed)
         {
             for (std::size_t n = order - 4; n < order; ++n)
             {
@@ -142,11 +142,11 @@ public:
         }
     }
 
-    template <ZernikeNorm zernike_norm>
+    template <zernike_norm_convention Convention>
     void generate(
-        double r, RadialZernikeExpansion<double, zernike_norm>& zernike)
+        double r, RadialZernikeExpansion<double, Convention>& zernike)
     {
-        using ExpansionType = RadialZernikeExpansion<double, zernike_norm>;
+        using ExpansionType = RadialZernikeExpansion<double, Convention>;
         generate(r, (typename ExpansionType::view)(zernike));
     }
 
@@ -158,10 +158,10 @@ public:
         @param zernike storage for the evaluated polynomials
         @param r points at which the polynomials are evaluated
     */
-    template <ZernikeNorm zernike_norm>
+    template <zernike_norm_convention Convention>
     void generate(
         std::span<const double> r,
-        RadialZernikeSpan<double, zernike_norm, std::dynamic_extent> zernike)
+        RadialZernikeSpan<double, Convention, std::dynamic_extent> zernike)
     {
         constexpr double sqrt5 = 2.2360679774997896964091737;
         constexpr double sqrt7 = 2.6457513110645905905016158;
@@ -180,7 +180,7 @@ public:
             z_00[i] = 1.0;
         if (order == 1)
         {
-            if constexpr (zernike_norm == ZernikeNorm::normed)
+            if constexpr (Convention::zernike_norm == ZernikeNorm::normed)
             {
                 for (std::size_t i = 0; i < z_00.size(); ++i)
                     z_00[i] *= std::numbers::sqrt3;
@@ -193,7 +193,7 @@ public:
             z_11[i] = r[i];
         if (order == 2)
         {
-            if constexpr (zernike_norm == ZernikeNorm::normed)
+            if constexpr (Convention::zernike_norm == ZernikeNorm::normed)
             {
                 for (std::size_t i = 0; i < z_00.size(); ++i)
                     z_00[i] *= std::numbers::sqrt3;
@@ -213,7 +213,7 @@ public:
             z_20[i] = 2.5*z_22[i] - 1.5;
         if (order == 3)
         {
-            if constexpr (zernike_norm == ZernikeNorm::normed)
+            if constexpr (Convention::zernike_norm == ZernikeNorm::normed)
             {
                 for (std::size_t i = 0; i < z_00.size(); ++i)
                     z_00[i] *= std::numbers::sqrt3;
@@ -257,7 +257,7 @@ public:
                 for (std::size_t i = 0; i < z_nl.size(); ++i)
                     z_nl[i] = (k2_nl + k1_nl*z_22[i])*z_nm2l[i] + k3_nl*z_nm4l[i];
 
-                if constexpr (zernike_norm == ZernikeNorm::normed)
+                if constexpr (Convention::zernike_norm == ZernikeNorm::normed)
                 {
                     // We do not norm R22 yet because we use R22 as the r^2 value in the recursion.
                     const double norm = (n == 6 && l == 2) ?
@@ -280,7 +280,7 @@ public:
                 z_nnm2[i] = (dn + 0.5)*z_nn[i] - (dn - 0.5)*z_nm2nm2[i];
         }
 
-        if constexpr (zernike_norm == ZernikeNorm::normed)
+        if constexpr (Convention::zernike_norm == ZernikeNorm::normed)
         {
             if (order > 6)
             {
@@ -301,11 +301,11 @@ public:
         }
     }
 
-    template <ZernikeNorm zernike_norm>
+    template <zernike_norm_convention Convention>
     void generate(
-        std::span<const double> r, RadialZernikeExpansion<double, zernike_norm, std::dynamic_extent>& zernike)
+        std::span<const double> r, RadialZernikeExpansion<double, Convention, std::dynamic_extent>& zernike)
     {
-        using ExpansionType = RadialZernikeExpansion<double, zernike_norm, std::dynamic_extent>;
+        using ExpansionType = RadialZernikeExpansion<double, Convention, std::dynamic_extent>;
         generate(r, (typename ExpansionType::view)(zernike));
     }
 
@@ -318,11 +318,11 @@ private:
     std::size_t m_max_order{};
 };
 
-template <ZernikeNorm zernike_norm_param>
+template <zernike_norm_convention Convention>
 class IsotropicRadialZernikeRecursion
 {
 public:
-    static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
+    static constexpr ZernikeNorm zernike_norm = Convention::zernike_norm;
 
     IsotropicRadialZernikeRecursion() = default;
     explicit IsotropicRadialZernikeRecursion(std::size_t max_order):

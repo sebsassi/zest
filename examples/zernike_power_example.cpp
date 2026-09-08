@@ -35,11 +35,11 @@ int main()
 
     constexpr std::size_t order = 20;
     constexpr double radius = 1.0;
-    zest::zt::ZernikeTransformerNormalQM transformer{};
+    zest::zt::ZernikeTransformerNormedQM transformer{};
     zest::zt::ZernikeExpansion expansion
         = transformer.forward_transform(function, radius, order);
 
-    zest::zt::RadialZernikeExpansion<double, zest::zt::zernike_norm_of<decltype(expansion)>()>
+    zest::zt::RadialZernikeExpansion<double, zest::zt::norm_convention_of<decltype(expansion)>>
     spectrum{expansion.order()};
 
     zest::zt::power_spectrum(expansion, spectrum);

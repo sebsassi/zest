@@ -53,32 +53,28 @@ namespace zest::zt
     @tparam sh_phase_param phase convention of spherical harmonics
     @tparam GridLayoutType
 */
-template <
-    ZernikeNorm zernike_norm_param, st::sh_convention Convention,
-    typename GridLayoutType = DefaultLayout>
+template <zernike_convention Convention, typename GridLayoutType = DefaultLayout>
 class GLQTransformer: Convention
 {
 private:
     template <typename T, std::size_t... Ns>
-    using AssLegSpan = st::AssociatedLegendreSpan<T, Convention, Ns...>;
+    using AssLegSpan = st::AssociatedLegendreSpan<T, sh_convention_of<Convention>, Ns...>;
 
-    using AssLegShape = st::AssociatedLegendreShape<Convention>;
+    using AssLegShape = st::AssociatedLegendreShape<sh_convention_of<Convention>>;
 
     template <typename T, std::size_t... Ns>
-    using RadZerSpan = RadialZernikeSpan<T, zernike_norm_param, Ns...>;
+    using RadZerSpan = RadialZernikeSpan<T, norm_convention_of<Convention>, Ns...>;
 
-    using RadZerShape = RadialZernikeShape<zernike_norm_param>;
+    using RadZerShape = RadialZernikeShape<norm_convention_of<Convention>>;
 
 public:
+    using Convention::zernike_norm;
     using Convention::sh_norm;
     using Convention::sh_phase;
 
     using grid_layout_type = GridLayoutType;
-    using expansion_shape = ZernikeShape<
-            Indexing::zero_based, zernike_norm_param, Convention>;
+    using expansion_shape = ZernikeShape<Indexing::zero_based, Convention>;
     using grid_shape = BallGLQGridShape<grid_layout_type>;
-
-    static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
 
     GLQTransformer():
         m_pocketfft_shape_grid(3), m_pocketfft_stride_grid(3), 
@@ -114,7 +110,7 @@ public:
         RadZerSpan<double, std::dynamic_extent>
         zernike{m_zernike_grid, order, m_rad_glq_nodes.size()};
 
-        m_zernike_recursion.generate<zernike_norm_param>(
+        m_zernike_recursion.generate<norm_convention_of<Convention>>(
                 m_rad_glq_nodes, zernike);
 
         AssLegSpan<double, std::dynamic_extent>
@@ -174,7 +170,7 @@ public:
         RadZerSpan<double, std::dynamic_extent>
         zernike{m_zernike_grid, order, m_rad_glq_nodes.size()};
 
-        m_zernike_recursion.generate<zernike_norm_param>(
+        m_zernike_recursion.generate<norm_convention_of<Convention>>(
                 m_rad_glq_nodes, zernike);
 
         m_ass_leg_grid.resize(grid_layout_type::lat_size(order)*AssLegShape::size(order));
@@ -228,7 +224,7 @@ public:
         std::size_t min_order = std::min(expansion.order(), values.order());
         integrate_latitudinal(min_order);
 
-        ZernikeSpan<double, Indexing::zero_based, zernike_norm, Convention>
+        ZernikeSpan<double, Indexing::zero_based, Convention>
         truncated_expansion{
             std::forward<ExpansionType>(expansion).template represent_as<double>().flatten(),
             min_order
@@ -249,9 +245,7 @@ public:
         requires representable_as<value_type_of<GridType>, double>
     [[nodiscard]] auto forward_transform(const GridType& values, std::size_t order)
     {
-        ZernikeExpansion<
-            value_type_of<GridType>, Indexing::zero_based,
-            zernike_norm, Convention>
+        ZernikeExpansion<value_type_of<GridType>, Indexing::zero_based, Convention>
         expansion(order);
 
         forward_transform(values, expansion);
@@ -276,7 +270,7 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        ZernikeSpan<const double, Indexing::zero_based, zernike_norm, Convention>
+        ZernikeSpan<const double, Indexing::zero_based, Convention>
         truncated_expansion{expansion.template represent_as<double>().flatten(), min_order};
 
         sum_n(truncated_expansion);
@@ -417,9 +411,7 @@ private:
     }
 
     void integrate_radial(
-        ZernikeSpan<
-            double, Indexing::zero_based, zernike_norm, Convention
-        > expansion) noexcept
+        ZernikeSpan<double, Indexing::zero_based, Convention> expansion) noexcept
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
         std::ranges::fill(expansion.flatten(), 0.0);
@@ -437,7 +429,7 @@ private:
         {
             for (auto n : expansion.indices())
             {
-                const double norm = normalization<zernike_norm_param>(n);
+                const double norm = normalization<zernike_norm>(n);
                 auto zernike_n = zernike[n];
                 auto expansion_n = expansion[n];
 
@@ -456,7 +448,7 @@ private:
                             expansion_nl[m, 1] += zernike_nl[i]*flm_lm[i, 1];
                         }
 
-                        if constexpr (zernike_norm_param == ZernikeNorm::unnormed)
+                        if constexpr (zernike_norm == ZernikeNorm::unnormed)
                         {
                             expansion_nl[m, 0] *= norm;
                             expansion_nl[m, 1] *= norm;
@@ -468,9 +460,7 @@ private:
     }
 
     void sum_n(
-        ZernikeSpan<
-            const double, Indexing::zero_based, zernike_norm, Convention
-        > expansion) noexcept
+        ZernikeSpan<const double, Indexing::zero_based, Convention> expansion) noexcept
     {
         const std::size_t rad_glq_size = m_rad_glq_weights.size();
         std::ranges::fill(m_flm_grid, 0.0);
@@ -576,8 +566,7 @@ private:
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerAcoustics
-    = GLQTransformer<ZernikeNorm::unnormed, st::Acoustics, GridLayout>;
+using GLQTransformerAcoustics = GLQTransformer<Acoustics, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with orthonorml Zernike
@@ -586,8 +575,7 @@ using GLQTransformerAcoustics
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerNormalAcoustics
-    = GLQTransformer<ZernikeNorm::normed, st::Acoustics, GridLayout>;
+using GLQTransformerNormedAcoustics = GLQTransformer<NormedAcoustics, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with unnormalized Zernike
@@ -596,8 +584,7 @@ using GLQTransformerNormalAcoustics
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerQM
-    = GLQTransformer<ZernikeNorm::unnormed, st::QM, GridLayout>;
+using GLQTransformerQM = GLQTransformer<QM, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with orthonormal Zernike
@@ -606,8 +593,7 @@ using GLQTransformerQM
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerNormalQM
-    = GLQTransformer<ZernikeNorm::normed, st::QM, GridLayout>;
+using GLQTransformerNormedQM = GLQTransformer<NormedQM, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with unnormalized Zernike
@@ -616,8 +602,7 @@ using GLQTransformerNormalQM
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerGeo
-    = GLQTransformer<ZernikeNorm::unnormed, st::Geo, GridLayout>;
+using GLQTransformerGeo = GLQTransformer<Geo, GridLayout>;
 
 /**
     @brief Convenient alias for `GLQTransformer` with orthonormal Zernike
@@ -626,8 +611,7 @@ using GLQTransformerGeo
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using GLQTransformerNormalGeo
-    = GLQTransformer<ZernikeNorm::normed, st::Geo, GridLayout>;
+using GLQTransformerNormedGeo = GLQTransformer<NormedGeo, GridLayout>;
 
 /**
     @brief High-level interface for taking Zernike transforms of functions on
@@ -638,22 +622,17 @@ using GLQTransformerNormalGeo
     @tparam sh_phase_param phase convention of spherical harmonics
     @tparam GridLayoutType
 */
-template <
-    ZernikeNorm zernike_norm_param, st::sh_convention Convention,
-    typename GridLayoutType = DefaultLayout
->
+template <zernike_convention Convention, typename GridLayoutType = DefaultLayout>
 class ZernikeTransformer: Convention
 {
 private:
     using Transformer
-        = GLQTransformer<zernike_norm_param, Convention, GridLayoutType>;
+        = GLQTransformer<Convention, GridLayoutType>;
 
 public:
     using grid_layout_type = GridLayoutType;
     using expansion_shape = typename Transformer::expansion_shape;
     using grid_shape = typename Transformer::grid_shape;
-
-    static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
 
     ZernikeTransformer() = default;
     explicit ZernikeTransformer(std::size_t order):
@@ -847,8 +826,7 @@ private:
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerAcoustics
-    = ZernikeTransformer<ZernikeNorm::unnormed, st::Acoustics, GridLayout>;
+using ZernikeTransformerAcoustics = ZernikeTransformer<Acoustics, GridLayout>;
 
 /**
     @brief Convenient alias for `ZernikeTransformer` with orthonormal Zernike
@@ -857,8 +835,7 @@ using ZernikeTransformerAcoustics
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerNormalAcoustics
-    = ZernikeTransformer<ZernikeNorm::normed, st::Acoustics, GridLayout>;
+using ZernikeTransformerNormedAcoustics = ZernikeTransformer<NormedAcoustics, GridLayout>;
 
 /**
     @brief Convenient alias for `ZernikeTransformer` with unnormalized Zernike
@@ -867,8 +844,7 @@ using ZernikeTransformerNormalAcoustics
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerQM
-    = ZernikeTransformer<ZernikeNorm::unnormed, st::QM, GridLayout>;
+using ZernikeTransformerQM = ZernikeTransformer<QM, GridLayout>;
 
 /**
     @brief Convenient alias for `ZernikeTransformer` with orthonormal Zernike
@@ -877,8 +853,7 @@ using ZernikeTransformerQM
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerNormalQM
-    = ZernikeTransformer<ZernikeNorm::normed, st::QM, GridLayout>;
+using ZernikeTransformerNormedQM = ZernikeTransformer<NormedQM, GridLayout>;
 
 /**
     @brief Convenient alias for `ZernikeTransformer` with unnormalized Zernike
@@ -887,8 +862,7 @@ using ZernikeTransformerNormalQM
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerGeo
-    = ZernikeTransformer<ZernikeNorm::unnormed, st::Geo, GridLayout>;
+using ZernikeTransformerGeo = ZernikeTransformer<Geo, GridLayout>;
 
 /**
     @brief Convenient alias for `ZernikeTransformer` with orthonormal Zernike
@@ -897,24 +871,22 @@ using ZernikeTransformerGeo
     @tparam GridLayout
 */
 template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerNormalGeo
-    = ZernikeTransformer<ZernikeNorm::normed, st::Geo, GridLayout>;
+using ZernikeTransformerNormedGeo = ZernikeTransformer<NormedGeo, GridLayout>;
 
 template <
-    zest::zt::ZernikeNorm zernike_norm_param, st::sh_convention Convention,
-    valid_simd_alignment AlignmentType = CacheLineAlignment>
+    zernike_convention Convention, valid_simd_alignment AlignmentType = CacheLineAlignment
+>
 class IsotropicGLQTransformer: Convention
 {
 public:
+    using Convention::zernike_norm;
     using Convention::sh_norm;
     using Convention::sh_phase;
 
     using grid_layout_type = RadialGridLayout<AlignmentType>;
     using alignment_type = AlignmentType;
-    using expansion_shape = IsotropicZernikeShape<zernike_norm_param, Convention>;
+    using expansion_shape = IsotropicZernikeShape<Convention>;
     using grid_shape = RadialGLQGridShape<AlignmentType>;
-
-    static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
 
     IsotropicGLQTransformer() = default;
     IsotropicGLQTransformer(std::size_t order):
@@ -976,7 +948,7 @@ public:
 
         std::size_t min_order = std::min(values.order(), expansion.order());
 
-        IsotropicZernikeSpan<double, zernike_norm, Convention>
+        IsotropicZernikeSpan<double, Convention>
         truncated_expansion{
             std::forward<ExpansionType>(expansion).template represent_as<double>().flatten(),
             min_order
@@ -1021,7 +993,7 @@ public:
         requires representable_as<value_type_of<GridType>, double>
     [[nodiscard]] auto forward_transform(const GridType& values, std::size_t order)
     {
-        IsotropicZernikeExpansion<value_type_of<GridType>, zernike_norm, Convention>
+        IsotropicZernikeExpansion<value_type_of<GridType>, Convention>
         expansion{order};
 
         forward_transform(values, expansion);
@@ -1046,7 +1018,7 @@ public:
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        IsotropicZernikeSpan<const double, zernike_norm, Convention>
+        IsotropicZernikeSpan<const double, Convention>
         truncated_expansion{expansion.template represent_as<double>().flatten(), min_order};
 
         m_recursion.init();
@@ -1084,7 +1056,7 @@ public:
     }
 
 private:
-    IsotropicRadialZernikeRecursion<zernike_norm> m_recursion;
+    IsotropicRadialZernikeRecursion<norm_convention_of<Convention>> m_recursion;
     std::vector<double> m_glq_nodes;
     std::vector<double> m_glq_weights;
     std::vector<double> m_weighted_values;
@@ -1098,8 +1070,7 @@ private:
     @tparam Alignment
 */
 template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicGLQTransformerAcoustics
-    = IsotropicGLQTransformer<ZernikeNorm::unnormed, st::Acoustics, Alignment>;
+using IsotropicGLQTransformerAcoustics = IsotropicGLQTransformer<Acoustics, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicGLQTransformer` with orthonorml Zernike
@@ -1108,8 +1079,7 @@ using IsotropicGLQTransformerAcoustics
     @tparam Alignment
 */
 template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicGLQTransformerNormalAcoustics
-    = IsotropicGLQTransformer<ZernikeNorm::normed, st::Acoustics, Alignment>;
+using IsotropicGLQTransformerNormedAcoustics = IsotropicGLQTransformer<NormedAcoustics, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicGLQTransformer` with unnormalized Zernike
@@ -1118,8 +1088,7 @@ using IsotropicGLQTransformerNormalAcoustics
     @tparam Alignment
 */
 template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicGLQTransformerQM
-    = IsotropicGLQTransformer<ZernikeNorm::unnormed, st::QM, Alignment>;
+using IsotropicGLQTransformerQM = IsotropicGLQTransformer<QM, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicGLQTransformer` with orthonormal Zernike
@@ -1128,8 +1097,7 @@ using IsotropicGLQTransformerQM
     @tparam Alignment
 */
 template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicGLQTransformerNormalQM
-    = IsotropicGLQTransformer<ZernikeNorm::normed, st::QM, Alignment>;
+using IsotropicGLQTransformerNormedQM = IsotropicGLQTransformer<NormedQM, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicGLQTransformer` with unnormalized Zernike
@@ -1138,8 +1106,7 @@ using IsotropicGLQTransformerNormalQM
     @tparam Alignment
 */
 template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicGLQTransformerGeo
-    = IsotropicGLQTransformer<ZernikeNorm::unnormed, st::Geo, Alignment>;
+using IsotropicGLQTransformerGeo = IsotropicGLQTransformer<Geo, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicGLQTransformer` with orthonormal Zernike
@@ -1148,8 +1115,7 @@ using IsotropicGLQTransformerGeo
     @tparam Alignment
 */
 template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicGLQTransformerNormalGeo
-    = IsotropicGLQTransformer<ZernikeNorm::normed, st::Geo, Alignment>;
+using IsotropicGLQTransformerNormedGeo = IsotropicGLQTransformer<NormedGeo, Alignment>;
 
 /**
     @brief High-level interface for taking Zernike transforms of functions on
@@ -1161,22 +1127,17 @@ using IsotropicGLQTransformerNormalGeo
     @tparam GridLayoutType
 */
 template <
-    ZernikeNorm zernike_norm_param, st::sh_convention Convention,
-    valid_simd_alignment AlignmentType = CacheLineAlignment
+    zernike_convention Convention, valid_simd_alignment AlignmentType = CacheLineAlignment
 >
 class IsotropicZernikeTransformer: Convention
 {
 private:
-    using Transformer
-        = IsotropicGLQTransformer<
-            zernike_norm_param, Convention, AlignmentType>;
+    using Transformer = IsotropicGLQTransformer<Convention, AlignmentType>;
 
 public:
     using alignment_type = AlignmentType;
     using expansion_shape = typename Transformer::expansion_shape;
     using grid_shape = typename Transformer::grid_shape;
-
-    static constexpr ZernikeNorm zernike_norm = zernike_norm_param;
 
     IsotropicZernikeTransformer() = default;
     explicit IsotropicZernikeTransformer(std::size_t order):
@@ -1299,7 +1260,7 @@ private:
 */
 template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerAcoustics
-    = IsotropicZernikeTransformer<ZernikeNorm::unnormed, st::Acoustics, Alignment>;
+    = IsotropicZernikeTransformer<Acoustics, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTransformer` with orthonormal Zernike
@@ -1308,8 +1269,8 @@ using IsotropicZernikeTransformerAcoustics
     @tparam Alignment
 */
 template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicZernikeTransformerNormalAcoustics
-    = IsotropicZernikeTransformer<ZernikeNorm::normed, st::Acoustics, Alignment>;
+using IsotropicZernikeTransformerNormedAcoustics
+    = IsotropicZernikeTransformer<NormedAcoustics, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTransformer` with unnormalized Zernike
@@ -1319,7 +1280,7 @@ using IsotropicZernikeTransformerNormalAcoustics
 */
 template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerQM
-    = IsotropicZernikeTransformer<ZernikeNorm::unnormed, st::QM, Alignment>;
+    = IsotropicZernikeTransformer<QM, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTransformer` with orthonormal Zernike
@@ -1328,8 +1289,8 @@ using IsotropicZernikeTransformerQM
     @tparam Alignment
 */
 template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicZernikeTransformerNormalQM
-    = IsotropicZernikeTransformer<ZernikeNorm::normed, st::QM, Alignment>;
+using IsotropicZernikeTransformerNormedQM
+    = IsotropicZernikeTransformer<NormedQM, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTransformer` with unnormalized Zernike
@@ -1339,7 +1300,7 @@ using IsotropicZernikeTransformerNormalQM
 */
 template <valid_simd_alignment Alignment = CacheLineAlignment>
 using IsotropicZernikeTransformerGeo
-    = IsotropicZernikeTransformer<ZernikeNorm::unnormed, st::Geo, Alignment>;
+    = IsotropicZernikeTransformer<Geo, Alignment>;
 
 /**
     @brief Convenient alias for `IsotropicZernikeTransformer` with orthonormal Zernike
@@ -1349,8 +1310,8 @@ using IsotropicZernikeTransformerGeo
 */
 
 template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicZernikeTransformerNormalGeo
-    = IsotropicZernikeTransformer<ZernikeNorm::normed, st::Geo, Alignment>;
+using IsotropicZernikeTransformerNormedGeo
+    = IsotropicZernikeTransformer<NormedGeo, Alignment>;
 
 } // namespace zest::zt
 

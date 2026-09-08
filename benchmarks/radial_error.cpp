@@ -52,7 +52,7 @@ std::vector<double> make_radial(
     zest::zt::RadialZernikeRecursion radial_recursion(order);
 
     using RadialSpan
-        = zest::zt::RadialZernikeSpan<double, zest::zt::ZernikeNorm::normed>;
+        = zest::zt::RadialZernikeSpan<double, zest::zt::ZernikeNormConvention<zest::zt::ZernikeNorm::normed>>;
 
     std::vector<double> radial_buffer(RadialSpan::Layout::size(order));
     RadialSpan radial_zernike(radial_buffer.data(), order);
