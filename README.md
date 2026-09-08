@@ -57,7 +57,7 @@ int main()
     zest::zt::BallGLQGrid grid
         = points.generate_values(function, order);
 
-    zest::zt::GLQTransformerGeo transformer{};
+    zest::zt::GLQTransformer<zest::zt::Geo> transformer{};
     zest::zt::ZernikeExpansion expansion
         = transformer.forward_transform(grid, order);
 

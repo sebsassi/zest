@@ -560,60 +560,6 @@ private:
 };
 
 /**
-    @brief Convenient alias for `GLQTransformer` with unnormalized Zernike
-    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using GLQTransformerAcoustics = GLQTransformer<Acoustics, GridLayout>;
-
-/**
-    @brief Convenient alias for `GLQTransformer` with orthonorml Zernike
-    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using GLQTransformerNormedAcoustics = GLQTransformer<NormedAcoustics, GridLayout>;
-
-/**
-    @brief Convenient alias for `GLQTransformer` with unnormalized Zernike
-    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using GLQTransformerQM = GLQTransformer<QM, GridLayout>;
-
-/**
-    @brief Convenient alias for `GLQTransformer` with orthonormal Zernike
-    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using GLQTransformerNormedQM = GLQTransformer<NormedQM, GridLayout>;
-
-/**
-    @brief Convenient alias for `GLQTransformer` with unnormalized Zernike
-    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using GLQTransformerGeo = GLQTransformer<Geo, GridLayout>;
-
-/**
-    @brief Convenient alias for `GLQTransformer` with orthonormal Zernike
-    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using GLQTransformerNormedGeo = GLQTransformer<NormedGeo, GridLayout>;
-
-/**
     @brief High-level interface for taking Zernike transforms of functions on
     balls of arbitrary radii.
 
@@ -819,60 +765,6 @@ private:
     Transformer m_transformer;
 };
 
-/**
-    @brief Convenient alias for `ZernikeTransformer` with unnormalized Zernike
-    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerAcoustics = ZernikeTransformer<Acoustics, GridLayout>;
-
-/**
-    @brief Convenient alias for `ZernikeTransformer` with orthonormal Zernike
-    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerNormedAcoustics = ZernikeTransformer<NormedAcoustics, GridLayout>;
-
-/**
-    @brief Convenient alias for `ZernikeTransformer` with unnormalized Zernike
-    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerQM = ZernikeTransformer<QM, GridLayout>;
-
-/**
-    @brief Convenient alias for `ZernikeTransformer` with orthonormal Zernike
-    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerNormedQM = ZernikeTransformer<NormedQM, GridLayout>;
-
-/**
-    @brief Convenient alias for `ZernikeTransformer` with unnormalized Zernike
-    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerGeo = ZernikeTransformer<Geo, GridLayout>;
-
-/**
-    @brief Convenient alias for `ZernikeTransformer` with orthonormal Zernike
-    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using ZernikeTransformerNormedGeo = ZernikeTransformer<NormedGeo, GridLayout>;
-
 template <
     zernike_convention Convention, valid_simd_alignment AlignmentType = CacheLineAlignment
 >
@@ -1064,60 +956,6 @@ private:
 };
 
 /**
-    @brief Convenient alias for `IsotropicGLQTransformer` with unnormalized Zernike
-    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam Alignment
-*/
-template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicGLQTransformerAcoustics = IsotropicGLQTransformer<Acoustics, Alignment>;
-
-/**
-    @brief Convenient alias for `IsotropicGLQTransformer` with orthonorml Zernike
-    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam Alignment
-*/
-template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicGLQTransformerNormedAcoustics = IsotropicGLQTransformer<NormedAcoustics, Alignment>;
-
-/**
-    @brief Convenient alias for `IsotropicGLQTransformer` with unnormalized Zernike
-    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
-
-    @tparam Alignment
-*/
-template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicGLQTransformerQM = IsotropicGLQTransformer<QM, Alignment>;
-
-/**
-    @brief Convenient alias for `IsotropicGLQTransformer` with orthonormal Zernike
-    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
-
-    @tparam Alignment
-*/
-template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicGLQTransformerNormedQM = IsotropicGLQTransformer<NormedQM, Alignment>;
-
-/**
-    @brief Convenient alias for `IsotropicGLQTransformer` with unnormalized Zernike
-    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam Alignment
-*/
-template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicGLQTransformerGeo = IsotropicGLQTransformer<Geo, Alignment>;
-
-/**
-    @brief Convenient alias for `IsotropicGLQTransformer` with orthonormal Zernike
-    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam Alignment
-*/
-template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicGLQTransformerNormedGeo = IsotropicGLQTransformer<NormedGeo, Alignment>;
-
-/**
     @brief High-level interface for taking Zernike transforms of functions on
     balls of arbitrary radii.
 
@@ -1251,67 +1089,6 @@ private:
     RadialGLQGridPoints<alignment_type> m_points;
     Transformer m_transformer;
 };
-
-/**
-    @brief Convenient alias for `IsotropicZernikeTransformer` with unnormalized Zernike
-    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam Alignment
-*/
-template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicZernikeTransformerAcoustics
-    = IsotropicZernikeTransformer<Acoustics, Alignment>;
-
-/**
-    @brief Convenient alias for `IsotropicZernikeTransformer` with orthonormal Zernike
-    functions, orthonormal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam Alignment
-*/
-template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicZernikeTransformerNormedAcoustics
-    = IsotropicZernikeTransformer<NormedAcoustics, Alignment>;
-
-/**
-    @brief Convenient alias for `IsotropicZernikeTransformer` with unnormalized Zernike
-    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
-
-    @tparam Alignment
-*/
-template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicZernikeTransformerQM
-    = IsotropicZernikeTransformer<QM, Alignment>;
-
-/**
-    @brief Convenient alias for `IsotropicZernikeTransformer` with orthonormal Zernike
-    functions, orthonormal spherical harmonics, and Condon-Shortley phase.
-
-    @tparam Alignment
-*/
-template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicZernikeTransformerNormedQM
-    = IsotropicZernikeTransformer<NormedQM, Alignment>;
-
-/**
-    @brief Convenient alias for `IsotropicZernikeTransformer` with unnormalized Zernike
-    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam Alignment
-*/
-template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicZernikeTransformerGeo
-    = IsotropicZernikeTransformer<Geo, Alignment>;
-
-/**
-    @brief Convenient alias for `IsotropicZernikeTransformer` with orthonormal Zernike
-    functions, 4-pi normal spherical harmonics, and no Condon-Shortley phase.
-
-    @tparam Alignment
-*/
-
-template <valid_simd_alignment Alignment = CacheLineAlignment>
-using IsotropicZernikeTransformerNormedGeo
-    = IsotropicZernikeTransformer<NormedGeo, Alignment>;
 
 } // namespace zest::zt
 

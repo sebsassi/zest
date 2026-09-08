@@ -127,47 +127,6 @@ using SHSpan = ShapedSpan<
     ElementType, SHShape<indexing, Convention, inner_extents...>>;
 
 /**
-    @brief Convenient alias for `SHSpan` with orthonormal spherical harmonics
-    and no Condon-Shortley phase.
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-    @tparam inner_extents Extents of an inner multidimensional array structure.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing,
-    std::size_t... inner_extents
->
-using SHSpanAcoustics = SHSpan<ElementType, indexing, Acoustics, inner_extents...>;
-/**
-    @brief Convenient alias for `SHSpan` with orthonormal spherical harmonics
-    with Condon-Shortley phase.
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-    @tparam inner_extents Extents of an inner multidimensional array structure.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing,
-    std::size_t... inner_extents
->
-using SHSpanQM = SHSpan<ElementType, indexing, QM, inner_extents...>;
-
-/**
-    @brief Convenient alias for `SHSpan` with 4-pi normal spherical harmonics
-    and no Condon-Shortley phase
-
-    @tparam ElementType type of elements
-    @tparam indexing determines azimuthal index order
-    @tparam inner_extents Extents of an inner multidimensional array structure.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing,
-    std::size_t... inner_extents
->
-using SHSpanGeo = SHSpan<ElementType, indexing, Geo, inner_extents...>;
-
-/**
     @brief A container for spherical harmonic data.
 
     @tparam ElementType Type of elements.
@@ -181,51 +140,6 @@ template <
 >
 using SHExpansion = ShapedArray<
     ElementType, SHShape<indexing, Convention, inner_extents...>>;
-
-/**
-    @brief Convenient alias for `SHExpansion` with orthonormal spherical
-    harmonics and no Condon-Shortley phase.
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-    @tparam inner_extents Extents of an inner multidimensional array structure.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing,
-    std::size_t... inner_extents
->
-using SHExpansionAcoustics = SHExpansion<
-    ElementType, indexing, Acoustics, inner_extents...>;
-
-/**
-    @brief Convenient alias for `SHExpansion` with orthonormal spherical
-    harmonics with Condon-Shortley phase.
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-    @tparam inner_extents Extents of an inner multidimensional array structure.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing,
-    std::size_t... inner_extents
->
-using SHExpansionQM = SHExpansion<
-    ElementType, indexing, QM, inner_extents...>;
-
-/**
-    @brief Convenient alias for `SHExpansion` with 4-pi normal spherical
-    harmonics and no Condon-Shortley phase.
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-    @tparam inner_extents Extents of an inner multidimensional array structure.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing,
-    std::size_t... inner_extents
->
-using SHExpansionGeo = SHExpansion<
-    ElementType, indexing, Geo, inner_extents...>;
 
 /**
     @brief A non-owning view of a multidimensional array of spherical harmonic
@@ -244,50 +158,6 @@ using SHTensorSpan = ShapedSpan<
     ElementType, SHTensorShape<indexing, Convention, outer_extents...>>;
 
 /**
-    @brief Convenient alias for `SHTensorSpan` with orthonormal spherical
-    harmonics and no Condon-Shortley phase.
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-    @tparam outer_extents Extents of an outer multidimensional array structure.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing,
-    std::size_t... outer_extents
->
-using SHTensorSpanAcoustics = SHTensorSpan<
-    ElementType, indexing, Acoustics, outer_extents...>;
-/**
-    @brief Convenient alias for `SHTensorSpan` with orthonormal spherical
-    harmonics with Condon-Shortley phase.
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-    @tparam outer_extents Extents of an outer multidimensional array structure.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing,
-    std::size_t... outer_extents
->
-using SHTensorSpanQM = SHTensorSpan<
-    ElementType, indexing, QM, outer_extents...>;
-
-/**
-    @brief Convenient alias for `SHTensorSpan` with 4-pi normal spherical
-    harmonics and no Condon-Shortley phase
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-    @tparam outer_extents Extents of an outer multidimensional array structure.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing,
-    std::size_t... outer_extents
->
-using SHTensorSpanGeo = SHTensorSpan<
-    ElementType, indexing, Geo, outer_extents...>;
-
-/**
     @brief A non-owning view of a vector of spherical harmonic data.
 
     @tparam ElementType Type of elements.
@@ -300,44 +170,6 @@ template <
 >
 using SHVectorSpan = SHTensorSpan<
     ElementType, indexing, Convention, std::dynamic_extent>;
-
-/**
-    @brief Convenient alias for `SHVectorSpan` with orthonormal spherical
-    harmonics and no Condon-Shortley phase.
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing
->
-using SHVectorSpanAcoustics = SHVectorSpan<
-    ElementType, indexing, Acoustics>;
-/**
-    @brief Convenient alias for `SHVectorSpan` with orthonormal spherical
-    harmonics with Condon-Shortley phase.
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing
->
-using SHVectorSpanQM = SHVectorSpan<
-    ElementType, indexing, QM>;
-
-/**
-    @brief Convenient alias for `SHVectorSpan` with 4-pi normal spherical
-    harmonics and no Condon-Shortley phase
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing
->
-using SHVectorSpanGeo = SHVectorSpan<
-    ElementType, indexing, Geo>;
 
 /**
     @brief A container for a multidimensional array of spherical harmonic data.
@@ -355,51 +187,6 @@ using SHExpansionTensor = ShapedArray<
     ElementType, SHTensorShape<indexing, Convention, outer_extents...>>;
 
 /**
-    @brief Convenient alias for `SHExpansionTensor` with orthonormal spherical
-    harmonics and no Condon-Shortley phase.
-
-    @tparam ElementType Type of elements
-    @tparam indexing Determines azimuthal index order
-    @tparam outer_extents Extents of an outer multidimensional array structure.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing,
-    std::size_t... outer_extents
->
-using SHExpansionTensorAcoustics = SHExpansionTensor<
-    ElementType, indexing, Acoustics, outer_extents...>;
-
-/**
-    @brief Convenient alias for `SHExpansionTensor` with orthonormal spherical
-    harmonics with Condon-Shortley phase.
-
-    @tparam ElementType Type of elements
-    @tparam indexing Determines azimuthal index order
-    @tparam outer_extents Extents of an outer multidimensional array structure.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing,
-    std::size_t... outer_extents
->
-using SHExpansionTensorQM = SHExpansionTensor<
-    ElementType, indexing, QM, outer_extents...>;
-
-/**
-    @brief Convenient alias for `SHExpansionTensor` with 4-pi normal spherical
-    harmonics and no Condon-Shortley phase.
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-    @tparam outer_extents Extents of an outer multidimensional array structure.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing,
-    std::size_t... outer_extents
->
-using SHExpansionTensorGeo = SHExpansionTensor<
-    ElementType, indexing, Geo, outer_extents...>;
-
-/**
     @brief A container for a vector of spherical harmonic data.
 
     @tparam ElementType Type of elements.
@@ -412,45 +199,6 @@ template <
 >
 using SHExpansionVector = SHExpansionTensor<
     ElementType, indexing, Convention, std::dynamic_extent>;
-
-/**
-    @brief Convenient alias for `SHExpansionVector` with orthonormal spherical
-    harmonics and no Condon-Shortley phase.
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing
->
-using SHExpansionVectorAcoustics = SHExpansionVector<
-    ElementType, indexing, Acoustics>;
-
-/**
-    @brief Convenient alias for `SHExpansionVector` with orthonormal spherical
-    harmonics with Condon-Shortley phase.
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing
->
-using SHExpansionVectorQM = SHExpansionVector<
-    ElementType, indexing, QM>;
-
-/**
-    @brief Convenient alias for `SHExpansionVector` with 4-pi normal spherical
-    harmonics and no Condon-Shortley phase.
-
-    @tparam ElementType Type of elements.
-    @tparam indexing Determines azimuthal index order.
-*/
-template <
-    complex_or_real_float ElementType, Indexing indexing
->
-using SHExpansionVectorGeo = SHExpansionVector<
-    ElementType, indexing, Geo>;
 
 /**
     @brief A non-owning view for storing real spherical harmonic data encoded

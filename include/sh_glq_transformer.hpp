@@ -819,33 +819,6 @@ private:
 };
 
 /**
-    @brief Convenient alias for `GLQTransformer` with orthonormal spherical
-    harmonics and no Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using GLQTransformerAcoustics = GLQTransformer<Acoustics, GridLayout>;
-
-/**
-    @brief Convenient alias for `GLQTransformer` with orthonormal spherical
-    harmonics with Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using GLQTransformerQM = GLQTransformer<QM, GridLayout>;
-
-/**
-    @brief Convenient alias for `GLQTransformer` with 4-pi normal spherical
-    harmonics and no Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using GLQTransformerGeo = GLQTransformer<Geo, GridLayout>;
-
-/**
     @brief High-level interface for taking SH transforms of functions on balls
     of arbitrary radii.
 
@@ -983,33 +956,6 @@ private:
     SphereGLQGridPoints<grid_layout_type> m_points;
     GLQTransformer<Convention, grid_layout_type> m_transformer;
 };
-
-/**
-    @brief Convenient alias for `SHTransformer` with orthonormal spherical
-    harmonics and no Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using SHTransformerAcoustics = SHTransformer<Acoustics, GridLayout>;
-
-/**
-    @brief Convenient alias for `SHTransformer` with orthonormal spherical
-    harmonics with Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using SHTransformerQM = SHTransformer<QM, GridLayout>;
-
-/**
-    @brief Convenient alias for `SHTransformer` with 4-pi normal spherical
-    harmonics and no Condon-Shortley phase.
-
-    @tparam GridLayout
-*/
-template <typename GridLayout = DefaultLayout>
-using SHTransformerGeo = SHTransformer<Geo, GridLayout>;
 
 } // namespace zest::st
 

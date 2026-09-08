@@ -60,7 +60,7 @@ the rotated coefficients. Make a file ``rotate_sh.cpp`` with the following conte
             = points.generate_values(function, order);
 
         // Transform the grid to obtain its spherical harmonic expansion.
-        zest::st::GLQTransformerGeo transformer{};
+        zest::st::GLQTransformer<zest::st::Geo> transformer{};
         zest::st::SHExpansion expansion
             = transformer.forward_transform(grid, order);
 

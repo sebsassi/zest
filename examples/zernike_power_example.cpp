@@ -35,7 +35,7 @@ int main()
 
     constexpr std::size_t order = 20;
     constexpr double radius = 1.0;
-    zest::zt::ZernikeTransformerNormedQM transformer{};
+    zest::zt::ZernikeTransformer<zest::zt::NormedQM> transformer{};
     zest::zt::ZernikeExpansion expansion
         = transformer.forward_transform(function, radius, order);
 
