@@ -36,73 +36,19 @@ Type aliases
 .. doxygentypedef:: zest::st::SHExpansion
     :project: zest
 
-.. doxygentypedef:: zest::st::SHExpansionAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHExpansionGeo
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHExpansionQM
-    :project: zest
-
 .. doxygentypedef:: zest::st::SHSpan
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHSpanAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHSpanGeo
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHSpanQM
     :project: zest
 
 .. doxygentypedef:: zest::st::SHExpansionTensor
     :project: zest
 
-.. doxygentypedef:: zest::st::SHExpansionTensorAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHExpansionTensorGeo
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHExpansionTensorQM
-    :project: zest
-
 .. doxygentypedef:: zest::st::SHTensorSpan
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHTensorSpanAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHTensorSpanGeo
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHTensorSpanQM
     :project: zest
 
 .. doxygentypedef:: zest::st::SHExpansionVector
     :project: zest
 
-.. doxygentypedef:: zest::st::SHExpansionVectorAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHExpansionVectorGeo
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHExpansionVectorQM
-    :project: zest
-
 .. doxygentypedef:: zest::st::SHVectorSpan
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHVectorSpanAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHVectorSpanGeo
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHVectorSpanQM
     :project: zest
 
 .. doxygentypedef:: zest::st::ComplexEncodedRealSHSpan

@@ -55,24 +55,6 @@ Type aliases
 .. doxygentypedef:: zest::zt::ZernikeExpansion
     :project: zest
 
-.. doxygentypedef:: zest::zt::ZernikeExpansionAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeExpansionNormalAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeExpansionGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeExpansionNormalGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeExpansionQM
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeExpansionNormalQM
-    :project: zest
-
 .. doxygentypedef:: zest::zt::ZernikeSpan
     :project: zest
 
@@ -82,190 +64,28 @@ Type aliases
 .. doxygentypedef:: zest::zt::ZernikeTensorSpan
     :project: zest
 
-.. doxygentypedef:: zest::zt::ZernikeTensorSpanAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeTensorSpanNormalAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeTensorSpanGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeTensorSpanNormalGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeTensorSpanQM
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeTensorSpanNormalQM
-    :project: zest
-
 .. doxygentypedef:: zest::zt::ZernikeExpansionVector
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeExpansionVectorAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeExpansionVectorNormalAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeExpansionVectorGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeExpansionVectorNormalGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeExpansionVectorQM
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeExpansionVectorNormalQM
     :project: zest
 
 .. doxygentypedef:: zest::zt::ZernikeVectorSpan
     :project: zest
 
-.. doxygentypedef:: zest::zt::ZernikeVectorSpanAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeVectorSpanNormalAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeVectorSpanGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeVectorSpanNormalGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeVectorSpanQM
-    :project: zest
-
-.. doxygentypedef:: zest::zt::ZernikeVectorSpanNormalQM
-    :project: zest
-
 .. doxygentypedef:: zest::zt::IsotropicZernikeExpansion
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionNormalAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionNormalGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionQM
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionNormalQM
     :project: zest
 
 .. doxygentypedef:: zest::zt::IsotropicZernikeSpan
     :project: zest
 
-.. doxygentypedef:: zest::zt::IsotropicZernikeSpanAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeSpanNormalAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeSpanGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeSpanNormalGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeSpanQM
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeSpanNormalQM
-    :project: zest
-
 .. doxygentypedef:: zest::zt::IsotropicZernikeExpansionTensor
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionTensorAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionTensorNormalAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionTensorGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionTensorNormalGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionTensorQM
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionTensorNormalQM
     :project: zest
 
 .. doxygentypedef:: zest::zt::IsotropicZernikeTensorSpan
     :project: zest
 
-.. doxygentypedef:: zest::zt::IsotropicZernikeTensorSpanAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeTensorSpanNormalAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeTensorSpanGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeTensorSpanNormalGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeTensorSpanQM
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeTensorSpanNormalQM
-    :project: zest
-
 .. doxygentypedef:: zest::zt::IsotropicZernikeExpansionVector
     :project: zest
 
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionVectorAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionVectorNormalAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionVectorGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionVectorNormalGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionVectorQM
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeExpansionVectorNormalQM
-    :project: zest
-
 .. doxygentypedef:: zest::zt::IsotropicZernikeVectorSpan
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeVectorSpanAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeVectorSpanNormalAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeVectorSpanGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeVectorSpanNormalGeo
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeVectorSpanQM
-    :project: zest
-
-.. doxygentypedef:: zest::zt::IsotropicZernikeVectorSpanNormalQM
     :project: zest
 
 Spherical harmonic layout shapes

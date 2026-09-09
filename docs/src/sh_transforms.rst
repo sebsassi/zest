@@ -14,24 +14,3 @@ Types
 .. doxygenclass:: zest::st::SHTransformer
     :project: zest
     :members:
-
-Type aliases
-------------
-
-.. doxygentypedef:: zest::st::GLQTransformerAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::st::GLQTransformerGeo
-    :project: zest
-
-.. doxygentypedef:: zest::st::GLQTransformerQM
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHTransformerAcoustics
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHTransformerGeo
-    :project: zest
-
-.. doxygentypedef:: zest::st::SHTransformerQM
-    :project: zest
