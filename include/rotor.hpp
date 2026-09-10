@@ -39,8 +39,8 @@ namespace zest
 */
 enum class RotationType
 {
-    object, /// Object is rotated.
-    coordinate /// Coordinate system is rotated.
+    active, /// Object is rotated.
+    passive /// Coordinate system is rotated.
 };
 
 namespace detail
@@ -56,7 +56,7 @@ convert(const std::array<double, 3>& euler_angles) noexcept
     const double beta_rot = beta;
     const double gamma_rot = gamma + 0.5*std::numbers::pi;
 
-    if constexpr (convention == RotationType::object)
+    if constexpr (convention == RotationType::active)
         return {alpha_rot, beta_rot, gamma_rot};
     else
         return {-gamma_rot, -beta_rot, -alpha_rot};
@@ -66,7 +66,7 @@ template <RotationType convention>
 [[nodiscard]] constexpr double
 convert(double angle) noexcept
 {
-    if constexpr (convention == RotationType::object)
+    if constexpr (convention == RotationType::active)
         return angle;
     else
         return -angle;

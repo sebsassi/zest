@@ -76,7 +76,7 @@ the rotated coefficients. Make a file ``rotate_sh.cpp`` with the following conte
 
         // We explicitly specify whether we are rotating the coordinate system
         // or the object in space.
-        rotor.rotate(expansion, wigner, angles, zest::RotationType::coordinate);
+        rotor.rotate(expansion, wigner, angles, zest::RotationType::passive);
 
         // To minimize errors in indexing various layouts, the library provides
         // range-based indexing helpers.

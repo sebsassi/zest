@@ -303,12 +303,12 @@ performing the rotations, which has the method ``rotate`` for performing general
     std::array<double, 3> euler_angles
         = {std::numbers::pi/4, std::numbers::pi/4, std::numbers::pi/4};
     rotor.polar_rotate(
-        expansion, std::numbers::pi/2, zest::RotationType::coordinate);
+        expansion, std::numbers::pi/2, zest::RotationType::passive);
     rotor.rotate(
-        expansion, wigner_d_pi2, euler_angles, zest::RotationType::coordinate);
+        expansion, wigner_d_pi2, euler_angles, zest::RotationType::passive);
 
 All rotations take as their last argument an enum of type :cpp:enum:`zest::RotationType`, which has
-two values :cpp:enumerator:`zest::RotationType::object` and :cpp:enumerator:`zest::RotationType::coordinate`.
+two values :cpp:enumerator:`zest::RotationType::active` and :cpp:enumerator:`zest::RotationType::passive`.
 These express whether the rotation represents a rotation of an object in space (active rotation) or
 a rotation of the coordinate system (passive rotation). The polar rotation naturally takes as its
 argument a single angle, whereas the general rotation takes three Euler angles, given as a standard

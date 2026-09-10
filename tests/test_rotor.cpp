@@ -260,7 +260,7 @@ bool test_rotation_completes()
     zest::WignerdPiHalfCollection wigner_d_pi2(order);
     zest::Rotor rotor(order);
     ExpansionType expansion(order);
-    rotor.rotate<zest::RotationType::object>(
+    rotor.rotate<zest::RotationType::active>(
             expansion, wigner_d_pi2, std::array<double, 3>{});
 
     return true;
@@ -291,7 +291,7 @@ bool test_sh_trivial_rotation_is_trivial_order_6()
 
     zest::WignerdPiHalfCollection wigner_d_pi2(order);
     zest::Rotor rotor(order);
-    rotor.rotate<zest::RotationType::object>(
+    rotor.rotate<zest::RotationType::active>(
             expansion, wigner_d_pi2, std::array<double, 3>{});
 
     bool success = true;
@@ -345,7 +345,7 @@ bool test_zernike_trivial_rotation_is_trivial_order_6()
 
     zest::WignerdPiHalfCollection wigner_d_pi2(order);
     zest::Rotor rotor(order);
-    rotor.rotate<zest::RotationType::object>(
+    rotor.rotate<zest::RotationType::active>(
             expansion, wigner_d_pi2, std::array<double, 3>{});
 
     bool success = true;
@@ -403,7 +403,7 @@ bool test_sh_trivial_polar_rotation_is_trivial_order_6()
 
     zest::WignerdPiHalfCollection wigner_d_pi2(order);
     zest::Rotor rotor(order);
-    rotor.polar_rotate<zest::RotationType::object>(expansion, 0.0);
+    rotor.polar_rotate<zest::RotationType::active>(expansion, 0.0);
 
     bool success = true;
     for (std::size_t l = 0; l < order; ++l)
@@ -456,7 +456,7 @@ bool test_zernike_trivial_polar_rotation_is_trivial_order_6()
 
     zest::WignerdPiHalfCollection wigner_d_pi2(order);
     zest::Rotor rotor(order);
-    rotor.polar_rotate<zest::RotationType::object>(expansion, 0.0);
+    rotor.polar_rotate<zest::RotationType::active>(expansion, 0.0);
 
 
     bool success = true;
