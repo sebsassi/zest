@@ -35,7 +35,7 @@ namespace zest
 {
 
 /**
-    @brief Type which communicates that an object has no underlying shape.
+    @brief Communicates that an object has no underlying shape.
 
     The null shape communicates that a given object has no underlying shape. It
     is primarily used in subshape hierarchies to indicate that we have reached
@@ -271,9 +271,20 @@ private:
 namespace detail
 {
 
+// Count how many times extent `n` appears in `static_extents`.
+template <std::size_t... static_extents>
+[[nodiscard]] constexpr std::size_t
+count_occurences(std::size_t n) noexcept
+{
+    return (std::size_t(static_extents == n) + ...);
+}
+
+// Replace `std::dynamic_extent` in `static_extents` with corresponding
+// element of `dynamic_extents` to produce the true extents.
 template <std::size_t... static_extents, std::size_t N>
+    requires (N == count_occurences<static_extents...>(std::dynamic_extent))
 [[nodiscard]] constexpr std::array<std::size_t, sizeof...(static_extents)>
-combine(const std::array<std::size_t, N>& dynamic_extents) noexcept
+extents_from(const std::array<std::size_t, N>& dynamic_extents) noexcept
 {
     auto impl = [&]<std::size_t... I>(std::index_sequence<I...>)
     {
@@ -293,18 +304,12 @@ combine(const std::array<std::size_t, N>& dynamic_extents) noexcept
     return impl(std::make_index_sequence<sizeof...(static_extents)>{});
 }
 
+// Extract dynamic extents from extents.
 template <std::size_t... static_extents>
-[[nodiscard]] constexpr std::size_t
-count(std::size_t n) noexcept
-{
-    return (std::size_t(static_extents == n) + ...);
-}
-
-template <std::size_t... static_extents>
-[[nodiscard]] constexpr std::array<std::size_t, count<static_extents...>(std::dynamic_extent)>
+[[nodiscard]] constexpr std::array<std::size_t, count_occurences<static_extents...>(std::dynamic_extent)>
 extract_dynamic(const std::array<std::size_t, sizeof...(static_extents)>& extents)
 {
-    static constexpr std::size_t num_dynamic = count<static_extents...>(std::dynamic_extent);
+    static constexpr std::size_t num_dynamic = count_occurences<static_extents...>(std::dynamic_extent);
     auto impl = [&]<std::size_t... I>(std::index_sequence<I...>)
     {
         std::size_t i = 0;
@@ -343,11 +348,11 @@ public:
     using index_range = StandardIndexRange<size_type>;
     using extent_type = std::array<size_type, sizeof...(extent_params)>;
     using dynamic_extent_type
-        = std::array<size_type, detail::count<extent_params...>(std::dynamic_extent)>;
+        = std::array<size_type, detail::count_occurences<extent_params...>(std::dynamic_extent)>;
 
     static constexpr size_type rank = sizeof...(extent_params);
     static constexpr size_type dynamic_rank
-        = detail::count<extent_params...>(std::dynamic_extent);
+        = detail::count_occurences<extent_params...>(std::dynamic_extent);
     static constexpr std::size_t linear_extent = std::dynamic_extent;
     static constexpr std::array<std::size_t, sizeof...(extent_params)> static_extents
         = {extent_params...};
@@ -391,8 +396,8 @@ public:
     */
     explicit constexpr TensorShape(const dynamic_extent_type& dynamic_extents)
         requires (dynamic_rank != rank):
-        m_extents{detail::combine<extent_params...>(dynamic_extents)},
-        m_size{size(detail::combine<extent_params...>(dynamic_extents))} {}
+        m_extents{detail::extents_from<extent_params...>(dynamic_extents)},
+        m_size{size(detail::extents_from<extent_params...>(dynamic_extents))} {}
 
     /**
         @brief Construct a shape from its extents.
@@ -409,12 +414,12 @@ public:
         requires ((sizeof...(SizeTypes) == dynamic_rank) && (dynamic_rank != rank))
     explicit constexpr TensorShape(SizeTypes... dynamic_extents):
         m_extents{
-            detail::combine<extent_params...>(
+            detail::extents_from<extent_params...>(
                 dynamic_extent_type{size_type(dynamic_extents)...})
         },
         m_size{
             size(
-                detail::combine<extent_params...>(
+                detail::extents_from<extent_params...>(
                     dynamic_extent_type{size_type(dynamic_extents)...}))
         } {}
 
@@ -430,7 +435,7 @@ public:
     [[nodiscard]] static constexpr size_type
     size(const dynamic_extent_type& dynamic_extents) noexcept requires (dynamic_rank != rank)
     {
-        return product(detail::combine<extent_params...>(dynamic_extents));
+        return product(detail::extents_from<extent_params...>(dynamic_extents));
     }
 
     /**
@@ -448,12 +453,12 @@ public:
         @brief Size of the shape given its dynamic extents.
     */
     template <std::integral... SizeTypes>
-        requires (sizeof...(SizeTypes) == detail::count<extent_params...>(std::dynamic_extent))
+        requires (sizeof...(SizeTypes) == detail::count_occurences<extent_params...>(std::dynamic_extent))
     [[nodiscard]] static constexpr size_type
     size(SizeTypes... dynamic_extents) noexcept
     {
         return product(
-            detail::combine<extent_params...>(
+            detail::extents_from<extent_params...>(
                 dynamic_extent_type{size_type(dynamic_extents)...}));
     }
 

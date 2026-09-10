@@ -39,10 +39,8 @@ namespace zest
 */
 enum class RotationType
 {
-    /** object is rotated */
-    object,
-    /** coordinate system is rotated */
-    coordinate
+    object, /// Object is rotated.
+    coordinate /// Coordinate system is rotated.
 };
 
 namespace detail

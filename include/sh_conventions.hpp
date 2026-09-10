@@ -37,10 +37,8 @@ enum class SHPhase { none = -1, cs = 1 };
 */
 enum class SHNorm
 {
-    /** geodesy (4 pi) normalization */
-    four_pi,
-    /** quantum mechanics (unit norm) normalization */
-    unit
+    four_pi, /// 4-pi normalization.
+    unit /// Unit normalization.
 };
 
 template <SHNorm norm, SHPhase phase>
