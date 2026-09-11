@@ -48,4 +48,14 @@ using MDArray = ShapedArray<ElementType, TensorShape<extents...>>;
 template <typename ElementType, std::size_t rank>
 using DynamicMDArray = ShapedArray<ElementType, DynamicTensorShape<rank>>;
 
+/**
+    @brief A multidimensional array container with static storage.
+
+    @tparam ElementType Type of array elements.
+    @tparam extents Extents of the array.
+*/
+template <typename ElementType, std::size_t... extents>
+    requires (extents != std::dynamic_extent && ...)
+using StaticMDArray = StaticShapedArray<ElementType, TensorShape<extents...>>;
+
 } // namespace zest
