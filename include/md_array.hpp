@@ -55,7 +55,7 @@ using DynamicMDArray = ShapedArray<ElementType, DynamicTensorShape<rank>>;
     @tparam extents Extents of the array.
 */
 template <typename ElementType, std::size_t... extents>
-    requires (extents != std::dynamic_extent && ...)
+    requires ((extents != std::dynamic_extent) && ...)
 using StaticMDArray = StaticShapedArray<ElementType, TensorShape<extents...>>;
 
 } // namespace zest
