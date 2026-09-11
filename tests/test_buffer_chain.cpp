@@ -32,7 +32,7 @@ namespace
 template <std::size_t N>
 bool test_buffer_chain_cycles_correctly()
 {
-    zest::BufferChain<std::size_t, N> chain{1};
+    zest::BufferChain<std::size_t, N, std::dynamic_extent> chain{1};
     for (std::size_t i = 0; i < N; ++i)
     {
         chain.current()[0] = i;

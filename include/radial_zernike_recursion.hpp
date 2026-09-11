@@ -498,7 +498,7 @@ private:
         }
     }
 
-    BufferChain<double, 3> m_buffer_chain;
+    BufferChain<double, 3, std::dynamic_extent> m_buffer_chain;
     std::vector<double> m_radius_sq;
     ShapedArray<double, TensorSequenceShape<ParityLinearSequence<Parity::even>, 3>> m_k;
     std::size_t m_n{};

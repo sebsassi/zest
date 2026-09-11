@@ -175,13 +175,19 @@ public:
     template <typename... ExtentTypes>
         requires std::constructible_from<shape_type, ExtentTypes...>
     [[nodiscard]] static constexpr size_type
-    size(const ExtentTypes&... extents) noexcept { return shape_type::size(extents...); }
+    size(const ExtentTypes&... extents) noexcept
+    {
+        return shape_type::size(extents...);
+    }
 
     /**
         @brief Convert to a constant view.
     */
     [[nodiscard]] explicit constexpr operator
-    const_view() const noexcept { return const_view(m_data, m_shape); }
+    const_view() const noexcept
+    {
+        return const_view(m_data, m_shape);
+    }
 
     /**
         @brief Get a view of a shaped span with a tagged shape with the tags
@@ -197,7 +203,10 @@ public:
         @brief Convert to a `std::span`.
     */
     [[nodiscard]] explicit(shape_type::rank != 1) constexpr operator
-    std::span<value_type>() const noexcept { return flatten(); }
+    std::span<value_type, shape_type::linear_extent>() const noexcept
+    {
+        return flatten();
+    }
 
     /**
         @brief View the data with a new shape.
@@ -229,7 +238,10 @@ public:
         @brief Shape of the view.
     */
     [[nodiscard]] constexpr const shape_type&
-    shape() const noexcept { return m_shape; }
+    shape() const noexcept
+    {
+        return m_shape;
+    }
 
     /**
         @brief Order of the view if the shape is a sequenced shape.
@@ -244,7 +256,10 @@ public:
         @brief Extents of the view.
     */
     [[nodiscard]] constexpr const ShapeType::extent_type&
-    extents() const noexcept { return m_shape.extents(); }
+    extents() const noexcept
+    {
+        return m_shape.extents();
+    }
 
     /**
         @brief Extent of a tensor-like view along a given dimension.
@@ -256,22 +271,43 @@ public:
     }
 
     /**
+        @brief Extent of a tensor-like view along a given dimension.
+    */
+    template <size_type I>
+        requires (I < rank)
+    [[nodiscard]] static consteval size_type
+    extent() noexcept
+        requires tensor_shaped<shape_type> && (shape_type::linear_extent == std::dynamic_extent)
+    {
+        return shape_type::template extent<I>();
+    }
+
+    /**
         @brief Size of the view.
     */
     [[nodiscard]] constexpr size_type
-    size() const noexcept { return m_shape.size(); }
+    size() const noexcept
+    {
+        return m_shape.size();
+    }
 
     /**
         @brief Check if the view is empty.
     */
     [[nodiscard]] constexpr bool
-    is_empty() const noexcept { return size() == 0; }
+    is_empty() const noexcept
+    {
+        return size() == 0;
+    }
 
     /**
         @brief Pointer to the underlying data.
     */
     [[nodiscard]] constexpr pointer
-    data() const noexcept { return m_data; }
+    data() const noexcept
+    {
+        return m_data;
+    }
 
     /**
         @brief Flatten to a one-dimensional `std::span` view.
@@ -286,13 +322,19 @@ public:
         @brief Index range of the outermost dimension.
     */
     [[nodiscard]] constexpr index_range
-    indices() const noexcept { return m_shape.indices(); }
+    indices() const noexcept
+    {
+        return m_shape.indices();
+    }
 
     /**
         @brief Index range of the outermost dimension, starting at `index`.
     */
     [[nodiscard]] constexpr index_range
-    indices(index_type index) const noexcept { return m_shape.indices(index); }
+    indices(index_type index) const noexcept
+    {
+        return m_shape.indices(index);
+    }
 
     /**
         @brief Access the elements at the given indices.
@@ -300,7 +342,10 @@ public:
     template <std::integral... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] constexpr reference
-    operator()(Inds... indices) const noexcept { return m_data[m_shape(indices...)]; }
+    operator()(Inds... indices) const noexcept
+    {
+        return m_data[m_shape(indices...)];
+    }
 
     /**
         @brief Access the elements at the given indices.
@@ -308,7 +353,10 @@ public:
     template <std::integral... Inds>
         requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] constexpr reference
-    operator[](Inds... indices) const noexcept { return m_data[m_shape(indices...)]; }
+    operator[](Inds... indices) const noexcept
+    {
+        return m_data[m_shape(indices...)];
+    }
 
     /**
         @brief Get the subspan at the given indices.

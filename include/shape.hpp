@@ -72,32 +72,44 @@ public:
 
         @return Always returns zero.
     */
-    [[nodiscard]] static constexpr size_type
-    size([[maybe_unused]] extent_type /*unused*/) noexcept { return 0; }
+    [[nodiscard]] static consteval size_type
+    size([[maybe_unused]] extent_type /*unused*/) noexcept
+    {
+        return 0;
+    }
 
     /**
         @brief Size of the shape.
 
         @return Always returns zero.
     */
-    [[nodiscard]] static constexpr size_type
-    size() noexcept { return 0; }
+    [[nodiscard]] static consteval size_type
+    size() noexcept
+    {
+        return 0;
+    }
 
     /**
         @brief Extents of the shape.
 
         @return Always returns zero.
     */
-    [[nodiscard]] static constexpr extent_type
-    extents() noexcept { return 0; }
+    [[nodiscard]] static consteval extent_type
+    extents() noexcept
+    {
+        return 0;
+    }
 
     /**
         @brief Index range of the shape.
 
         @return Returns a range with a single index zero.
     */
-    [[nodiscard]] static constexpr index_range
-    indices() noexcept { return index_range{}; }
+    [[nodiscard]] static consteval index_range
+    indices() noexcept
+    {
+        return index_range{};
+    }
 };
 
 /**
@@ -189,26 +201,37 @@ public:
         @param Order of the sequenced shape.
     */
     [[nodiscard]] static constexpr size_type
-    size(extent_type order) noexcept { return sequence_type::size(order); }
+    size(extent_type order) noexcept
+    {
+        return sequence_type::size(order);
+    }
 
     /**
         @brief Size of the shape.
     */
     [[nodiscard]] constexpr size_type
-    size() const noexcept { return m_size; }
+    size() const noexcept
+    {
+        return m_size;
+    }
 
     /**
         @brief Extent of the shape.
     */
     [[nodiscard]] constexpr extent_type
-    extents() const noexcept { return m_order; }
+    extents() const noexcept
+    {
+        return m_order;
+    }
 
     /**
         @brief Order paramter of the shape; synonymous to `extents()`.
     */
     [[nodiscard]] constexpr extent_type
-    order() const noexcept { return m_order; }
-
+    order() const noexcept
+    {
+        return m_order;
+    }
 
     /**
         @brief Subshape of the shape.
@@ -217,8 +240,8 @@ public:
     */
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < rank)
-    [[nodiscard]] constexpr auto
-    subshape(Inds... indices) const noexcept
+    [[nodiscard]] static constexpr auto
+    subshape(Inds... indices) noexcept
     {
         return subshape_type<sizeof...(Inds)>{
             sequence_type::subextent(index_type(indices)...)
@@ -227,8 +250,8 @@ public:
 
     template <std::integral... Inds>
         requires (sizeof...(Inds) == rank)
-    [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... indices) const noexcept
+    [[nodiscard]] static constexpr auto
+    subshape([[maybe_unused]] Inds... indices) noexcept
     {
         return NullShape{};
     }
@@ -240,8 +263,8 @@ public:
     */
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= rank)
-    [[nodiscard]] constexpr index_type
-    operator()(Inds... indices) const noexcept
+    [[nodiscard]] static constexpr index_type
+    operator()(Inds... indices) noexcept
     {
         return sequence_type::index(index_type(indices)...);
     }
@@ -250,7 +273,10 @@ public:
         @brief Index range of the shape.
     */
     [[nodiscard]] constexpr index_range
-    indices() const noexcept { return index_range{index_type{m_order}}; }
+    indices() const noexcept
+    {
+        return index_range{index_type{m_order}};
+    }
 
     /**
         @brief Index range of the shape starting at a given index.
@@ -427,7 +453,10 @@ public:
         @brief Size of the shape given its extents.
     */
     [[nodiscard]] static constexpr size_type
-    size(const extent_type& extents) noexcept { return product(extents); }
+    size(const extent_type& extents) noexcept
+    {
+        return product(extents);
+    }
 
     /**
         @brief Size of the shape given its dynamic extents.
@@ -466,13 +495,19 @@ public:
         @brief Size of the shape.
     */
     [[nodiscard]] constexpr size_type
-    size() const noexcept { return m_size; }
+    size() const noexcept
+    {
+        return m_size;
+    }
 
     /**
         @brief Extents of the shape.
     */
     [[nodiscard]] constexpr const extent_type&
-    extents() const noexcept { return m_extents; }
+    extents() const noexcept
+    {
+        return m_extents;
+    }
 
     /**
         @brief Dynamic extents of the shape.
@@ -487,7 +522,10 @@ public:
         @brief Extent of the shape along a given dimension.
     */
     [[nodiscard]] constexpr size_type
-    extent(size_type i) const noexcept { return m_extents[i]; }
+    extent(size_type i) const noexcept
+    {
+        return m_extents[i];
+    }
 
     /**
         @brief Extent of the shape along a given dimension known at compile
@@ -521,8 +559,11 @@ public:
 
     template <std::integral... Inds>
         requires (sizeof...(Inds) == rank)
-    [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... inds) const noexcept { return NullShape{}; }
+    [[nodiscard]] static constexpr auto
+    subshape([[maybe_unused]] Inds... inds) noexcept
+    {
+        return NullShape{};
+    }
 
     /**
         @brief Get the contiguous index corresponding to the shape indices.
@@ -541,7 +582,10 @@ public:
         @brief Index range of the shape.
     */
     [[nodiscard]] constexpr auto
-    indices() const noexcept { return index_range{index_type{m_extents[0]}}; }
+    indices() const noexcept
+    {
+        return index_range{index_type{m_extents[0]}};
+    }
 
     /**
         @brief Index range of the shape starting at a given index.
@@ -641,52 +685,67 @@ public:
         return linear_extent;
     }
 
+    [[nodiscard]] static consteval size_type
+    size() noexcept
+    {
+        return linear_extent;
+    }
+
+    [[nodiscard]] static consteval dynamic_extent_type
+    dynamic_extents() noexcept
+    {
+        return {};
+    }
+
+    [[nodiscard]] static consteval extent_type
+    extents() noexcept
+    {
+        return static_extents;
+    }
+
     [[nodiscard]] static constexpr size_type
-    size() noexcept { return linear_extent; }
-
-    [[nodiscard]] constexpr dynamic_extent_type
-    dynamic_extents() const noexcept { return {}; }
-
-    [[nodiscard]] constexpr extent_type
-    extents() const noexcept { return static_extents; }
-
-    [[nodiscard]] constexpr size_type
-    extent(size_type i) const noexcept { return static_extents[i]; }
+    extent(size_type i) noexcept
+    {
+        return static_extents[i];
+    }
 
     template <std::size_t I>
         requires (I < rank)
-    [[nodiscard]] constexpr size_type
-    extent() const noexcept
+    [[nodiscard]] static consteval size_type
+    extent() noexcept
     {
         return static_extents[I];
     }
 
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) < rank)
-    [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... inds) const noexcept
+    [[nodiscard]] static constexpr auto
+    subshape([[maybe_unused]] Inds... inds) noexcept
     {
         return subshape_type<sizeof...(Inds)>{};
     }
 
     template <std::integral... Inds>
         requires (sizeof...(Inds) == rank)
-    [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... inds) const noexcept { return NullShape{}; }
+    [[nodiscard]] static constexpr auto
+    subshape([[maybe_unused]] Inds... inds) noexcept
+    {
+        return NullShape{};
+    }
 
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= rank)
-    [[nodiscard]] constexpr index_type
-    operator()(Inds... indices) const noexcept
+    [[nodiscard]] static constexpr index_type
+    operator()(Inds... indices) noexcept
     {
         return array::detail::index(static_extents, index_type(indices)...);
     }
 
-    [[nodiscard]] constexpr auto
-    indices() const noexcept { return index_range{index_type{static_extents[0]}}; }
+    [[nodiscard]] static consteval auto
+    indices() noexcept { return index_range{index_type{static_extents[0]}}; }
 
-    [[nodiscard]] constexpr auto
-    indices(index_type index) const noexcept
+    [[nodiscard]] static constexpr auto
+    indices(index_type index) noexcept
     {
         return index_range{index, index_type{static_extents[0]}};
     }
@@ -848,8 +907,11 @@ public:
     /**
         @brief Size of the shape.
     */
-    [[nodiscard]] static constexpr size_type
-    size() noexcept requires (linear_extent != std::dynamic_extent) { return linear_extent; }
+    [[nodiscard]] static consteval size_type
+    size() noexcept requires (linear_extent != std::dynamic_extent)
+    {
+        return linear_extent;
+    }
 
     [[nodiscard]] constexpr size_type
     size() const noexcept requires (linear_extent == std::dynamic_extent)
@@ -871,7 +933,10 @@ public:
         @brief Extent of the shape at a given index.
     */
     [[nodiscard]] constexpr size_type
-    extent(size_type index) const noexcept { return m_shapes.first.extent(index); }
+    extent(size_type index) const noexcept
+    {
+        return m_shapes.first.extent(index);
+    }
 
     /**
         @brief Extents of the shape.
@@ -924,8 +989,8 @@ public:
 
     template <std::integral... Inds>
         requires (sizeof...(Inds) == rank)
-    [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... indices) const noexcept
+    [[nodiscard]] static constexpr auto
+    subshape([[maybe_unused]] Inds... indices) noexcept
     {
         return subshape_type<sizeof...(Inds)>(NullShape{});
     }
@@ -938,13 +1003,19 @@ public:
     template <std::integral... Inds>
         requires (1 <= sizeof...(Inds) && sizeof...(Inds) <= rank)
     [[nodiscard]] constexpr index_type
-    operator()(Inds... indices) const noexcept { return index(index_type(indices)...); }
+    operator()(Inds... indices) const noexcept
+    {
+        return index(index_type(indices)...);
+    }
 
     /**
         @brief Index range of the shape.
     */
     [[nodiscard]] constexpr index_range
-    indices() const noexcept { return m_shapes.first.indices(); }
+    indices() const noexcept
+    {
+        return m_shapes.first.indices();
+    }
 
     /**
         @brief Index range of the shape starting at a given index.
@@ -952,7 +1023,10 @@ public:
         @brief index Starting index.
     */
     [[nodiscard]] constexpr index_range
-    indices(index_type index) const noexcept { return m_shapes.first.indices(index); }
+    indices(index_type index) const noexcept
+    {
+        return m_shapes.first.indices(index);
+    }
 
 private:
     template <std::integral... Inds>
@@ -1026,7 +1100,7 @@ struct TaggedShape: public ShapeType, public Tags...
 
     using ShapeType::ShapeType;
 
-    explicit TaggedShape(const ShapeType& other): ShapeType(other) {}
+    explicit constexpr TaggedShape(const ShapeType& other): ShapeType(other) {}
 };
 
 } // namespace zest

@@ -29,48 +29,58 @@ SOFTWARE.
 namespace zest
 {
 
-template <typename ElementType, std::size_t N>
-    requires (N > 0)
+template <typename ElementType, std::size_t buffer_count_param, std::size_t extent_param>
+    requires (buffer_count_param > 0)
 class BufferChain
 {
 public:
+    static constexpr std::size_t buffer_count = buffer_count_param;
+    static constexpr std::size_t extent = extent_param;
+
     BufferChain() = default;
-    BufferChain(std::size_t size): m_buffer{size} {}
+    BufferChain(std::size_t size) requires (extent == std::dynamic_extent):
+        m_buffer{size} {}
 
-    void resize(std::size_t size) { m_buffer.reshape(size); }
+    void resize(std::size_t size) requires (extent == std::dynamic_extent)
+    {
+        m_buffer.reshape(size);
+    }
 
-    [[nodiscard]] std::size_t buffer_size() const noexcept { return m_buffer.extent(1); }
+    [[nodiscard]] std::size_t buffer_size() const noexcept
+    {
+        return m_buffer.template extent<1>();
+    }
 
     template <std::size_t index>
-        requires (index < N)
-    [[nodiscard]] std::span<double> previous() noexcept
+        requires (index < buffer_count_param)
+    [[nodiscard]] std::span<double, extent> previous() noexcept
     {
         return m_buffer[m_chain[index]].flatten();
     }
 
     template <std::size_t index>
-        requires (index < N)
-    [[nodiscard]] std::span<const ElementType> previous() const noexcept
+        requires (index < buffer_count_param)
+    [[nodiscard]] std::span<const ElementType, extent> previous() const noexcept
     {
         return m_buffer[m_chain[index]].flatten();
     }
 
-    [[nodiscard]] std::span<ElementType> current() noexcept
+    [[nodiscard]] std::span<ElementType, extent> current() noexcept
     {
         return m_buffer[m_chain[0]].flatten();
     }
 
-    [[nodiscard]] std::span<const ElementType> current() const noexcept
+    [[nodiscard]] std::span<const ElementType, extent> current() const noexcept
     {
         return m_buffer[m_chain[0]].flatten();
     }
 
-    [[nodiscard]] std::span<ElementType> next() noexcept
+    [[nodiscard]] std::span<ElementType, extent> next() noexcept
     {
         return m_buffer[m_chain.back()].flatten();
     }
 
-    [[nodiscard]] std::span<const ElementType> next() const noexcept
+    [[nodiscard]] std::span<const ElementType, extent> next() const noexcept
     {
         return m_buffer[m_chain.back()].flatten();
     }
@@ -78,19 +88,19 @@ public:
     void advance()
     {
         const std::size_t back = m_chain.back();
-        for (std::size_t i = N - 1; i > 0; --i)
+        for (std::size_t i = buffer_count - 1; i > 0; --i)
             m_chain[i] = m_chain[i - 1];
 
         m_chain[0] = back;
     }
 
 private:
-    MDArray<ElementType, N, std::dynamic_extent> m_buffer;
-    std::array<std::size_t, N> m_chain
+    MDArray<ElementType, buffer_count_param, extent> m_buffer;
+    std::array<std::size_t, buffer_count_param> m_chain
         = []<std::size_t... I>(std::index_sequence<I...>)
             {
                 return std::array{I...,};
-            }(std::make_index_sequence<N>{});
+            }(std::make_index_sequence<buffer_count_param>{});
 };
 
 } // namespace zest
