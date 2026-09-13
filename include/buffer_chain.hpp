@@ -102,9 +102,6 @@ public:
     }
 
 private:
-    BufferChain(std::size_t size):
-        m_buffer{buffer_count, size} {}
-
     MDArray<ElementType, buffer_count, extent> m_buffer;
     std::array<std::size_t, buffer_count> m_chain
         = []<std::size_t... I>(std::index_sequence<I...>)
