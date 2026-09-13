@@ -46,6 +46,12 @@ public:
         m_buffer.reshape(size);
     }
 
+    [[nodiscard]] bool
+    is_initialized() const noexcept
+    {
+        return m_buffer.is_initialized();
+    }
+
     [[nodiscard]] std::size_t
     buffer_size() const noexcept
     {

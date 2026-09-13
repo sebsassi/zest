@@ -125,6 +125,12 @@ public:
         return shape_type::size(extents...);
     }
 
+    [[nodiscard]] bool
+    is_initialized() const noexcept
+    {
+        return m_data.empty();
+    }
+
     /**
         @brief Convert to a view.
     */
