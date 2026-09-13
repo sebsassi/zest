@@ -41,9 +41,9 @@ public:
     BufferChain(std::size_t size):
         m_buffer{buffer_count, size} {}
 
-    void resize(std::size_t size) requires (extent == std::dynamic_extent)
+    void resize(std::size_t size)
     {
-        m_buffer.reshape(size);
+        m_buffer.reshape(buffer_count, size);
     }
 
     [[nodiscard]] bool
