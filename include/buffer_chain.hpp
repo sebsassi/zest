@@ -38,8 +38,8 @@ public:
     static constexpr std::size_t extent = extent_param;
 
     BufferChain() = default;
-    BufferChain(std::size_t size) requires (extent == std::dynamic_extent):
-        m_buffer{size} {}
+    BufferChain(std::size_t size):
+        m_buffer{buffer_count, size} {}
 
     void resize(std::size_t size) requires (extent == std::dynamic_extent)
     {
@@ -102,8 +102,11 @@ public:
     }
 
 private:
-    MDArray<ElementType, buffer_count_param, extent> m_buffer;
-    std::array<std::size_t, buffer_count_param> m_chain
+    BufferChain(std::size_t size):
+        m_buffer{buffer_count, size} {}
+
+    MDArray<ElementType, buffer_count, extent> m_buffer;
+    std::array<std::size_t, buffer_count> m_chain
         = []<std::size_t... I>(std::index_sequence<I...>)
             {
                 return std::array{I...,};

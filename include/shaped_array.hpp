@@ -710,7 +710,7 @@ public:
     [[nodiscard]] constexpr const_reference
     operator()(Inds... indices) const noexcept
     {
-        return m_data[shape_type(indices...)];
+        return m_data[shape_type::operator()(indices...)];
     }
 
     /**
@@ -721,7 +721,7 @@ public:
     [[nodiscard]] constexpr reference
     operator()(Inds... indices) noexcept
     {
-        return m_data[shape_type(indices...)];
+        return m_data[shape_type::operator()(indices...)];
     }
 
     /**
@@ -732,7 +732,7 @@ public:
     [[nodiscard]] constexpr const_reference
     operator[](Inds... indices) const noexcept
     {
-        return m_data[shape_type(indices...)];
+        return m_data[shape_type::operator()(indices...)];
     }
 
     /**
@@ -743,7 +743,7 @@ public:
     [[nodiscard]] constexpr reference
     operator[](Inds... indices) noexcept
     {
-        return m_data[shape_type(indices...)];
+        return m_data[shape_type::operator()(indices...)];
     }
 
     /**
@@ -755,7 +755,7 @@ public:
     operator()(Inds... indices) const noexcept
     {
         return const_subspan_type<sizeof...(Inds)>(
-            m_data.data() + shape_type(indices...), shape_type::subshape(indices...));
+            m_data.data() + shape_type::operator()(indices...), shape_type::subshape(indices...));
     }
 
     /**
@@ -767,7 +767,7 @@ public:
     operator()(Inds... indices) noexcept
     {
         return subspan_type<sizeof...(Inds)>(
-            m_data.data() + shape_type(indices...), shape_type::subshape(indices...));
+            m_data.data() + shape_type::operator()(indices...), shape_type::subshape(indices...));
     }
 
     /**
@@ -779,7 +779,7 @@ public:
     operator[](Inds... indices) const noexcept
     {
         return const_subspan_type<sizeof...(Inds)>(
-            m_data.data() + shape_type(indices...), shape_type::subshape(indices...));
+            m_data.data() + shape_type::operator()(indices...), shape_type::subshape(indices...));
     }
 
     /**
@@ -791,7 +791,7 @@ public:
     operator[](Inds... indices) noexcept
     {
         return subspan_type<sizeof...(Inds)>(
-            m_data.data() + shape_type(indices...), shape_type::subshape(indices...));
+            m_data.data() + shape_type::operator()(indices...), shape_type::subshape(indices...));
     }
 
 private:
