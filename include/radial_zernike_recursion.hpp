@@ -318,31 +318,27 @@ private:
     std::size_t m_max_order{};
 };
 
-template <zernike_norm_convention Convention>
 class IsotropicRadialZernikeRecursion
 {
 public:
-    static constexpr ZernikeNorm zernike_norm = Convention::zernike_norm;
-
     IsotropicRadialZernikeRecursion() = default;
     explicit IsotropicRadialZernikeRecursion(std::size_t max_order):
-        m_k{max_order}, m_max_order{max_order}
+        m_coeffs{max_order}, m_max_order{max_order}
     {
         generate_coeffs(4);
     }
 
     IsotropicRadialZernikeRecursion(std::size_t max_order, std::size_t size):
-        m_buffer_chain{size}, m_radius_sq(size), m_k{max_order}, m_max_order{max_order}
+        m_buffer_chain{size}, m_radius_sq(size), m_coeffs{max_order}, m_max_order{max_order}
     {
         generate_coeffs(4);
     }
 
     IsotropicRadialZernikeRecursion(std::size_t max_order, std::span<const double> r):
-        m_buffer_chain{r.size()}, m_radius_sq(r.size()), m_k{max_order}, m_max_order{max_order}
+        m_buffer_chain{r.size()}, m_radius_sq(r.size()), m_coeffs{max_order}, m_max_order{max_order}
     {
         for (std::size_t i = 0; i < r.size(); ++i)
             m_radius_sq[i] = r[i]*r[i];
-        init();
 
         generate_coeffs(4);
     }
@@ -353,7 +349,7 @@ public:
     {
         if (max_order > m_max_order) [[unlikely]]
         {
-            m_k.reshape(max_order);
+            m_coeffs.reshape(max_order);
             generate_coeffs(std::max(m_max_order, 4UL));
             m_max_order = max_order;
         }
@@ -376,18 +372,19 @@ public:
             m_radius_sq[i] = radii[i]*radii[i];
     }
 
+    template <zernike_norm_convention Convention>
     void init()
     {
-        constexpr double sqrt7 = 2.6457513110645905905016158;
-        constexpr double radial_zernike_0 = (zernike_norm == ZernikeNorm::unnormed) ?
+        constexpr double radial_zernike_0 = (Convention::zernike_norm == ZernikeNorm::unnormed) ?
             1.0 : std::numbers::sqrt3;
 
         assert(m_buffer_chain.buffer_size() == m_radius_sq.size());
         std::ranges::fill(m_buffer_chain.current(), radial_zernike_0);
 
+        constexpr double sqrt7 = 2.6457513110645905905016158;
         for (std::size_t i = 0; i < m_radius_sq.size(); ++i)
         {
-            if constexpr (zernike_norm == zest::zt::ZernikeNorm::unnormed)
+            if constexpr (Convention::zernike_norm == zest::zt::ZernikeNorm::unnormed)
                 m_buffer_chain.next()[i] = 2.5*m_radius_sq[i] - 1.5;
             else
                 m_buffer_chain.next()[i] = (2.5*sqrt7)*m_radius_sq[i] - 1.5*sqrt7;
@@ -395,17 +392,18 @@ public:
         reset();
     }
 
+    template <zernike_norm_convention Convention>
     void init(std::span<const double> radii)
     {
         set_radii(radii);
-        init();
+        init<Convention>();
     }
 
-    template <std::regular_invocable<std::span<double>> Func>
+    template <zernike_norm_convention Convention, std::regular_invocable<std::span<double>> Func>
     void init(const Func& f) noexcept
     {
         f(m_radius_sq);
-        init();
+        init<Convention>();
     }
 
     [[nodiscard]] std::span<const double>
@@ -426,6 +424,7 @@ public:
         return m_buffer_chain.current();
     }
 
+    template <zernike_norm_convention Convention>
     void iterate() noexcept
     {
         if (m_n + 2 >= m_max_order) [[unlikely]]
@@ -436,9 +435,7 @@ public:
 
         if (m_n > 2) [[likely]]
         {
-            const double k1 = m_k[m_n, 0];
-            const double k2 = m_k[m_n, 1];
-            const double k3 = m_k[m_n, 2];
+            const auto& [k1, k2, k3] = coeffs<Convention>();
             for (std::size_t i = 0; i < m_radius_sq.size(); ++i)
                 m_buffer_chain.current()[i]
                     = (k1*m_radius_sq[i] + k2)*m_buffer_chain.previous<1>()[i]
@@ -447,6 +444,7 @@ public:
 
     }
 
+    template <zernike_norm_convention Convention>
     void iterate(std::size_t count) noexcept
     {
         if (count == 0) [[unlikely]] return;
@@ -465,9 +463,7 @@ public:
             m_buffer_chain.advance();
             m_n += 2;
 
-            const double k1 = m_k[m_n, 0];
-            const double k2 = m_k[m_n, 1];
-            const double k3 = m_k[m_n, 2];
+            const auto& [k1, k2, k3] = coeffs<Convention>();
             for (std::size_t i = 0; i < m_radius_sq.size(); ++i)
                 m_buffer_chain.current()[i]
                     = (k1*m_radius_sq[i] + k2)*m_buffer_chain.previous<1>()[i]
@@ -476,44 +472,65 @@ public:
 
     }
 
+    template <zernike_norm_convention Convention>
     [[nodiscard]] std::span<const double> next() noexcept
     {
-        iterate();
+        iterate<Convention>();
         return current();
     }
 
 private:
     void reset() noexcept { m_n = 0; }
 
+    template <zernike_norm_convention Convention>
+    std::array<double, 3> coeffs()
+    {
+        if constexpr (Convention::zernike_norm == ZernikeNorm::unnormed)
+            return {m_coeffs[m_n, 0], m_coeffs[m_n, 1], m_coeffs[m_n, 2]};
+        else
+            return {
+                m_coeffs[m_n, 0]*m_coeffs[m_n, 3],
+                m_coeffs[m_n, 1]*m_coeffs[m_n, 3],
+                m_coeffs[m_n, 2]*m_coeffs[m_n, 4]
+            };
+    }
+
     void generate_coeffs(std::size_t start) noexcept
     {
-        for (auto n : m_k.indices(start))
+        for (auto n : m_coeffs.indices(start))
         {
-            if constexpr (zernike_norm == ZernikeNorm::unnormed)
-            {
-                m_k[n, 0] = double(2*n - 1)*double(2*n + 1)/(double(n)*double(n + 1));
-                m_k[n, 1] = -double(2*n - 1)*(1.0 + double(2*n + 1)*double(2*n - 3))
-                    /(2.0*double(n)*double(n + 1)*double(2*n - 3));
-                m_k[n, 2] = -double(n - 2)*double(n - 1)*double(2*n + 1)
-                    /(double(n)*double(n + 1)*double(2*n - 3));
-            }
-            else
-            {
-                m_k[n, 0] = std::sqrt(double(2*n + 3)*double(2*n - 1))*double(2*n + 1)
-                    /(double(n)*double(n + 1));
-                m_k[n, 1] = -std::sqrt(double(2*n + 3)*double(2*n - 1))
-                    *(1.0 + double(2*n + 1)*double(2*n - 3))
-                    /(2.0*double(n)*double(n + 1)*double(2*n - 3));
-                m_k[n, 2] = -std::sqrt(double(2*n + 3)/double(2*n - 5))
-                    *double(n - 2)*double(n - 1)*double(2*n + 1)
-                    /(double(n)*double(n + 1)*double(2*n - 3));
-            }
+            m_coeffs[n, 0] = double(2*n - 1)*double(2*n + 1)/(double(n)*double(n + 1));
+            m_coeffs[n, 1] = -double(2*n - 1)*(1.0 + double(2*n + 1)*double(2*n - 3))
+                /(2.0*double(n)*double(n + 1)*double(2*n - 3));
+            m_coeffs[n, 2] = -double(n - 2)*double(n - 1)*double(2*n + 1)
+                /(double(n)*double(n + 1)*double(2*n - 3));
+            m_coeffs[n, 3] = std::sqrt(double(2*n + 3)/double(2*n - 1));
+            m_coeffs[n, 4] = std::sqrt(double(2*n + 3)/double(2*n - 5));
+            // if constexpr (zernike_norm == ZernikeNorm::unnormed)
+            // {
+            //     m_k[n, 0] = double(2*n - 1)*double(2*n + 1)/(double(n)*double(n + 1));
+            //     m_k[n, 1] = -double(2*n - 1)*(1.0 + double(2*n + 1)*double(2*n - 3))
+            //         /(2.0*double(n)*double(n + 1)*double(2*n - 3));
+            //     m_k[n, 2] = -double(n - 2)*double(n - 1)*double(2*n + 1)
+            //         /(double(n)*double(n + 1)*double(2*n - 3));
+            // }
+            // else
+            // {
+            //     m_k[n, 0] = std::sqrt(double(2*n + 3)*double(2*n - 1))*double(2*n + 1)
+            //         /(double(n)*double(n + 1));
+            //     m_k[n, 1] = -std::sqrt(double(2*n + 3)*double(2*n - 1))
+            //         *(1.0 + double(2*n + 1)*double(2*n - 3))
+            //         /(2.0*double(n)*double(n + 1)*double(2*n - 3));
+            //     m_k[n, 2] = -std::sqrt(double(2*n + 3)/double(2*n - 5))
+            //         *double(n - 2)*double(n - 1)*double(2*n + 1)
+            //         /(double(n)*double(n + 1)*double(2*n - 3));
+            // }
         }
     }
 
     BufferChain<double, 3, std::dynamic_extent> m_buffer_chain;
     std::vector<double> m_radius_sq;
-    ShapedArray<double, TensorSequenceShape<ParityLinearSequence<Parity::even>, 3>> m_k;
+    ShapedArray<double, TensorSequenceShape<ParityLinearSequence<Parity::even>, 5>> m_coeffs;
     std::size_t m_n{};
     std::size_t m_max_order{};
 };

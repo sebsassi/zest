@@ -853,7 +853,7 @@ public:
             m_weighted_values[i] = r*r*m_glq_weights[i]*values_as_double[i];
         }
 
-        m_recursion.init();
+        m_recursion.init<norm_convention_of<Convention>>();
         for (auto n : truncated_expansion.indices())
         {
             auto radial_zernike = m_recursion.current();
@@ -862,7 +862,7 @@ public:
             for (std::size_t i = 0; i < values_as_double.size(); ++i)
                 element += m_weighted_values[i]*radial_zernike[i];
 
-            m_recursion.iterate();
+            m_recursion.iterate<norm_convention_of<Convention>>();
 
             constexpr double radial_integral_norm = 0.5;
             constexpr double spherical_integral = (sh_norm == zest::st::SHNorm::four_pi) ?
@@ -913,7 +913,7 @@ public:
         IsotropicZernikeSpan<const double, Convention>
         truncated_expansion{expansion.template represent_as<double>().flatten(), min_order};
 
-        m_recursion.init();
+        m_recursion.init<norm_convention_of<Convention>>();
 
         auto values_as_double = std::forward<GridType>(values).template represent_as<double>();
         for (auto n : truncated_expansion.indices())
@@ -925,7 +925,7 @@ public:
             for (std::size_t i = 0; i < values.size(); ++i)
                 values_as_double[i] += element*radial_zernike[i];
 
-            m_recursion.iterate();
+            m_recursion.iterate<norm_convention_of<Convention>>();
         }
     }
 
@@ -948,7 +948,7 @@ public:
     }
 
 private:
-    IsotropicRadialZernikeRecursion<norm_convention_of<Convention>> m_recursion;
+    IsotropicRadialZernikeRecursion m_recursion;
     std::vector<double> m_glq_nodes;
     std::vector<double> m_glq_weights;
     std::vector<double> m_weighted_values;

@@ -420,7 +420,8 @@ template <zest::zt::zernike_norm_convention Convention>
 bool test_isotropic_radial_zernike_recursion_correct_for_order_1()
 {
     constexpr std::size_t order = 1;
-    zest::zt::IsotropicRadialZernikeRecursion<Convention> recursion(order, std::array<double, 1>{0.0});
+    zest::zt::IsotropicRadialZernikeRecursion recursion(order, std::array<double, 1>{0.0});
+    recursion.template init<Convention>();
 
     const double R00 = 1.0*((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::numbers::sqrt3 : 1.0);
 
@@ -448,13 +449,14 @@ bool test_isotropic_radial_zernike_recursion_generates_correct_up_to_order_7(dou
     const double R60 = (((26.8125*r*r - 43.3125)*r*r + 19.6875)*r*r - 2.1875)
         *((Convention::zernike_norm == zest::zt::ZernikeNorm::normed) ? std::sqrt(15.0) : 1.0);
 
-    zest::zt::IsotropicRadialZernikeRecursion<Convention> recursion(order, std::array<double, 1>{r});
+    zest::zt::IsotropicRadialZernikeRecursion recursion(order, std::array<double, 1>{r});
+    recursion.template init<Convention>();
 
     zest::zt::IsotropicRadialZernikeExpansion<double, Convention> zernike(order);
     zernike[0] = recursion.current()[0];
-    zernike[2] = recursion.next()[0];
-    zernike[4] = recursion.next()[0];
-    zernike[6] = recursion.next()[0];
+    zernike[2] = recursion.next<Convention>()[0];
+    zernike[4] = recursion.next<Convention>()[0];
+    zernike[6] = recursion.next<Convention>()[0];
     bool success = is_close(zernike[0], R00, 1.0e-10)
             && is_close(zernike[2], R20, 1.0e-10)
             && is_close(zernike[4], R40, 1.0e-10)

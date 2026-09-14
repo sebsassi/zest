@@ -352,6 +352,14 @@ private:
     std::size_t m_max_order{};
 };
 
+class IsotropicGridEvaluator
+{
+public:
+    IsotropicGridEvaluator() = default;
+private:
+    IsotropicRadialZernikeRecursion m_zernike_recursion;
+};
+
 } // namespace zt
 
 } // namespace zest
