@@ -351,7 +351,7 @@ public:
 
     void expand(std::size_t max_order)
     {
-        if (max_order > m_max_order)
+        if (max_order > m_max_order) [[unlikely]]
         {
             m_k.reshape(max_order);
             generate_coeffs(std::max(m_max_order, 4UL));
@@ -359,17 +359,19 @@ public:
         }
     }
 
-    void resize(std::size_t max_order, std::size_t size)
+    void resize(std::size_t size)
     {
-        expand(max_order);
-        m_buffer_chain.resize(size);
-        m_radius_sq.resize(size);
+        assert(m_buffer_chain.buffer_size() == m_radius_sq.size());
+        if (size != m_radius_sq.size()) [[unlikely]]
+        {
+            m_buffer_chain.resize(size);
+            m_radius_sq.resize(size);
+        }
     }
 
     void set_radii(std::span<const double> radii)
     {
-        m_buffer_chain.resize(radii.size());
-        m_radius_sq.resize(radii.size());
+        resize(radii.size());
         for (std::size_t i = 0; i < radii.size(); ++i)
             m_radius_sq[i] = radii[i]*radii[i];
     }
@@ -379,6 +381,8 @@ public:
         constexpr double sqrt7 = 2.6457513110645905905016158;
         constexpr double radial_zernike_0 = (zernike_norm == ZernikeNorm::unnormed) ?
             1.0 : std::numbers::sqrt3;
+
+        assert(m_buffer_chain.buffer_size() == m_radius_sq.size());
         std::ranges::fill(m_buffer_chain.current(), radial_zernike_0);
 
         for (std::size_t i = 0; i < m_radius_sq.size(); ++i)
@@ -405,13 +409,22 @@ public:
     }
 
     [[nodiscard]] std::span<const double>
-    second_prev() const noexcept { return m_buffer_chain.previous<2>(); }
+    second_prev() const noexcept
+    {
+        return m_buffer_chain.previous<2>();
+    }
 
     [[nodiscard]] std::span<const double>
-    prev() const noexcept { return m_buffer_chain.previous<1>(); }
+    prev() const noexcept
+    {
+        return m_buffer_chain.previous<1>();
+    }
 
     [[nodiscard]] std::span<const double>
-    current() const noexcept { return m_buffer_chain.current(); }
+    current() const noexcept
+    {
+        return m_buffer_chain.current();
+    }
 
     void iterate() noexcept
     {

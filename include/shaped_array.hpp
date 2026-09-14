@@ -290,7 +290,7 @@ public:
     template <size_type I>
         requires (I < rank)
     [[nodiscard]] constexpr size_type
-    extent() noexcept requires tensor_shaped<shape_type>
+    extent() const noexcept requires tensor_shaped<shape_type>
     {
         return m_shape.template extent<I>();
     }
