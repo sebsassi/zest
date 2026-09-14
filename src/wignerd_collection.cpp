@@ -30,7 +30,7 @@ WignerdPiHalfCollection::WignerdPiHalfCollection(std::size_t max_order):
     m_matrices((max_order*(max_order + 1)*(2*max_order + 1))/6),
     m_sqrtl_cache(2*max_order), m_inv_sqrtl_cache(2*max_order), m_max_order(max_order)
 {
-    if (max_order == 0) return;
+    if (max_order == 0) [[unlikely]] return;
     for (std::size_t l = 1; l < m_sqrtl_cache.size(); ++l)
         m_sqrtl_cache[l] = std::sqrt(double(l));
 
@@ -38,7 +38,7 @@ WignerdPiHalfCollection::WignerdPiHalfCollection(std::size_t max_order):
         m_inv_sqrtl_cache[i] = 1.0/m_sqrtl_cache[i];
 
     m_matrices[idx(0,0,0)] = 1.0;
-    if (max_order == 1) return;
+    if (max_order == 1) [[unlikely]] return;
 
     m_matrices[idx(1,0,0)] = 0.0;
     m_matrices[idx(1,1,0)] = -1.0/std::numbers::sqrt2;
@@ -102,7 +102,7 @@ WignerdPiHalfCollection::WignerdPiHalfCollection(std::size_t max_order):
 
 void WignerdPiHalfCollection::expand(std::size_t max_order)
 {
-    if (max_order <= m_max_order) return;
+    if (max_order <= m_max_order) [[unlikely]] return;
 
     const std::size_t old_size = m_sqrtl_cache.size();
     m_matrices.resize((max_order*(max_order + 1)*(2*max_order + 1))/6);
@@ -116,7 +116,7 @@ void WignerdPiHalfCollection::expand(std::size_t max_order)
         m_inv_sqrtl_cache[i] = 1.0/m_sqrtl_cache[i];
 
     m_matrices[idx(0,0,0)] = 1.0;
-    if (max_order == 1) return;
+    if (max_order == 1) [[unlikely]] return;
 
     m_matrices[idx(1,0,0)] = 0.0;
     m_matrices[idx(1,1,0)] = -1.0/std::numbers::sqrt2;

@@ -447,7 +447,7 @@ public:
 private:
     void resize_impl(std::size_t num_rad)
     {
-        if (num_rad != m_glq_nodes.size())
+        if (num_rad != m_glq_nodes.size()) [[unlikely]]
         {
             m_glq_nodes.resize(num_rad);
             gl::gl_nodes<gl::UnpackedLayout, gl::GLNodeStyle::cos>(

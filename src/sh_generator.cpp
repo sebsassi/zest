@@ -31,7 +31,7 @@ RealSHGenerator::RealSHGenerator(std::size_t max_order):
 
 void RealSHGenerator::expand(std::size_t max_order)
 {
-    if (max_order <= this->max_order()) return;
+    if (max_order <= this->max_order()) [[unlikely]] return;
 
     m_recursion.expand(max_order);
     m_ass_leg_poly.resize(TriangleShape<Indexing::zero_based>::size(max_order));
@@ -40,7 +40,8 @@ void RealSHGenerator::expand(std::size_t max_order)
 
 void RealSHGenerator::expand(std::size_t max_order, std::size_t inner_size)
 {
-    if (max_order <= this->max_order() && inner_size <= this->inner_size()) return;
+    if (max_order <= this->max_order() && inner_size <= this->inner_size()) [[unlikely]]
+        return;
 
     m_recursion.expand(max_order);
     m_ass_leg_poly.resize(inner_size*TriangleShape<Indexing::zero_based>::size(max_order));

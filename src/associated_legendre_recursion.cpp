@@ -54,7 +54,7 @@ AssociatedLegendreRecursion::AssociatedLegendreRecursion(std::size_t max_order):
 
 void AssociatedLegendreRecursion::expand(std::size_t max_order)
 {
-    if (max_order <= m_max_order) return;
+    if (max_order <= m_max_order) [[unlikely]] return;
 
     const std::size_t prev_sqrl_size = m_sqrl.size();
     m_sqrl.resize(2*max_order);
@@ -88,7 +88,7 @@ void AssociatedLegendreRecursion::expand(std::size_t max_order)
 
 void AssociatedLegendreRecursion::expand_vec(std::size_t vec_size)
 {
-    if (m_u_scaled.size() <= vec_size)
+    if (m_u_scaled.size() <= vec_size) [[unlikely]]
     {
         m_u_scaled.resize(vec_size);
         m_u.resize(vec_size);
