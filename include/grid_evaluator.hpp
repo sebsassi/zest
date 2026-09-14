@@ -72,16 +72,16 @@ public:
     /**
         @brief Reserves memory for an expansion of given order.
 
-        @param max_order maximum order of spherical harmonic expansion.
+        @param max_order Maximum order of spherical harmonic expansion.
     */
     explicit GridEvaluator(std::size_t max_order);
 
     /**
         @brief Reserves memory for a combination of expansion and grid size.
 
-        @param max_order maximum order of spherical harmonic expansion.
-        @param lon_size size of grid in the longitudinal direction.
-        @param lat_size size of grid in the latittudinal direction.
+        @param max_order Maximum order of spherical harmonic expansion.
+        @param lon_size Size of grid in the longitudinal direction.
+        @param lat_size Size of grid in the latittudinal direction.
     */
     GridEvaluator(
         std::size_t max_order, std::size_t lon_size, std::size_t lat_size);
@@ -89,9 +89,9 @@ public:
     /**
         @brief Resize for a combination of expansion and grid size.
 
-        @param max_order maximum order of spherical harmonic expansion.
-        @param lon_size size of grid in the longitudinal direction.
-        @param lat_size size of grid in the latittudinal direction.
+        @param max_order Maximum order of spherical harmonic expansion.
+        @param lon_size Size of grid in the longitudinal direction.
+        @param lat_size Size of grid in the latittudinal direction.
     */
     void resize(
         std::size_t max_order, std::size_t lon_size, std::size_t lat_size);
@@ -99,23 +99,21 @@ public:
     /**
         @brief Evaluate spherical harmonic expansion on a grid.
 
-        @param expansion spherical harmonics expansion.
-        @param longitudes longitude values defining the grid points.
-        @param colatitudes colatitude values defining the grid points.
-
-        @return Two dimensional array containing values of the expansion on the
-        grid with shape `{longitudes.size(), colatitudes.size()}` in row-major
-        order.
+        @param expansion Spherical harmonics expansion.
+        @param longitudes Longitude values defining the grid points.
+        @param colatitudes Colatitude values defining the grid points.
+        @param values Values of the spherical harmonic expansion on the grid.
     */
     template <sh_expansion<Indexing::zero_based> ExpansionType>
         requires std::floating_point<value_type_of<ExpansionType>>
             && st::has_inner_rank<ExpansionType, 0>
-    [[nodiscard]] DynamicMDArray<double, 2> evaluate(
+    void evaluate(
         const ExpansionType& expansion,
-        std::span<const double> longitudes, std::span<const double> colatitudes)
+        std::span<const double> longitudes, std::span<const double> colatitudes,
+        DynamicMDSpan<double, 2> values)
     {
         if (longitudes.size() == 0 || colatitudes.size() == 0)
-            return {};
+            return;
 
         for (const auto& element : colatitudes)
             assert(0.0 <= element && element <= std::numbers::pi);
@@ -140,10 +138,26 @@ public:
 
         sum_l(expansion);
 
-        DynamicMDArray<double, 2> res{m_lon_size, m_lat_size};
-        sum_m(res, order);
+        sum_m(values, order);
+    }
 
-        return res;
+    /**
+        @brief Evaluate spherical harmonic expansion on a grid.
+
+        @param expansion Spherical harmonics expansion.
+        @param longitudes Longitude values defining the grid points.
+        @param colatitudes Colatitude values defining the grid points.
+    */
+    template <sh_expansion<Indexing::zero_based> ExpansionType>
+        requires std::floating_point<value_type_of<ExpansionType>>
+            && st::has_inner_rank<ExpansionType, 0>
+    [[nodiscard]] DynamicMDArray<double, 2> evaluate(
+        const ExpansionType& expansion,
+        std::span<const double> longitudes, std::span<const double> colatitudes)
+    {
+        DynamicMDArray<double, 2> values{longitudes.size(), colatitudes.size()};
+        evaluate(expansion, longitudes, colatitudes, values);
+        return values;
     }
 
 private:
@@ -205,17 +219,17 @@ public:
     /**
         @brief Reserves memory for an expansion of given order.
 
-        @param max_order maximum order of spherical harmonic expansion.
+        @param max_order Maximum order of Zernike Expansion.
     */
     explicit GridEvaluator(std::size_t max_order);
 
     /**
         @brief Reserves memory for a combination of expansion and grid size.
 
-        @param max_order maximum order of spherical harmonic expansion.
-        @param lon_size size of grid in the longitudinal direction.
-        @param lat_size size of grid in the latittudinal direction.
-        @param rad_size size of grid in the radial direction.
+        @param max_order Maximum order of Zernike expansion.
+        @param lon_size Size of grid in the longitudinal direction.
+        @param lat_size Size of grid in the latittudinal direction.
+        @param rad_size Size of grid in the radial direction.
     */
     GridEvaluator(
         std::size_t max_order, std::size_t lon_size, std::size_t lat_size, 
@@ -224,10 +238,10 @@ public:
     /**
         @brief Resize for a combination of expansion and grid size.
 
-        @param max_order maximum order of spherical harmonic expansion.
-        @param lon_size size of grid in the longitudinal direction.
-        @param lat_size size of grid in the latittudinal direction.
-        @param rad_size size of grid in the radial direction.
+        @param max_order Maximum order of Zernike expansion.
+        @param lon_size Size of grid in the longitudinal direction.
+        @param lat_size Size of grid in the latittudinal direction.
+        @param rad_size Size of grid in the radial direction.
     */
     void resize(
         std::size_t max_order, std::size_t lon_size, std::size_t lat_size, 
@@ -236,31 +250,33 @@ public:
     /**
         @brief Evaluate spherical harmonic expansion on a grid.
 
-        @param expansion spherical harmonics expansion.
-        @param longitudes longitude values defining the grid points.
-        @param colatitudes colatitude values defining the grid points.
-        @param radii radius values defining the grid points.
-
-        @return Three dimensional array containing values of the expansion on
-        the grid with shape `{longitudes.size(), colatitudes.size(),
-        radii.size()}` in row-major order.
+        @param expansion Zernike Expansion.
+        @param longitudes Longitude values defining the grid points.
+        @param colatitudes Colatitude values defining the grid points.
+        @param radii Radius values defining the grid points.
+        @param values Values of the Zernike expansion on the grid.
     */
     template <zernike_expansion<Indexing::zero_based> ExpansionType>
         requires std::floating_point<value_type_of<ExpansionType>>
             && zt::has_inner_rank<ExpansionType, 0>
-    [[nodiscard]] DynamicMDArray<double, 3> evaluate(
+    void evaluate(
         const ExpansionType& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes,
-        std::span<const double> radii)
+        std::span<const double> radii, DynamicMDSpan<double, 3> values)
     {
+        assert(
+            values.extent(0) == longitudes.size()
+            && values.extent(1) == colatitudes.size()
+            && values.extent(2) == radii.size());
+
         if (longitudes.size() == 0 || colatitudes.size() == 0 || radii.size() == 0)
-            return {};
+            return;
 
         for (double element : colatitudes)
             assert(0.0 <= element && element <= std::numbers::pi);
 
         for (double element : radii)
-            assert(0.0 <= element && element <= std::numbers::pi);
+            assert(0.0 <= element && element <= 1.0);
 
         const std::size_t order = expansion.order();
         resize(order, longitudes.size(), colatitudes.size(), radii.size());
@@ -289,10 +305,29 @@ public:
         sum_n(expansion);
         sum_l(order);
 
-        DynamicMDArray<double, 3> res{m_lon_size, m_lat_size, m_rad_size};
-        sum_m(res, order);
+        sum_m(values, order);
+    }
 
-        return res;
+    /**
+        @brief Evaluate spherical harmonic expansion on a grid.
+
+        @param expansion Zernike Expansion.
+        @param longitudes Longitude values defining the grid points.
+        @param colatitudes Colatitude values defining the grid points.
+        @param radii Radius values defining the grid points.
+        @param values Values of the Zernike expansion on the grid.
+    */
+    template <zernike_expansion<Indexing::zero_based> ExpansionType>
+        requires std::floating_point<value_type_of<ExpansionType>>
+            && zt::has_inner_rank<ExpansionType, 0>
+    [[nodiscard]] DynamicMDArray<double, 3> evaluate(
+        const ExpansionType& expansion,
+        std::span<const double> longitudes, std::span<const double> colatitudes,
+        std::span<const double> radii)
+    {
+        DynamicMDArray<double, 3> values{longitudes.size(), colatitudes.size(), radii.size()};
+        evaluate(expansion, longitudes, colatitudes, radii, values);
+        return values;
     }
 
 private:
@@ -356,6 +391,110 @@ class IsotropicGridEvaluator
 {
 public:
     IsotropicGridEvaluator() = default;
+
+    /**
+        @brief Reserves memory for an expansion of given order.
+
+        @param max_order Maximum order of spherical harmonic expansion.
+    */
+    explicit IsotropicGridEvaluator(std::size_t max_order);
+
+    /**
+        @brief Reserves memory for a combination of expansion and grid size.
+
+        @param max_order Maximum order of spherical harmonic expansion.
+        @param rad_size Size of grid in the radial direction.
+    */
+    IsotropicGridEvaluator(std::size_t max_order, std::size_t rad_size);
+
+    /**
+        @brief Resize for a combination of expansion and grid size.
+
+        @param max_order Maximum order of spherical harmonic expansion.
+        @param rad_size Size of grid in the radial direction.
+    */
+    void resize(std::size_t max_order, std::size_t rad_size);
+
+    /**
+        @brief Evaluate spherical harmonic expansion on a grid.
+
+        @param expansion Isotropic Zernike expansion.
+        @param radii Radius values defining the grid points.
+        @param values Values of the Zernike expansion at the radial points.
+    */
+    template <typename ExpansionType>
+        requires std::floating_point<value_type_of<ExpansionType>>
+            && zt::has_inner_rank<ExpansionType, 0>
+    void evaluate(
+        const ExpansionType& expansion, std::span<const double> radii, std::span<double> values)
+    {
+        assert(radii.size() == values.size());
+        if (values.size() == 0)
+            return;
+
+        for (double element : radii)
+            assert(0.0 <= element && element <= 1.0);
+
+        // We generate the values in chunks of 256 to maximize cache
+        // utilization.
+        constexpr std::size_t chunk_size = 256;
+        constexpr double spherical_harmonic = (ExpansionType::sh_norm == zest::st::SHNorm::four_pi) ?
+            1.0 : 0.5*std::numbers::inv_sqrtpi;
+        const std::size_t chunk_count = radii.size()/chunk_size;
+
+        for (std::size_t i = 0; i < chunk_count; ++i)
+        {
+            std::span<double, chunk_size> chunk{values.data() + i*chunk_size, chunk_size};
+            std::span<const double, chunk_size> point_chunk{radii.data() + i*chunk_size, chunk_size};
+
+            m_zernike_recursion.init<norm_convention_of<ExpansionType>>(point_chunk);
+
+            for (auto n : expansion.indices())
+            {
+                auto radial_zernike = m_zernike_recursion.current();
+                const double element = spherical_harmonic*expansion[n];
+                for (std::size_t j = 0; j < chunk_size; ++j)
+                    chunk[j] += element*radial_zernike[j];
+
+                m_zernike_recursion.iterate<norm_convention_of<ExpansionType>>();
+            }
+        }
+
+        const std::size_t remainder = radii.size() - chunk_count*chunk_size;
+        std::span<double> chunk{values.data() + chunk_count*chunk_size, remainder};
+        std::span<const double> point_chunk{radii.data() + chunk_count*chunk_size, remainder};
+
+        m_zernike_recursion.init<norm_convention_of<ExpansionType>>(point_chunk);
+
+        for (auto n : expansion.indices())
+        {
+            auto radial_zernike = m_zernike_recursion.current();
+            const double element = spherical_harmonic*expansion[n];
+            for (std::size_t i = 0; i < remainder; ++i)
+                chunk[i] += element*radial_zernike[i];
+
+            m_zernike_recursion.iterate<norm_convention_of<ExpansionType>>();
+        }
+    }
+
+    /**
+        @brief Evaluate spherical harmonic expansion on a grid.
+
+        @param expansion Isotropic Zernike expansion.
+        @param radii Radius values defining the grid points.
+        @param values Values of the Zernike expansion at the radial points.
+    */
+    template <typename ExpansionType>
+        requires std::floating_point<value_type_of<ExpansionType>>
+            && zt::has_inner_rank<ExpansionType, 0>
+    [[nodiscard]] std::vector<double> evaluate(
+        const ExpansionType& expansion, std::span<const double> radii)
+    {
+        std::vector<double> values(radii.size());
+        evaluate(expansion, radii, values);
+        return values;
+    }
+
 private:
     IsotropicRadialZernikeRecursion m_zernike_recursion;
 };
