@@ -220,7 +220,7 @@ public:
     represent_as() const noexcept
     {
         return ShapedSpan<const T, shape_type>(
-                reinterpret_cast<const T*>(m_data.data()), m_shape);
+                std::bit_cast<const T*>(m_data.data()), m_shape);
     }
 
     /**
@@ -234,7 +234,7 @@ public:
     represent_as() noexcept
     {
         return ShapedSpan<T, shape_type>(
-                reinterpret_cast<T*>(m_data.data()), m_shape);
+                std::bit_cast<T*>(m_data.data()), m_shape);
     }
 
     /**
@@ -581,7 +581,7 @@ public:
     represent_as() const noexcept
     {
         return ShapedSpan<const T, shape_type>(
-                reinterpret_cast<const T*>(m_data.data()), shape_type{});
+                std::bit_cast<const T*>(m_data.data()), shape_type{});
     }
 
     /**
@@ -595,7 +595,7 @@ public:
     represent_as() noexcept
     {
         return ShapedSpan<T, shape_type>(
-                reinterpret_cast<T*>(m_data.data()), shape_type{});
+                std::bit_cast<T*>(m_data.data()), shape_type{});
     }
 
     /**

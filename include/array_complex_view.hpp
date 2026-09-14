@@ -43,7 +43,7 @@ template <std::floating_point T>
 as_complex_span(std::span<std::array<T, 2>> x) noexcept
 {
     return std::span<std::complex<T>>(
-            reinterpret_cast<std::complex<T>*>(x.data()), x.size());
+            std::bit_cast<std::complex<T>*>(x.data()), x.size());
 }
 
 template <std::floating_point T>
@@ -52,7 +52,7 @@ as_complex_span(std::span<T> x) noexcept
 {
     assert(x.size() % 2 == 0);
     return std::span<std::complex<T>>(
-            reinterpret_cast<std::complex<T>*>(x.data()), x.size() >> 1);
+            std::bit_cast<std::complex<T>*>(x.data()), x.size() >> 1);
 }
 
 /**
@@ -69,7 +69,7 @@ template <std::floating_point T>
 as_array_span(std::span<std::complex<T>> x) noexcept
 {
     return std::span<std::array<T, 2>>(
-            reinterpret_cast<std::array<T, 2>*>(x.data()), x.size());
+            std::bit_cast<std::array<T, 2>*>(x.data()), x.size());
 }
 
 template <std::floating_point T>
@@ -77,7 +77,7 @@ template <std::floating_point T>
 as_float_span(std::span<std::complex<T>> x) noexcept
 {
     return std::span<T>(
-            reinterpret_cast<T*>(x.data()), 2*x.size());
+            std::bit_cast<T*>(x.data()), 2*x.size());
 }
 
 } // namespace zest

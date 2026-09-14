@@ -231,7 +231,7 @@ public:
     represent_as() const noexcept
     {
         using CT = std::conditional_t<std::is_const_v<element_type>, std::add_const_t<T>, T>;
-        return ShapedSpan<CT, shape_type>(reinterpret_cast<CT*>(m_data), m_shape);
+        return ShapedSpan<CT, shape_type>(std::bit_cast<CT*>(m_data), m_shape);
     }
 
     /**
