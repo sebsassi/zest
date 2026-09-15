@@ -98,8 +98,8 @@ st::GridEvaluator::GridEvaluator(std::size_t max_order):
 st::GridEvaluator::GridEvaluator(
     std::size_t max_order, std::size_t lon_size, std::size_t lat_size):
     m_ass_leg_recursion(max_order), m_ass_leg_grid(TriangleShape<Indexing::zero_based>::size(max_order)*lat_size),
-    m_cos_colat(lat_size), m_cossin_lon_grid(max_order*lon_size*2),
-    m_fm_grid(max_order*lat_size), m_lon_size(lon_size),
+    m_cos_colat(lat_size), m_cossin_lon_grid{max_order, lon_size},
+    m_fm_grid{max_order, lat_size}, m_lon_size(lon_size),
     m_lat_size(lat_size), m_max_order(max_order) {}
 
 
@@ -112,11 +112,11 @@ void GridEvaluator::resize(
     if (m_max_order < max_order || lat_size != m_lat_size)
     {
         m_ass_leg_grid.resize(TriangleShape<Indexing::zero_based>::size(max_order)*lat_size);
-        m_fm_grid.resize(max_order*lat_size);
+        m_fm_grid.reshape(max_order, lat_size);
     }
 
     if (m_max_order < max_order || lon_size != m_lon_size)
-        m_cossin_lon_grid.resize(max_order*lon_size*2);
+        m_cossin_lon_grid.reshape(max_order, lon_size);
 
     if (lat_size != m_lat_size)
         m_cos_colat.resize(lat_size);
@@ -128,24 +128,17 @@ void GridEvaluator::resize(
 
 void GridEvaluator::sum_m(DynamicMDSpan<double, 2> values, std::size_t order) noexcept
 {
-    MDSpan<const double, std::dynamic_extent, std::dynamic_extent, 2>
-    cossin_lon(m_cossin_lon_grid, std::array{order, m_lon_size});
-
     for (std::size_t m = 0; m < order; ++m)
     {
-        using difference_type = std::span<std::array<double, 2>>::difference_type;
-        std::span<std::array<double, 2>> f_m(
-                m_fm_grid.begin() + difference_type(m*m_lat_size), m_lat_size);
-        auto cossin_lon_m = cossin_lon[m];
+        auto f_m = m_fm_grid[m];
+        auto cossin_lon_m = m_cossin_lon_grid[m];
         for (std::size_t i = 0; i < m_lon_size; ++i)
         {
             auto values_i = values[i];
             const double cos_lon = cossin_lon_m[i, 0];
             const double sin_lon = cossin_lon_m[i, 1];
             for (std::size_t j = 0; j < m_lat_size; ++j)
-            {
-                values_i[j] += f_m[j][0]*cos_lon + f_m[j][1]*sin_lon;
-            }
+                values_i[j] += f_m[j, 0]*cos_lon + f_m[j, 1]*sin_lon;
         }
     }
 }
@@ -165,9 +158,9 @@ GridEvaluator::GridEvaluator(
     m_zernike_recursion(max_order), m_ass_leg_recursion(max_order),
     m_zernike_grid(EvenTriangleShape<>::size(max_order)*rad_size),
     m_ass_leg_grid(TriangleShape<Indexing::zero_based>::size(max_order)*lat_size),
-    m_cos_colat(lat_size), m_cossin_lon_grid(max_order*lon_size*2),
-    m_flm_grid(TriangleShape<Indexing::zero_based>::size(max_order)*rad_size*2),
-    m_fm_grid(max_order*lat_size*rad_size), m_lon_size(lon_size),
+    m_cos_colat(lat_size), m_cossin_lon_grid{max_order, lon_size},
+    m_flm_grid{max_order, rad_size},
+    m_fm_grid{max_order, lat_size, rad_size}, m_lon_size(lon_size),
     m_lat_size(lat_size), m_rad_size(rad_size), m_max_order(max_order) {}
 
 void GridEvaluator::resize(
@@ -181,7 +174,7 @@ void GridEvaluator::resize(
     }
 
     if (lon_size != m_lon_size || max_order < m_max_order)
-        m_cossin_lon_grid.resize(max_order*lon_size*2);
+        m_cossin_lon_grid.reshape(max_order, lon_size);
 
     if (lat_size != m_lat_size)
         m_cos_colat.resize(lat_size);
@@ -193,10 +186,10 @@ void GridEvaluator::resize(
     }
 
     if (rad_size != m_rad_size || max_order < m_max_order)
-        m_flm_grid.resize(TriangleShape<Indexing::zero_based>::size(max_order)*rad_size*2);
+        m_flm_grid.reshape(max_order, rad_size);
 
     if (rad_size != m_rad_size || lat_size != m_lat_size || max_order < m_max_order)
-        m_fm_grid.resize(max_order*lat_size*rad_size);
+        m_fm_grid.reshape(max_order, lat_size, rad_size);
 
     m_max_order = max_order;
     m_lon_size = lon_size;
@@ -206,34 +199,27 @@ void GridEvaluator::resize(
 
 void GridEvaluator::sum_l(std::size_t order) noexcept
 {
-    TriangleSpan<const double, Indexing::zero_based, std::dynamic_extent, 2>
-    flm(m_flm_grid, order, m_rad_size);
-
     TriangleSpan<const double, Indexing::zero_based, std::dynamic_extent>
-    ass_leg(m_ass_leg_grid, order, m_lat_size);
+    ass_leg{m_ass_leg_grid, order, m_lat_size};
 
-    std::ranges::fill(m_fm_grid, std::array<double, 2>{});
-    MDSpan<std::array<double, 2>, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>
-    fm(m_fm_grid, std::array{order, m_lat_size, m_rad_size});
-
-    for (auto l : flm.indices())
+    for (auto l : m_flm_grid.indices())
     {
         auto ass_leg_l = ass_leg[l];
-        auto flm_l = flm[l];
+        auto flm_l = m_flm_grid[l];
         for (auto m : flm_l.indices())
         {
             auto flm_lm = flm_l[m];
             auto ass_leg_lm = ass_leg_l[m];
 
-            auto fm_m = fm[m];
+            auto fm_m = m_fm_grid[m];
             for (std::size_t i = 0; i < m_lat_size; ++i)
             {
                 const double weight = ass_leg_lm[i];
                 auto fm_mi = fm_m[i];
                 for (std::size_t j = 0; j < m_rad_size; ++j)
                 {
-                    fm_mi[j][0] += weight*flm_lm[j, 0];
-                    fm_mi[j][1] += weight*flm_lm[j, 1];
+                    fm_mi[j, 0] += weight*flm_lm[j, 0];
+                    fm_mi[j, 1] += weight*flm_lm[j, 1];
                 }
             }
         }
@@ -242,16 +228,10 @@ void GridEvaluator::sum_l(std::size_t order) noexcept
 
 void GridEvaluator::sum_m(DynamicMDSpan<double, 3> values, std::size_t order) noexcept
 {
-    MDSpan<const double, std::dynamic_extent, std::dynamic_extent, 2>
-    cossin_lon(m_cossin_lon_grid, std::array{order, m_lon_size});
-
-    DynamicMDSpan<const std::array<double, 2>, 3>
-    fm(m_fm_grid, std::array{order, m_lat_size, m_rad_size});
-
     for (std::size_t m = 0; m < order; ++m)
     {
-        auto cossin_lon_m = cossin_lon[m];
-        auto fm_m = fm[m];
+        auto cossin_lon_m = m_cossin_lon_grid[m];
+        auto fm_m = m_fm_grid[m];
         for (std::size_t i = 0; i < m_lon_size; ++i)
         {
             auto values_i = values[i];
@@ -262,7 +242,7 @@ void GridEvaluator::sum_m(DynamicMDSpan<double, 3> values, std::size_t order) no
                 auto fm_mj = fm_m[j];
                 auto values_ij = values_i[j];
                 for (std::size_t k = 0; k < m_rad_size; ++k)
-                    values_ij[k] += fm_mj[k][0]*cos_lon + fm_mj[k][1]*sin_lon;
+                    values_ij[k] += fm_mj[k, 0]*cos_lon + fm_mj[k, 1]*sin_lon;
             }
         }
     }
