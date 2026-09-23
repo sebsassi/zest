@@ -152,20 +152,6 @@ public:
         m_data{data.data()}, m_shape{shape} { assert(data.size() >= m_shape.size()); }
 
     /**
-        @brief Construct a shaped span from another shaped buffer.
-
-        @tparam T The type of the buffer.
-
-        @param shaped_buffer The other buffer.
-    */
-    template <shaped_contiguous_buffer T>
-        requires std::same_as<typename std::remove_cvref_t<T>::shape_type, shape_type>
-            && std::same_as<typename std::remove_cvref_t<T>::value_type, value_type>
-    constexpr ShapedSpan(T&& shaped_buffer):
-        m_data{std::forward<T>(shaped_buffer).data()},
-        m_shape{std::forward<T>(shaped_buffer).shape()} {}
-
-    /**
         @brief Compute the size of a shaped span gives its extents.
 
         @tparam ExtentTypes Types of the extents of the shape.
@@ -183,7 +169,7 @@ public:
     /**
         @brief Convert to a constant view.
     */
-    [[nodiscard]] explicit constexpr operator
+    [[nodiscard]] constexpr operator
     const_view() const noexcept
     {
         return const_view(m_data, m_shape);
@@ -226,7 +212,7 @@ public:
     template <typename T>
         requires (!std::is_const_v<element_type> || std::is_const_v<T>)
             && (representable_as<value_type, std::remove_cv_t<T>>
-                || representation_of<value_type, std::remove_cv_t<T>>)
+                || represents<value_type, std::remove_cv_t<T>>)
     [[nodiscard]] constexpr auto
     represent_as() const noexcept
     {
@@ -386,5 +372,18 @@ private:
     pointer m_data{};
     [[no_unique_address]] shape_type m_shape{};
 };
+
+template <shaped_contiguous_buffer T, std::size_t depth>
+    requires (depth <= T::rank)
+using subspan
+    = ShapedSpan<
+        typename T::value_type, typename T::shape_type::template subshape_type<depth>>;
+
+template <shaped_contiguous_buffer T, std::size_t depth>
+    requires (depth <= T::rank)
+using const_subspan
+    = ShapedSpan<
+        const typename T::value_type, typename T::shape_type::template subshape_type<depth>>;
+
 
 } //namespace zest

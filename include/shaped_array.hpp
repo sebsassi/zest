@@ -50,6 +50,7 @@ template <
 class ShapedArray
 {
 public:
+    using element_type = ElementType;
     using value_type = ElementType;
     using allocator_type = Allocator;
     using size_type = std::size_t;
@@ -134,7 +135,7 @@ public:
     /**
         @brief Convert to a view.
     */
-    [[nodiscard]] explicit operator
+    [[nodiscard]] operator
     view() noexcept
     {
         return view(m_data.data(), m_shape);
@@ -143,7 +144,7 @@ public:
     /**
         @brief Convert to a constant view.
     */
-    [[nodiscard]] explicit operator
+    [[nodiscard]] operator
     const_view() const noexcept
     {
         return const_view(m_data.data(), m_shape);
@@ -215,7 +216,7 @@ public:
     */
     template <typename T>
         requires (representable_as<value_type, std::remove_cv_t<T>>
-                || representation_of<value_type, std::remove_cv_t<T>>)
+                || represents<value_type, std::remove_cv_t<T>>)
     [[nodiscard]] auto
     represent_as() const noexcept
     {
@@ -229,7 +230,7 @@ public:
     template <typename T>
         requires (!std::is_const_v<T>)
             && (representable_as<value_type, std::remove_cv_t<T>>
-                || representation_of<value_type, std::remove_cv_t<T>>)
+                || represents<value_type, std::remove_cv_t<T>>)
     [[nodiscard]] auto
     represent_as() noexcept
     {
@@ -471,6 +472,7 @@ template <
 class StaticShapedArray
 {
 public:
+    using element_type = ElementType;
     using value_type = ElementType;
     using allocator_type = Allocator;
     using size_type = std::size_t;
@@ -514,7 +516,7 @@ public:
     /**
         @brief Convert to a view.
     */
-    [[nodiscard]] explicit constexpr operator
+    [[nodiscard]] constexpr operator
     view() noexcept
     {
         return view(m_data.data(), shape_type{});
@@ -523,7 +525,7 @@ public:
     /**
         @brief Convert to a constant view.
     */
-    [[nodiscard]] explicit constexpr operator
+    [[nodiscard]] constexpr operator
     const_view() const noexcept
     {
         return const_view(m_data.data(), shape_type{});
@@ -576,7 +578,7 @@ public:
     */
     template <typename T>
         requires (representable_as<value_type, std::remove_cv_t<T>>
-                || representation_of<value_type, std::remove_cv_t<T>>)
+                || represents<value_type, std::remove_cv_t<T>>)
     [[nodiscard]] constexpr auto
     represent_as() const noexcept
     {
@@ -590,7 +592,7 @@ public:
     template <typename T>
         requires (!std::is_const_v<T>)
             && (representable_as<value_type, std::remove_cv_t<T>>
-                || representation_of<value_type, std::remove_cv_t<T>>)
+                || represents<value_type, std::remove_cv_t<T>>)
     [[nodiscard]] constexpr auto
     represent_as() noexcept
     {
@@ -803,5 +805,19 @@ public:
 private:
     std::array<ElementType, shape_type::linear_extent> m_data{};
 };
+
+template <shaped_contiguous_buffer T, std::size_t depth>
+    requires (depth <= T::rank)
+using subarray
+    = ShapedArray<
+        typename T::value_type, typename T::shape_type::template subshape_type<depth>>;
+
+template <shaped_contiguous_buffer T, std::size_t depth>
+    requires (
+        depth <= T::rank
+        && subshape_type_of<T, depth>::linear_extent != std::dynamic_extent)
+using static_subarray
+    = StaticShapedArray<
+        typename T::value_type, typename T::shape_type::template subshape_type<depth>>;
 
 } // namespace zest

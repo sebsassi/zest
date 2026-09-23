@@ -27,16 +27,63 @@ SOFTWARE.
 namespace zest
 {
 
+template <typename T>
+concept shape = requires (T t, typename T::extent_type e)
+{
+    typename std::remove_cvref_t<T>::size_type;
+    typename std::remove_cvref_t<T>::index_type;
+    typename std::remove_cvref_t<T>::index_range;
+    typename std::remove_cvref_t<T>::extent_type;
+
+    requires std::same_as<
+        std::remove_const_t<decltype(std::remove_cvref_t<T>::rank)>,
+        typename std::remove_cvref_t<T>::size_type>;
+    requires std::same_as<
+        std::remove_const_t<decltype(std::remove_cvref_t<T>::linear_extent)>,
+        typename std::remove_cvref_t<T>::size_type>;
+
+    { std::remove_cvref_t<T>::size(e) }
+        -> std::same_as<typename std::remove_cvref_t<T>::size_type>;
+    { t.size() } -> std::same_as<typename std::remove_cvref_t<T>::size_type>;
+    { t.indices() } -> std::same_as<typename std::remove_cvref_t<T>::index_range>;
+
+    requires std::same_as<
+        std::remove_cvref_t<decltype(t.extents())>,
+        typename std::remove_cvref_t<T>::extent_type>;
+};
+
 template <typename T, std::size_t outer_rank, std::size_t inner_rank>
-concept has_inner_tensor_structure
-    = (std::remove_cvref_t<T>::rank == outer_rank + inner_rank);
+concept has_inner_tensor_structure = (std::remove_cvref_t<T>::rank == outer_rank + inner_rank);
 
 template <typename T>
 concept shaped_contiguous_buffer = requires (T x)
-    {
-        { x.data() } -> std::same_as<typename std::remove_cvref_t<T>::pointer>;
-        { x.shape() } -> std::same_as<const typename std::remove_cvref_t<T>::shape_type&>;
-    };
+{
+    typename std::remove_cvref_t<T>::element_type;
+    requires std::same_as<
+        typename std::remove_cvref_t<T>::value_type,
+        std::remove_cvref_t<typename std::remove_cvref_t<T>::element_type>>;
+    requires std::unsigned_integral<typename std::remove_cvref_t<T>::size_type>;
+    requires std::same_as<
+        typename std::remove_cvref_t<T>::reference,
+        typename std::remove_cvref_t<T>::element_type&>;
+    requires std::same_as<
+        typename std::remove_cvref_t<T>::const_reference,
+        const typename std::remove_cvref_t<T>::element_type&>;
+    requires std::same_as<
+        typename std::remove_cvref_t<T>::pointer,
+        typename std::remove_cvref_t<T>::element_type*>;
+    requires std::same_as<
+        typename std::remove_cvref_t<T>::const_pointer,
+        const typename std::remove_cvref_t<T>::element_type*>;
+    requires shape<typename std::remove_cvref_t<T>::shape_type>;
+    requires std::integral<typename std::remove_cvref_t<T>::index_type>;
+    typename std::remove_cvref_t<T>::index_range;
+    typename std::remove_cvref_t<T>::view;
+    typename std::remove_cvref_t<T>::const_view;
+
+    { x.data() } -> std::same_as<typename std::remove_cvref_t<T>::pointer>;
+    { x.shape() } -> std::same_as<const typename std::remove_cvref_t<T>::shape_type&>;
+};
 
 template <typename T, typename Shape>
 concept shaped_like
@@ -54,13 +101,17 @@ concept representable_as
         && std::same_as<typename T::rep, Rep>);
 
 template <typename Rep, typename T>
-concept representation_of = representable_as<T, Rep>;
+concept represents = representable_as<T, Rep>;
 
 template <shaped_contiguous_buffer T>
 using value_type_of = typename std::remove_cvref_t<T>::value_type;
 
 template <shaped_contiguous_buffer T>
 using shape_type_of = typename std::remove_cvref_t<T>::shape_type;
+
+template <shaped_contiguous_buffer T, std::size_t depth>
+    requires (depth <= T::rank)
+using subshape_type_of = typename std::remove_cvref_t<T>::shape_type::template subshape_type<depth>;
 
 namespace detail
 {
