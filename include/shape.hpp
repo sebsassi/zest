@@ -1090,7 +1090,7 @@ using SequenceTensorShape = std::conditional_t<(sizeof...(extent_params) > 0),
     @tparam ShapeType Shape to be tagged.
     @tparam Tags Types tagging the shape type.
 */
-template <typename ShapeType, tag_type... Tags>
+template <typename ShapeType, is_tag... Tags>
 struct TaggedShape: public ShapeType, public Tags...
 {
     using untag = ShapeType;

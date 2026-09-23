@@ -89,7 +89,7 @@ concept complex_or_real_float
     static member variables.
 */
 template <typename T>
-concept tag_type = (std::is_empty_v<T> && std::is_aggregate_v<T>);
+concept is_tag = (std::is_empty_v<T> && std::is_aggregate_v<T>);
 
 namespace detail
 {

@@ -22,7 +22,7 @@ Concepts
 .. doxygenconcept:: zest::complex_or_real_float
     :project: zest
 
-.. doxygenconcept:: zest::tag_type
+.. doxygenconcept:: zest::is_tag
     :project: zest
 
 Types
