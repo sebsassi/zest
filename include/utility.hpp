@@ -27,6 +27,8 @@ SOFTWARE.
 #include <type_traits>
 #include <utility>
 
+#include "utility_concepts.hpp"
+
 namespace zest
 {
 
@@ -225,12 +227,12 @@ take_first(const T& tuple_like) noexcept
 
     @return Input with `element` appended.
 */
-template <typename T, typename S>
 [[nodiscard]] constexpr auto
-append(const T& tuple_like, const S& element) noexcept
+append(const auto& tuple_like, const auto& element) noexcept
 {
+    constexpr std::size_t tuple_size = std::tuple_size_v<std::remove_cvref_t<decltype(tuple_like)>>;
     return detail::append_impl(
-        tuple_like, element, std::make_index_sequence<std::tuple_size_v<T>>{});
+        tuple_like, element, std::make_index_sequence<tuple_size>{});
 }
 
 /**
@@ -244,12 +246,12 @@ append(const T& tuple_like, const S& element) noexcept
 
     @return Input with `element` prepended.
 */
-template <typename T, typename S>
 [[nodiscard]] constexpr auto
-prepend(const T& element, const S& tuple_like) noexcept
+prepend(const auto& element, const auto& tuple_like) noexcept
 {
+    constexpr std::size_t tuple_size = std::tuple_size_v<std::remove_cvref_t<decltype(tuple_like)>>;
     return detail::prepend_impl(
-        element, tuple_like, std::make_index_sequence<std::tuple_size_v<S>>{});
+        element, tuple_like, std::make_index_sequence<tuple_size>{});
 }
 
 /**
@@ -263,14 +265,15 @@ prepend(const T& element, const S& tuple_like) noexcept
 
     @return Concatenation of the input objects.
 */
-template <typename T, typename S>
 [[nodiscard]] constexpr auto
-concatenate(const T& tuple_like_t, const S& tuple_like_s) noexcept
+concatenate(const auto& tuple_like_1, const auto& tuple_like_2) noexcept
 {
+    constexpr std::size_t tuple_size_1 = std::tuple_size_v<std::remove_cvref_t<decltype(tuple_like_1)>>;
+    constexpr std::size_t tuple_size_2 = std::tuple_size_v<std::remove_cvref_t<decltype(tuple_like_2)>>;
     return detail::concatenate_impl(
-        tuple_like_t, tuple_like_s,
-        std::make_index_sequence<std::tuple_size_v<T>>{},
-        std::make_index_sequence<std::tuple_size_v<S>>{});
+        tuple_like_1, tuple_like_2,
+        std::make_index_sequence<tuple_size_1>{},
+        std::make_index_sequence<tuple_size_2>{});
 }
 
 /**
@@ -283,8 +286,8 @@ concatenate(const T& tuple_like_t, const S& tuple_like_s) noexcept
 
     @return Product of the elements of the array.
 */
-template <typename T, std::size_t N>
-    requires std::is_arithmetic_v<T> && (N > 0)
+template <arithmetic T, std::size_t N>
+    requires (N > 0)
 [[nodiscard]] constexpr T
 product(const std::array<T, N>& arr) noexcept
 {
@@ -294,8 +297,7 @@ product(const std::array<T, N>& arr) noexcept
     return res;
 }
 
-template <typename T>
-    requires std::is_arithmetic_v<T>
+template <arithmetic T>
 [[nodiscard]] constexpr T
 product([[maybe_unused]] const std::array<T, 0>& arr) noexcept
 {
@@ -311,10 +313,8 @@ product([[maybe_unused]] const std::array<T, 0>& arr) noexcept
 
     @return Product of the values.
 */
-template <typename... Ts>
-    requires (std::is_arithmetic_v<Ts> && ...)
 [[nodiscard]] constexpr auto
-product(Ts... x) noexcept
+product(arithmetic auto... x) noexcept
 {
     return (x*...);
 }

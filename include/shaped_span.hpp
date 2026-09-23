@@ -96,9 +96,8 @@ public:
         @param data Pointer to the beginning of the data.
         @param extents Extents of the shape.
     */
-    template <typename... ExtentTypes>
-        requires std::constructible_from<shape_type, ExtentTypes...>
-    constexpr ShapedSpan(pointer data, const ExtentTypes&... extents):
+    constexpr ShapedSpan(pointer data, const auto&... extents)
+        requires std::constructible_from<shape_type, decltype(extents)...>:
         m_data{data}, m_shape{extents...} {}
 
     /**
@@ -128,9 +127,8 @@ public:
         @param data `std::span` of the data.
         @param extents Extents of the shape.
     */
-    template <typename... ExtentTypes>
-        requires std::constructible_from<shape_type, ExtentTypes...>
-    constexpr ShapedSpan(std::span<element_type> data, const ExtentTypes&... extents):
+    constexpr ShapedSpan(std::span<element_type> data, const auto&... extents)
+        requires std::constructible_from<shape_type, decltype(extents)...>:
         m_data{data.data()}, m_shape{extents...} { assert(data.size() >= m_shape.size()); }
 
     /**
@@ -158,10 +156,9 @@ public:
 
         @param extents Extents of the shape.
     */
-    template <typename... ExtentTypes>
-        requires std::constructible_from<shape_type, ExtentTypes...>
     [[nodiscard]] static constexpr size_type
-    size(const ExtentTypes&... extents) noexcept
+    size(const auto&... extents) noexcept
+        requires std::constructible_from<shape_type, decltype(extents)...>
     {
         return shape_type::size(extents...);
     }
@@ -201,12 +198,11 @@ public:
 
         @param shape New shape of the data.
     */
-    template <typename NewShapeType>
     [[nodiscard]] constexpr auto
-    view_as(const NewShapeType& shape) const noexcept
+    view_as(const shape auto& shape) const noexcept
     {
         assert(shape.size() == m_shape.size());
-        return ShapedSpan<element_type, NewShapeType>(m_data, shape);
+        return ShapedSpan<element_type, decltype(shape)>(m_data, shape);
     }
 
     template <typename T>
@@ -325,10 +321,9 @@ public:
     /**
         @brief Access the elements at the given indices.
     */
-    template <std::integral... Inds>
-        requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] constexpr reference
-    operator()(Inds... indices) const noexcept
+    operator()(std::integral auto... indices) const noexcept
+        requires (sizeof...(indices) == shape_type::rank)
     {
         return m_data[m_shape(indices...)];
     }
@@ -336,10 +331,9 @@ public:
     /**
         @brief Access the elements at the given indices.
     */
-    template <std::integral... Inds>
-        requires (sizeof...(Inds) == shape_type::rank)
     [[nodiscard]] constexpr reference
-    operator[](Inds... indices) const noexcept
+    operator[](std::integral auto... indices) const noexcept
+        requires (sizeof...(indices) == shape_type::rank)
     {
         return m_data[m_shape(indices...)];
     }
@@ -347,24 +341,22 @@ public:
     /**
         @brief Get the subspan at the given indices.
     */
-    template <std::integral... Inds>
-        requires (sizeof...(Inds) < shape_type::rank)
     [[nodiscard]] constexpr auto
-    operator()(Inds... indices) const noexcept
+    operator()(std::integral auto... indices) const noexcept
+        requires (sizeof...(indices) < shape_type::rank)
     {
-        return subspan_type<sizeof...(Inds)>(
+        return subspan_type<sizeof...(indices)>(
             m_data + m_shape(indices...), m_shape.subshape(indices...));
     }
 
     /**
         @brief Get the subspan at the given indices.
     */
-    template <std::integral... Inds>
-        requires (sizeof...(Inds) < shape_type::rank)
     [[nodiscard]] constexpr auto
-    operator[](Inds... indices) const noexcept
+    operator[](std::integral auto... indices) const noexcept
+        requires (sizeof...(indices) < shape_type::rank)
     {
-        return subspan_type<sizeof...(Inds)>(
+        return subspan_type<sizeof...(indices)>(
             m_data + m_shape(indices...), m_shape.subshape(indices...));
     }
 

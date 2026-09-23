@@ -217,14 +217,13 @@ public:
         @param grid grid to place the values in
         @param f function to generate values
     */
-    template <
-        ball_function<double> FuncType,
-        contiguous_buffer_shaped_like<BallGLQGridShape<layout_type>> GridType
-    >
+    void generate_values(
+        contiguous_buffer_shaped_like<BallGLQGridShape<layout_type>> auto&& grid,
+        ball_function<double> auto&& f
+    )
         requires std::same_as<
-            std::invoke_result_t<FuncType, double, double, double>,
-            value_type_of<GridType>>
-    void generate_values(GridType&& grid, FuncType&& f)
+            std::invoke_result_t<decltype(f), double, double, double>,
+            value_type_of<decltype(grid)>>
     {
         resize(grid.order());
 
@@ -240,8 +239,8 @@ public:
                     for (std::size_t k = 0; k < m_rad_glq_nodes.size(); ++k)
                     {
                         const double r = m_rad_glq_nodes[k];
-                        std::forward<GridType>(grid)[i, j, k]
-                            = std::forward<FuncType>(f)(lon, colatitude, r);
+                        std::forward<decltype(grid)>(grid)[i, j, k]
+                            = std::forward<decltype(f)>(f)(lon, colatitude, r);
                     }
                 }
             }
@@ -255,12 +254,11 @@ public:
 
         @param f function to generate values
     */
-    template <ball_function<double> FuncType>
-    [[nodiscard]] auto generate_values(FuncType&& f, std::size_t order)
+    [[nodiscard]] auto generate_values(ball_function<double> auto&& f, std::size_t order)
     {
-        using ResultType = std::invoke_result_t<FuncType, double, double, double>;
+        using ResultType = std::invoke_result_t<decltype(f), double, double, double>;
         BallGLQGrid<ResultType, layout_type> grid(order);
-        generate_values(grid, std::forward<FuncType>(f));
+        generate_values(grid, std::forward<decltype(f)>(f));
         return grid;
     }
 

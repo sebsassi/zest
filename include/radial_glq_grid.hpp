@@ -150,19 +150,20 @@ public:
         return Base::size(concatenate(layout_type::extents(order), inner_extents));
     }
 
-    template <std::integral... Inds>
-        requires (0 < sizeof...(Inds) && sizeof...(Inds) < Base::rank)
     [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... inds) const noexcept
+    subshape([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (0 < sizeof...(indices) && sizeof...(indices) < Base::rank)
     {
-        return subshape_type<sizeof...(Inds)>(
-                take_last<Base::rank - sizeof...(Inds)>(extents()));
+        return subshape_type<sizeof...(indices)>(
+                take_last<Base::rank - sizeof...(indices)>(extents()));
     }
 
-    template <std::integral... Inds>
-        requires (sizeof...(Inds) == Base::rank)
     [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... inds) const noexcept { return zest::NullShape{}; }
+    subshape([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (sizeof...(indices) == Base::rank)
+    {
+        return NullShape{};
+    }
 
 private:
 
@@ -252,27 +253,27 @@ public:
         return Base::size(concatenate(outer_extents, layout_type::extents(order)));
     }
 
-    template <std::integral... Inds>
-        requires (sizeof...(Inds) < Base::rank - 1)
     [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... inds) const noexcept
+    subshape([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (sizeof...(indices) < Base::rank - 1)
     {
-        return subshape_type<sizeof...(Inds)>(
-                m_order, zest::take_last<Base::rank - sizeof...(Inds)>(extents()));
+        return subshape_type<sizeof...(indices)>(
+                m_order, zest::take_last<Base::rank - sizeof...(indices)>(extents()));
     }
 
-    template <std::integral... Inds>
-        requires (Base::rank - 1 <= sizeof...(Inds) && sizeof...(Inds) < Base::rank)
     [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... inds) const noexcept
+    subshape([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (Base::rank - 1 <= sizeof...(indices) && sizeof...(indices) < Base::rank)
     {
-        return subshape_type<sizeof...(Inds)>(m_order);
+        return subshape_type<sizeof...(indices)>(m_order);
     }
 
-    template <std::integral... Inds>
-        requires (sizeof...(Inds) == Base::rank)
     [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... inds) const noexcept { return zest::NullShape{}; }
+    subshape([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (sizeof...(indices) == Base::rank)
+    {
+        return NullShape{};
+    }
 
     [[nodiscard]] constexpr size_type
     order() const noexcept { return m_order; }
@@ -411,12 +412,13 @@ public:
         @param grid grid to place the values in
         @param f function to generate values
     */
-    template <
-        contiguous_buffer_shaped_like<RadialGLQGridShape<AlignmentType>> GridType,
-        isotropic_function<double> FuncType
-    >
-        requires std::same_as<std::invoke_result_t<FuncType, double>, value_type_of<GridType>>
-    void generate_values(GridType&& grid, FuncType&& f)
+    void generate_values(
+        contiguous_buffer_shaped_like<RadialGLQGridShape<AlignmentType>> auto&& grid,
+        isotropic_function<double> auto&& f
+    )
+        requires std::same_as<
+            std::invoke_result_t<decltype(f), double>,
+            value_type_of<decltype(grid)>>
     {
         resize(grid.order());
         assert(grid.extent(0) == m_glq_nodes.size());
@@ -424,7 +426,7 @@ public:
         for (std::size_t i = 0; i < m_glq_nodes.size(); ++i)
         {
             const double radius = m_glq_nodes[i];
-            std::forward<GridType>(grid)[i] = std::forward<FuncType>(f)(radius);
+            std::forward<decltype(grid)>(grid)[i] = std::forward<decltype(f)>(f)(radius);
         }
     }
 
@@ -435,12 +437,11 @@ public:
 
         @param f function to generate values
     */
-    template <isotropic_function<double> FuncType>
-    auto generate_values(FuncType&& f, std::size_t order)
+    [[nodiscard]] auto generate_values(isotropic_function<double> auto&& f, std::size_t order)
     {
-        using ResultType = std::invoke_result_t<FuncType, double>;
+        using ResultType = std::invoke_result_t<decltype(f), double>;
         auto grid = RadialGLQGrid<ResultType, alignment_type>(order);
-        generate_values(grid, std::forward<FuncType>(f));
+        generate_values(grid, std::forward<decltype(f)>(f));
         return grid;
     }
 

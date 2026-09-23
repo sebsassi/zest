@@ -28,6 +28,9 @@ namespace zest
 {
 
 template <typename T>
+concept arithmetic = std::integral<T> || std::floating_point<T>;
+
+template <typename T>
 concept shape = requires (T t, typename T::extent_type e)
 {
     typename std::remove_cvref_t<T>::size_type;
