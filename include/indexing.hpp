@@ -379,14 +379,8 @@ public:
             - `Parity::even`: `[0, end + 1)`
             - `Parity::odd`: `[1, end + 1)`
     */
-    explicit constexpr ParityIndexRange(index_type end) requires (parity == Parity::mixed):
-        BasicIndexRange<index_type, index_type{2}>{1 & (end + 1), end + 1} {}
-
-    explicit constexpr ParityIndexRange(index_type end) requires (parity == Parity::even):
-        BasicIndexRange<index_type, index_type{2}>{0, (end + 1) & (~1UL)} {}
-
-    explicit constexpr ParityIndexRange(index_type end) requires (parity == Parity::odd):
-        BasicIndexRange<index_type, index_type{2}>{1, (end & (~1UL)) + 1} {}
+    explicit constexpr ParityIndexRange(index_type end):
+        BasicIndexRange<index_type, IndexType{2}>{begin_index(0, end), end_index(end)} {}
 
     /**
         @brief Constructs a range of indices `[2*floor(begin/2) + (end + 1) % 2, end + 1)`.
@@ -399,23 +393,31 @@ public:
             - `Parity::even`: `[2*floor(begin/2), end + 1)`
             - `Parity::odd`: `[2*floor(begin/2) + 1, end + 1)`
     */
-    explicit constexpr ParityIndexRange(index_type begin, index_type end)
-        requires (parity == Parity::mixed):
-        BasicIndexRange<index_type, index_type{2}>{
-            begin + (1 & (begin ^ (end + 1))), end + 1
-        } {}
+    explicit constexpr ParityIndexRange(index_type begin, index_type end):
+        BasicIndexRange<index_type, IndexType{2}>{begin_index(begin, end), end_index(end)} {}
 
-    explicit constexpr ParityIndexRange(index_type begin, index_type end)
-        requires (parity == Parity::even):
-        BasicIndexRange<index_type, index_type{2}>{
-            (begin + 1) & (~1UL), (end + 1) & (~1UL)
-        } {}
+private:
+    [[nodiscard]] static constexpr index_type
+    begin_index(index_type begin, index_type end) noexcept
+    {
+        if constexpr (parity == Parity::mixed)
+            return begin + (1 & (begin ^ (end + 1)));
+        else if constexpr (parity == Parity::even)
+            return (begin + 1) & (~1UL);
+        else
+            return (begin & (~1UL)) + 1;
+    }
 
-    explicit constexpr ParityIndexRange(index_type begin, index_type end)
-        requires (parity == Parity::odd):
-        BasicIndexRange<index_type, index_type{2}>{
-            (begin & (~1UL)) + 1, (end & (~1UL)) + 1
-        } {}
+    [[nodiscard]] static constexpr index_type
+    end_index(index_type end) noexcept
+    {
+        if constexpr (parity == Parity::mixed)
+            return end + 1;
+        else if constexpr (parity == Parity::even)
+            return (end + 1) & (~1UL);
+        else
+            return (end & (~1UL)) + 1;
+    }
 };
 
 /**
