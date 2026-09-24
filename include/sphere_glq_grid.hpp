@@ -283,6 +283,7 @@ private:
 
 public:
     using size_type = typename Base::size_type;
+    using Base::size;
 
     template <std::size_t N>
         requires (N <= Base::rank)
@@ -424,6 +425,7 @@ private:
 
 public:
     using size_type = typename Base::size_type;
+    using Base::size;
 
     template <std::size_t N>
         requires (N <= Base::rank)

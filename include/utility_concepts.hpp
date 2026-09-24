@@ -45,8 +45,6 @@ concept shape = requires (T t, typename T::extent_type e)
         std::remove_const_t<decltype(std::remove_cvref_t<T>::linear_extent)>,
         typename std::remove_cvref_t<T>::size_type>;
 
-    { std::remove_cvref_t<T>::size(e) }
-        -> std::same_as<typename std::remove_cvref_t<T>::size_type>;
     { t.size() } -> std::same_as<typename std::remove_cvref_t<T>::size_type>;
     { t.indices() } -> std::same_as<typename std::remove_cvref_t<T>::index_range>;
 
