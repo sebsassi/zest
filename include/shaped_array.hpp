@@ -435,6 +435,9 @@ private:
     shape_type m_shape{};
 };
 
+template <typename ElementType, typename ShapeType, typename Allocator>
+ShapedSpan(ShapedArray<ElementType, ShapeType, Allocator>) -> ShapedSpan<ElementType, ShapeType>;
+
 /**
     @brief A container for contiguous multidimensional data.
 
@@ -780,6 +783,9 @@ public:
 private:
     std::array<ElementType, shape_type::linear_extent> m_data{};
 };
+
+template <typename ElementType, typename ShapeType>
+ShapedSpan(StaticShapedArray<ElementType, ShapeType>) -> ShapedSpan<ElementType, ShapeType>;
 
 template <shaped_contiguous_buffer T, std::size_t depth>
     requires (depth <= T::rank)
