@@ -80,18 +80,25 @@ private:
     using Base = TensorShape<std::dynamic_extent, inner_extent_params...>;
 
     template <std::size_t N, typename T>
-    struct subshape_helper;
+    struct subshape_type_helper;
+
+    template <std::size_t N, std::size_t... Inds>
+        requires (sizeof...(Inds) == Base::rank && N == 0)
+    struct subshape_type_helper<N, std::index_sequence<Inds...>>
+    {
+        using type = RadialGLQGridShape<AlignmentType, inner_extent_params...>;
+    };
 
     template <std::size_t N, std::size_t... Inds>
         requires (sizeof...(Inds) == Base::rank - N && 1 <= N && N < Base::rank)
-    struct subshape_helper<N, std::index_sequence<Inds...>>
+    struct subshape_type_helper<N, std::index_sequence<Inds...>>
     {
         using type = TensorShape<std::get<N + Inds>(Base::static_extents)...>;
     };
 
     template <std::size_t N>
         requires (N == Base::rank)
-    struct subshape_helper<N, std::index_sequence<>>
+    struct subshape_type_helper<N, std::index_sequence<>>
     {
         using type = NullShape;
     };
@@ -99,11 +106,10 @@ private:
 public:
     using layout_type = RadialGridLayout<AlignmentType>;
     using size_type = typename Base::size_type;
-    using Base::extents;
-    using Base::size;
 
     template <std::size_t N>
-    using subshape_type = subshape_helper<N, std::make_index_sequence<Base::rank - N>>;
+        requires (N <= Base::rank)
+    using subshape_type = subshape_type_helper<N, std::make_index_sequence<Base::rank - N>>;
 
     using Alignment = AlignmentType;
 
@@ -123,7 +129,10 @@ public:
         Base{extents}, m_order{order} {}
 
     [[nodiscard]] constexpr size_type
-    order() const noexcept { return m_order; }
+    order() const noexcept
+    {
+        return m_order;
+    }
 
     [[nodiscard]] static constexpr size_type
     size(size_type order) requires (Base::dynamic_rank == 1)
@@ -149,23 +158,29 @@ public:
     {
         return Base::size(concatenate(layout_type::extents(order), inner_extents));
     }
-
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] std::integral auto... indices) const noexcept
         requires (0 < sizeof...(indices) && sizeof...(indices) < Base::rank)
     {
+        return subshape_helper(indices...);
+    }
+
+
+private:
+    [[nodiscard]] constexpr auto
+    subshape_helper([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (0 < sizeof...(indices) && sizeof...(indices) < Base::rank)
+    {
         return subshape_type<sizeof...(indices)>(
-                take_last<Base::rank - sizeof...(indices)>(extents()));
+                take_last<Base::rank - sizeof...(indices)>(Base::extents()));
     }
 
     [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] std::integral auto... indices) const noexcept
+    subshape_helper([[maybe_unused]] std::integral auto... indices) const noexcept
         requires (sizeof...(indices) == Base::rank)
     {
         return NullShape{};
     }
-
-private:
 
     size_type m_order{};
 };
@@ -182,11 +197,18 @@ private:
     using Base = zest::TensorShape<outer_extent_params..., std::dynamic_extent>;
 
     template <std::size_t N, typename T>
-    struct subshape_helper;
+    struct subshape_type_helper;
+
+    template <std::size_t N, std::size_t... Inds>
+        requires (sizeof...(Inds) + 1 == Base::rank && N == 0)
+    struct subshape_type_helper<N, std::index_sequence<Inds...>>
+    {
+        using type = RadialGLQGridTensorShape<AlignmentType, outer_extent_params...>;
+    };
 
     template <std::size_t N, std::size_t... Inds>
         requires (sizeof...(Inds) + 1 == Base::rank - N && 1 <= N && N < Base::rank - 1)
-    struct subshape_helper<N, std::index_sequence<Inds...>>
+    struct subshape_type_helper<N, std::index_sequence<Inds...>>
     {
         using type = RadialGLQGridTensorShape<
                 AlignmentType, std::get<Inds>(Base::static_extents)...
@@ -195,14 +217,14 @@ private:
 
     template <std::size_t N>
         requires (N == Base::rank - 1)
-    struct subshape_helper<N, std::index_sequence<>>
+    struct subshape_type_helper<N, std::index_sequence<>>
     {
         using type = RadialGLQGridShape<AlignmentType>;
     };
 
     template <std::size_t N>
         requires (N == Base::rank)
-    struct subshape_helper<N, std::index_sequence<>>
+    struct subshape_type_helper<N, std::index_sequence<>>
     {
         using type = zest::NullShape;
     };
@@ -210,12 +232,10 @@ private:
 public:
     using layout_type = RadialGridLayout<AlignmentType>;
     using size_type = typename Base::size_type;
-    using Base::extents;
-    using Base::size;
 
     template <std::size_t N>
-        requires (0 < N && N <= Base::rank)
-    using subshape_type = subshape_helper<
+        requires (N <= Base::rank)
+    using subshape_type = subshape_type_helper<
             N, std::make_index_sequence<Base::rank - std::min(N + 1, Base::rank)>
         >::type;
 
@@ -233,6 +253,12 @@ public:
         const std::array<size_type, Base::rank - 1>& outer_extents, size_type order)
         requires (Base::dynamic_rank != Base::rank):
         Base(concatenate(outer_extents, layout_type::extents(order))), m_order(order) {}
+
+    [[nodiscard]] constexpr size_type
+    order() const noexcept
+    {
+        return m_order;
+    }
 
     [[nodiscard]] constexpr size_type
     size(size_type outer_extent, size_type order) requires (Base::dynamic_rank == 2)
@@ -255,30 +281,33 @@ public:
 
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (1 <= sizeof...(indices) && sizeof...(indices) < Base::rank)
+    {
+        return subshape_helper(indices...);
+    }
+
+private:
+    [[nodiscard]] constexpr auto
+    subshape_helper([[maybe_unused]] std::integral auto... indices) const noexcept
         requires (sizeof...(indices) < Base::rank - 1)
     {
         return subshape_type<sizeof...(indices)>(
-                m_order, zest::take_last<Base::rank - sizeof...(indices)>(extents()));
+                m_order, zest::take_last<Base::rank - sizeof...(indices)>(Base::extents()));
     }
 
     [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] std::integral auto... indices) const noexcept
+    subshape_helper([[maybe_unused]] std::integral auto... indices) const noexcept
         requires (Base::rank - 1 <= sizeof...(indices) && sizeof...(indices) < Base::rank)
     {
         return subshape_type<sizeof...(indices)>(m_order);
     }
 
     [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] std::integral auto... indices) const noexcept
+    subshape_helper([[maybe_unused]] std::integral auto... indices) const noexcept
         requires (sizeof...(indices) == Base::rank)
     {
         return NullShape{};
     }
-
-    [[nodiscard]] constexpr size_type
-    order() const noexcept { return m_order; }
-
-private:
 
     size_type m_order{};
 };

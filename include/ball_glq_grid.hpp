@@ -135,7 +135,10 @@ public:
         DynamicTensorShape<3>(LayoutType::extents(order)), m_order(order) {}
 
     [[nodiscard]] constexpr size_type
-    order() const noexcept { return m_order; }
+    order() const noexcept
+    {
+        return m_order;
+    }
 
 private:
     size_type m_order{};

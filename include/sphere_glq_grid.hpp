@@ -200,25 +200,33 @@ private:
     using Base = TensorShape<std::dynamic_extent, inner_extent_params...>;
 
     template <std::size_t N, typename T>
-    struct subshape_helper;
+    struct subshape_type_helper;
+
+    template <std::size_t N, std::size_t... Inds>
+        requires (sizeof...(Inds) == Base::rank && N == 0)
+    struct subshape_type_helper<N, std::index_sequence<Inds...>>
+    {
+        using type = SphereGLQSubGridShape<LayoutType, inner_extent_params...>;
+    };
 
     template <std::size_t N, std::size_t... Inds>
         requires (sizeof...(Inds) == Base::rank - N && 1 <= N && N < Base::rank)
-    struct subshape_helper<N, std::index_sequence<Inds...>>
+    struct subshape_type_helper<N, std::index_sequence<Inds...>>
     {
         using type = TensorShape<std::get<N + Inds>(Base::static_extents)...>;
     };
 
     template <std::size_t N>
         requires (N == Base::rank)
-    struct subshape_helper<N, std::index_sequence<>>
+    struct subshape_type_helper<N, std::index_sequence<>>
     {
         using type = NullShape;
     };
 
 public:
     template <std::size_t N>
-    using subshape_type = subshape_helper<N, std::make_index_sequence<Base::rank - N>>;
+        requires (N <= Base::rank)
+    using subshape_type = subshape_type_helper<N, std::make_index_sequence<Base::rank - N>>;
 
     SphereGLQSubGridShape() = default;
 
@@ -226,7 +234,10 @@ public:
         Base{extents}, m_order{order} {}
 
     [[nodiscard]] constexpr Base::size_type
-    order() const noexcept { return m_order; }
+    order() const noexcept
+    {
+        return m_order;
+    }
 
 private:
     Base::size_type m_order{};
@@ -240,39 +251,42 @@ private:
     using Base = TensorShape<std::dynamic_extent, std::dynamic_extent, inner_extent_params...>;
 
     template <std::size_t N, typename T>
-    struct subshape_helper;
+    struct subshape_type_helper;
 
-    template <std::size_t N, std::size_t I, std::size_t... Inds>
-        requires (sizeof...(Inds) + 1 == Base::rank - N && N == 1)
-    struct subshape_helper<N, std::index_sequence<I, Inds...>>
+    template <std::size_t N, std::size_t... Inds>
+        requires (sizeof...(Inds) == Base::rank && N == 0)
+    struct subshape_type_helper<N, std::index_sequence<Inds...>>
     {
-        using type = SphereGLQSubGridShape<
-                LayoutType, std::get<N + 1 + Inds>(Base::static_extents)...
-            >;
+        using type = SphereGLQGridShape<LayoutType, inner_extent_params...>;
+    };
+
+    template <std::size_t N, std::size_t... Inds>
+        requires (sizeof...(Inds) == Base::rank - 1 && N == 1)
+    struct subshape_type_helper<N, std::index_sequence<Inds...>>
+    {
+        using type = SphereGLQSubGridShape<LayoutType, inner_extent_params...>;
     };
 
     template <std::size_t N, std::size_t... Inds>
         requires (sizeof...(Inds) == Base::rank - N && 1 < N && N < Base::rank)
-    struct subshape_helper<N, std::index_sequence<Inds...>>
+    struct subshape_type_helper<N, std::index_sequence<Inds...>>
     {
         using type = TensorShape<std::get<N + Inds>(Base::static_extents)...>;
     };
 
     template <std::size_t N>
         requires (N == Base::rank)
-    struct subshape_helper<N, std::index_sequence<>>
+    struct subshape_type_helper<N, std::index_sequence<>>
     {
         using type = NullShape;
     };
 
 public:
     using size_type = typename Base::size_type;
-    using Base::extents;
-    using Base::size;
 
     template <std::size_t N>
-        requires (0 < N && N <= Base::rank)
-    using subshape_type = subshape_helper<N, std::make_index_sequence<Base::rank - N>>::type;
+        requires (N <= Base::rank)
+    using subshape_type = subshape_type_helper<N, std::make_index_sequence<Base::rank - N>>::type;
 
     SphereGLQGridShape() = default;
 
@@ -296,7 +310,10 @@ public:
         Base{extents}, m_order{order} {}
 
     [[nodiscard]] constexpr size_type
-    order() const noexcept { return m_order; }
+    order() const noexcept
+    {
+        return m_order;
+    }
 
     [[nodiscard]] static constexpr size_type
     size(size_type order) requires (Base::dynamic_rank == 2)
@@ -323,30 +340,37 @@ public:
         return Base::size(concatenate(LayoutType::extents(order), inner_extents));
     }
 
-    template <std::integral... Inds>
-        requires (sizeof...(Inds) == 1)
     [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... inds) const noexcept
+    subshape([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (1 < sizeof...(indices) && sizeof...(indices) < Base::rank)
     {
-        return subshape_type<sizeof...(Inds)>(
-                m_order, take_last<Base::rank - sizeof...(Inds)>(extents()));
+        return subshape_helper(indices...);
     }
-
-    template <std::integral... Inds>
-        requires (1 < sizeof...(Inds) && sizeof...(Inds) < Base::rank)
-    [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... inds) const noexcept
-    {
-        return subshape_type<sizeof...(Inds)>(
-                take_last<Base::rank - sizeof...(Inds)>(extents()));
-    }
-
-    template <std::integral... Inds>
-        requires (sizeof...(Inds) == Base::rank)
-    [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... inds) const noexcept { return NullShape{}; }
 
 private:
+    [[nodiscard]] constexpr auto
+    subshape_helper([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (sizeof...(indices) == 1)
+    {
+        return subshape_type<sizeof...(indices)>(
+                m_order, take_last<Base::rank - sizeof...(indices)>(Base::extents()));
+    }
+
+    [[nodiscard]] constexpr auto
+    subshape_helper([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (1 < sizeof...(indices) && sizeof...(indices) < Base::rank)
+    {
+        return subshape_type<sizeof...(indices)>(
+                take_last<Base::rank - sizeof...(indices)>(Base::extents()));
+    }
+
+    [[nodiscard]] constexpr auto
+    subshape_helper([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (sizeof...(indices) == Base::rank)
+    {
+        return NullShape{};
+    }
+
     size_type m_order{};
 };
 
@@ -359,11 +383,18 @@ private:
     using Base = TensorShape<outer_extent_params..., std::dynamic_extent, std::dynamic_extent>;
 
     template <std::size_t N, typename T>
-    struct subshape_helper;
+    struct subshape_type_helper;
+
+    template <std::size_t N, std::size_t... Inds>
+        requires (sizeof...(Inds) + 2 == Base::rank && N == 0)
+    struct subshape_type_helper<N, std::index_sequence<Inds...>>
+    {
+        using type = SphereGLQGridTensorShape<LayoutType, outer_extent_params...>;
+    };
 
     template <std::size_t N, std::size_t... Inds>
         requires (sizeof...(Inds) + 2 == Base::rank - N && 1 <= N && N < Base::rank - 2)
-    struct subshape_helper<N, std::index_sequence<Inds...>>
+    struct subshape_type_helper<N, std::index_sequence<Inds...>>
     {
         using type = SphereGLQGridTensorShape<
                 LayoutType, std::get<Inds>(Base::static_extents)...
@@ -372,33 +403,31 @@ private:
 
     template <std::size_t N>
         requires (N == Base::rank - 2)
-    struct subshape_helper<N, std::index_sequence<>>
+    struct subshape_type_helper<N, std::index_sequence<>>
     {
         using type = SphereGLQGridShape<LayoutType>;
     };
 
     template <std::size_t N>
         requires (N == Base::rank - 1)
-    struct subshape_helper<N, std::index_sequence<>>
+    struct subshape_type_helper<N, std::index_sequence<>>
     {
         using type = SphereGLQSubGridShape<LayoutType>;
     };
 
     template <std::size_t N>
         requires (N == Base::rank)
-    struct subshape_helper<N, std::index_sequence<>>
+    struct subshape_type_helper<N, std::index_sequence<>>
     {
         using type = NullShape;
     };
 
 public:
     using size_type = typename Base::size_type;
-    using Base::extents;
-    using Base::size;
 
     template <std::size_t N>
-        requires (0 < N && N <= Base::rank)
-    using subshape_type = subshape_helper<
+        requires (N <= Base::rank)
+    using subshape_type = subshape_type_helper<
             N, std::make_index_sequence<Base::rank - std::min(N + 2, Base::rank)>
         >::type;
 
@@ -418,50 +447,60 @@ public:
         Base(concatenate(outer_extents, LayoutType::extents(order))), m_order(order) {}
 
     [[nodiscard]] constexpr size_type
+    order() const noexcept
+    {
+        return m_order;
+    }
+
+    [[nodiscard]] static constexpr size_type
     size(size_type outer_extent, size_type order) requires (Base::dynamic_rank == 3)
     {
         return Base::size(prepend(outer_extent, LayoutType::extents(order)));
     }
 
-    [[nodiscard]] constexpr size_type
+    [[nodiscard]] static constexpr size_type
     size(const std::array<size_type, Base::dynamic_rank - 2>& outer_extents, size_type order)
     {
         return Base::size(concatenate(outer_extents, LayoutType::extents(order)));
     }
 
-    [[nodiscard]] constexpr size_type
+    [[nodiscard]] static constexpr size_type
     size(const std::array<size_type, Base::rank - 2>& outer_extents, size_type order)
         requires (Base::dynamic_rank != Base::rank)
     {
         return Base::size(concatenate(outer_extents, LayoutType::extents(order)));
     }
 
-    template <std::integral... Inds>
-        requires (sizeof...(Inds) < Base::rank - 2)
     [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... inds) const noexcept
+    subshape([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (1 <= sizeof...(indices) && sizeof...(indices) < Base::rank)
     {
-        return subshape_type<sizeof...(Inds)>(
-                m_order, take_last<Base::rank - sizeof...(Inds)>(extents()));
+        return subshape_helper(indices...);
     }
-
-    template <std::integral... Inds>
-        requires (Base::rank - 2 <= sizeof...(Inds) && sizeof...(Inds) < Base::rank)
-    [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... inds) const noexcept
-    {
-        return subshape_type<sizeof...(Inds)>(m_order);
-    }
-
-    template <std::integral... Inds>
-        requires (sizeof...(Inds) == Base::rank)
-    [[nodiscard]] constexpr auto
-    subshape([[maybe_unused]] Inds... inds) const noexcept { return NullShape{}; }
-
-    [[nodiscard]] constexpr size_type
-    order() const noexcept { return m_order; }
 
 private:
+    [[nodiscard]] constexpr auto
+    subshape_helper([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (sizeof...(indices) < Base::rank - 2)
+    {
+        return subshape_type<sizeof...(indices)>(
+                m_order, take_last<Base::rank - sizeof...(indices)>(Base::extents()));
+    }
+
+    [[nodiscard]] constexpr auto
+    subshape_helper([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (Base::rank - 2 <= sizeof...(indices) && sizeof...(indices) < Base::rank)
+    {
+        return subshape_type<sizeof...(indices)>(m_order);
+    }
+
+    [[nodiscard]] constexpr auto
+    subshape_helper([[maybe_unused]] std::integral auto... indices) const noexcept
+        requires (sizeof...(indices) == Base::rank)
+    {
+        return NullShape{};
+    }
+
     size_type m_order{};
 };
 
@@ -560,7 +599,10 @@ class SphereGLQGridPoints
 public:
     using layout_type = LayoutType;
     SphereGLQGridPoints() = default;
-    explicit SphereGLQGridPoints(std::size_t order) { resize(order); }
+    explicit SphereGLQGridPoints(std::size_t order)
+    {
+        resize(order);
+    }
 
     /**
         @brief Change the size of the corresponding grid.
