@@ -343,7 +343,7 @@ public:
 
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] std::integral auto... indices) const noexcept
-        requires (1 < sizeof...(indices) && sizeof...(indices) < Base::rank)
+        requires (0 < sizeof...(indices) && sizeof...(indices) <= Base::rank)
     {
         return subshape_helper(indices...);
     }
@@ -475,7 +475,7 @@ public:
 
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] std::integral auto... indices) const noexcept
-        requires (1 <= sizeof...(indices) && sizeof...(indices) < Base::rank)
+        requires (0 < sizeof...(indices) && sizeof...(indices) <= Base::rank)
     {
         return subshape_helper(indices...);
     }

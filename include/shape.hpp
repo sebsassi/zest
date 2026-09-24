@@ -224,7 +224,7 @@ public:
     */
     [[nodiscard]] static constexpr auto
     subshape(std::integral auto... indices) noexcept
-        requires (1 <= sizeof...(indices) && sizeof...(indices) <= rank)
+        requires (0 < sizeof...(indices) && sizeof...(indices) <= rank)
     {
         return subshape_impl(indices...);
     }
@@ -236,7 +236,7 @@ public:
     */
     [[nodiscard]] static constexpr index_type
     operator()(std::integral auto... indices) noexcept
-        requires (1 <= sizeof...(indices) && sizeof...(indices) <= rank)
+        requires (0 < sizeof...(indices) && sizeof...(indices) <= rank)
     {
         return sequence_type::index(index_type(indices)...);
     }
@@ -264,7 +264,7 @@ public:
 private:
     [[nodiscard]] static constexpr auto
     subshape_impl(std::integral auto... indices) noexcept
-        requires (1 <= sizeof...(indices) && sizeof...(indices) < rank)
+        requires (0 < sizeof...(indices) && sizeof...(indices) < rank)
     {
         return subshape_type<sizeof...(indices)>{
             sequence_type::subextent(index_type(indices)...)
@@ -533,7 +533,7 @@ public:
     */
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] std::integral auto... indices) const noexcept
-        requires (1 <= sizeof...(indices) && sizeof...(indices) <= rank)
+        requires (0 < sizeof...(indices) && sizeof...(indices) <= rank)
     {
         return subshape_impl(indices...);
     }
@@ -545,7 +545,7 @@ public:
     */
     [[nodiscard]] constexpr index_type
     operator()(std::integral auto... indices) const noexcept
-        requires (1 <= sizeof...(indices) && sizeof...(indices) <= rank)
+        requires (0 < sizeof...(indices) && sizeof...(indices) <= rank)
     {
         return array::detail::index(m_extents, index_type(indices)...);
     }
@@ -573,7 +573,7 @@ public:
 private:
     [[nodiscard]] constexpr auto
     subshape_impl([[maybe_unused]] std::integral auto... indices) const noexcept
-        requires (1 <= sizeof...(indices) && sizeof...(indices) < rank)
+        requires (0 < sizeof...(indices) && sizeof...(indices) < rank)
     {
         return subshape_type<sizeof...(indices)>{
             take_last<rank - sizeof...(indices)>(m_extents)
@@ -706,14 +706,14 @@ public:
 
     [[nodiscard]] static constexpr auto
     subshape(std::integral auto... indices) noexcept
-        requires (1 <= sizeof...(indices) && sizeof...(indices) <= rank)
+        requires (0 < sizeof...(indices) && sizeof...(indices) <= rank)
     {
         return subshape_impl(indices...);
     }
 
     [[nodiscard]] static constexpr index_type
     operator()(std::integral auto... indices) noexcept
-        requires (1 <= sizeof...(indices) && sizeof...(indices) <= rank)
+        requires (0 < sizeof...(indices) && sizeof...(indices) <= rank)
     {
         return array::detail::index(static_extents, index_type(indices)...);
     }
@@ -948,7 +948,7 @@ public:
     */
     [[nodiscard]] constexpr auto
     subshape([[maybe_unused]] std::integral auto... indices) const noexcept
-        requires (1 <= sizeof...(indices) && sizeof...(indices) <= rank)
+        requires (0 < sizeof...(indices) && sizeof...(indices) <= rank)
     {
         return subshape_impl(indices...);
     }
@@ -960,7 +960,7 @@ public:
     */
     [[nodiscard]] constexpr index_type
     operator()(std::integral auto... indices) const noexcept
-        requires (1 <= sizeof...(indices) && sizeof...(indices) <= rank)
+        requires (0 < sizeof...(indices) && sizeof...(indices) <= rank)
     {
         return index(index_type(indices)...);
     }
@@ -988,7 +988,7 @@ public:
 private:
     [[nodiscard]] constexpr auto
     subshape_impl(std::integral auto... indices) const noexcept
-        requires (1 <= sizeof...(indices) && sizeof...(indices) < OuterShape::rank)
+        requires (0 < sizeof...(indices) && sizeof...(indices) < OuterShape::rank)
     {
         return subshape_type<sizeof...(indices)>{
             m_shapes.first.subshape((typename OuterShape::index_type)(indices)...),
@@ -996,11 +996,6 @@ private:
         };
     }
 
-    /**
-        @brief Subshape of the shape.
-
-        @param indices Indices at which the subshape is taken.
-    */
     [[nodiscard]] constexpr auto
     subshape_impl([[maybe_unused]] std::integral auto... indices) const noexcept
         requires (sizeof...(indices) == OuterShape::rank)
@@ -1032,7 +1027,7 @@ private:
 
     [[nodiscard]] constexpr index_type
     index(std::integral auto... indices) const noexcept
-        requires (1 <= sizeof...(indices) && sizeof...(indices) <= OuterShape::rank)
+        requires (0 < sizeof...(indices) && sizeof...(indices) <= OuterShape::rank)
     {
         using outer_index_type = typename OuterShape::index_type;
         return m_shapes.first(outer_index_type(indices)...)*m_shapes.second.size();
