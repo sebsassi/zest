@@ -81,6 +81,18 @@ consteval Indexing indexing_of()
 template <typename T>
 concept has_parity = requires (T x) { { x.parity() } -> std::same_as<Parity>; };
 
+struct NullSequence
+{
+    using index_type = std::size_t;
+    using size_type = std::size_t;
+
+    [[nodiscard]] static constexpr size_type
+    size([[maybe_unused]] size_type order) noexcept
+    {
+        return 0;
+    }
+};
+
 /**
     @brief Contiguous 1d sequence, which is indexed exactly as you would expect.
 
@@ -107,6 +119,28 @@ struct StandardLinearSequence
 
     static constexpr Indexing indexing = indexing_param;
     static constexpr size_type rank = 1;
+
+private:
+    template <std::size_t N> struct subsequence_helper;
+
+    template <std::size_t N>
+        requires (N == 0)
+    struct subsequence_helper<N>
+    {
+        using type = StandardLinearSequence<indexing_param>;
+    };
+
+    template <std::size_t N>
+        requires (N == 1)
+    struct subsequence_helper<N>
+    {
+        using type = NullSequence;
+    };
+
+public:
+    template <std::size_t N>
+        requires (N <= rank)
+    using subsequence_type = subsequence_helper<N>::type;
 
     /**
         @brief Number of elements in sequence at the given order.
@@ -159,6 +193,28 @@ struct ParityLinearSequence
 
     static constexpr Parity parity = parity_param;
     static constexpr size_type rank = 1;
+
+private:
+    template <std::size_t N> struct subsequence_helper;
+
+    template <std::size_t N>
+        requires (N == 0)
+    struct subsequence_helper<N>
+    {
+        using type = ParityLinearSequence<parity>;
+    };
+
+    template <std::size_t N>
+        requires (N == 1)
+    struct subsequence_helper<N>
+    {
+        using type = NullSequence;
+    };
+
+public:
+    template <std::size_t N>
+        requires (N <= rank)
+    using subsequence_type = subsequence_helper<N>::type;
 
     /**
         @brief Number of elements in sequence at the given order.
@@ -222,15 +278,29 @@ private:
     template <std::size_t N> struct subsequence_helper;
 
     template <std::size_t N>
+        requires (N == 0)
+    struct subsequence_helper<N>
+    {
+        using type = TriangleSequence<indexing_param>;
+    };
+
+    template <std::size_t N>
         requires (N == 1)
     struct subsequence_helper<N>
     {
         using type = StandardLinearSequence<indexing_param>;
     };
 
+    template <std::size_t N>
+        requires (N == 2)
+    struct subsequence_helper<N>
+    {
+        using type = NullSequence;
+    };
+
 public:
     template <std::size_t N>
-        requires (N == 1)
+        requires (N <= rank)
     using subsequence_type = subsequence_helper<N>::type;
 
     /**
@@ -321,15 +391,29 @@ private:
     template <std::size_t N> struct subsequence_helper;
 
     template <std::size_t N>
+        requires (N == 0)
+    struct subsequence_helper<N>
+    {
+        using type = EvenTriangleSequence;
+    };
+
+    template <std::size_t N>
         requires (N == 1)
     struct subsequence_helper<N>
     {
         using type = ParityLinearSequence<Parity::mixed>;
     };
 
+    template <std::size_t N>
+        requires (N == 2)
+    struct subsequence_helper<N>
+    {
+        using type = NullSequence;
+    };
+
 public:
     template <std::size_t N>
-        requires (N == 1)
+        requires (N <= rank)
     using subsequence_type = subsequence_helper<N>::type;
 
     /**
@@ -444,15 +528,29 @@ private:
     template <std::size_t N> struct subsequence_helper;
 
     template <std::size_t N>
+        requires (N == 0)
+    struct subsequence_helper<N>
+    {
+        using type = ParityRowTriangleSequence<indexing_param>;
+    };
+
+    template <std::size_t N>
         requires (N == 1)
     struct subsequence_helper<N>
     {
         using type = StandardLinearSequence<indexing_param>;
     };
 
+    template <std::size_t N>
+        requires (N == 2)
+    struct subsequence_helper<N>
+    {
+        using type = NullSequence;
+    };
+
 public:
     template <std::size_t N>
-        requires (N == 1)
+        requires (N <= rank)
     using subsequence_type = subsequence_helper<N>::type;
 
     /**
@@ -563,6 +661,13 @@ private:
     template <std::size_t N> struct subsequence_helper;
 
     template <std::size_t N>
+        requires (N == 0)
+    struct subsequence_helper<N>
+    {
+        using type = ZernikeTetrahedralSequence<indexing_param>;
+    };
+
+    template <std::size_t N>
         requires (N == 1)
     struct subsequence_helper<N>
     {
@@ -576,9 +681,16 @@ private:
         using type = StandardLinearSequence<indexing_param>;
     };
 
+    template <std::size_t N>
+        requires (N == 3)
+    struct subsequence_helper<N>
+    {
+        using type = NullSequence;
+    };
+
 public:
     template <std::size_t N>
-        requires (N == 1 || N == 2)
+        requires (N <= rank)
     using subsequence_type = subsequence_helper<N>::type;
 
     /**

@@ -57,6 +57,7 @@ public:
         @brief Subshapes of the shape.
     */
     template <std::size_t N>
+        requires (N <= rank)
     using subshape_type = NullShape;
 
     constexpr NullShape() = default;
@@ -145,14 +146,7 @@ private:
     template <std::size_t N> struct subshape_helper;
 
     template <std::size_t N>
-        requires (N == 0)
-    struct subshape_helper<N>
-    {
-        using type = SequencedShape<sequence_type>;
-    };
-
-    template <std::size_t N>
-        requires (0 < N && N < rank)
+        requires (0 <= N && N < rank)
     struct subshape_helper<N>
     {
         using type = SequencedShape<typename sequence_type::template subsequence_type<N>>;
@@ -382,14 +376,7 @@ private:
     struct subshape_helper;
 
     template <std::size_t... Inds>
-        requires (sizeof...(Inds) == 0)
-    struct subshape_helper<0, std::index_sequence<Inds...>>
-    {
-        using type = TensorShape<std::get<Inds>(static_extents)...>;
-    };
-
-    template <std::size_t... Inds>
-        requires (sizeof...(Inds) < rank)
+        requires (0 < sizeof...(Inds) && sizeof...(Inds) <= rank)
     struct subshape_helper<rank - sizeof...(Inds), std::index_sequence<Inds...>>
     {
         using type = TensorShape<std::get<rank - sizeof...(Inds) + Inds>(static_extents)...>;
@@ -647,14 +634,7 @@ private:
     struct subshape_helper;
 
     template <std::size_t... Inds>
-        requires (sizeof...(Inds) == 0)
-    struct subshape_helper<0, std::index_sequence<Inds...>>
-    {
-        using type = TensorShape<std::get<Inds>(static_extents)...>;
-    };
-
-    template <std::size_t... Inds>
-        requires (sizeof...(Inds) < rank)
+        requires (0 < sizeof...(Inds) && sizeof...(Inds) <= rank)
     struct subshape_helper<rank - sizeof...(Inds), std::index_sequence<Inds...>>
     {
         using type = TensorShape<std::get<rank - sizeof...(Inds) + Inds>(static_extents)...>;
@@ -791,14 +771,7 @@ private:
     struct subshape_helper;
 
     template <std::size_t N>
-        requires (N == 0)
-    struct subshape_helper<N>
-    {
-        using type = CompositeShape<OuterShape, InnerShape>;
-    };
-
-    template <std::size_t N>
-        requires (N < OuterShape::rank)
+        requires (0 <= N && N < OuterShape::rank)
     struct subshape_helper<N>
     {
         using type
@@ -806,14 +779,7 @@ private:
     };
 
     template <std::size_t N>
-        requires (N == OuterShape::rank)
-    struct subshape_helper<N>
-    {
-        using type = InnerShape;
-    };
-
-    template <std::size_t N>
-        requires (OuterShape::rank < N && N < rank)
+        requires (OuterShape::rank <= N && N < rank)
     struct subshape_helper<N>
     {
         using type = typename InnerShape::template subshape_type<N - OuterShape::rank>;
