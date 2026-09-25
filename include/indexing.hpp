@@ -279,6 +279,17 @@ public:
 };
 
 /**
+    @brief An empty index range.
+
+    @tparam IndexType
+
+    This class defines a range that contains no indices with `begin == end`.
+*/
+template <std::integral IndexType>
+using EmptyIndexRange
+    = StaticBasicIndexRange<IndexType, IndexType{}, IndexType{}, IndexType{}>;
+
+/**
     @brief A basic index range with unit stride.
 
     @tparam IndexType type of the index

@@ -47,7 +47,7 @@ class NullShape
 public:
     using size_type = std::size_t;
     using index_type = size_type;
-    using index_range = SingleIndexRange<index_type>;
+    using index_range = EmptyIndexRange<index_type>;
     using extent_type = size_type;
 
     static constexpr size_type rank = 0;
@@ -290,7 +290,10 @@ template <std::size_t... static_extents>
 [[nodiscard]] constexpr std::size_t
 count_occurences(std::size_t n) noexcept
 {
-    return (std::size_t(static_extents == n) + ...);
+    if constexpr (sizeof...(static_extents) == 0)
+        return 0;
+    else
+        return (std::size_t(static_extents == n) + ...);
 }
 
 // Replace `std::dynamic_extent` in `static_extents` with corresponding
@@ -302,7 +305,8 @@ extents_from(const std::array<std::size_t, N>& dynamic_extents) noexcept
 {
     auto impl = [&]<std::size_t... I>(std::index_sequence<I...>)
     {
-        std::size_t i = 0;
+        // May be unused if there are no dynamic extents.
+        [[maybe_unused]] std::size_t i = 0;
         std::array<std::size_t, sizeof...(static_extents)> extents{};
         ([&](){
             if constexpr (static_extents == std::dynamic_extent)
@@ -326,12 +330,13 @@ extract_dynamic(const std::array<std::size_t, sizeof...(static_extents)>& extent
     static constexpr std::size_t num_dynamic = count_occurences<static_extents...>(std::dynamic_extent);
     auto impl = [&]<std::size_t... I>(std::index_sequence<I...>)
     {
-        std::size_t i = 0;
+        // May be unused if there are no dynamic extents.
+        [[maybe_unused]] std::size_t i = 0;
         std::array<std::size_t, num_dynamic> res{};
         ([&](){
             if constexpr (static_extents == std::dynamic_extent)
             {
-                res[i] = extents[static_extents];
+                res[i] = extents[I];
                 ++i;
             }
         }(),...);

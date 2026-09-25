@@ -27,6 +27,77 @@ SOFTWARE.
 namespace
 {
 
+bool test_count_occurences_gives_zero_for_empty_pack()
+{
+    return zest::detail::count_occurences<>(4) == 0;
+}
+
+bool test_count_occurences_random_packs()
+{
+    return zest::detail::count_occurences<3>(3) == 1
+        && zest::detail::count_occurences<3>(0) == 0
+        && zest::detail::count_occurences<3, 4, 3>(3) == 2
+        && zest::detail::count_occurences<1, 0, 1, 0, 1, 0, 1>(1) == 4;
+}
+
+bool test_extents_from_empty_pack_gives_empty_array()
+{
+    return zest::detail::extents_from<>(std::array<std::size_t, 0>{}) == std::array<std::size_t, 0>{};
+}
+
+bool test_extents_from_replace_dynamic_extent_with_zeros()
+{
+    return zest::detail::extents_from<std::dynamic_extent>(std::array<std::size_t, 1>{}) == std::array<std::size_t, 1>{}
+        && zest::detail::extents_from<1, std::dynamic_extent, 2>(std::array<std::size_t, 1>{}) == std::array<std::size_t, 3>{1, 0, 2};
+}
+
+bool test_extents_from_all_dynamic_extents_with_random_numbers()
+{
+    return zest::detail::extents_from<std::dynamic_extent, std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>(
+        std::array<std::size_t, 4>{5, 2, 6, 1}) == std::array<std::size_t, 4>{5, 2, 6, 1};
+}
+
+bool test_extract_dynamic_from_empty_array_gives_empty_array()
+{
+    return zest::detail::extract_dynamic<>(std::array<std::size_t, 0>{}) == std::array<std::size_t, 0>{};
+}
+
+bool test_extract_dynamic_from_purely_dynamic_does_nothing()
+{
+    return zest::detail::extract_dynamic<std::dynamic_extent>(std::array<std::size_t, 1>{2}) == std::array<std::size_t, 1>{2}
+        && zest::detail::extract_dynamic<std::dynamic_extent, std::dynamic_extent, std::dynamic_extent>(
+            std::array<std::size_t, 3>{1, 2, 3}) == std::array<std::size_t, 3>{1, 2, 3};
+}
+
+bool test_extract_dynamic_from_purely_static_gives_empty_array()
+{
+    return zest::detail::extract_dynamic<1, 2, 3>(std::array<std::size_t, 3>{1, 2, 3}) == std::array<std::size_t, 0>{}
+        // static dimensions of input don't have to match static dimensions of pack
+        && zest::detail::extract_dynamic<1, 2, 3>(std::array<std::size_t, 3>{}) == std::array<std::size_t, 0>{};
+}
+
+bool test_nullshape_size_always_returns_zero()
+{
+    return zest::NullShape::size() == 0
+        && zest::NullShape::size(0) == 0
+        && zest::NullShape::size(346578) == 0
+        && zest::NullShape{}.size() == 0;
+}
+
+bool test_nullshape_extents_returns_zero()
+{
+     return zest::NullShape{}.extents() == 0;
+}
+
+bool test_nullshape_indices_is_empty()
+{
+    std::size_t counter = 0;
+    for ([[maybe_unused]] auto i : zest::NullShape{}.indices())
+        ++counter;
+
+    return counter == 0;
+}
+
 bool test_sequenced_shape_zernike_tetrahedral_sequence_subshape_matches_call_operator(std::size_t n, std::size_t l, std::size_t m)
 {
     using Shape = zest::SequencedShape<zest::ZernikeTetrahedralSequence<zest::Indexing::zero_based>>;
@@ -131,6 +202,21 @@ bool test_composite_shape_subshape_matches_call_operator(std::size_t i, std::siz
 
 int main()
 {
+    assert(test_count_occurences_gives_zero_for_empty_pack());
+    assert(test_count_occurences_random_packs());
+
+    assert(test_extents_from_empty_pack_gives_empty_array());
+    assert(test_extents_from_replace_dynamic_extent_with_zeros());
+    assert(test_extents_from_all_dynamic_extents_with_random_numbers());
+
+    assert(test_extract_dynamic_from_empty_array_gives_empty_array());
+    assert(test_extract_dynamic_from_purely_dynamic_does_nothing());
+    assert(test_extract_dynamic_from_purely_static_gives_empty_array());
+
+    assert(test_nullshape_size_always_returns_zero());
+    assert(test_nullshape_extents_returns_zero());
+    assert(test_nullshape_indices_is_empty());
+
     assert(test_sequenced_shape_zernike_tetrahedral_sequence_subshape_matches_call_operator(0, 0, 0));
     assert(test_sequenced_shape_zernike_tetrahedral_sequence_subshape_matches_call_operator(2, 2, 1));
     assert(test_sequenced_shape_zernike_tetrahedral_sequence_subshape_matches_call_operator(3, 3, 3));
