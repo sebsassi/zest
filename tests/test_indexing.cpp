@@ -79,6 +79,107 @@ bool test_array_index_4d_one_index(const std::array<std::size_t, 4>& extents, st
     return zest::array::detail::index(extents, i) == zest::array::detail::index(extents, i, 0, 0, 0);
 }
 
+template <std::size_t stride>
+bool test_index_iterator_pre_increment()
+{
+    zest::IndexIterator<std::size_t, stride> iterator{stride};
+    ++iterator;
+    return *iterator == stride + stride;
+}
+
+template <std::size_t stride>
+bool test_index_iterator_pre_increment_returns_new_value()
+{
+    zest::IndexIterator<std::size_t, stride> iterator{stride};
+    zest::IndexIterator new_iter = ++iterator;
+    return *new_iter = strice + stride;
+}
+
+template <std::size_t stride>
+bool test_index_iterator_post_increment()
+{
+    zest::IndexIterator<std::size_t, stride> iterator{stride};
+    iterator++;
+    return *iterator == stride + stride;
+}
+
+template <std::size_t stride>
+bool test_index_iterator_pre_increment_returns_old_value()
+{
+    zest::IndexIterator<std::size_t, stride> iterator{stride};
+    zest::IndexIterator old_iter = ++iterator;
+    return *old_iter = stride;
+}
+
+template <std::size_t stride>
+bool test_index_iterator_pre_decrement()
+{
+    zest::IndexIterator<std::size_t, stride> iterator{stride};
+    --iterator;
+    return *iterator == 0;
+}
+
+template <std::size_t stride>
+bool test_index_iterator_pre_decrement_returns_new_value()
+{
+    zest::IndexIterator<std::size_t, stride> iterator{stride};
+    zest::IndexIterator --iterator;
+    return *iterator == 0;
+}
+
+template <std::size_t stride>
+bool test_index_iterator_post_decrement()
+{
+    zest::IndexIterator<std::size_t, stride> iterator{stride};
+    iterator--;
+    return *iterator == 0;
+}
+
+template <std::size_t stride>
+bool test_index_iterator_post_decrement_returns_old_value()
+{
+    zest::IndexIterator<std::size_t, stride> iterator{stride};
+    zest::IndexIterator old_iter = iterator--;
+    return *old_iter == stride;
+}
+
+template <std::size_t stride>
+bool test_index_iterator_add_assign()
+{
+    zest::IndexIterator<std::size_t, stride> iterator{stride};
+    iterator += 3;
+    return *iterator == stride + 3*stride;
+}
+
+template <std::size_t stride>
+bool test_index_iterator_sub_assign()
+{
+    zest::IndexIterator<std::size_t, stride> iterator{stride};
+    iterator -= 3;
+    return *iterator == stride - 3*stride;
+}
+
+template <std::size_t stride>
+bool test_index_iterator_add()
+{
+    zest::IndexIterator<std::size_t, stride> iterator{stride};
+    return *(iterator + 3) == stride + 3*stride;
+}
+
+template <std::size_t stride>
+bool test_index_iterator_add()
+{
+    zest::IndexIterator<std::size_t, stride> iterator{stride};
+    return *(iterator - 3) == stride - 3*stride;
+}
+
+template <std::size_t stride>
+bool test_index_iterator_access()
+{
+    zest::IndexIterator<std::size_t, stride> iterator{stride};
+    return iterator[3] = stride + 3*stride;
+}
+
 template <std::size_t N>
 bool test_standard_index_end_only(std::size_t end, const std::array<std::size_t, N>& expected_indices)
 {
@@ -270,6 +371,20 @@ int main()
     assert(test_array_index_4d_one_index({4, 5, 6, 7}, 1));
     assert(test_array_index_4d_one_index({4, 5, 6, 7}, 2));
     assert(test_array_index_4d_one_index({4, 5, 6, 7}, 3));
+
+    assert(test_index_iterator_pre_increment())
+    assert(test_index_iterator_pre_increment_returns_new_value())
+    assert(test_index_iterator_post_increment())
+    assert(test_index_iterator_pre_increment_returns_old_value())
+    assert(test_index_iterator_pre_decrement())
+    assert(test_index_iterator_pre_decrement_returns_new_value())
+    assert(test_index_iterator_post_decrement())
+    assert(test_index_iterator_post_decrement_returns_old_value())
+    assert(test_index_iterator_add_assign())
+    assert(test_index_iterator_sub_assign())
+    assert(test_index_iterator_add())
+    assert(test_index_iterator_add())
+    assert(test_index_iterator_access())
 
     assert(test_standard_index_end_only(0, std::array<std::size_t, 0>{}));
     assert(test_standard_index_end_only(1, std::array<std::size_t, 1>{0}));

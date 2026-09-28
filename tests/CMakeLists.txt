@@ -27,6 +27,7 @@ macro(create_test TESTNAME)
 endmacro()
 
 create_test(test_utility)
+create_test(test_alignment)
 create_test(test_indexing)
 create_test(test_sequence)
 create_test(test_shape)

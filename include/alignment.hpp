@@ -26,6 +26,7 @@ SOFTWARE.
 #include <cstdlib>
 #include <limits>
 #include <new>
+#include <bit>
 
 namespace zest
 {
@@ -38,25 +39,12 @@ namespace detail
     return !(n & (n - 1UL));
 }
 
-// Count trailing zeros
-[[nodiscard]] constexpr std::size_t ctz(std::size_t n) noexcept
-{
-    if (!n) return 8*sizeof(std::size_t);
-
-    n = (n ^ (n - 1)) >> 1;
-    std::size_t count = 0;
-    for (; n; ++count)
-        n >>= 1;
-    return count;
-}
-
-
 // Smallest number greater than or equal to `n` divisible by `power_of_two`
 template <std::size_t power_of_two>
-    requires (is_power_of_two(power_of_two))
+    requires (is_power_of_two(power_of_two) && power_of_two > 0)
 [[nodiscard]] constexpr std::size_t next_divisible(std::size_t n) noexcept
 {
-    constexpr std::size_t shift = detail::ctz(power_of_two);
+    constexpr std::size_t shift = std::countr_zero(power_of_two);
     return ((n + (power_of_two - 1)) >> shift) << shift;
 }
 
