@@ -127,7 +127,7 @@ public:
             }
 
             const double dn = double(n);
-            zernike_n[n] = r*zernike(n - 1, n - 1);
+            zernike_n[n] = r*zernike[n - 1, n - 1];
             zernike_n[n - 2] = (dn + 0.5)*zernike_n[n] - (dn - 0.5)*zernike_nm2[n - 2];
         }
 
@@ -204,11 +204,11 @@ public:
             return;
         }
 
-        auto z_22 = zernike(2, 2);
+        auto z_22 = zernike[2, 2];
         for (std::size_t i = 0; i < z_22.size(); ++i)
             z_22[i] = r[i]*r[i];
 
-        auto z_20 = zernike(2, 0);
+        auto z_20 = zernike[2, 0];
         for (std::size_t i = 0; i < z_20.size(); ++i)
             z_20[i] = 2.5*z_22[i] - 1.5;
         if (order == 3)

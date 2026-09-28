@@ -354,26 +354,6 @@ public:
         @brief Access the elements at the given indices.
     */
     [[nodiscard]] const_reference
-    operator()(std::integral auto... indices) const noexcept
-        requires (sizeof...(indices) == shape_type::rank)
-    {
-        return m_data[m_shape(indices...)];
-    }
-
-    /**
-        @brief Access the elements at the given indices.
-    */
-    [[nodiscard]] reference
-    operator()(std::integral auto... indices) noexcept
-        requires (sizeof...(indices) == shape_type::rank)
-    {
-        return m_data[m_shape(indices...)];
-    }
-
-    /**
-        @brief Access the elements at the given indices.
-    */
-    [[nodiscard]] const_reference
     operator[](std::integral auto... indices) const noexcept
         requires (sizeof...(indices) == shape_type::rank)
     {
@@ -388,26 +368,6 @@ public:
         requires (sizeof...(indices) == shape_type::rank)
     {
         return m_data[m_shape(indices...)];
-    }
-
-    /**
-        @brief Get the subspan at the given indices.
-    */
-    [[nodiscard]] auto operator()(std::integral auto... indices) const noexcept
-        requires (sizeof...(indices) < shape_type::rank)
-    {
-        return const_subspan_type<sizeof...(indices)>(
-            m_data.data() + m_shape(indices...), m_shape.subshape(indices...));
-    }
-
-    /**
-        @brief Get the subspan at the given indices.
-    */
-    [[nodiscard]] auto operator()(std::integral auto... indices) noexcept
-        requires (sizeof...(indices) < shape_type::rank)
-    {
-        return subspan_type<sizeof...(indices)>(
-            m_data.data() + m_shape(indices...), m_shape.subshape(indices...));
     }
 
     /**
@@ -700,26 +660,6 @@ public:
         @brief Access the elements at the given indices.
     */
     [[nodiscard]] constexpr const_reference
-    operator()(std::integral auto... indices) const noexcept
-        requires (sizeof...(indices) == shape_type::rank)
-    {
-        return m_data[shape_type::operator()(indices...)];
-    }
-
-    /**
-        @brief Access the elements at the given indices.
-    */
-    [[nodiscard]] constexpr reference
-    operator()(std::integral auto... indices) noexcept
-        requires (sizeof...(indices) == shape_type::rank)
-    {
-        return m_data[shape_type::operator()(indices...)];
-    }
-
-    /**
-        @brief Access the elements at the given indices.
-    */
-    [[nodiscard]] constexpr const_reference
     operator[](std::integral auto... indices) const noexcept
         requires (sizeof...(indices) == shape_type::rank)
     {
@@ -734,28 +674,6 @@ public:
         requires (sizeof...(indices) == shape_type::rank)
     {
         return m_data[shape_type::operator()(indices...)];
-    }
-
-    /**
-        @brief Get the subspan at the given indices.
-    */
-    [[nodiscard]] constexpr auto
-    operator()(std::integral auto... indices) const noexcept
-        requires (sizeof...(indices) < shape_type::rank)
-    {
-        return const_subspan_type<sizeof...(indices)>(
-            m_data.data() + shape_type::operator()(indices...), shape_type::subshape(indices...));
-    }
-
-    /**
-        @brief Get the subspan at the given indices.
-    */
-    [[nodiscard]] constexpr auto
-    operator()(std::integral auto... indices) noexcept
-        requires (sizeof...(indices) < shape_type::rank)
-    {
-        return subspan_type<sizeof...(indices)>(
-            m_data.data() + shape_type::operator()(indices...), shape_type::subshape(indices...));
     }
 
     /**

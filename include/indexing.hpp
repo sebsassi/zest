@@ -142,7 +142,7 @@ public:
         @return Reference to the iterator.
     */
     constexpr IndexIterator& operator-=(index_type n) noexcept
-    { m_index += n*stride; return *this; }
+    { m_index -= n*stride; return *this; }
 
     /**
         @brief Add `n` strides to index.

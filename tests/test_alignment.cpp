@@ -1,5 +1,8 @@
 #include "alignment.hpp"
 
+#include <cstdint>
+#include <cassert>
+
 namespace
 {
 

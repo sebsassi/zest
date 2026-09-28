@@ -322,31 +322,10 @@ public:
         @brief Access the elements at the given indices.
     */
     [[nodiscard]] constexpr reference
-    operator()(std::integral auto... indices) const noexcept
-        requires (sizeof...(indices) == shape_type::rank)
-    {
-        return m_data[m_shape(indices...)];
-    }
-
-    /**
-        @brief Access the elements at the given indices.
-    */
-    [[nodiscard]] constexpr reference
     operator[](std::integral auto... indices) const noexcept
         requires (sizeof...(indices) == shape_type::rank)
     {
         return m_data[m_shape(indices...)];
-    }
-
-    /**
-        @brief Get the subspan at the given indices.
-    */
-    [[nodiscard]] constexpr auto
-    operator()(std::integral auto... indices) const noexcept
-        requires (sizeof...(indices) < shape_type::rank)
-    {
-        return subspan_type<sizeof...(indices)>(
-            m_data + m_shape(indices...), m_shape.subshape(indices...));
     }
 
     /**

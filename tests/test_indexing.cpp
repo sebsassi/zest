@@ -92,7 +92,7 @@ bool test_index_iterator_pre_increment_returns_new_value()
 {
     zest::IndexIterator<std::size_t, stride> iterator{stride};
     zest::IndexIterator new_iter = ++iterator;
-    return *new_iter = strice + stride;
+    return *new_iter == stride + stride;
 }
 
 template <std::size_t stride>
@@ -104,11 +104,11 @@ bool test_index_iterator_post_increment()
 }
 
 template <std::size_t stride>
-bool test_index_iterator_pre_increment_returns_old_value()
+bool test_index_iterator_post_increment_returns_old_value()
 {
     zest::IndexIterator<std::size_t, stride> iterator{stride};
-    zest::IndexIterator old_iter = ++iterator;
-    return *old_iter = stride;
+    zest::IndexIterator old_iter = iterator++;
+    return *old_iter == stride;
 }
 
 template <std::size_t stride>
@@ -123,8 +123,8 @@ template <std::size_t stride>
 bool test_index_iterator_pre_decrement_returns_new_value()
 {
     zest::IndexIterator<std::size_t, stride> iterator{stride};
-    zest::IndexIterator --iterator;
-    return *iterator == 0;
+    zest::IndexIterator new_iter = --iterator;
+    return *new_iter == 0;
 }
 
 template <std::size_t stride>
@@ -167,7 +167,7 @@ bool test_index_iterator_add()
 }
 
 template <std::size_t stride>
-bool test_index_iterator_add()
+bool test_index_iterator_sub()
 {
     zest::IndexIterator<std::size_t, stride> iterator{stride};
     return *(iterator - 3) == stride - 3*stride;
@@ -177,7 +177,7 @@ template <std::size_t stride>
 bool test_index_iterator_access()
 {
     zest::IndexIterator<std::size_t, stride> iterator{stride};
-    return iterator[3] = stride + 3*stride;
+    return iterator[3] == stride + 3*stride;
 }
 
 template <std::size_t N>
@@ -302,6 +302,24 @@ bool test_symmetric_index_range_begin_end(int begin, int end, const std::array<i
 
 } // namespace
 
+template <std::size_t stride>
+void test_index_iterator()
+{
+    assert(test_index_iterator_pre_increment<stride>());
+    assert(test_index_iterator_pre_increment_returns_new_value<stride>());
+    assert(test_index_iterator_post_increment<stride>());
+    assert(test_index_iterator_post_increment_returns_old_value<stride>());
+    assert(test_index_iterator_pre_decrement<stride>());
+    assert(test_index_iterator_pre_decrement_returns_new_value<stride>());
+    assert(test_index_iterator_post_decrement<stride>());
+    assert(test_index_iterator_post_decrement_returns_old_value<stride>());
+    assert(test_index_iterator_add_assign<stride>());
+    assert(test_index_iterator_sub_assign<stride>());
+    assert(test_index_iterator_add<stride>());
+    assert(test_index_iterator_add<stride>());
+    assert(test_index_iterator_access<stride>());
+}
+
 int main()
 {
     assert(test_array_index_1d({4}, 0));
@@ -372,19 +390,8 @@ int main()
     assert(test_array_index_4d_one_index({4, 5, 6, 7}, 2));
     assert(test_array_index_4d_one_index({4, 5, 6, 7}, 3));
 
-    assert(test_index_iterator_pre_increment())
-    assert(test_index_iterator_pre_increment_returns_new_value())
-    assert(test_index_iterator_post_increment())
-    assert(test_index_iterator_pre_increment_returns_old_value())
-    assert(test_index_iterator_pre_decrement())
-    assert(test_index_iterator_pre_decrement_returns_new_value())
-    assert(test_index_iterator_post_decrement())
-    assert(test_index_iterator_post_decrement_returns_old_value())
-    assert(test_index_iterator_add_assign())
-    assert(test_index_iterator_sub_assign())
-    assert(test_index_iterator_add())
-    assert(test_index_iterator_add())
-    assert(test_index_iterator_access())
+    test_index_iterator<1>();
+    test_index_iterator<2>();
 
     assert(test_standard_index_end_only(0, std::array<std::size_t, 0>{}));
     assert(test_standard_index_end_only(1, std::array<std::size_t, 1>{0}));
