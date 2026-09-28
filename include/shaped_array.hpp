@@ -123,7 +123,7 @@ public:
     [[nodiscard]] bool
     is_initialized() const noexcept
     {
-        return m_data.empty();
+        return m_data.data() == nullptr;
     }
 
     /**
