@@ -53,7 +53,7 @@ encode_as_complex_expansion(
     st::complete_sh_expansion<Indexing::zero_based> auto&& expansion
 ) noexcept
     requires std::same_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
-        && st::has_inner_rank<std::remove_reference_t<decltype(expansion)>, 0>
+        && (std::remove_reference_t<decltype(expansion)>::rank == 3)
 {
     using ReturnType = st::ComplexEncodedRealSHSpan<
         std::complex<double>, st::convention_of<std::remove_reference_t<decltype(expansion)>>>;
@@ -128,13 +128,12 @@ decode_as_real_expansion(
     @note IMPORTANT This function modifies the input data and merely produces a
     new view over the same data.
 */
-template <zt::anisotropic_zernike_expansion<Indexing::zero_based> ExpansionType>
 constexpr auto
 encode_as_complex_expansion(
     zt::anisotropic_zernike_expansion<Indexing::zero_based> auto&& expansion
 ) noexcept
-    requires std::same_as<value_type_of<ExpansionType>, double>
-        && zt::has_inner_rank<ExpansionType, 0>
+    requires std::same_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
+        && (std::remove_reference_t<decltype(expansion)>::rank == 4)
 {
     using ReturnType = zt::ComplexEncodedRealZernikeSpan<
         std::complex<double>, zt::convention_of<std::remove_reference_t<decltype(expansion)>>>;
@@ -224,7 +223,7 @@ encode_as_complex_expansion(
     st::zernike_sh_subspan<Indexing::zero_based> auto&& expansion
 ) noexcept
     requires std::same_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
-        && st::has_inner_rank<std::remove_reference_t<decltype(expansion)>, 0>
+        && (std::remove_reference_t<decltype(expansion)>::rank == 3)
 {
     using ReturnType = typename zt::ComplexEncodedRealZernikeSpan<
             std::complex<double>, zt::convention_of<std::remove_reference_t<decltype(expansion)>>

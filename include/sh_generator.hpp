@@ -80,17 +80,20 @@ public:
         @param expansion buffer for spherical harmonic values
     */
     template <any_complete_sh_expansion ExpansionType>
-        requires std::floating_point<value_type_of<ExpansionType>>
-            && st::has_inner_rank<ExpansionType, 0>
-    void generate(double lon, double colat, ExpansionType&& expansion)
+    void generate(double lon, double colat, any_complete_sh_expansion auto&& expansion)
+        requires std::floating_point<value_type_of<std::remove_reference_t<decltype(expansion)>>>
+            && ((std::remove_reference_t<decltype(expansion)>::rank == 3
+                        && indexing_of<decltype(expansion)>() == Indexing::zero_based)
+                    || ((std::remove_reference_t<decltype(expansion)>::rank == 2)
+                        && indexing_of<decltype(expansion)>() == Indexing::symmetric))
     {
         assert(0.0 <= colat && colat <= std::numbers::pi);
-        const std::size_t order = std::forward<ExpansionType>(expansion).order();
+        const std::size_t order = std::forward<decltype(expansion)>(expansion).order();
         expand(order);
 
-        constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
-        constexpr st::SHPhase sh_phase = sh_phase_of<ExpansionType>();
-        constexpr Indexing indexing = indexing_of<ExpansionType>();
+        constexpr st::SHNorm sh_norm = sh_norm_of<decltype(expansion)>();
+        constexpr st::SHPhase sh_phase = sh_phase_of<decltype(expansion)>();
+        constexpr Indexing indexing = indexing_of<decltype(expansion)>();
 
         const double z = std::cos(colat);
         AssociatedLegendreSpan<double, st::SHConvention<sh_norm, sh_phase>>
@@ -106,7 +109,7 @@ public:
 
         for (auto l : ass_leg.indices())
         {
-            const auto expansion_l = std::forward<ExpansionType>(expansion)[l];
+            const auto expansion_l = std::forward<decltype(expansion)>(expansion)[l];
             const auto ass_leg_l = ass_leg[l];
             if constexpr (indexing == Indexing::symmetric)
                 expansion_l[0] = ass_leg_l[0];

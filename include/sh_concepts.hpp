@@ -65,6 +65,14 @@ concept zero_based_azimuthal_indexed
             || tensor_shaped<typename std::remove_cvref_t<T>::template subshape_type<1>>);
 
 template <typename T>
+concept triangle_sequenced =
+    std::same_as<typename std::remove_cvref_t<T>::sequence_type, TriangleSequence<indexing_of<T>()>>;
+
+template <typename T>
+concept parity_triangle_sequenced =
+    std::same_as<typename std::remove_cvref_t<T>::sequence_type, ParityRowTriangleSequence<indexing_of<T>>>;
+
+template <typename T>
 concept associated_legendre_shape
     = sh_tagged<T> && indexing_tagged<T>
         && zero_based_azimuthal_indexed<

@@ -52,7 +52,7 @@ using AssociatedLegendreShape = TaggedShape<
 */
 template <sh_convention Convention, std::size_t... outer_extents>
 using AssociatedLegendreTensorShape = TaggedShape<
-    TriangleTensorShape<Indexing::zero_based, outer_extents...>,
+    AddOuterTensor<TriangleShape<Indexing::zero_based>, outer_extents...>,
     Convention, IndexingTag<Indexing::zero_based>>;
 
 /**
@@ -66,8 +66,8 @@ using AssociatedLegendreTensorShape = TaggedShape<
 template <Indexing indexing, sh_convention Convention, std::size_t... inner_extents>
 using SHShape = TaggedShape<
     std::conditional_t<(indexing == Indexing::symmetric),
-        TriangleShape<indexing, inner_extents...>,
-        TriangleShape<indexing, 2, inner_extents...>>,
+        AddInnerTensor<TriangleShape<indexing>, inner_extents...>,
+        AddInnerTensor<TriangleShape<indexing, 2>, inner_extents...>>,
     Convention, IndexingTag<indexing>>;
 
 /**
@@ -81,10 +81,8 @@ using SHShape = TaggedShape<
 template <Indexing indexing, sh_convention Convention, std::size_t... outer_extents>
 using SHTensorShape = TaggedShape<
     std::conditional_t<(indexing == Indexing::symmetric),
-        TriangleTensorShape<indexing, outer_extents...>,
-        CompositeShape<
-            TensorShape<outer_extents...>,
-            TriangleShape<indexing, 2>>>,
+        AddOuterTensor<TriangleShape<indexing>, outer_extents...>,
+        AddOuterTensor<TriangleShape<indexing, 2>, outer_extents...>>,
     Convention, IndexingTag<indexing>>;
 
 

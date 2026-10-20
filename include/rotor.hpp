@@ -134,18 +134,20 @@ public:
         and the third angle rotates about the new Z-axis again. In summary, the
         convention is: right-handed, intrinsic, ZYZ.
     */
-    template <RotationType type, st::sh_expansion<Indexing::zero_based> ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && st::has_inner_rank<ExpansionType, 0>
+    template <RotationType type>
     void rotate(
-        ExpansionType&& expansion, const zest::WignerdPiHalfCollection& wigner_d_pi2,
-        const std::array<double, 3>& euler_angles)
+        st::sh_expansion<Indexing::zero_based> auto&& expansion,
+        const zest::WignerdPiHalfCollection& wigner_d_pi2,
+        const std::array<double, 3>& euler_angles
+    )
+        requires representable_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
+            && (std::remove_reference_t<decltype(expansion)>::rank == 3)
     {
         const std::size_t order = expansion.order();
         expand(order);
 
         auto complex_expansion = encode_as_complex_expansion(
-                std::forward<ExpansionType>(expansion).template represent_as<double>());
+                std::forward<decltype(expansion)>(expansion).template represent_as<double>());
 
         set_up_euler_rotations<type>(euler_angles, order);
 
@@ -172,18 +174,20 @@ public:
         and the third angle rotates about the new Z-axis again. In summary, the
         convention is: right-handed, intrinsic, ZYZ.
     */
-    template <RotationType type, zt::anisotropic_zernike_expansion<Indexing::zero_based> ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && zt::has_inner_rank<ExpansionType, 0>
+    template <RotationType type>
     void rotate(
-        ExpansionType&& expansion, const zest::WignerdPiHalfCollection& wigner_d_pi2,
-        const std::array<double, 3>& euler_angles)
+        zt::anisotropic_zernike_expansion<Indexing::zero_based> auto&& expansion,
+        const zest::WignerdPiHalfCollection& wigner_d_pi2,
+        const std::array<double, 3>& euler_angles
+    )
+        requires representable_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
+            && (std::remove_reference_t<decltype(expansion)>::rank == 4)
     {
         const std::size_t order = expansion.order();
         expand(order);
 
         auto complex_expansion = encode_as_complex_expansion(
-                std::forward<ExpansionType>(expansion).template represent_as<double>());
+                std::forward<decltype(expansion)>(expansion).template represent_as<double>());
 
         set_up_euler_rotations<type>(euler_angles, order);
 
@@ -208,16 +212,16 @@ public:
         @param angle polar rotation angle
         @param type type of rotation
     */
-    template <RotationType type, st::sh_expansion<Indexing::zero_based> ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && st::has_inner_rank<ExpansionType, 0>
-    void polar_rotate(ExpansionType&& expansion, double angle)
+    template <RotationType type>
+    void polar_rotate(st::sh_expansion<Indexing::zero_based> auto&& expansion, double angle)
+        requires representable_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
+            && (std::remove_reference_t<decltype(expansion)>::rank == 3)
     {
         const std::size_t order = expansion.order();
         expand(order);
 
         auto complex_expansion = encode_as_complex_expansion(
-                std::forward<ExpansionType>(expansion).template represent_as<double>());
+                std::forward<decltype(expansion)>(expansion).template represent_as<double>());
 
         const double angle_rot = detail::convert<type>(angle);
         for (std::size_t l = 0; l < order; ++l)
@@ -239,10 +243,12 @@ public:
         @param angle polar rotation angle
         @param type type of rotation
     */
-    template <RotationType type, zt::anisotropic_zernike_expansion<Indexing::zero_based> ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && zt::has_inner_rank<ExpansionType, 0>
-    void polar_rotate(ExpansionType&& expansion, double angle)
+    template <RotationType type>
+    void polar_rotate(
+        zt::anisotropic_zernike_expansion<Indexing::zero_based> auto&& expansion, double angle
+    )
+        requires representable_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
+            && (std::remove_reference_t<decltype(expansion)>::rank == 4)
     {
         const std::size_t order = expansion.order();
         expand(order);

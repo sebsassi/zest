@@ -23,6 +23,7 @@ SOFTWARE.
 
 #include <array>
 #include <concepts>
+#include <complex>
 
 namespace zest
 {
@@ -51,6 +52,14 @@ concept shape = requires (T t, typename T::extent_type e)
     requires std::same_as<
         std::remove_cvref_t<decltype(t.extents())>,
         typename std::remove_cvref_t<T>::extent_type>;
+};
+
+template <typename T>
+concept composite_shape = shape<T>
+    && requires
+{
+    typename T::outer_shape_type;
+    typename T::inner_shape_type;
 };
 
 template <typename T, std::size_t outer_rank, std::size_t inner_rank>
@@ -113,6 +122,66 @@ using shape_type_of = typename std::remove_cvref_t<T>::shape_type;
 template <shaped_contiguous_buffer T, std::size_t depth>
     requires (depth <= T::rank)
 using subshape_type_of = typename std::remove_cvref_t<T>::shape_type::template subshape_type<depth>;
+/**
+    @brief Check if a type contains tags.
+
+    A tagged type is `T` identified by the presence of a member type
+    `T::untag`, which is the type stripped of all its tags.
+*/
+template <typename T>
+concept tagged = requires { typename T::untag; };
+
+/**
+    @brief Check if a type is indexed by a sequence of index tuples.
+
+    The defining property of a sequence shaped layout is that its extents,
+    regardless of dimensionality, are determined by a single integer parameter,
+    the order.
+*/
+template <typename T>
+concept sequence_shaped = requires (T x)
+    {
+        { x.order() } -> std::same_as<typename T::size_type>;
+    };
+
+/**
+    @brief Check if a type looks tensor shaped.
+
+    A tensor shaped type has a set of extents which can be indexed by its dimensions.
+*/
+template <typename T>
+concept tensor_shaped
+    =  requires (T x, typename std::remove_cvref_t<T>::size_type i)
+    {
+        { x.extent(i) } -> std::same_as<typename std::remove_cvref_t<T>::size_type>;
+    };
+
+/**
+    @brief Check if a type is a complex floating point number.
+*/
+template <typename T>
+concept complex_float = std::same_as<
+    std::remove_const_t<T>, std::complex<typename std::remove_const_t<T>::value_type>>;
+
+/**
+    @brief Check if a type is a complex or a real floating point number.
+*/
+template <typename T>
+concept complex_or_real_float
+    = std::floating_point<std::remove_const_t<T>> || complex_float<T>;
+
+/**
+    @brief Check if a type can be used as a tag.
+
+    A type may be used as a tag if it:
+        1. Contains no non-static member variables
+        2. Is an aggreggate type as defined by the C++ standard
+
+    In practice, a tag type only contains definitions for member types and
+    static member variables.
+*/
+template <typename T>
+concept is_tag = (std::is_empty_v<T> && std::is_aggregate_v<T>);
 
 namespace detail
 {

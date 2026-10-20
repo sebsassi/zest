@@ -414,7 +414,7 @@ public:
         const auto& expansion, std::span<const double> radii,
         std::span<value_type_of<std::remove_cvref_t<decltype(expansion)>>> values)
         requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
-            && has_inner_rank<std::remove_cvref_t<decltype(expansion)>, 0>
+            && (std::remove_cvref_t<decltype(expansion)>::rank == 1)
     {
         using ValueType = value_type_of<std::remove_cvref_t<decltype(expansion)>>;
         using NormalizationConvention = norm_convention_of<std::remove_cvref_t<decltype(expansion)>>;

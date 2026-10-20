@@ -90,8 +90,8 @@ using IsotropicRadialZernikeTensorShape = TaggedShape<
 template <Indexing indexing, zernike_convention Convention, std::size_t... inner_extents>
 using ZernikeShape = TaggedShape<
     std::conditional_t<(indexing == Indexing::symmetric), 
-        TensorSequenceShape<ZernikeTetrahedralSequence<indexing>, inner_extents...>,
-        TensorSequenceShape<ZernikeTetrahedralSequence<indexing>, 2, inner_extents...>>,
+        AddInnerTensor<SequencedShape<ZernikeTetrahedralSequence<indexing>>, inner_extents...>,
+        AddInnerTensor<TensorSequenceShape<ZernikeTetrahedralSequence<indexing>, 2>, inner_extents...>>,
     Convention, IndexingTag<indexing>>;
 
 /**
@@ -107,10 +107,8 @@ using ZernikeShape = TaggedShape<
 template <Indexing indexing, zernike_convention Convention, std::size_t... outer_extents>
 using ZernikeTensorShape = TaggedShape<
     std::conditional_t<(indexing == Indexing::symmetric),
-        SequenceTensorShape<ZernikeTetrahedralSequence<indexing>, outer_extents...>,
-        CompositeShape<
-            TensorShape<outer_extents...>,
-            TensorSequenceShape<ZernikeTetrahedralSequence<indexing>, 2>>>,
+        AddOuterTensor<SequencedShape<ZernikeTetrahedralSequence<indexing>>, outer_extents...>,
+        AddOuterTensor<TensorSequenceShape<ZernikeTetrahedralSequence<indexing>, 2>, outer_extents...>>,
         Convention, IndexingTag<indexing>>;
 
 /**

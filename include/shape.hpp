@@ -758,8 +758,8 @@ template <typename OuterShape, typename InnerShape>
 class CompositeShape
 {
 public:
-    using first_component_type = OuterShape;
-    using second_component_type = InnerShape;
+    using outer_shape_type = OuterShape;
+    using inner_shape_type = InnerShape;
     using size_type = typename OuterShape::size_type;
     using index_type = typename OuterShape::index_type;
     using index_range = typename OuterShape::index_range;
@@ -1061,16 +1061,24 @@ private:
     std::pair<OuterShape, InnerShape> m_shapes{};
 };
 
+template <typename ShapeType, std::size_t... inner_extents>
+using AddInnerTensor = std::conditional_t<(sizeof...(inner_extents) > 0),
+    CompositeShape<ShapeType, TensorShape<inner_extents...>>,
+    ShapeType>;
+
+template <typename ShapeType, std::size_t... outer_extents>
+using AddOuterTensor = std::conditional_t<(sizeof...(outer_extents) > 0),
+    CompositeShape<TensorShape<outer_extents...>, ShapeType>,
+    ShapeType>;
+
 /**
     @brief Alias for a shape describing a sequenced shape of tensor shapes.
 
     @tparam SequenceType Type of the outer sequenced shape.
     @tparam extent_params Inner tensor shape extents.
 */
-template <typename SequenceType, std::size_t... extent_params>
-using TensorSequenceShape = std::conditional_t<(sizeof...(extent_params) > 0),
-    CompositeShape<SequencedShape<SequenceType>, TensorShape<extent_params...>>,
-    SequencedShape<SequenceType>>;
+template <typename SequenceType, std::size_t... inner_extents>
+using TensorSequenceShape = AddInnerTensor<SequencedShape<SequenceType>, inner_extents...>;
 
 /**
     @brief Alias for a shape describing a tensor of sequenced shapes.
@@ -1078,10 +1086,8 @@ using TensorSequenceShape = std::conditional_t<(sizeof...(extent_params) > 0),
     @tparam SequenceType Type of the inner sequenced shape.
     @tparam extent_params Outer tensor shape extents.
 */
-template <typename SequenceType, std::size_t... extent_params>
-using SequenceTensorShape = std::conditional_t<(sizeof...(extent_params) > 0),
-    CompositeShape<TensorShape<extent_params...>, SequencedShape<SequenceType>>,
-    SequencedShape<SequenceType>>;
+template <typename SequenceType, std::size_t... outer_extents>
+using SequenceTensorShape = AddOuterTensor<SequencedShape<SequenceType>, outer_extents...>;
 
 /**
     @brief Helper type for attaching arbitrary tag types to shapes.
