@@ -37,16 +37,16 @@ concept has_inner_rank
             T, ((indexing_of<T>() == Indexing::zero_based) ? 4 : 3), inner_rank>;
 
 template <typename T, Indexing indexing>
-concept zernike_shape
+concept anisotropic_zernike_shape
     = st::sh_tagged<T> && zernike_tagged<T> && indexing_tagged<T>
         && st::azimuthal_indexed<
             typename std::remove_cvref_t<T>::template subshape_type<2>, indexing>;
 
 template <typename T>
-concept any_zernike_shape = zernike_shape<T, indexing_of<T>()>;
+concept any_anisotropic_zernike_shape = anisotropic_zernike_shape<T, indexing_of<T>()>;
 
 template <typename T>
-concept zernike_nonnegative_shape
+concept anisotropic_zernike_nonnegative_shape
     = st::sh_tagged<T> && zernike_tagged<T> && indexing_tagged<T>
         && (indexing_of<T>() == Indexing::zero_based)
         && std::same_as<
@@ -59,24 +59,24 @@ concept zernike_buffer
         && shaped_contiguous_buffer<T>;
 
 template <typename T, Indexing indexing>
-concept zernike_expansion
+concept anisotropic_zernike_expansion
     = shaped_contiguous_buffer<T>
-        && zernike_shape<typename std::remove_cvref_t<T>::shape_type, indexing>;
+        && anisotropic_zernike_shape<typename std::remove_cvref_t<T>::shape_type, indexing>;
 
 template <typename T>
-concept any_zernike_expansion
+concept any_anisotropic_zernike_expansion
     = shaped_contiguous_buffer<T>
-        && any_zernike_shape<typename std::remove_cvref_t<T>::shape_type>;
+        && any_anisotropic_zernike_shape<typename std::remove_cvref_t<T>::shape_type>;
 
 template <typename T>
 concept complex_encoded_real_zernike_expansion
     = shaped_contiguous_buffer<T>
         && complex_float<typename std::remove_cvref_t<T>::value_type>
-        && zernike_nonnegative_shape<typename std::remove_cvref_t<T>::shape_type>;
+        && anisotropic_zernike_nonnegative_shape<typename std::remove_cvref_t<T>::shape_type>;
 
 template <typename T, typename S>
 concept compatible_with
-    = any_zernike_expansion<T> && any_zernike_expansion<S>
+    = any_anisotropic_zernike_expansion<T> && any_anisotropic_zernike_expansion<S>
         && (std::remove_cvref_t<T>::shape_type::sh_norm == std::remove_cvref_t<S>::shape_type::sh_norm)
         && (std::remove_cvref_t<T>::shape_type::sh_norm == std::remove_cvref_t<S>::shape_type::sh_norm)
         && (std::remove_cvref_t<T>::shape_type::zernike_norm == std::remove_cvref_t<S>::shape_type::zernike_norm)

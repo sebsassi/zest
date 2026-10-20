@@ -166,7 +166,7 @@ namespace zt
     @param expansion Zernike expansion.
     @param out place to store the power spectrum.
 */
-template <any_zernike_expansion ExpansionType>
+template <any_anisotropic_zernike_expansion ExpansionType>
     requires std::floating_point<value_type_of<ExpansionType>>
         && zt::has_inner_rank<ExpansionType, 0>
 void power_spectrum(
@@ -211,7 +211,7 @@ void power_spectrum(
 
     @return `std::vector` storing the power spectrum.
 */
-template <any_zernike_expansion ExpansionType>
+template <any_anisotropic_zernike_expansion ExpansionType>
     requires std::floating_point<value_type_of<ExpansionType>>
         && zt::has_inner_rank<ExpansionType, 0>
 [[nodiscard]] RadialZernikeExpansion<double, norm_convention_of<ExpansionType>>

@@ -10,22 +10,22 @@ Concepts
 .. doxygenconcept:: zest::zt::has_inner_rank
     :project: zest
 
-.. doxygenconcept:: zest::zt::zernike_shape
+.. doxygenconcept:: zest::zt::anisotropic_zernike_shape
     :project: zest
 
-.. doxygenconcept:: zest::zt::any_zernike_shape
+.. doxygenconcept:: zest::zt::any_anisotropic_zernike_shape
     :project: zest
 
-.. doxygenconcept:: zest::zt::zernike_nonnegative_shape
+.. doxygenconcept:: zest::zt::anisotropic_zernike_nonnegative_shape
     :project: zest
 
 .. doxygenconcept:: zest::zt::zernike_buffer
     :project: zest
 
-.. doxygenconcept:: zest::zt::zernike_expansion
+.. doxygenconcept:: zest::zt::anisotropic_zernike_expansion
     :project: zest
 
-.. doxygenconcept:: zest::zt::any_zernike_expansion
+.. doxygenconcept:: zest::zt::any_anisotropic_zernike_expansion
     :project: zest
 
 .. doxygenconcept:: zest::zt::complex_encoded_real_zernike_expansion

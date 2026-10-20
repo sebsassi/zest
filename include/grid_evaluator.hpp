@@ -104,13 +104,13 @@ public:
         @param colatitudes Colatitude values defining the grid points.
         @param values Values of the spherical harmonic expansion on the grid.
     */
-    template <sh_expansion<Indexing::zero_based> ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && has_inner_rank<ExpansionType, 0>
     void evaluate(
-        const ExpansionType& expansion,
+        const sh_expansion<Indexing::zero_based> auto& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes,
-        DynamicMDSpan<value_type_of<ExpansionType>, 2> values)
+        DynamicMDSpan<value_type_of<std::remove_cvref_t<decltype(expansion)>>, 2> values
+    )
+        requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
+            && has_inner_rank<std::remove_cvref_t<decltype(expansion)>, 0>
     {
         if (longitudes.size() == 0 || colatitudes.size() == 0)
             return;
@@ -142,13 +142,13 @@ public:
         @param longitudes Longitude values defining the grid points.
         @param colatitudes Colatitude values defining the grid points.
     */
-    template <sh_expansion<Indexing::zero_based> ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && has_inner_rank<ExpansionType, 0>
-    [[nodiscard]] DynamicMDArray<value_type_of<ExpansionType>, 2>
+    [[nodiscard]] auto
     evaluate(
-        const ExpansionType& expansion,
-        std::span<const double> longitudes, std::span<const double> colatitudes)
+        const sh_expansion<Indexing::zero_based> auto& expansion,
+        std::span<const double> longitudes, std::span<const double> colatitudes
+    )
+        requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
+            && has_inner_rank<std::remove_cvref_t<decltype(expansion)>, 0>
     {
         DynamicMDArray<value_type_of<ExpansionType>, 2>
         values{longitudes.size(), colatitudes.size()};
@@ -158,11 +158,12 @@ public:
     }
 
 private:
-    template <sh_expansion<Indexing::zero_based> ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-    void sum_l(const ExpansionType& expansion) noexcept
+    void sum_l(const sh_expansion<Indexing::zero_based> auto& expansion) noexcept
+        requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
     {
-        AssociatedLegendreSpan<const double, st::convention_of<ExpansionType>, std::dynamic_extent>
+        AssociatedLegendreSpan<
+            const double, st::convention_of<std::remove_cvref_t<decltype(expansion)>>,
+            std::dynamic_extent>
         ass_leg{m_ass_leg_grid, expansion.order(), m_lat_size};
 
         for (auto l : expansion.indices())
@@ -250,13 +251,14 @@ public:
         @param radii Radius values defining the grid points.
         @param values Values of the Zernike expansion on the grid.
     */
-    template <zernike_expansion<Indexing::zero_based> ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && has_inner_rank<ExpansionType, 0>
     void evaluate(
-        const ExpansionType& expansion,
+        const anisotropic_zernike_expansion<Indexing::zero_based> auto& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes,
-        std::span<const double> radii, DynamicMDSpan<value_type_of<ExpansionType>, 3> values)
+        std::span<const double> radii,
+        DynamicMDSpan<value_type_of<std::remove_cvref_t<decltype(expansion)>>, 3> values
+    )
+        requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
+            && has_inner_rank<std::remove_cvref_t<decltype(expansion)>, 0>
     {
         assert(
             values.extent(0) == longitudes.size()
@@ -304,16 +306,17 @@ public:
         @param radii Radius values defining the grid points.
         @param values Values of the Zernike expansion on the grid.
     */
-    template <zernike_expansion<Indexing::zero_based> ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && has_inner_rank<ExpansionType, 0>
+    template <anisotropic_zernike_expansion<Indexing::zero_based> ExpansionType>
     [[nodiscard]] DynamicMDArray<value_type_of<ExpansionType>, 3>
     evaluate(
-        const ExpansionType& expansion,
+        const anisotropic_zernike_expansion<Indexing::zero_based> auto& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes,
-        std::span<const double> radii)
+        std::span<const double> radii
+    )
+        requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
+            && has_inner_rank<std::remove_cvref_t<decltype(expansion)>, 0>
     {
-        DynamicMDArray<value_type_of<ExpansionType>, 3>
+        DynamicMDArray<value_type_of<std::remove_cvref_t<decltype(expansion)>>, 3>
         values{longitudes.size(), colatitudes.size(), radii.size()};
 
         evaluate(expansion, longitudes, colatitudes, radii, values);
@@ -321,11 +324,12 @@ public:
     }
 
 private:
-    template <zernike_expansion<Indexing::zero_based> ExpansionType>
-        requires std::floating_point<value_type_of<ExpansionType>>
-    void sum_n(const ExpansionType& expansion) noexcept
+    void sum_n(const anisotropic_zernike_expansion<Indexing::zero_based> auto& expansion) noexcept
+        requires std::floating_point<value_type_of<std::remove_cvref_t<decltype(expansion)>>>
     {
-        RadialZernikeSpan<const double, zt::norm_convention_of<ExpansionType>, std::dynamic_extent>
+        RadialZernikeSpan<
+            const double, zt::norm_convention_of<std::remove_cvref_t<decltype(expansion)>>,
+            std::dynamic_extent>
         zernike{m_zernike_grid, expansion.order(), m_rad_size};
 
         std::ranges::fill(m_flm_grid.flatten(), 0.0);
@@ -406,13 +410,14 @@ public:
         @param radii Radius values defining the grid points.
         @param values Values of the Zernike expansion at the radial points.
     */
-    template <typename ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && has_inner_rank<ExpansionType, 0>
     void evaluate(
-        const ExpansionType& expansion, std::span<const double> radii,
-        std::span<value_type_of<ExpansionType>> values)
+        const auto& expansion, std::span<const double> radii,
+        std::span<value_type_of<std::remove_cvref_t<decltype(expansion)>>> values)
+        requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
+            && has_inner_rank<std::remove_cvref_t<decltype(expansion)>, 0>
     {
+        using ValueType = value_type_of<std::remove_cvref_t<decltype(expansion)>>;
+        using NormalizationConvention = norm_convention_of<std::remove_cvref_t<decltype(expansion)>>;
         assert(radii.size() == values.size());
         if (values.size() == 0)
             return;
@@ -424,19 +429,19 @@ public:
         // utilization.
         constexpr std::size_t chunk_size = 256;
         constexpr double spherical_harmonic
-            = (ExpansionType::sh_norm == zest::st::SHNorm::four_pi) ?
+            = (std::remove_cvref_t<decltype(expansion)>::sh_norm == zest::st::SHNorm::four_pi) ?
                 1.0 : 0.5*std::numbers::inv_sqrtpi;
         const std::size_t chunk_count = radii.size()/chunk_size;
 
         for (std::size_t i = 0; i < chunk_count; ++i)
         {
-            std::span<value_type_of<ExpansionType>, chunk_size>
+            std::span<ValueType, chunk_size>
             chunk{values.data() + i*chunk_size, chunk_size};
 
             std::span<const double, chunk_size>
             point_chunk{radii.data() + i*chunk_size, chunk_size};
 
-            m_zernike_recursion.init<norm_convention_of<ExpansionType>>(point_chunk);
+            m_zernike_recursion.init<NormalizationConvention>(point_chunk);
 
             for (auto n : expansion.indices())
             {
@@ -445,18 +450,18 @@ public:
                 for (std::size_t j = 0; j < chunk_size; ++j)
                     chunk[j] += element*radial_zernike[j];
 
-                m_zernike_recursion.iterate<norm_convention_of<ExpansionType>>();
+                m_zernike_recursion.iterate<NormalizationConvention>();
             }
         }
 
         const std::size_t remainder = radii.size() - chunk_count*chunk_size;
-        std::span<value_type_of<ExpansionType>>
+        std::span<ValueType>
         chunk{values.data() + chunk_count*chunk_size, remainder};
 
         std::span<const double>
         point_chunk{radii.data() + chunk_count*chunk_size, remainder};
 
-        m_zernike_recursion.init<norm_convention_of<ExpansionType>>(point_chunk);
+        m_zernike_recursion.init<NormalizationConvention>(point_chunk);
 
         for (auto n : expansion.indices())
         {
@@ -465,7 +470,7 @@ public:
             for (std::size_t i = 0; i < remainder; ++i)
                 chunk[i] += element*radial_zernike[i];
 
-            m_zernike_recursion.iterate<norm_convention_of<ExpansionType>>();
+            m_zernike_recursion.iterate<NormalizationConvention>();
         }
     }
 
@@ -476,13 +481,14 @@ public:
         @param radii Radius values defining the grid points.
         @param values Values of the Zernike expansion at the radial points.
     */
-    template <typename ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && has_inner_rank<ExpansionType, 0>
-    [[nodiscard]] std::vector<value_type_of<ExpansionType>>
-    evaluate(const ExpansionType& expansion, std::span<const double> radii)
+    [[nodiscard]] auto
+    evaluate(const auto& expansion, std::span<const double> radii)
+        requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
+            && has_inner_rank<std::remove_cvref_t<decltype(expansion)>, 0>
     {
-        std::vector<value_type_of<ExpansionType>> values(radii.size());
+        std::vector<value_type_of<std::remove_cvref_t<decltype(expansion)>>>
+        values(radii.size());
+
         evaluate(expansion, radii, values);
         return values;
     }

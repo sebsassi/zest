@@ -48,20 +48,21 @@ namespace zest
     @note IMPORTANT: This function modifies the input data! The output is just a
     new view over the same data.
 */
-template <st::complete_sh_expansion<Indexing::zero_based> ExpansionType>
-    requires std::same_as<value_type_of<ExpansionType>, double>
-        && st::has_inner_rank<ExpansionType, 0>
-constexpr st::ComplexEncodedRealSHSpan<std::complex<double>, st::convention_of<ExpansionType>>
-encode_as_complex_expansion(ExpansionType&& expansion) noexcept
+constexpr auto
+encode_as_complex_expansion(
+    st::complete_sh_expansion<Indexing::zero_based> auto&& expansion
+) noexcept
+    requires std::same_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
+        && st::has_inner_rank<std::remove_reference_t<decltype(expansion)>, 0>
 {
     using ReturnType = st::ComplexEncodedRealSHSpan<
-        std::complex<double>, st::convention_of<ExpansionType>>;
+        std::complex<double>, st::convention_of<std::remove_reference_t<decltype(expansion)>>>;
 
     constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
 
-    for (auto l : std::forward<ExpansionType>(expansion).indices())
+    for (auto l : std::forward<decltype(expansion)>(expansion).indices())
     {
-        auto expansion_l = std::forward<ExpansionType>(expansion)[l];
+        auto expansion_l = std::forward<decltype(expansion)>(expansion)[l];
         for (auto m : expansion_l.indices(1))
         {
             expansion_l[m, 0] *= complex_conversion_norm;
@@ -69,9 +70,9 @@ encode_as_complex_expansion(ExpansionType&& expansion) noexcept
         }
     }
 
-    return ReturnType(
-            as_complex_span(std::forward<ExpansionType>(expansion).flatten()),
-            std::forward<ExpansionType>(expansion).order());
+    return ReturnType{
+            as_complex_span(std::forward<decltype(expansion)>(expansion).flatten()),
+            std::forward<decltype(expansion)>(expansion).order()};
 }
 
 /**
@@ -87,18 +88,19 @@ encode_as_complex_expansion(ExpansionType&& expansion) noexcept
     @note IMPORTANT: This function modifies the input data! The output is just
     a new view over the same data.
 */
-template <st::complex_encoded_real_sh_expansion ExpansionType>
-constexpr st::SHSpan<double, Indexing::zero_based, st::convention_of<ExpansionType>>
-decode_as_real_expansion(ExpansionType&& expansion) noexcept
+constexpr auto
+decode_as_real_expansion(
+    st::complex_encoded_real_sh_expansion auto&& expansion) noexcept
 {
     using ReturnType = st::SHSpan<
-            double, Indexing::zero_based, st::convention_of<ExpansionType>>;
+            double, Indexing::zero_based,
+            st::convention_of<std::remove_reference_t<decltype(expansion)>>>;
 
     constexpr double complex_conversion_norm = std::numbers::sqrt2;
 
-    ReturnType res(
-            as_float_span(std::forward<ExpansionType>(expansion).flatten()),
-            std::forward<ExpansionType>(expansion).order());
+    ReturnType res{
+            as_float_span(std::forward<decltype(expansion)>(expansion).flatten()),
+            std::forward<decltype(expansion)>(expansion).order()};
 
     for (auto l : res.indices())
     {
@@ -126,21 +128,22 @@ decode_as_real_expansion(ExpansionType&& expansion) noexcept
     @note IMPORTANT This function modifies the input data and merely produces a
     new view over the same data.
 */
-template <zt::zernike_expansion<Indexing::zero_based> ExpansionType>
+template <zt::anisotropic_zernike_expansion<Indexing::zero_based> ExpansionType>
+constexpr auto
+encode_as_complex_expansion(
+    zt::anisotropic_zernike_expansion<Indexing::zero_based> auto&& expansion
+) noexcept
     requires std::same_as<value_type_of<ExpansionType>, double>
         && zt::has_inner_rank<ExpansionType, 0>
-constexpr zt::ComplexEncodedRealZernikeSpan<
-    std::complex<double>, zt::convention_of<ExpansionType>>
-encode_as_complex_expansion(ExpansionType&& expansion) noexcept
 {
     using ReturnType = zt::ComplexEncodedRealZernikeSpan<
-        std::complex<double>, zt::convention_of<ExpansionType>>;
+        std::complex<double>, zt::convention_of<std::remove_reference_t<decltype(expansion)>>>;
 
     constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
 
-    for (auto n : std::forward<ExpansionType>(expansion).indices())
+    for (auto n : std::forward<decltype(expansion)>(expansion).indices())
     {
-        auto expansion_n = std::forward<ExpansionType>(expansion)[n];
+        auto expansion_n = std::forward<decltype(expansion)>(expansion)[n];
         for (auto l : expansion_n.indices())
         {
             auto expansion_nl = expansion_n[l];
@@ -153,9 +156,9 @@ encode_as_complex_expansion(ExpansionType&& expansion) noexcept
         }
     }
 
-    return ReturnType(
-            as_complex_span(std::forward<ExpansionType>(expansion).flatten()),
-            std::forward<ExpansionType>(expansion).order());
+    return ReturnType{
+            as_complex_span(std::forward<decltype(expansion)>(expansion).flatten()),
+            std::forward<decltype(expansion)>(expansion).order()};
 }
 
 /**
@@ -171,19 +174,19 @@ encode_as_complex_expansion(ExpansionType&& expansion) noexcept
     @note IMPORTANT This function modifies the input data and merely produces a
     new view over the same data.
 */
-template <zt::complex_encoded_real_zernike_expansion ExpansionType>
-constexpr zt::ZernikeSpan<
-    double, Indexing::zero_based, zt::convention_of<ExpansionType>>
-decode_as_real_expansion(ExpansionType&& expansion) noexcept
+constexpr auto
+decode_as_real_expansion(
+    zt::complex_encoded_real_zernike_expansion auto&& expansion) noexcept
 {
     using ReturnType = zt::ZernikeSpan<
-        double, Indexing::zero_based, zt::convention_of<ExpansionType>>;
+        double, Indexing::zero_based,
+        zt::convention_of<std::remove_reference_t<decltype(expansion)>>>;
 
     constexpr double complex_conversion_norm = std::numbers::sqrt2;
 
-    ReturnType res(
-            as_float_span(std::forward<ExpansionType>(expansion).flatten()),
-            std::forward<ExpansionType>(expansion).order());
+    ReturnType res{
+            as_float_span(std::forward<decltype(expansion)>(expansion).flatten()),
+            std::forward<decltype(expansion)>(expansion).order()};
 
     for (auto n : res.indices())
     {
@@ -216,21 +219,20 @@ decode_as_real_expansion(ExpansionType&& expansion) noexcept
     @note IMPORTANT This function modifies the input data and merely produces a
     new view over the same data.
 */
-template <st::zernike_sh_subspan<Indexing::zero_based> ExpansionType>
-    requires std::same_as<value_type_of<ExpansionType>, double>
-        && st::has_inner_rank<ExpansionType, 0>
-constexpr typename zt::ComplexEncodedRealZernikeSpan<
-    std::complex<double>, zt::convention_of<ExpansionType>
->::template subspan_type<1>
-encode_as_complex_expansion(ExpansionType&& expansion) noexcept
+constexpr auto
+encode_as_complex_expansion(
+    st::zernike_sh_subspan<Indexing::zero_based> auto&& expansion
+) noexcept
+    requires std::same_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
+        && st::has_inner_rank<std::remove_reference_t<decltype(expansion)>, 0>
 {
     using ReturnType = typename zt::ComplexEncodedRealZernikeSpan<
-            std::complex<double>, zt::convention_of<ExpansionType>
+            std::complex<double>, zt::convention_of<std::remove_reference_t<decltype(expansion)>>
         >::template subspan_type<1>;
 
     constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
 
-    for (auto l : std::forward<ExpansionType>(expansion).indices())
+    for (auto l : std::forward<decltype(expansion)>(expansion).indices())
     {
         auto expansion_l = expansion[l];
 
@@ -241,9 +243,9 @@ encode_as_complex_expansion(ExpansionType&& expansion) noexcept
         }
     }
 
-    return ReturnType(
-            as_complex_span(std::forward<ExpansionType>(expansion).flatten()),
-            std::forward<ExpansionType>(expansion).order());
+    return ReturnType{
+            as_complex_span(std::forward<decltype(expansion)>(expansion).flatten()),
+            std::forward<decltype(expansion)>(expansion).order()};
 }
 
 /**
@@ -259,21 +261,20 @@ encode_as_complex_expansion(ExpansionType&& expansion) noexcept
     @note IMPORTANT This function modifies the input data and merely produces a
     new view over the same data.
 */
-template <st::complex_encoded_zernike_sh_subspan ExpansionType>
-constexpr typename zt::ZernikeExpansion<
-    double, Indexing::zero_based, zt::convention_of<ExpansionType>
->::template subspan_type<1>
-decode_as_real_expansion(ExpansionType&& expansion) noexcept
+constexpr auto
+decode_as_real_expansion(
+    st::complex_encoded_zernike_sh_subspan auto&& expansion) noexcept
 {
     using ReturnType = typename zt::ZernikeExpansion<
-            double, Indexing::zero_based, zt::convention_of<ExpansionType>
+            double, Indexing::zero_based,
+            zt::convention_of<std::remove_reference_t<decltype(expansion)>>
         >::template subspan_type<1>;
 
     constexpr double complex_conversion_norm = std::numbers::sqrt2;
 
-    ReturnType res(
-            as_float_span(std::forward<ExpansionType>(expansion).flatten()),
-            std::forward<ExpansionType>(expansion).order());
+    ReturnType res{
+            as_float_span(std::forward<decltype(expansion)>(expansion).flatten()),
+            std::forward<decltype(expansion)>(expansion).order()};
 
     for (auto l : res.indices())
     {

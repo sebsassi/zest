@@ -172,7 +172,7 @@ public:
         and the third angle rotates about the new Z-axis again. In summary, the
         convention is: right-handed, intrinsic, ZYZ.
     */
-    template <RotationType type, zt::zernike_expansion<Indexing::zero_based> ExpansionType>
+    template <RotationType type, zt::anisotropic_zernike_expansion<Indexing::zero_based> ExpansionType>
         requires representable_as<value_type_of<ExpansionType>, double>
             && zt::has_inner_rank<ExpansionType, 0>
     void rotate(
@@ -239,7 +239,7 @@ public:
         @param angle polar rotation angle
         @param type type of rotation
     */
-    template <RotationType type, zt::zernike_expansion<Indexing::zero_based> ExpansionType>
+    template <RotationType type, zt::anisotropic_zernike_expansion<Indexing::zero_based> ExpansionType>
         requires representable_as<value_type_of<ExpansionType>, double>
             && zt::has_inner_rank<ExpansionType, 0>
     void polar_rotate(ExpansionType&& expansion, double angle)
