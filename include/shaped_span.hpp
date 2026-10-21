@@ -26,8 +26,8 @@ SOFTWARE.
 #include <cstddef>
 #include <span>
 
-#include "utility.hpp"
 #include "utility_concepts.hpp"
+#include "shape_concepts.hpp"
 
 namespace zest
 {

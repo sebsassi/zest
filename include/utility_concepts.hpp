@@ -31,78 +31,6 @@ namespace zest
 template <typename T>
 concept arithmetic = std::integral<T> || std::floating_point<T>;
 
-template <typename T>
-concept shape = requires (T t, typename T::extent_type e)
-{
-    typename std::remove_cvref_t<T>::size_type;
-    typename std::remove_cvref_t<T>::index_type;
-    typename std::remove_cvref_t<T>::index_range;
-    typename std::remove_cvref_t<T>::extent_type;
-
-    requires std::same_as<
-        std::remove_const_t<decltype(std::remove_cvref_t<T>::rank)>,
-        typename std::remove_cvref_t<T>::size_type>;
-    requires std::same_as<
-        std::remove_const_t<decltype(std::remove_cvref_t<T>::linear_extent)>,
-        typename std::remove_cvref_t<T>::size_type>;
-
-    { t.size() } -> std::same_as<typename std::remove_cvref_t<T>::size_type>;
-    { t.indices() } -> std::same_as<typename std::remove_cvref_t<T>::index_range>;
-
-    requires std::same_as<
-        std::remove_cvref_t<decltype(t.extents())>,
-        typename std::remove_cvref_t<T>::extent_type>;
-};
-
-template <typename T>
-concept composite_shape = shape<T>
-    && requires
-{
-    typename T::outer_shape_type;
-    typename T::inner_shape_type;
-};
-
-template <typename T, std::size_t outer_rank, std::size_t inner_rank>
-concept has_inner_tensor_structure = (std::remove_cvref_t<T>::rank == outer_rank + inner_rank);
-
-template <typename T>
-concept shaped_contiguous_buffer = requires (T x)
-{
-    typename std::remove_cvref_t<T>::element_type;
-    requires std::same_as<
-        typename std::remove_cvref_t<T>::value_type,
-        std::remove_cvref_t<typename std::remove_cvref_t<T>::element_type>>;
-    requires std::unsigned_integral<typename std::remove_cvref_t<T>::size_type>;
-    requires std::same_as<
-        typename std::remove_cvref_t<T>::reference,
-        typename std::remove_cvref_t<T>::element_type&>;
-    requires std::same_as<
-        typename std::remove_cvref_t<T>::const_reference,
-        const typename std::remove_cvref_t<T>::element_type&>;
-    requires std::same_as<
-        typename std::remove_cvref_t<T>::pointer,
-        typename std::remove_cvref_t<T>::element_type*>;
-    requires std::same_as<
-        typename std::remove_cvref_t<T>::const_pointer,
-        const typename std::remove_cvref_t<T>::element_type*>;
-    requires shape<typename std::remove_cvref_t<T>::shape_type>;
-    requires std::integral<typename std::remove_cvref_t<T>::index_type>;
-    typename std::remove_cvref_t<T>::index_range;
-    typename std::remove_cvref_t<T>::view;
-    typename std::remove_cvref_t<T>::const_view;
-
-    { x.data() } -> std::same_as<typename std::remove_cvref_t<T>::pointer>;
-    { x.shape() } -> std::same_as<const typename std::remove_cvref_t<T>::shape_type&>;
-};
-
-template <typename T, typename Shape>
-concept shaped_like
-    = std::same_as<typename std::remove_cvref_t<T>::shape_type, Shape>;
-
-template <typename T, typename Shape>
-concept contiguous_buffer_shaped_like
-    = shaped_contiguous_buffer<T> && shaped_like<T, Shape>;
-
 template <typename T, typename Rep>
 concept representable_as
     = std::same_as<T, Rep>
@@ -113,15 +41,6 @@ concept representable_as
 template <typename Rep, typename T>
 concept represents = representable_as<T, Rep>;
 
-template <shaped_contiguous_buffer T>
-using value_type_of = typename std::remove_cvref_t<T>::value_type;
-
-template <shaped_contiguous_buffer T>
-using shape_type_of = typename std::remove_cvref_t<T>::shape_type;
-
-template <shaped_contiguous_buffer T, std::size_t depth>
-    requires (depth <= T::rank)
-using subshape_type_of = typename std::remove_cvref_t<T>::shape_type::template subshape_type<depth>;
 /**
     @brief Check if a type contains tags.
 
@@ -130,31 +49,6 @@ using subshape_type_of = typename std::remove_cvref_t<T>::shape_type::template s
 */
 template <typename T>
 concept tagged = requires { typename T::untag; };
-
-/**
-    @brief Check if a type is indexed by a sequence of index tuples.
-
-    The defining property of a sequence shaped layout is that its extents,
-    regardless of dimensionality, are determined by a single integer parameter,
-    the order.
-*/
-template <typename T>
-concept sequence_shaped = requires (T x)
-    {
-        { x.order() } -> std::same_as<typename T::size_type>;
-    };
-
-/**
-    @brief Check if a type looks tensor shaped.
-
-    A tensor shaped type has a set of extents which can be indexed by its dimensions.
-*/
-template <typename T>
-concept tensor_shaped
-    =  requires (T x, typename std::remove_cvref_t<T>::size_type i)
-    {
-        { x.extent(i) } -> std::same_as<typename std::remove_cvref_t<T>::size_type>;
-    };
 
 /**
     @brief Check if a type is a complex floating point number.
@@ -182,21 +76,6 @@ concept complex_or_real_float
 */
 template <typename T>
 concept is_tag = (std::is_empty_v<T> && std::is_aggregate_v<T>);
-
-namespace detail
-{
-
-template <typename T>
-struct remove_tags_helper { using type = T; };
-
-template <typename T>
-    requires requires { typename T::untag; }
-struct remove_tags_helper<T> { using type = typename T::untag; };
-
-} // namespace detail
-
-template <typename T>
-using remove_tags = detail::remove_tags_helper<T>::type;
 
 /**
     @brief Function concept taking Cartesian coordinates as inputs.

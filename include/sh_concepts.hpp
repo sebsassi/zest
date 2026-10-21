@@ -28,7 +28,8 @@ SOFTWARE.
 #include "sequence.hpp"
 #include "sh_conventions.hpp"
 #include "shape.hpp"
-#include "utility_concepts.hpp"
+#include "shape_concepts.hpp"
+#include "utility_types.hpp"
 
 namespace zest::st
 {
@@ -53,8 +54,7 @@ concept symmetric_azimuthal_indexed
 
 template <typename T, Indexing indexing>
 concept azimuthal_indexed
-    = (indexing_of<T>() == indexing)
-        && (paired_azimuthal_indexed<T> || symmetric_azimuthal_indexed<T>);
+    = paired_azimuthal_indexed<T> || symmetric_azimuthal_indexed<T>;
 
 template <typename T>
 concept zero_based_azimuthal_indexed
@@ -63,14 +63,6 @@ concept zero_based_azimuthal_indexed
                 remove_tags<typename std::remove_cvref_t<T>::template subshape_type<1>>,
                 NullShape>
             || tensor_shaped<typename std::remove_cvref_t<T>::template subshape_type<1>>);
-
-template <typename T>
-concept triangle_sequenced =
-    std::same_as<typename std::remove_cvref_t<T>::sequence_type, TriangleSequence<indexing_of<T>()>>;
-
-template <typename T>
-concept parity_triangle_sequenced =
-    std::same_as<typename std::remove_cvref_t<T>::sequence_type, ParityRowTriangleSequence<indexing_of<T>>>;
 
 template <typename T>
 concept associated_legendre_shape
@@ -170,6 +162,7 @@ concept complex_encoded_zernike_sh_subspan
 template <typename T, typename S>
 concept compatible_with
     = any_sh_expansion<T> && any_sh_expansion<S>
+        && std::same_as<typename std::remove_cvref_t<T>::value_type, typename std::remove_cvref_t<S>::value_type>
         && (std::remove_cvref_t<T>::shape_type::sh_norm == std::remove_cvref_t<S>::shape_type::sh_norm)
         && (std::remove_cvref_t<T>::shape_type::sh_norm == std::remove_cvref_t<S>::shape_type::sh_norm)
         && (std::remove_cvref_t<T>::shape_type::indexing == std::remove_cvref_t<S>::shape_type::indexing);

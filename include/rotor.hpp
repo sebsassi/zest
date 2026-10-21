@@ -37,10 +37,10 @@ namespace zest
 /**
     @brief Describes whether rotation applies to object or coordinate system
 */
-enum class RotationType
+enum class RotationType: std::uint8_t
 {
     active, /// Object is rotated.
-    passive /// Coordinate system is rotated.
+    passive, /// Coordinate system is rotated.
 };
 
 namespace detail
@@ -140,8 +140,8 @@ public:
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles
     )
-        requires representable_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
-            && (std::remove_reference_t<decltype(expansion)>::rank == 3)
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && st::has_inner_rank<decltype(expansion), 0>
     {
         const std::size_t order = expansion.order();
         expand(order);
@@ -180,8 +180,8 @@ public:
         const zest::WignerdPiHalfCollection& wigner_d_pi2,
         const std::array<double, 3>& euler_angles
     )
-        requires representable_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
-            && (std::remove_reference_t<decltype(expansion)>::rank == 4)
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && zt::has_inner_rank<decltype(expansion), 0>
     {
         const std::size_t order = expansion.order();
         expand(order);
@@ -214,8 +214,8 @@ public:
     */
     template <RotationType type>
     void polar_rotate(st::sh_expansion<Indexing::zero_based> auto&& expansion, double angle)
-        requires representable_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
-            && (std::remove_reference_t<decltype(expansion)>::rank == 3)
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && st::has_inner_rank<decltype(expansion), 0>
     {
         const std::size_t order = expansion.order();
         expand(order);
@@ -247,14 +247,14 @@ public:
     void polar_rotate(
         zt::anisotropic_zernike_expansion<Indexing::zero_based> auto&& expansion, double angle
     )
-        requires representable_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
-            && (std::remove_reference_t<decltype(expansion)>::rank == 4)
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && zt::has_inner_rank<decltype(expansion), 0>
     {
         const std::size_t order = expansion.order();
         expand(order);
 
         auto complex_expansion = encode_as_complex_expansion(
-                std::forward<ExpansionType>(expansion).template represent_as<double>());
+                std::forward<decltype(expansion)>(expansion).template represent_as<double>());
 
         const double angle_rot = detail::convert<type>(angle);
         for (std::size_t l = 0; l < order; ++l)

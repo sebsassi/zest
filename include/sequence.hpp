@@ -34,10 +34,10 @@ namespace zest
 /**
     @brief Enum for tagging index sequences as either symmetric or zero based.
 */
-enum class Indexing
+enum class Indexing: std::uint8_t
 {
     symmetric, // Index from `-n` to `n`, inclusive.
-    zero_based // Index from `0` to `n`, inclusive.
+    zero_based, // Index from `0` to `n`, inclusive.
 };
 
 /**

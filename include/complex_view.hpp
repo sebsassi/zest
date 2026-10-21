@@ -52,11 +52,11 @@ constexpr auto
 encode_as_complex_expansion(
     st::complete_sh_expansion<Indexing::zero_based> auto&& expansion
 ) noexcept
-    requires std::same_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
-        && (std::remove_reference_t<decltype(expansion)>::rank == 3)
+    requires std::same_as<value_type_of<decltype(expansion)>, double>
+        && st::has_inner_rank<decltype(expansion), 0>
 {
     using ReturnType = st::ComplexEncodedRealSHSpan<
-        std::complex<double>, st::convention_of<std::remove_reference_t<decltype(expansion)>>>;
+        std::complex<double>, st::convention_of<decltype(expansion)>>;
 
     constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
 
@@ -94,7 +94,7 @@ decode_as_real_expansion(
 {
     using ReturnType = st::SHSpan<
             double, Indexing::zero_based,
-            st::convention_of<std::remove_reference_t<decltype(expansion)>>>;
+            st::convention_of<decltype(expansion)>>;
 
     constexpr double complex_conversion_norm = std::numbers::sqrt2;
 
@@ -132,11 +132,11 @@ constexpr auto
 encode_as_complex_expansion(
     zt::anisotropic_zernike_expansion<Indexing::zero_based> auto&& expansion
 ) noexcept
-    requires std::same_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
-        && (std::remove_reference_t<decltype(expansion)>::rank == 4)
+    requires std::same_as<value_type_of<decltype(expansion)>, double>
+        && zt::has_inner_rank<decltype(expansion), 0>
 {
     using ReturnType = zt::ComplexEncodedRealZernikeSpan<
-        std::complex<double>, zt::convention_of<std::remove_reference_t<decltype(expansion)>>>;
+        std::complex<double>, zt::convention_of<decltype(expansion)>>;
 
     constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
 
@@ -179,7 +179,7 @@ decode_as_real_expansion(
 {
     using ReturnType = zt::ZernikeSpan<
         double, Indexing::zero_based,
-        zt::convention_of<std::remove_reference_t<decltype(expansion)>>>;
+        zt::convention_of<decltype(expansion)>>;
 
     constexpr double complex_conversion_norm = std::numbers::sqrt2;
 
@@ -222,11 +222,11 @@ constexpr auto
 encode_as_complex_expansion(
     st::zernike_sh_subspan<Indexing::zero_based> auto&& expansion
 ) noexcept
-    requires std::same_as<value_type_of<std::remove_reference_t<decltype(expansion)>>, double>
-        && (std::remove_reference_t<decltype(expansion)>::rank == 3)
+    requires std::same_as<value_type_of<decltype(expansion)>, double>
+        && st::has_inner_rank<decltype(expansion), 0>
 {
     using ReturnType = typename zt::ComplexEncodedRealZernikeSpan<
-            std::complex<double>, zt::convention_of<std::remove_reference_t<decltype(expansion)>>
+            std::complex<double>, zt::convention_of<decltype(expansion)>
         >::template subspan_type<1>;
 
     constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
@@ -266,7 +266,7 @@ decode_as_real_expansion(
 {
     using ReturnType = typename zt::ZernikeExpansion<
             double, Indexing::zero_based,
-            zt::convention_of<std::remove_reference_t<decltype(expansion)>>
+            zt::convention_of<decltype(expansion)>
         >::template subspan_type<1>;
 
     constexpr double complex_conversion_norm = std::numbers::sqrt2;

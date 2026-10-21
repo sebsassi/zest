@@ -28,6 +28,7 @@ SOFTWARE.
 #include "sh_conventions.hpp"
 #include "zernike_concepts.hpp"
 #include "zernike_expansion.hpp"
+#include "buffer_properties.hpp"
 
 namespace zest
 {
@@ -41,16 +42,16 @@ namespace st
     @param b spherical harmonic expansion
     @param out output buffer for the cross power spectrum
 */
-template <any_sh_expansion ExpansionTypeA, compatible_with<ExpansionTypeA> ExpansionTypeB>
-    requires std::floating_point<value_type_of<ExpansionTypeA>>
-        && std::floating_point<value_type_of<ExpansionTypeB>>
-        && st::has_inner_rank<ExpansionTypeA, 0>
-        && st::has_inner_rank<ExpansionTypeB, 0>
 void cross_power_spectrum(
-    const ExpansionTypeA& a, const ExpansionTypeB& b, std::span<double> out) noexcept
+    const any_sh_expansion auto& a, const any_sh_expansion auto& b,
+    std::span<product_type<value_type_of<decltype(a)>, value_type_of<decltype(b)>>> out
+) noexcept
+    requires compatible_with<decltype(a), decltype(b)>
+        && st::has_inner_rank<decltype(a), 0>
+        && st::has_inner_rank<decltype(b), 0>
 {
-    constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionTypeA>();
-    constexpr Indexing indexing = indexing_of<ExpansionTypeA>();
+    constexpr st::SHNorm sh_norm = sh_norm_of<decltype(a)>();
+    constexpr Indexing indexing = indexing_of<decltype(b)>();
 
     std::size_t min_order
             = std::min(std::min(a.order(), b.order()), out.size());
@@ -83,14 +84,13 @@ void cross_power_spectrum(
     @param a spherical harmonic expansion
     @param b spherical harmonic expansion
 */
-template <any_sh_expansion ExpansionTypeA, compatible_with<ExpansionTypeA> ExpansionTypeB>
-    requires std::floating_point<value_type_of<ExpansionTypeA>>
-        && std::floating_point<value_type_of<ExpansionTypeB>>
-        && st::has_inner_rank<ExpansionTypeA, 0>
-        && st::has_inner_rank<ExpansionTypeB, 0>
 [[nodiscard]] std::vector<double>
-cross_power_spectrum(
-    const ExpansionTypeA& a, const ExpansionTypeB& b) noexcept
+cross_power_spectrum(const any_sh_expansion auto& a, const any_sh_expansion auto& b) noexcept
+    requires compatible_with<decltype(a), decltype(b)>
+        && std::floating_point<value_type_of<decltype(a)>>
+        && std::floating_point<value_type_of<decltype(b)>>
+        && st::has_inner_rank<decltype(a), 0>
+        && st::has_inner_rank<decltype(b), 0>
 {
     std::size_t min_order = std::min(a.order(), b.order());
     std::vector<double> res(min_order);

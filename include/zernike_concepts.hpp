@@ -54,6 +54,14 @@ concept anisotropic_zernike_nonnegative_shape
             NullShape>;
 
 template <typename T>
+concept isotropic_zernike_shape
+    = st::sh_tagged<T> && zernike_tagged<T>
+        && (std::same_as<
+                remove_tags<typename std::remove_cvref_t<T>::template subshape_type<1>>,
+                NullShape>
+            || tensor_shaped<typename std::remove_cvref_t<T>::template subshape_type<1>>);
+
+template <typename T>
 concept zernike_buffer
     = zernike_tagged<typename std::remove_cvref_t<T>::shape_type>
         && shaped_contiguous_buffer<T>;
@@ -67,6 +75,11 @@ template <typename T>
 concept any_anisotropic_zernike_expansion
     = shaped_contiguous_buffer<T>
         && any_anisotropic_zernike_shape<typename std::remove_cvref_t<T>::shape_type>;
+
+template <typename T>
+concept isotropic_zernike_expansion
+    = shaped_contiguous_buffer<T>
+        && isotropic_zernike_shape<typename std::remove_cvref_t<T>::shape_type>;
 
 template <typename T>
 concept complex_encoded_real_zernike_expansion

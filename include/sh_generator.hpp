@@ -79,13 +79,9 @@ public:
         @param colat colatitude coordinate
         @param expansion buffer for spherical harmonic values
     */
-    template <any_complete_sh_expansion ExpansionType>
     void generate(double lon, double colat, any_complete_sh_expansion auto&& expansion)
-        requires std::floating_point<value_type_of<std::remove_reference_t<decltype(expansion)>>>
-            && ((std::remove_reference_t<decltype(expansion)>::rank == 3
-                        && indexing_of<decltype(expansion)>() == Indexing::zero_based)
-                    || ((std::remove_reference_t<decltype(expansion)>::rank == 2)
-                        && indexing_of<decltype(expansion)>() == Indexing::symmetric))
+        requires std::floating_point<value_type_of<decltype(expansion)>>
+            && has_inner_rank<decltype(expansion), 0>
     {
         assert(0.0 <= colat && colat <= std::numbers::pi);
         const std::size_t order = std::forward<decltype(expansion)>(expansion).order();
@@ -137,22 +133,23 @@ public:
         }
     }
 
-    template <any_complete_sh_expansion ExpansionType>
-        requires std::floating_point<value_type_of<ExpansionType>>
-            && st::has_inner_rank<ExpansionType, 1>
     void generate(
-        std::span<const double> lon, std::span<const double> colat, ExpansionType&& expansion)
+        std::span<const double> lon, std::span<const double> colat,
+        any_complete_sh_expansion auto&& expansion
+    )
+        requires std::floating_point<value_type_of<decltype(expansion)>>
+            && st::has_inner_rank<decltype(expansion), 1>
     {
         assert(lon.size() == colat.size());
         for (double element : colat)
             assert(0.0 <= element && element <= std::numbers::pi);
 
-        const std::size_t order = std::forward<ExpansionType>(expansion).order();
+        const std::size_t order = std::forward<decltype(expansion)>(expansion).order();
         expand(order, lon.size());
 
-        constexpr st::SHNorm sh_norm = sh_norm_of<ExpansionType>();
-        constexpr st::SHPhase sh_phase = sh_phase_of<ExpansionType>();
-        constexpr Indexing indexing = indexing_of<ExpansionType>();
+        constexpr st::SHNorm sh_norm = sh_norm_of<decltype(expansion)>();
+        constexpr st::SHPhase sh_phase = sh_phase_of<decltype(expansion)>();
+        constexpr Indexing indexing = indexing_of<decltype(expansion)>();
 
         for (std::size_t i = 0; i < colat.size(); ++i)
             m_z[i] = std::cos(colat[i]);
@@ -176,7 +173,7 @@ public:
 
         for (auto l : ass_leg.indices())
         {
-            const auto expansion_l = std::forward<ExpansionType>(expansion)[l];
+            const auto expansion_l = std::forward<decltype(expansion)>(expansion)[l];
             const auto ass_leg_l = ass_leg[l];
 
             auto ass_leg_l0 = ass_leg_l[0];

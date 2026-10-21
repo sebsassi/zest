@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "utility.hpp"
 #include "indexing.hpp"
+#include "shape_concepts.hpp"
 
 namespace zest
 {

@@ -26,7 +26,8 @@ SOFTWARE.
 #include <span>
 #include <vector>
 
-#include "utility.hpp"
+#include "shape_concepts.hpp"
+#include "buffer_properties.hpp"
 #include "shaped_span.hpp"
 
 namespace zest

@@ -25,7 +25,6 @@ SOFTWARE.
 #include <span>
 
 #include "sequence.hpp"
-#include "sh_conventions.hpp"
 #include "shaped_array.hpp"
 #include "shaped_span.hpp"
 #include "zernike_conventions.hpp"

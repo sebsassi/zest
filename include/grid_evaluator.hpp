@@ -22,7 +22,6 @@ SOFTWARE.
 #pragma once
 
 #include <algorithm>
-#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstddef>
@@ -107,10 +106,10 @@ public:
     void evaluate(
         const sh_expansion<Indexing::zero_based> auto& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes,
-        DynamicMDSpan<value_type_of<std::remove_cvref_t<decltype(expansion)>>, 2> values
+        DynamicMDSpan<value_type_of<decltype(expansion)>, 2> values
     )
-        requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
-            && has_inner_rank<std::remove_cvref_t<decltype(expansion)>, 0>
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && has_inner_rank<decltype(expansion), 0>
     {
         if (longitudes.size() == 0 || colatitudes.size() == 0)
             return;
@@ -123,7 +122,7 @@ public:
         for (std::size_t i = 0; i < m_lat_size; ++i)
             m_cos_colat[i] = std::cos(colatitudes[i]);
 
-        AssociatedLegendreSpan<double, st::convention_of<ExpansionType>, std::dynamic_extent>
+        AssociatedLegendreSpan<double, st::convention_of<decltype(expansion)>, std::dynamic_extent>
         ass_leg{m_ass_leg_grid, expansion.order(), m_lat_size};
 
         m_ass_leg_recursion.generate_real(m_cos_colat, ass_leg);
@@ -147,10 +146,10 @@ public:
         const sh_expansion<Indexing::zero_based> auto& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes
     )
-        requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
-            && has_inner_rank<std::remove_cvref_t<decltype(expansion)>, 0>
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && has_inner_rank<decltype(expansion), 0>
     {
-        DynamicMDArray<value_type_of<ExpansionType>, 2>
+        DynamicMDArray<value_type_of<decltype(expansion)>, 2>
         values{longitudes.size(), colatitudes.size()};
 
         evaluate(expansion, longitudes, colatitudes, values);
@@ -159,10 +158,10 @@ public:
 
 private:
     void sum_l(const sh_expansion<Indexing::zero_based> auto& expansion) noexcept
-        requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
+        requires representable_as<value_type_of<decltype(expansion)>, double>
     {
         AssociatedLegendreSpan<
-            const double, st::convention_of<std::remove_cvref_t<decltype(expansion)>>,
+            const double, st::convention_of<decltype(expansion)>,
             std::dynamic_extent>
         ass_leg{m_ass_leg_grid, expansion.order(), m_lat_size};
 
@@ -255,10 +254,10 @@ public:
         const anisotropic_zernike_expansion<Indexing::zero_based> auto& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes,
         std::span<const double> radii,
-        DynamicMDSpan<value_type_of<std::remove_cvref_t<decltype(expansion)>>, 3> values
+        DynamicMDSpan<value_type_of<decltype(expansion)>, 3> values
     )
-        requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
-            && has_inner_rank<std::remove_cvref_t<decltype(expansion)>, 0>
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && has_inner_rank<decltype(expansion), 0>
     {
         assert(
             values.extent(0) == longitudes.size()
@@ -276,15 +275,15 @@ public:
 
         resize(expansion.order(), longitudes.size(), colatitudes.size(), radii.size());
 
-        RadialZernikeSpan<double, zt::norm_convention_of<ExpansionType>, std::dynamic_extent>
+        RadialZernikeSpan<double, zt::norm_convention_of<decltype(expansion)>, std::dynamic_extent>
         zernike{m_zernike_grid, expansion.order(), m_rad_size};
 
-        m_zernike_recursion.generate<zt::norm_convention_of<ExpansionType>>(radii, zernike);
+        m_zernike_recursion.generate<zt::norm_convention_of<decltype(expansion)>>(radii, zernike);
 
         for (std::size_t i = 0; i < m_lat_size; ++i)
             m_cos_colat[i] = std::cos(colatitudes[i]);
 
-        st::AssociatedLegendreSpan<double, st::convention_of<ExpansionType>, std::dynamic_extent>
+        st::AssociatedLegendreSpan<double, st::convention_of<decltype(expansion)>, std::dynamic_extent>
         ass_leg{m_ass_leg_grid, expansion.order(), m_lat_size};
 
         m_ass_leg_recursion.generate_real(m_cos_colat, ass_leg);
@@ -306,17 +305,16 @@ public:
         @param radii Radius values defining the grid points.
         @param values Values of the Zernike expansion on the grid.
     */
-    template <anisotropic_zernike_expansion<Indexing::zero_based> ExpansionType>
-    [[nodiscard]] DynamicMDArray<value_type_of<ExpansionType>, 3>
+    [[nodiscard]] auto
     evaluate(
         const anisotropic_zernike_expansion<Indexing::zero_based> auto& expansion,
         std::span<const double> longitudes, std::span<const double> colatitudes,
         std::span<const double> radii
     )
-        requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
-            && has_inner_rank<std::remove_cvref_t<decltype(expansion)>, 0>
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && has_inner_rank<decltype(expansion), 0>
     {
-        DynamicMDArray<value_type_of<std::remove_cvref_t<decltype(expansion)>>, 3>
+        DynamicMDArray<value_type_of<decltype(expansion)>, 3>
         values{longitudes.size(), colatitudes.size(), radii.size()};
 
         evaluate(expansion, longitudes, colatitudes, radii, values);
@@ -325,10 +323,10 @@ public:
 
 private:
     void sum_n(const anisotropic_zernike_expansion<Indexing::zero_based> auto& expansion) noexcept
-        requires std::floating_point<value_type_of<std::remove_cvref_t<decltype(expansion)>>>
+        requires std::floating_point<value_type_of<decltype(expansion)>>
     {
         RadialZernikeSpan<
-            const double, zt::norm_convention_of<std::remove_cvref_t<decltype(expansion)>>,
+            const double, zt::norm_convention_of<decltype(expansion)>,
             std::dynamic_extent>
         zernike{m_zernike_grid, expansion.order(), m_rad_size};
 
@@ -411,13 +409,13 @@ public:
         @param values Values of the Zernike expansion at the radial points.
     */
     void evaluate(
-        const auto& expansion, std::span<const double> radii,
-        std::span<value_type_of<std::remove_cvref_t<decltype(expansion)>>> values)
-        requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
-            && (std::remove_cvref_t<decltype(expansion)>::rank == 1)
+        const isotropic_zernike_expansion auto& expansion, std::span<const double> radii,
+        std::span<value_type_of<decltype(expansion)>> values)
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && has_inner_rank<decltype(expansion), 0>
     {
-        using ValueType = value_type_of<std::remove_cvref_t<decltype(expansion)>>;
-        using NormalizationConvention = norm_convention_of<std::remove_cvref_t<decltype(expansion)>>;
+        using ValueType = value_type_of<decltype(expansion)>;
+        using NormalizationConvention = norm_convention_of<decltype(expansion)>;
         assert(radii.size() == values.size());
         if (values.size() == 0)
             return;
@@ -429,7 +427,7 @@ public:
         // utilization.
         constexpr std::size_t chunk_size = 256;
         constexpr double spherical_harmonic
-            = (std::remove_cvref_t<decltype(expansion)>::sh_norm == zest::st::SHNorm::four_pi) ?
+            = (st::sh_norm_of<decltype(expansion)>() == zest::st::SHNorm::four_pi) ?
                 1.0 : 0.5*std::numbers::inv_sqrtpi;
         const std::size_t chunk_count = radii.size()/chunk_size;
 
@@ -482,11 +480,11 @@ public:
         @param values Values of the Zernike expansion at the radial points.
     */
     [[nodiscard]] auto
-    evaluate(const auto& expansion, std::span<const double> radii)
-        requires representable_as<value_type_of<std::remove_cvref_t<decltype(expansion)>>, double>
-            && has_inner_rank<std::remove_cvref_t<decltype(expansion)>, 0>
+    evaluate(const isotropic_zernike_expansion auto& expansion, std::span<const double> radii)
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && has_inner_rank<decltype(expansion), 0>
     {
-        std::vector<value_type_of<std::remove_cvref_t<decltype(expansion)>>>
+        std::vector<value_type_of<decltype(expansion)>>
         values(radii.size());
 
         evaluate(expansion, radii, values);
