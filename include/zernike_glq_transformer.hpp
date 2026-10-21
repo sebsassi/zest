@@ -601,7 +601,7 @@ public:
         @brief Get Zernike expansion of a function expressed in spherical
         coordinates.
 
-        @tparam FuncType Type of function.
+        @tparam RadiusType
 
         @param f Function to transform.
         @param radius Radius of the ball `f` is defined on.
@@ -634,7 +634,7 @@ public:
         @brief Get Zernike expansion of a function expressed in spherical
         coordinates.
 
-        @tparam FuncType Type of function.
+        @tparam RadiusType
 
         @param f Function to transform.
         @param radius Radius of the ball `f` is defined on.
@@ -664,21 +664,21 @@ public:
         @brief Get Zernike expansion of a function expressed in Cartesian
         coordinates.
 
-        @tparam FuncType Type of the function.
+        @tparam VectorType
 
         @param f Function to transform
         @param radius Radius of the ball `f` is defined on.
         @param expansion Output buffer for the Zernike expansion coefficients.
     */
-    template <typename VectorType, typename RadiusType>
+    template <typename VectorType>
     void forward_transform(
-        cartesian_function<VectorType> auto&& f, RadiusType radius,
+        cartesian_function<VectorType> auto&& f, representable_as<double> auto radius,
         contiguous_buffer_shaped_like<expansion_shape> auto&& expansion
     )
         requires representable_as<std::invoke_result_t<decltype(f), VectorType>, double>
             && std::same_as<
-                std::invoke_result_t<decltype(f), double, double, RadiusType>,
-                value_type_of<ExpansionType>>
+                std::invoke_result_t<decltype(f), double, double, decltype(radius)>,
+                value_type_of<decltype(expansion)>>
     {
         auto f_scaled = [&](double lon, double colat, double r) {
             const auto rad = r*radius;
@@ -686,22 +686,22 @@ public:
             const std::array<double, 3> dir = {
                 scolat*std::cos(lon), scolat*std::sin(lon), std::cos(colat)
             };
-            return std::forward<FuncType>(f)(rad*VectorType{dir});
+            return std::forward<decltype(f)>(f)(rad*VectorType{dir});
         };
         resize(expansion.order());
 
-        using ResultType = std::invoke_result_t<FuncType, VectorType>;
+        using ResultType = std::invoke_result_t<decltype(f), VectorType>;
         m_points.generate_values(m_grid.template represent_as<ResultType>(), f_scaled);
         m_transformer.forward_transform(
                 m_grid.template represent_as<ResultType>(),
-                std::forward<ExpansionType>(expansion));
+                std::forward<decltype(expansion)>(expansion));
     }
 
     /**
         @brief Get spherical harmonic expansion of a function expressed in
         Cartesian coordinates.
 
-        @tparam FuncType Type of the function.
+        @tparam VectorType
 
         @param f Function to transform.
         @param radius Radius of the ball `f` is defined on.
@@ -709,11 +709,11 @@ public:
 
         @return Coefficients of the Zernike expansion.
     */
-    template <
-        typename VectorType, cartesian_function<VectorType> FuncType, typename RadiusType
-    >
-        requires representable_as<std::invoke_result_t<FuncType, VectorType>, double>
-    [[nodiscard]] auto forward_transform(FuncType&& f, RadiusType radius, std::size_t order)
+    template <typename VectorType>
+    [[nodiscard]] auto forward_transform(
+        cartesian_function<VectorType> auto&& f, representable_as<double> auto radius, std::size_t order
+    )
+        requires representable_as<std::invoke_result_t<decltype(f), VectorType>, double>
     {
         auto f_scaled = [&](double lon, double colat, double r) {
             const auto rad = r*radius;
@@ -722,11 +722,11 @@ public:
                 scolat*std::cos(lon), scolat*std::sin(lon),
                 std::cos(colat)
             };
-            return std::forward<FuncType>(f)(rad*VectorType{dir});
+            return std::forward<decltype(f)>(f)(rad*VectorType{dir});
         };
         resize(order);
 
-        using ResultType = std::invoke_result_t<FuncType, VectorType>;
+        using ResultType = std::invoke_result_t<decltype(f), VectorType>;
         m_points.generate_values(m_grid.template represent_as<ResultType>(), f_scaled);
         return m_transformer.forward_transform(m_grid.template represent_as<ResultType>(), order);
     }
@@ -737,15 +737,14 @@ public:
         @param expansion Coefficients of the Zernike expansion.
         @param values Output buffer for values on the ball quadrature grid.
     */
-    template <
-        contiguous_buffer_shaped_like<expansion_shape> ExpansionType,
-        contiguous_buffer_shaped_like<grid_shape> GridType
-    >
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && std::same_as<value_type_of<ExpansionType>, value_type_of<GridType>>
-    void backward_transform(const ExpansionType& expansion, GridType&& values)
+    void backward_transform(
+        const contiguous_buffer_shaped_like<expansion_shape> auto& expansion,
+        contiguous_buffer_shaped_like<grid_shape> auto&& values
+    )
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && std::same_as<value_type_of<decltype(expansion)>, value_type_of<decltype(values)>>
     {
-        m_transformer.backward_transform(expansion, std::forward<GridType>(values));
+        m_transformer.backward_transform(expansion, std::forward<decltype(values)>(values));
     }
 
     /**
@@ -756,9 +755,10 @@ public:
 
         @return Function values on a ball quadrature grid.
     */
-    template <contiguous_buffer_shaped_like<expansion_shape> ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-    [[nodiscard]] auto backward_transform(const ExpansionType& expansion, std::size_t order)
+    [[nodiscard]] auto backward_transform(
+        const contiguous_buffer_shaped_like<expansion_shape> auto& expansion, std::size_t order
+    )
+        requires representable_as<value_type_of<decltype(expansion)>, double>
     {
         return m_transformer.backward_transform(expansion, order);
     }
@@ -832,13 +832,12 @@ public:
         @param values Values on the radial quadrature grid.
         @param expansion Coefficients of the Zernike expansion.
     */
-    template <
-        contiguous_buffer_shaped_like<grid_shape> GridType,
-        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
-    >
-        requires representable_as<value_type_of<GridType>, double>
-            && std::same_as<value_type_of<GridType>, value_type_of<ExpansionType>>
-    void forward_transform(const GridType& values, ExpansionType&& expansion)
+    void forward_transform(
+        const contiguous_buffer_shaped_like<grid_shape> auto& values,
+        contiguous_buffer_shaped_like<expansion_shape> auto&& expansion
+    )
+        requires representable_as<value_type_of<decltype(values)>, double>
+            && std::same_as<value_type_of<decltype(values)>, value_type_of<decltype(expansion)>>
     {
         resize(values.order());
 
@@ -846,7 +845,7 @@ public:
 
         IsotropicZernikeSpan<double, Convention>
         truncated_expansion{
-            std::forward<ExpansionType>(expansion).template represent_as<double>().flatten(),
+            std::forward<decltype(expansion)>(expansion).template represent_as<double>().flatten(),
             min_order
         };
 
@@ -885,11 +884,12 @@ public:
 
         @return Coefficients of the Zernike expansion.
     */
-    template <contiguous_buffer_shaped_like<grid_shape> GridType>
-        requires representable_as<value_type_of<GridType>, double>
-    [[nodiscard]] auto forward_transform(const GridType& values, std::size_t order)
+    [[nodiscard]] auto forward_transform(
+        const contiguous_buffer_shaped_like<grid_shape> auto& values, std::size_t order
+    )
+        requires representable_as<value_type_of<decltype(values)>, double>
     {
-        IsotropicZernikeExpansion<value_type_of<GridType>, Convention>
+        IsotropicZernikeExpansion<value_type_of<decltype(values)>, Convention>
         expansion{order};
 
         forward_transform(values, expansion);
@@ -902,13 +902,12 @@ public:
         @param expansion Coefficients of the Zernike expansion.
         @param values Values on the radial quadrature grid.
     */
-    template <
-        contiguous_buffer_shaped_like<expansion_shape> ExpansionType,
-        contiguous_buffer_shaped_like<grid_shape> GridType
-    >
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && std::same_as<value_type_of<ExpansionType>, value_type_of<GridType>>
-    void backward_transform(const ExpansionType& expansion, GridType&& values)
+    void backward_transform(
+        const contiguous_buffer_shaped_like<expansion_shape> auto& expansion,
+        contiguous_buffer_shaped_like<grid_shape> auto&& values
+    )
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && std::same_as<value_type_of<decltype(expansion)>, value_type_of<decltype(values)>>
     {
         resize(values.order());
 
@@ -919,7 +918,7 @@ public:
 
         m_recursion.init<norm_convention_of<Convention>>();
 
-        auto values_as_double = std::forward<GridType>(values).template represent_as<double>();
+        auto values_as_double = std::forward<decltype(values)>(values).template represent_as<double>();
         for (auto n : truncated_expansion.indices())
         {
             auto radial_zernike = m_recursion.current();
@@ -941,12 +940,13 @@ public:
 
         @return Function values on a radial quadrature grid.
     */
-    template <contiguous_buffer_shaped_like<expansion_shape> ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
     [[nodiscard]] auto
-    backward_transform(const ExpansionType& expansion, std::size_t order)
+    backward_transform(
+        const contiguous_buffer_shaped_like<expansion_shape> auto& expansion, std::size_t order
+    )
+        requires representable_as<value_type_of<decltype(expansion)>, double>
     {
-        RadialGLQGrid<value_type_of<ExpansionType>, alignment_type> grid{order};
+        RadialGLQGrid<value_type_of<decltype(expansion)>, alignment_type> grid{order};
         backward_transform(expansion, grid);
         return grid;
     }
@@ -1002,36 +1002,36 @@ public:
         @brief Get Zernike expansion of a function expressed in spherical
         coordinates.
 
-        @tparam FuncType Type of function.
+        @tparam RadiusType
 
         @param f Function to transform.
         @param radius Radius of the ball `f` is defined on.
         @param expansion Buffer to store the expansion.
     */
-    template <
-        typename RadiusType, isotropic_function<RadiusType> FuncType,
-        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
-    >
-        requires representable_as<std::invoke_result_t<FuncType, RadiusType>, double>
-    void forward_transform(FuncType&& f, RadiusType radius, ExpansionType&& expansion)
+    template <representable_as<double> RadiusType>
+    void forward_transform(
+        isotropic_function<RadiusType> auto&& f, RadiusType radius,
+        contiguous_buffer_shaped_like<expansion_shape> auto&& expansion
+    )
+        requires representable_as<std::invoke_result_t<decltype(f), RadiusType>, double>
     {
         auto f_scaled = [&](double r) {
-            return std::forward<FuncType>(f)(r*radius);
+            return std::forward<decltype(f)>(f)(r*radius);
         };
         resize(expansion.order());
 
-        using ResultType = std::invoke_result_t<FuncType, RadiusType>;
+        using ResultType = std::invoke_result_t<decltype(f), RadiusType>;
         m_points.generate_values(m_grid.template represent_as<ResultType>(), f_scaled);
         m_transformer.forward_transform(
                 m_grid.template represent_as<ResultType>(),
-                std::forward<ExpansionType>(expansion));
+                std::forward<decltype(expansion)>(expansion));
     }
 
     /**
         @brief Get Zernike expansion of a function expressed in spherical
         coordinates.
 
-        @tparam FuncType Type of the function.
+        @tparam RadiusType
 
         @param f Function to transform.
         @param radius Radius of the ball `f` is defined on.
@@ -1039,16 +1039,18 @@ public:
 
         @return Zernike expansion coefficients of the function.
     */
-    template <typename RadiusType, isotropic_function<RadiusType> FuncType>
-        requires representable_as<std::invoke_result_t<FuncType, RadiusType>, double>
-    [[nodiscard]] auto forward_transform(FuncType&& f, RadiusType radius, std::size_t order)
+    template <typename RadiusType>
+    [[nodiscard]] auto forward_transform(
+        isotropic_function<RadiusType> auto&& f, RadiusType radius, std::size_t order
+    )
+        requires representable_as<std::invoke_result_t<decltype(f), RadiusType>, double>
     {
         auto f_scaled = [&](double r) {
-            return std::forward<FuncType>(f)(r*radius);
+            return std::forward<decltype(f)>(f)(r*radius);
         };
         resize(order);
 
-        using ResultType = std::invoke_result_t<FuncType, RadiusType>;
+        using ResultType = std::invoke_result_t<decltype(f), RadiusType>;
         m_points.generate_values(m_grid.template represent_as<ResultType>(), f_scaled);
         return m_transformer.forward_transform(
                 m_grid.template represent_as<ResultType>(), order);
@@ -1061,15 +1063,14 @@ public:
         @param values Values on the ball quadrature grid.
         @param expansion Coefficients of the expansion.
     */
-    template <
-        contiguous_buffer_shaped_like<expansion_shape> ExpansionType,
-        contiguous_buffer_shaped_like<grid_shape> GridType
-    >
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && std::same_as<value_type_of<ExpansionType>, value_type_of<GridType>>
-    void backward_transform(const ExpansionType& expansion, GridType&& values)
+    void backward_transform(
+        const contiguous_buffer_shaped_like<expansion_shape> auto& expansion,
+        contiguous_buffer_shaped_like<grid_shape> auto&& values
+    )
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && std::same_as<value_type_of<decltype(expansion)>, value_type_of<decltype(values)>>
     {
-        m_transformer.backward_transform(expansion, std::forward<GridType>(values));
+        m_transformer.backward_transform(expansion, std::forward<decltype(values)>(values));
     }
 
     /**
@@ -1081,9 +1082,10 @@ public:
         @return Values of the corresponding function on a radial quadrature
         grid.
     */
-    template <contiguous_buffer_shaped_like<expansion_shape> ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-    [[nodiscard]] auto backward_transform(const ExpansionType& expansion, std::size_t order)
+    [[nodiscard]] auto backward_transform(
+        const contiguous_buffer_shaped_like<expansion_shape> auto& expansion, std::size_t order
+    )
+        requires representable_as<value_type_of<decltype(expansion)>, double>
     {
         return m_transformer.backward_transform(expansion, order);
     }
