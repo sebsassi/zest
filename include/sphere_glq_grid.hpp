@@ -282,7 +282,7 @@ private:
     };
 
 public:
-    using size_type = typename Base::size_type;
+    using size_type = Base::size_type;
     using Base::size;
 
     template <std::size_t N>
@@ -424,7 +424,7 @@ private:
     };
 
 public:
-    using size_type = typename Base::size_type;
+    using size_type = Base::size_type;
     using Base::size;
 
     template <std::size_t N>

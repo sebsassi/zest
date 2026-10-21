@@ -105,7 +105,7 @@ private:
 
 public:
     using layout_type = RadialGridLayout<AlignmentType>;
-    using size_type = typename Base::size_type;
+    using size_type = Base::size_type;
     using Base::size;
 
     template <std::size_t N>
@@ -232,7 +232,7 @@ private:
 
 public:
     using layout_type = RadialGridLayout<AlignmentType>;
-    using size_type = typename Base::size_type;
+    using size_type = Base::size_type;
     using Base::size;
 
     template <std::size_t N>

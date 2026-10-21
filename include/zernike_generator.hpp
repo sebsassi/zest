@@ -27,7 +27,6 @@ SOFTWARE.
 #include "zernike_conventions.hpp"
 #include "associated_legendre_recursion.hpp"
 #include "radial_zernike_recursion.hpp"
-#include "sh_conventions.hpp"
 #include "zernike_expansion.hpp"
 
 namespace zest::zt
@@ -137,7 +136,7 @@ public:
     {
         using ExpansionType = ZernikeExpansion<double, indexing, Convention>;
         generate<indexing, Convention>(
-                lon, colat, r, (typename ExpansionType::view)(expansion));
+                lon, colat, r, typename ExpansionType::view(expansion));
     }
 
     template <Indexing indexing, zernike_convention Convention>
@@ -147,7 +146,7 @@ public:
         using ExpansionType = ZernikeExpansion<double, indexing, Convention>;
         ExpansionType expansion{order};
         generate<indexing, Convention>(
-                lon, colat, r, (typename ExpansionType::view)(expansion));
+                lon, colat, r, typename ExpansionType::view(expansion));
         return expansion;
     }
 

@@ -219,7 +219,7 @@ power_spectrum(const ExpansionType& expansion)
 {
     using OutType = RadialZernikeExpansion<double, norm_convention_of<ExpansionType>>;
     OutType res{expansion.order()};
-    power_spectrum(expansion, (typename OutType::view)(res));
+    power_spectrum(expansion, typename OutType::view(res));
     return res;
 }
 

@@ -22,6 +22,7 @@ SOFTWARE.
 #pragma once
 
 #include <concepts>
+#include <cstdint>
 #include <numbers>
 
 namespace zest::st
@@ -30,15 +31,19 @@ namespace zest::st
 /**
     @brief Spherical harmonic phase conventions.
 */
-enum class SHPhase { none = -1, cs = 1 };
+enum class SHPhase: std::int8_t
+{
+    none = -1,  /// No Condon-Shortley phase.
+    cs = 1,     /// Use Condon-Shortley phase.
+};
 
 /**
     @brief Spherical harmonic normalization conventions
 */
-enum class SHNorm
+enum class SHNorm: std::uint8_t
 {
-    four_pi, /// 4-pi normalization.
-    unit /// Unit normalization.
+    four_pi,    /// 4-pi normalization.
+    unit,       /// Unit normalization.
 };
 
 template <SHNorm norm, SHPhase phase>

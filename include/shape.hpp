@@ -135,9 +135,9 @@ class SequencedShape
 {
 public:
     using sequence_type = SequenceType;
-    using size_type = typename sequence_type::size_type;
-    using index_type = typename sequence_type::index_type;
-    using index_range = typename sequence_type::index_range;
+    using size_type = sequence_type::size_type;
+    using index_type = sequence_type::index_type;
+    using index_range = sequence_type::index_range;
     using extent_type = size_type;
 
     static constexpr size_type rank = sequence_type::rank;
@@ -268,7 +268,7 @@ private:
         requires (0 < sizeof...(indices) && sizeof...(indices) < rank)
     {
         return subshape_type<sizeof...(indices)>{
-            sequence_type::subextent(index_type(indices)...)
+            sequence_type::subextent(index_type(indices)...),
         };
     }
 
@@ -433,12 +433,12 @@ public:
         requires ((sizeof...(dynamic_extents) == dynamic_rank) && (dynamic_rank != rank)):
         m_extents{
             detail::extents_from<extent_params...>(
-                dynamic_extent_type{size_type(dynamic_extents)...})
+                dynamic_extent_type{size_type(dynamic_extents)...}),
         },
         m_size{
             size(
                 detail::extents_from<extent_params...>(
-                    dynamic_extent_type{size_type(dynamic_extents)...}))
+                    dynamic_extent_type{size_type(dynamic_extents)...})),
         } {}
 
     /**
@@ -582,7 +582,7 @@ private:
         requires (0 < sizeof...(indices) && sizeof...(indices) < rank)
     {
         return subshape_type<sizeof...(indices)>{
-            take_last<rank - sizeof...(indices)>(m_extents)
+            take_last<rank - sizeof...(indices)>(m_extents),
         };
     }
 
@@ -761,9 +761,9 @@ class CompositeShape
 public:
     using outer_shape_type = OuterShape;
     using inner_shape_type = InnerShape;
-    using size_type = typename OuterShape::size_type;
-    using index_type = typename OuterShape::index_type;
-    using index_range = typename OuterShape::index_range;
+    using size_type = OuterShape::size_type;
+    using index_type = OuterShape::index_type;
+    using index_range = OuterShape::index_range;
     using extent_type
         = std::pair<typename OuterShape::extent_type, typename InnerShape::extent_type>;
 
@@ -788,7 +788,7 @@ private:
         requires (OuterShape::rank <= N && N < rank)
     struct subshape_helper<N>
     {
-        using type = typename InnerShape::template subshape_type<N - OuterShape::rank>;
+        using type = InnerShape::template subshape_type<N - OuterShape::rank>;
     };
 
     template <std::size_t N>
@@ -997,8 +997,8 @@ private:
         requires (0 < sizeof...(indices) && sizeof...(indices) < OuterShape::rank)
     {
         return subshape_type<sizeof...(indices)>{
-            m_shapes.first.subshape((typename OuterShape::index_type)(indices)...),
-            m_shapes.second
+            m_shapes.first.subshape(typename OuterShape::index_type(indices)...),
+            m_shapes.second,
         };
     }
 
@@ -1016,7 +1016,7 @@ private:
         auto impl = [&]<std::size_t... I, typename T>(std::index_sequence<I...>, T index_tuple)
         {
             return subshape_type<sizeof...(indices)>{
-                m_shapes.second.subshape(std::get<OuterShape::rank + I>(index_tuple)...)
+                m_shapes.second.subshape(std::get<OuterShape::rank + I>(index_tuple)...),
             };
         };
         return impl(
@@ -1035,7 +1035,7 @@ private:
     index(std::integral auto... indices) const noexcept
         requires (0 < sizeof...(indices) && sizeof...(indices) <= OuterShape::rank)
     {
-        using outer_index_type = typename OuterShape::index_type;
+        using outer_index_type = OuterShape::index_type;
         return m_shapes.first(outer_index_type(indices)...)*m_shapes.second.size();
     }
 
@@ -1046,8 +1046,8 @@ private:
         auto impl = [&]<std::size_t... I, std::size_t... J, typename T>
         (std::index_sequence<I...>, std::index_sequence<J...>, T index_tuple)
         {
-            using outer_index_type = typename OuterShape::index_type;
-            using inner_index_type = typename InnerShape::index_type;
+            using outer_index_type = OuterShape::index_type;
+            using inner_index_type = InnerShape::index_type;
             return m_shapes.first(
                     outer_index_type(std::get<I>(index_tuple))...)*m_shapes.second.size()
                 + m_shapes.second(

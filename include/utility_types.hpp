@@ -34,7 +34,7 @@ struct remove_tags_helper { using type = T; };
 
 template <typename T>
     requires requires { typename T::untag; }
-struct remove_tags_helper<T> { using type = typename T::untag; };
+struct remove_tags_helper<T> { using type = T::untag; };
 
 } // namespace detail
 

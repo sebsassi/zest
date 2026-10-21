@@ -28,7 +28,7 @@ namespace zest
 {
 
 template <typename T>
-concept shape = requires (T t, typename T::extent_type e)
+concept shape = requires (T t, T::extent_type e)
 {
     typename std::remove_cvref_t<T>::size_type;
     typename std::remove_cvref_t<T>::index_type;
@@ -120,7 +120,7 @@ concept sequence_shaped = requires (T x)
 */
 template <typename T>
 concept tensor_shaped
-    =  requires (T x, typename std::remove_cvref_t<T>::size_type i)
+    =  requires (T x, std::remove_cvref_t<T>::size_type i)
     {
         { x.extent(i) } -> std::same_as<typename std::remove_cvref_t<T>::size_type>;
     };

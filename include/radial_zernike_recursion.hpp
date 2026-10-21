@@ -147,7 +147,7 @@ public:
         double r, RadialZernikeExpansion<double, Convention>& zernike)
     {
         using ExpansionType = RadialZernikeExpansion<double, Convention>;
-        generate(r, (typename ExpansionType::view)(zernike));
+        generate(r, typename ExpansionType::view(zernike));
     }
 
     /**
@@ -306,7 +306,7 @@ public:
         std::span<const double> r, RadialZernikeExpansion<double, Convention, std::dynamic_extent>& zernike)
     {
         using ExpansionType = RadialZernikeExpansion<double, Convention, std::dynamic_extent>;
-        generate(r, (typename ExpansionType::view)(zernike));
+        generate(r, typename ExpansionType::view(zernike));
     }
 
 

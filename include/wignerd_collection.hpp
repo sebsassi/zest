@@ -165,14 +165,14 @@ constexpr void rotate_l(
         {
             std::array<double, 4> sum = {
                 0.5*wigner_d[m, 0]*vector[0].real(), 0.0,
-                0.5*wigner_d[m + 1, 0]*vector[0].real(), 0.0
+                0.5*wigner_d[m + 1, 0]*vector[0].real(), 0.0,
             };
 
             for (std::size_t mp = 1; mp < l; mp += 2)
             {
                 const std::array<double, 4> wig = {
                     wigner_d[m, mp], wigner_d[m + 1, mp],
-                    wigner_d[m + 1, mp + 1], wigner_d[m, mp + 1]
+                    wigner_d[m + 1, mp + 1], wigner_d[m, mp + 1],
                 };
                 sum[0] += wig[0]*vector[mp].real();
                 sum[1] += wig[1]*vector[mp].imag();
@@ -193,7 +193,7 @@ constexpr void rotate_l(
         {
             std::array<double, 4> sum = {
                 0.5*wigner_d[m + 1, 0]*vector[0].real(), 0.0,
-                0.5*wigner_d[m, 0]*vector[0].real(), 0.0
+                0.5*wigner_d[m, 0]*vector[0].real(), 0.0,
             };
 
             for (std::size_t mp = 1; mp < l; mp += 2)
@@ -209,7 +209,7 @@ constexpr void rotate_l(
         }
 
         std::array<double, 2> sum = {
-            0.0, 0.5*wigner_d[l, 0]*vector[0].real()
+            0.0, 0.5*wigner_d[l, 0]*vector[0].real(),
         };
 
         for (std::size_t mp = 1; mp < l; mp += 2)
@@ -231,7 +231,7 @@ constexpr void rotate_l(
         // logic for `Inf` components. We assume finite values
         vector[m] = {
             element.real()*rot.real() - element.imag()*rot.imag(),
-            element.real()*rot.imag() + element.imag()*rot.real()
+            element.real()*rot.imag() + element.imag()*rot.real(),
         };
     }
 
@@ -242,7 +242,7 @@ constexpr void rotate_l(
         {
             std::array<double, 4> sum = {
                 0.5*wigner_d[0, m]*vector[0].real(), 0.0,
-                0.5*wigner_d[0, m + 1]*vector[0].real(), 0.0
+                0.5*wigner_d[0, m + 1]*vector[0].real(), 0.0,
             };
 
             for (std::size_t mp = 1; mp < l; mp += 2)
@@ -266,7 +266,7 @@ constexpr void rotate_l(
         {
             std::array<double, 4> sum = {
                 0.5*wigner_d[0, m + 1]*vector[0].real(), 0.0,
-                0.5*wigner_d[0, m]*vector[0].real(), 0.0
+                0.5*wigner_d[0, m]*vector[0].real(), 0.0,
             };
 
             for (std::size_t mp = 1; mp < l; mp += 2)
@@ -282,7 +282,7 @@ constexpr void rotate_l(
         }
 
         std::array<double, 2> sum = {
-            0.0, 0.5*wigner_d[l, 0]*vector[0].real()
+            0.0, 0.5*wigner_d[l, 0]*vector[0].real(),
         };
 
         for (std::size_t mp = 1; mp < l; mp += 2)
@@ -304,7 +304,7 @@ constexpr void rotate_l(
         // logic for `Inf` components. We assume finite values
         vector[m] = {
             element.real()*rot.real() - element.imag()*rot.imag(),
-            element.real()*rot.imag() + element.imag()*rot.real()
+            element.real()*rot.imag() + element.imag()*rot.real(),
         };
     }
 }
@@ -328,7 +328,7 @@ constexpr void polar_rotate_l(
         // logic for `Inf` components. We assume finite valuess
         vector[m] = {
             coeff.real()*rot.real() - coeff.imag()*rot.imag(),
-            coeff.real()*rot.imag() + coeff.imag()*rot.real()
+            coeff.real()*rot.imag() + coeff.imag()*rot.real(),
         };
     }
 }

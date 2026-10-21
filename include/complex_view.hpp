@@ -58,21 +58,20 @@ encode_as_complex_expansion(
     using ReturnType = st::ComplexEncodedRealSHSpan<
         std::complex<double>, st::convention_of<decltype(expansion)>>;
 
-    constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
-
     for (auto l : std::forward<decltype(expansion)>(expansion).indices())
     {
         auto expansion_l = std::forward<decltype(expansion)>(expansion)[l];
         for (auto m : expansion_l.indices(1))
         {
-            expansion_l[m, 0] *= complex_conversion_norm;
-            expansion_l[m, 1] *= -complex_conversion_norm;
+            expansion_l[m, 0] *= 1.0/std::numbers::sqrt2;
+            expansion_l[m, 1] *= -1.0/std::numbers::sqrt2;
         }
     }
 
     return ReturnType{
             as_complex_span(std::forward<decltype(expansion)>(expansion).flatten()),
-            std::forward<decltype(expansion)>(expansion).order()};
+            std::forward<decltype(expansion)>(expansion).order(),
+    };
 }
 
 /**
@@ -96,19 +95,18 @@ decode_as_real_expansion(
             double, Indexing::zero_based,
             st::convention_of<decltype(expansion)>>;
 
-    constexpr double complex_conversion_norm = std::numbers::sqrt2;
-
     ReturnType res{
             as_float_span(std::forward<decltype(expansion)>(expansion).flatten()),
-            std::forward<decltype(expansion)>(expansion).order()};
+            std::forward<decltype(expansion)>(expansion).order(),
+    };
 
     for (auto l : res.indices())
     {
         auto res_l = res[l];
         for (auto m : res_l.indices(1))
         {
-            res_l[m, 0] *= complex_conversion_norm;
-            res_l[m, 1] *= -complex_conversion_norm;
+            res_l[m, 0] *= std::numbers::sqrt2;
+            res_l[m, 1] *= -std::numbers::sqrt2;
         }
     }
 
@@ -138,8 +136,6 @@ encode_as_complex_expansion(
     using ReturnType = zt::ComplexEncodedRealZernikeSpan<
         std::complex<double>, zt::convention_of<decltype(expansion)>>;
 
-    constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
-
     for (auto n : std::forward<decltype(expansion)>(expansion).indices())
     {
         auto expansion_n = std::forward<decltype(expansion)>(expansion)[n];
@@ -149,15 +145,16 @@ encode_as_complex_expansion(
 
             for (auto m : expansion_nl.indices(1))
             {
-                expansion_nl[m][0] *= complex_conversion_norm;
-                expansion_nl[m][1] *= -complex_conversion_norm;
+                expansion_nl[m][0] *= 1.0/std::numbers::sqrt2;
+                expansion_nl[m][1] *= -1.0/std::numbers::sqrt2;
             }
         }
     }
 
     return ReturnType{
             as_complex_span(std::forward<decltype(expansion)>(expansion).flatten()),
-            std::forward<decltype(expansion)>(expansion).order()};
+            std::forward<decltype(expansion)>(expansion).order(),
+    };
 }
 
 /**
@@ -181,11 +178,10 @@ decode_as_real_expansion(
         double, Indexing::zero_based,
         zt::convention_of<decltype(expansion)>>;
 
-    constexpr double complex_conversion_norm = std::numbers::sqrt2;
-
     ReturnType res{
             as_float_span(std::forward<decltype(expansion)>(expansion).flatten()),
-            std::forward<decltype(expansion)>(expansion).order()};
+            std::forward<decltype(expansion)>(expansion).order(),
+    };
 
     for (auto n : res.indices())
     {
@@ -196,8 +192,8 @@ decode_as_real_expansion(
 
             for (auto m : res_nl.indices(1))
             {
-                res_nl[m][0] *= complex_conversion_norm;
-                res_nl[m][1] *= -complex_conversion_norm;
+                res_nl[m][0] *= std::numbers::sqrt2;
+                res_nl[m][1] *= -std::numbers::sqrt2;
             }
         }
     }
@@ -225,11 +221,9 @@ encode_as_complex_expansion(
     requires std::same_as<value_type_of<decltype(expansion)>, double>
         && st::has_inner_rank<decltype(expansion), 0>
 {
-    using ReturnType = typename zt::ComplexEncodedRealZernikeSpan<
+    using ReturnType = zt::ComplexEncodedRealZernikeSpan<
             std::complex<double>, zt::convention_of<decltype(expansion)>
         >::template subspan_type<1>;
-
-    constexpr double complex_conversion_norm = 1.0/std::numbers::sqrt2;
 
     for (auto l : std::forward<decltype(expansion)>(expansion).indices())
     {
@@ -237,14 +231,15 @@ encode_as_complex_expansion(
 
         for (auto m : expansion_l.indices(1))
         {
-            expansion_l[m][0] *= complex_conversion_norm;
-            expansion_l[m][1] *= -complex_conversion_norm;
+            expansion_l[m][0] *= 1.0/std::numbers::sqrt2;
+            expansion_l[m][1] *= -1.0/std::numbers::sqrt2;
         }
     }
 
     return ReturnType{
             as_complex_span(std::forward<decltype(expansion)>(expansion).flatten()),
-            std::forward<decltype(expansion)>(expansion).order()};
+            std::forward<decltype(expansion)>(expansion).order(),
+    };
 }
 
 /**
@@ -264,16 +259,15 @@ constexpr auto
 decode_as_real_expansion(
     st::complex_encoded_zernike_sh_subspan auto&& expansion) noexcept
 {
-    using ReturnType = typename zt::ZernikeExpansion<
+    using ReturnType = zt::ZernikeExpansion<
             double, Indexing::zero_based,
             zt::convention_of<decltype(expansion)>
         >::template subspan_type<1>;
 
-    constexpr double complex_conversion_norm = std::numbers::sqrt2;
-
     ReturnType res{
             as_float_span(std::forward<decltype(expansion)>(expansion).flatten()),
-            std::forward<decltype(expansion)>(expansion).order()};
+            std::forward<decltype(expansion)>(expansion).order(),
+    };
 
     for (auto l : res.indices())
     {
@@ -281,8 +275,8 @@ decode_as_real_expansion(
 
         for (auto m : res_l.indices(1))
         {
-            res_l[m][0] *= complex_conversion_norm;
-            res_l[m][1] *= -complex_conversion_norm;
+            res_l[m][0] *= std::numbers::sqrt2;
+            res_l[m][1] *= -std::numbers::sqrt2;
         }
     }
 

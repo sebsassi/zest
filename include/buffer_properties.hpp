@@ -27,13 +27,13 @@ namespace zest
 {
 
 template <shaped_contiguous_buffer T>
-using value_type_of = typename std::remove_cvref_t<T>::value_type;
+using value_type_of = std::remove_cvref_t<T>::value_type;
 
 template <shaped_contiguous_buffer T>
-using shape_type_of = typename std::remove_cvref_t<T>::shape_type;
+using shape_type_of = std::remove_cvref_t<T>::shape_type;
 
 template <shaped_contiguous_buffer T, std::size_t depth>
     requires (depth <= T::rank)
-using subshape_type_of = typename std::remove_cvref_t<T>::shape_type::template subshape_type<depth>;
+using subshape_type_of = std::remove_cvref_t<T>::shape_type::template subshape_type<depth>;
 
 } // namespace zest

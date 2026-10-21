@@ -32,7 +32,11 @@ namespace zest::zt
 /**
     @brief Zernike polynomial normalizations.
 */
-enum class ZernikeNorm { normed, unnormed };
+enum class ZernikeNorm: std::uint8_t
+{
+    normed,     /// Normalized radial Zernike polynomials.
+    unnormed,   /// Unnormalized radial Zernike polynomials.
+};
 
 template <ZernikeNorm norm>
 struct ZernikeNormConvention

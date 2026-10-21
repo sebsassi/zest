@@ -182,13 +182,12 @@ public:
         @param expansion Output buffer for coefficients of the spherical
         harmonic expansion.
     */
-    template <
-        contiguous_buffer_shaped_like<grid_shape> GridType,
-        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
-    >
-        requires representable_as<value_type_of<GridType>, double>
-            && std::same_as<value_type_of<GridType>, value_type_of<ExpansionType>>
-    void forward_transform(const GridType& values, ExpansionType&& expansion)
+    void forward_transform(
+        const contiguous_buffer_shaped_like<grid_shape> auto& values,
+        contiguous_buffer_shaped_like<expansion_shape> auto&& expansion
+    )
+        requires representable_as<value_type_of<decltype(values)>, double>
+            && std::same_as<value_type_of<decltype(expansion)>, value_type_of<decltype(expansion)>>
     {
         resize(values.order());
 
@@ -200,8 +199,8 @@ public:
 
         SHSpan<double, Indexing::zero_based, Convention>
         truncated_expansion{
-            std::forward<ExpansionType>(expansion).template represent_as<double>().flatten(),
-            min_order
+            std::forward<decltype(expansion)>(expansion).template represent_as<double>().flatten(),
+            min_order,
         };
 
         integrate_latitudinal(truncated_expansion);
@@ -216,11 +215,12 @@ public:
 
         @return Spherical harmonic coefficients of the expansion.
     */
-    template <contiguous_buffer_shaped_like<grid_shape> GridType>
-        requires representable_as<value_type_of<GridType>, double>
-    [[nodiscard]] auto forward_transform(const GridType& values, std::size_t order)
+    [[nodiscard]] auto forward_transform(
+        const contiguous_buffer_shaped_like<grid_shape>auto& values, std::size_t order
+    )
+        requires representable_as<value_type_of<decltype(values)>, double>
     {
-        SHExpansion<value_type_of<GridType>, Indexing::zero_based, Convention>
+        SHExpansion<value_type_of<decltype(values)>, Indexing::zero_based, Convention>
         expansion{order};
 
         forward_transform(values, expansion);
@@ -234,13 +234,13 @@ public:
         @param expansion Coefficients of the spherical harmonic expansion.
         @param values Output buffer for values on the spherical quadrature grid.
     */
-    template <
-        contiguous_buffer_shaped_like<expansion_shape> ExpansionType,
-        contiguous_buffer_shaped_like<grid_shape> GridType
-    >
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && std::same_as<value_type_of<ExpansionType>, value_type_of<GridType>>
-    void backward_transform(const ExpansionType& expansion, GridType&& values)
+    void backward_transform(
+        const contiguous_buffer_shaped_like<expansion_shape> auto& expansion,
+        contiguous_buffer_shaped_like<grid_shape> auto&& values
+    )
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && std::same_as<value_type_of<decltype(expansion)>, value_type_of<decltype(values)>>
+            && st::has_inner_rank<decltype(expansion), 0>
     {
         resize(values.order());
 
@@ -251,7 +251,7 @@ public:
 
         sum_l(truncated_expansion);
         symm_asymm_to_fft();
-        sum_m(std::forward<GridType>(values).template represent_as<double>());
+        sum_m(std::forward<decltype(values)>(values).template represent_as<double>());
     }
 
     /**
@@ -266,27 +266,26 @@ public:
         @note A spherical harmonic expansion has even/odd parity if the first
         index of all nonzero coefficients has even/odd parity.
     */
-    template <
-        st::zernike_sh_subspan<Indexing::zero_based> ExpansionType,
-        contiguous_buffer_shaped_like<grid_shape> GridType
-    >
-        requires (st::sh_norm_of<ExpansionType>() == sh_norm)
-            && (st::sh_phase_of<ExpansionType>() == sh_phase)
-            && st::has_inner_rank<ExpansionType, 0>
-            && representable_as<value_type_of<ExpansionType>, double>
     void backward_transform(
-        const ExpansionType& expansion, GridType&& values)
+        const st::zernike_sh_subspan<Indexing::zero_based> auto& expansion,
+        contiguous_buffer_shaped_like<grid_shape> auto&& values
+    )
+        requires (st::sh_norm_of<decltype(expansion)>() == sh_norm)
+            && (st::sh_phase_of<decltype(expansion)>() == sh_phase)
+            && representable_as<value_type_of<decltype(expansion)>, double>
+            && std::same_as<value_type_of<decltype(expansion)>, value_type_of<decltype(values)>>
+            && st::has_inner_rank<decltype(expansion), 0>
     {
         resize(values.order());
 
         std::size_t min_order = std::min(expansion.order(), values.order());
 
-        ShapedSpan<const double, shape_type_of<ExpansionType>>
+        ShapedSpan<const double, shape_type_of<decltype(expansion)>>
         truncated_expansion{expansion.template represent_as<double>().flatten(), min_order};
 
         sum_l(truncated_expansion);
         symm_asymm_to_fft();
-        sum_m(std::forward<GridType>(values));
+        sum_m(std::forward<decltype(values)>(values));
     }
 
     /**
@@ -299,10 +298,12 @@ public:
         @return Values on the spherical quadrature grid.
     */
     template <contiguous_buffer_shaped_like<expansion_shape> ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-    [[nodiscard]] auto backward_transform(const ExpansionType& expansion, std::size_t order)
+    [[nodiscard]] auto backward_transform(
+        const contiguous_buffer_shaped_like<expansion_shape> auto& expansion, std::size_t order
+    )
+        requires representable_as<value_type_of<decltype(expansion)>, double>
     {
-        SphereGLQGrid<value_type_of<ExpansionType>, grid_layout_type> grid(order);
+        SphereGLQGrid<value_type_of<decltype(expansion)>, grid_layout_type> grid(order);
         backward_transform(expansion, grid);
         return grid;
     }
@@ -319,14 +320,15 @@ public:
         @note A spherical harmonic expansion has even/odd parity if the first
         index of all nonzero coefficients has even/odd parity.
     */
-    template <st::zernike_sh_subspan<Indexing::zero_based> ExpansionType>
-        requires (st::sh_norm_of<ExpansionType>() == sh_norm)
-            && (st::sh_phase_of<ExpansionType>() == sh_phase)
-            && st::has_inner_rank<ExpansionType, 0>
-            && representable_as<value_type_of<ExpansionType>, double>
-    [[nodiscard]] auto backward_transform(const ExpansionType& expansion, std::size_t order)
+    [[nodiscard]] auto backward_transform(
+        const st::zernike_sh_subspan<Indexing::zero_based> auto& expansion, std::size_t order
+    )
+        requires (st::sh_norm_of<decltype(expansion)>() == sh_norm)
+            && (st::sh_phase_of<decltype(expansion)>() == sh_phase)
+            && representable_as<value_type_of<decltype(expansion)>, double>
+            && st::has_inner_rank<decltype(expansion), 0>
     {
-        SphereGLQGrid<value_type_of<ExpansionType>, grid_layout_type> grid(order);
+        SphereGLQGrid<value_type_of<decltype(expansion)>, grid_layout_type> grid(order);
         backward_transform(expansion, grid);
         return grid;
     }
@@ -605,15 +607,14 @@ private:
                     auto ass_leg_l = ass_leg_i[l];
                     auto expansion_l = expansion[l];
                     symm_asymm[(l & 1)*fft_order] += std::complex<double>{
-                        ass_leg_l[0]*expansion_l[0, 0], -ass_leg_l[0]*expansion_l[0, 1]
+                        ass_leg_l[0]*expansion_l[0, 0], -ass_leg_l[0]*expansion_l[0, 1],
                     };
                     for (auto m : expansion_l.indices(1))
                     {
                         const double weight = 0.5*ass_leg_l[m];
                         symm_asymm[(l & 1)*fft_order + m]
                             += std::complex<double>{
-                                weight*expansion_l[m, 0],
-                                -weight*expansion_l[m, 1]
+                                weight*expansion_l[m, 0], -weight*expansion_l[m, 1],
                             };
                     }
                 }
@@ -636,7 +637,7 @@ private:
                 for (std::size_t i = 0; i < num_ass_leg; ++i)
                 {
                     symm_asymm[i] += std::complex<double>{
-                        ass_leg_l0[i]*expansion_l[0, 0], -ass_leg_l0[i]*expansion_l[0, 1]
+                        ass_leg_l0[i]*expansion_l[0, 0], -ass_leg_l0[i]*expansion_l[0, 1],
                     };
                 }
 
@@ -650,7 +651,7 @@ private:
                     {
                         const double weight = 0.5*ass_leg_lm[i];
                         symm_asymm[i] += std::complex<double>{
-                            weight*expansion_l[m, 0], -weight*expansion_l[m, 1]
+                            weight*expansion_l[m, 0], -weight*expansion_l[m, 1],
                         };
                     }
                 }
@@ -682,15 +683,14 @@ private:
                     auto ass_leg_l = ass_leg_i[l];
                     auto expansion_l = expansion[l];
                     symm_asymm[(l & 1)*fft_order] += std::complex<double>{
-                        ass_leg_l[0]*expansion_l[0, 0], -ass_leg_l[0]*expansion_l[0, 1]
+                        ass_leg_l[0]*expansion_l[0, 0], -ass_leg_l[0]*expansion_l[0, 1],
                     };
                     for (auto m : expansion_l.indices(1))
                     {
                         const double weight = 0.5*ass_leg_l[m];
                         symm_asymm[(l & 1)*fft_order + m]
                             += std::complex<double>{
-                                weight*expansion_l[m, 0],
-                                -weight*expansion_l[m, 1]
+                                weight*expansion_l[m, 0], -weight*expansion_l[m, 1],
                             };
                     }
                 }
@@ -712,7 +712,7 @@ private:
                 for (std::size_t i = 0; i < num_ass_leg; ++i)
                 {
                     symm_asymm[i] += std::complex<double>{
-                        ass_leg_l0[i]*expansion_l[0, 0], -ass_leg_l0[i]*expansion_l[0, 1]
+                        ass_leg_l0[i]*expansion_l[0, 0], -ass_leg_l0[i]*expansion_l[0, 1],
                     };
                 }
 
@@ -726,7 +726,7 @@ private:
                     {
                         const double weight = 0.5*ass_leg_lm[i];
                         symm_asymm[i] += std::complex<double>{
-                            weight*expansion_l[m, 0], -weight*expansion_l[m, 1]
+                            weight*expansion_l[m, 0], -weight*expansion_l[m, 1],
                         };
                     }
                 }
@@ -836,8 +836,8 @@ public:
     using Convention::sh_phase;
 
     using grid_layout_type = GridLayoutType;
-    using expansion_shape = typename Transformer::expansion_shape;
-    using grid_shape = typename Transformer::grid_shape;
+    using expansion_shape = Transformer::expansion_shape;
+    using grid_shape = Transformer::grid_shape;
 
     template <typename T>
     using grid_span_type = SphereGLQGridSpan<T, grid_layout_type>;
@@ -869,21 +869,23 @@ public:
         @param f function to transform
         @param expansion buffer to store the expansion
     */
-    template <
-        spherical_function FuncType,
-        contiguous_buffer_shaped_like<expansion_shape> ExpansionType
-    >
-        requires representable_as<std::invoke_result_t<FuncType, double, double>, double>
-    void forward_transform(FuncType&& f, ExpansionType&& expansion)
+    void forward_transform(
+        spherical_function auto&& f,
+        contiguous_buffer_shaped_like<expansion_shape> auto&& expansion
+    )
+        requires representable_as<std::invoke_result_t<decltype(f), double, double>, double>
+            && std::same_as<
+                value_type_of<decltype(expansion)>,
+                std::invoke_result_t<decltype(f), double, double>>
     {
         resize(expansion.order());
 
-        using ResultType = std::invoke_result_t<FuncType, double, double>;
+        using ResultType = std::invoke_result_t<decltype(f), double, double>;
         m_points.generate_values(
-                m_grid.template represent_as<ResultType>(), std::forward<FuncType>(f));
+                m_grid.template represent_as<ResultType>(), std::forward<decltype(f)>(f));
         m_transformer.forward_transform(
                 m_grid.template represent_as<ResultType>(),
-                std::forward<ExpansionType>(expansion));
+                std::forward<decltype(expansion)>(expansion));
     }
 
     /**
@@ -897,56 +899,55 @@ public:
 
         @returns spherical harmonic expansion
     */
-    template <spherical_function FuncType>
-    [[nodiscard]] auto forward_transform(FuncType&& f, std::size_t order)
+    [[nodiscard]] auto forward_transform(spherical_function auto&& f, std::size_t order)
     {
         resize(order);
 
-        using ResultType = std::invoke_result_t<FuncType, double, double>;
+        using ResultType = std::invoke_result_t<decltype(f), double, double>;
         m_points.generate_values(
-                m_grid.template represent_as<ResultType>(), std::forward<FuncType>(f));
+                m_grid.template represent_as<ResultType>(), std::forward<decltype(f)>(f));
         return m_transformer.forward_transform(
                 m_grid.template represent_as<ResultType>(), order);
     }
 
-    template <
-        contiguous_buffer_shaped_like<expansion_shape> ExpansionType,
-        contiguous_buffer_shaped_like<grid_shape> GridType
-    >
-        requires representable_as<value_type_of<ExpansionType>, double>
-            && std::same_as<value_type_of<ExpansionType>, value_type_of<GridType>>
-    void backward_transform(const ExpansionType& expansion, GridType&& values)
+    void backward_transform(
+        const contiguous_buffer_shaped_like<expansion_shape> auto& expansion,
+        contiguous_buffer_shaped_like<grid_shape> auto&& values
+    )
+        requires representable_as<value_type_of<decltype(expansion)>, double>
+            && std::same_as<value_type_of<decltype(expansion)>, value_type_of<decltype(values)>>
     {
-        m_transformer.backward_transform(expansion, std::forward<GridType>(values));
+        m_transformer.backward_transform(expansion, std::forward<decltype(values)>(values));
     }
 
-    template <
-        st::zernike_sh_subspan<Indexing::zero_based> ExpansionType,
-        contiguous_buffer_shaped_like<grid_shape> GridType
-    >
-        requires (st::sh_norm_of<ExpansionType>() == sh_norm)
-            && (st::sh_phase_of<ExpansionType>() == sh_phase)
-            && st::has_inner_rank<ExpansionType, 0>
-            && representable_as<value_type_of<ExpansionType>, double>
-    void backward_transform(const ExpansionType& expansion, GridType&& values)
+    void backward_transform(
+        const st::zernike_sh_subspan<Indexing::zero_based> auto& expansion,
+        contiguous_buffer_shaped_like<grid_shape> auto&& values
+    )
+        requires (st::sh_norm_of<decltype(expansion)>() == sh_norm)
+            && (st::sh_phase_of<decltype(expansion)>() == sh_phase)
+            && representable_as<value_type_of<decltype(expansion)>, double>
+            && st::has_inner_rank<decltype(expansion), 0>
     {
-        m_transformer.backward_transform(expansion, std::forward<GridType>(values));
+        m_transformer.backward_transform(expansion, std::forward<decltype(values)>(values));
     }
 
-    template <contiguous_buffer_shaped_like<expansion_shape> ExpansionType>
-        requires representable_as<value_type_of<ExpansionType>, double>
-    [[nodiscard]] auto backward_transform(const ExpansionType& expansion, std::size_t order)
+    [[nodiscard]] auto backward_transform(
+        const contiguous_buffer_shaped_like<expansion_shape> auto& expansion, std::size_t order
+    )
+        requires representable_as<value_type_of<decltype(expansion)>, double>
     {
         return m_transformer.backward_transform(expansion, order);
     }
 
-    template <st::zernike_sh_subspan<Indexing::zero_based> ExpansionType>
-        requires (st::sh_norm_of<ExpansionType>() == sh_norm)
-            && (st::sh_phase_of<ExpansionType>() == sh_phase)
-            && st::has_inner_rank<ExpansionType, 0>
-            && representable_as<value_type_of<ExpansionType>, double>
-    [[nodiscard]] SphereGLQGrid<value_type_of<ExpansionType>, grid_layout_type>
-    backward_transform(const ExpansionType& expansion, std::size_t order)
+    [[nodiscard]] auto
+    backward_transform(
+        const zernike_sh_subspan<Indexing::zero_based> auto& expansion, std::size_t order
+    )
+        requires (st::sh_norm_of<decltype(expansion)>() == sh_norm)
+            && (st::sh_phase_of<decltype(expansion)>() == sh_phase)
+            && representable_as<value_type_of<decltype(expansion)>, double>
+            && st::has_inner_rank<decltype(expansion), 0>
     {
         return m_transformer.backward_transform(expansion, order);
     }

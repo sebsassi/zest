@@ -352,12 +352,12 @@ using SingleIndexRange = StaticStandardIndexRange<
 /**
     @brief An enum for describing the parity of a thing.
 */
-enum class Parity
+enum class Parity: std::uint8_t
 {
     none,   /// Has no parity.
     mixed,  /// Could be of either even or odd parity.
     even,   /// Has even parity.
-    odd     /// Has odd parity.
+    odd,    /// Has odd parity.
 };
 
 /**

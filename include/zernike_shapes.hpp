@@ -24,7 +24,6 @@ SOFTWARE.
 #include <cstddef>
 
 #include "sequence.hpp"
-#include "sh_conventions.hpp"
 #include "shape.hpp"
 #include "zernike_conventions.hpp"
 
