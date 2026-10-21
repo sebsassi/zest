@@ -286,7 +286,6 @@ public:
 
         @return Function values on a ball quadrature grid.
     */
-    template <contiguous_buffer_shaped_like<expansion_shape> ExpansionType>
     [[nodiscard]] auto backward_transform(
         const contiguous_buffer_shaped_like<expansion_shape> auto& expansion, std::size_t order
     )

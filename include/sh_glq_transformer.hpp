@@ -216,7 +216,7 @@ public:
         @return Spherical harmonic coefficients of the expansion.
     */
     [[nodiscard]] auto forward_transform(
-        const contiguous_buffer_shaped_like<grid_shape>auto& values, std::size_t order
+        const contiguous_buffer_shaped_like<grid_shape> auto& values, std::size_t order
     )
         requires representable_as<value_type_of<decltype(values)>, double>
     {
@@ -297,7 +297,6 @@ public:
 
         @return Values on the spherical quadrature grid.
     */
-    template <contiguous_buffer_shaped_like<expansion_shape> ExpansionType>
     [[nodiscard]] auto backward_transform(
         const contiguous_buffer_shaped_like<expansion_shape> auto& expansion, std::size_t order
     )
