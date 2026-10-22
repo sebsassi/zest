@@ -65,7 +65,8 @@ public:
     using view = ShapedSpan<value_type, shape_type>;
     using const_view = ShapedSpan<const value_type, shape_type>;
 
-    static constexpr size_type rank = shape_type::rank;
+    template <std::size_t N>
+    using subshape_type = shape_type::template subshape_type<N>;
 
     /**
         @brief `N`th subspan view.
@@ -89,6 +90,8 @@ public:
     template <std::size_t N>
     using const_subspan_type = ShapedSpan<
         const value_type, typename shape_type::template subshape_type<N>>;
+
+    static constexpr size_type rank = shape_type::rank;
 
     ShapedArray() = default;
 

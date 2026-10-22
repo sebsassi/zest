@@ -39,10 +39,15 @@ concept has_inner_rank
     = has_inner_tensor_structure<
             T, ((indexing_of<T>() == Indexing::zero_based) ? 3 : 2), inner_rank>;
 
+template <typename T, std::size_t N>
+concept static_vector_shape = (T::rank == 1) && (T::static_extents[0] == N);
+
 template <typename T>
 concept paired_azimuthal_indexed
     = (indexing_of<T>() == Indexing::zero_based)
-        && (std::remove_cvref_t<T>::template subshape_type<1>::static_extents[0] == 2);
+        && (static_vector_shape<typename std::remove_cvref_t<T>::template subshape_type<1>, 2>
+            || (static_vector_shape<typename std::remove_cvref_t<T>::template subshape_type<1>::outer_shape_type, 2>
+                && tensor_shaped<typename std::remove_cvref_t<T>::template subshape_type<2>>));
 
 template <typename T>
 concept symmetric_azimuthal_indexed
