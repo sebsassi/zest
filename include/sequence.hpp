@@ -84,6 +84,7 @@ concept has_parity = requires (T x) { { x.parity() } -> std::same_as<Parity>; };
 struct NullSequence
 {
     using index_type = std::size_t;
+    using linear_index_type = std::size_t;
     using size_type = std::size_t;
 
     [[nodiscard]] static constexpr size_type
@@ -113,6 +114,7 @@ struct StandardLinearSequence
 {
     using index_type = std::conditional_t<(indexing_param == Indexing::symmetric),
         int, std::size_t>;
+    using linear_index_type = index_type;
     using size_type = std::size_t;
     using index_range = std::conditional_t<(indexing_param == Indexing::symmetric),
         SymmetricIndexRange<int>, StandardIndexRange<std::size_t>>;
@@ -161,7 +163,7 @@ public:
 
         @param l Index to the sequence.
     */
-    [[nodiscard]] static constexpr index_type
+    [[nodiscard]] static constexpr linear_index_type
     index(index_type l) noexcept
     {
         return l;
@@ -188,6 +190,7 @@ template <Parity parity_param = Parity::mixed>
 struct ParityLinearSequence
 {
     using index_type = std::size_t;
+    using linear_index_type = std::size_t;
     using size_type = std::size_t;
     using index_range = ParityIndexRange<index_type, parity_param>;
 
@@ -268,6 +271,7 @@ struct TriangleSequence
 {
     using index_type = std::conditional_t<indexing_param == Indexing::symmetric,
         int, std::size_t>;
+    using linear_index_type = std::size_t;
     using size_type = std::size_t;
     using index_range = StandardIndexRange<index_type>;
 
@@ -323,18 +327,18 @@ public:
         @param l Index to the sequence.
         @param m Index to the sequence.
     */
-    [[nodiscard]] static constexpr index_type
+    [[nodiscard]] static constexpr linear_index_type
     index(index_type l, index_type m) noexcept
     {
         if constexpr (indexing == Indexing::zero_based)
         {
             assert(m <= l);
-            return ((l*(l + 1)) >> 1) + m;
+            return linear_index_type(((l*(l + 1)) >> 1) + m);
         }
         else
         {
             assert(0 <= l && -l <= m && m <= l);
-            return l*(l + 1) + m;
+            return linear_index_type(l*(l + 1) + m);
         }
     }
     /**
@@ -342,13 +346,13 @@ public:
 
         @param l Index to the sequence.
     */
-    [[nodiscard]] static constexpr index_type
+    [[nodiscard]] static constexpr linear_index_type
     index(index_type l) noexcept
     {
         if constexpr (indexing == Indexing::zero_based)
-            return ((l*(l + 1)) >> 1);
+            return linear_index_type(((l*(l + 1)) >> 1));
         else
-            return l*(l + 1);
+            return linear_index_type(l*(l + 1));
     }
 
     /**
@@ -357,7 +361,10 @@ public:
         @param l Index to the sequence.
     */
     [[nodiscard]] static constexpr size_type
-    subextent(index_type l) noexcept { return size_type(l + 1); }
+    subextent(index_type l) noexcept
+    {
+        return size_type(l + 1);
+    }
 };
 
 /**
@@ -382,6 +389,7 @@ public:
 struct EvenTriangleSequence
 {
     using index_type = std::size_t;
+    using linear_index_type = std::size_t;
     using size_type = std::size_t;
     using index_range = StandardIndexRange<index_type>;
 
@@ -434,11 +442,11 @@ public:
         @param n Index to the sequence.
         @param l Index to the sequence.
     */
-    [[nodiscard]] static constexpr index_type
+    [[nodiscard]] static constexpr linear_index_type
     index(index_type n, index_type l) noexcept
     {
         assert(l <= n && ((n - l) & 1) == 0);
-        return (((n + 1)*(n + 1)) >> 2) + (l >> 1);
+        return linear_index_type((((n + 1)*(n + 1)) >> 2) + (l >> 1));
     }
 
     /**
@@ -446,10 +454,10 @@ public:
 
         @param n Index to the sequence.
     */
-    [[nodiscard]] static constexpr index_type
+    [[nodiscard]] static constexpr linear_index_type
     index(index_type n) noexcept
     {
-         return (((n + 1)*(n + 1)) >> 2);
+         return linear_index_type(((n + 1)*(n + 1)) >> 2);
     }
 
     /**
@@ -458,7 +466,10 @@ public:
         @param n Index to the sequence.
     */
     [[nodiscard]] static constexpr
-    size_type subextent(index_type n) noexcept { return size_type(n + 1); }
+    size_type subextent(index_type n) noexcept
+    {
+        return size_type(n + 1);
+    }
 };
 
 /**
@@ -518,6 +529,7 @@ struct ParityRowTriangleSequence
     using SubLayout = StandardLinearSequence<indexing_param>;
     using index_type = std::conditional_t<indexing_param == Indexing::symmetric,
         int, std::size_t>;
+    using linear_index_type = std::size_t;
     using size_type = std::size_t;
     using index_range = ParityIndexRange<index_type, Parity::mixed>;
 
@@ -573,18 +585,18 @@ public:
         @param l Index to the sequence.
         @param m Index to the sequence.
     */
-    static constexpr index_type
+    static constexpr linear_index_type
     index(index_type l, index_type m) noexcept
     {
         if constexpr (indexing == Indexing::zero_based)
         {
             assert(m <= l);
-            return ((l*l) >> 2) + m;
+            return linear_index_type(((l*l) >> 2) + m);
         }
         else
         {
             assert(0 <= l && -l <= m && m <= l);
-            return ((l*(l + 1)) >> 1) + m;
+            return linear_index_type(((l*(l + 1)) >> 1) + m);
         }
     }
 
@@ -593,13 +605,13 @@ public:
 
         @param l Index to the sequence.
     */
-    static constexpr index_type
+    static constexpr linear_index_type
     index(index_type l) noexcept
     {
         if constexpr (indexing == Indexing::zero_based)
-            return ((l*l) >> 2);
+            return linear_index_type((l*l) >> 2);
         else
-            return (l*(l + 1)) >> 1;
+            return linear_index_type((l*(l + 1)) >> 1);
     }
 
     /**
@@ -651,6 +663,7 @@ struct ZernikeTetrahedralSequence
     using SubLayout = ParityRowTriangleSequence<indexing_param>;
     using index_type = std::conditional_t<indexing_param == Indexing::symmetric,
         int, std::size_t>;
+    using linear_index_type = std::size_t;
     using size_type = std::size_t;
     using index_range = StandardIndexRange<index_type>;
 
@@ -714,18 +727,18 @@ public:
         @param l Index to the sequence.
         @param m Index to the sequence.
     */
-    [[nodiscard]] static constexpr index_type
+    [[nodiscard]] static constexpr linear_index_type
     index(index_type n, index_type l, index_type m) noexcept
     {
         if constexpr (indexing == Indexing::zero_based)
         {
             assert(m <= l && l <= n && ((n - l) % 2) == 0);
-            return (n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2) + m;
+            return linear_index_type((n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2) + m);
         }
         else
         {
             assert(0 <= l && 0 <= n && -l <= m && m <= l && l <= n && ((n - l) % 2) == 0);
-            return n*(n + 1)*(n + 2)/6 + ((l*(l + 1)) >> 1) + m;
+            return linear_index_type(n*(n + 1)*(n + 2)/6 + ((l*(l + 1)) >> 1) + m);
         }
     }
 
@@ -735,18 +748,18 @@ public:
         @param n Index to the sequence.
         @param l Index to the sequence.
     */
-    [[nodiscard]] static constexpr index_type
+    [[nodiscard]] static constexpr linear_index_type
     index(index_type n, index_type l) noexcept
     {
         if constexpr (indexing == Indexing::zero_based)
         {
             assert(l <= n && ((n - l) % 2) == 0);
-            return (n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2);
+            return linear_index_type((n + 1)*(n + 3)*(2*n + 1)/24 + ((l*l) >> 2));
         }
         else
         {
             assert(0 <= l && 0 <= n && l <= n && ((n - l) % 2) == 0);
-            return n*(n + 1)*(n + 2)/6 + ((l*(l + 1)) >> 1);
+            return linear_index_type(n*(n + 1)*(n + 2)/6 + ((l*(l + 1)) >> 1));
         }
     }
 
@@ -755,13 +768,13 @@ public:
 
         @param n Index to the sequence.
     */
-    [[nodiscard]] static constexpr index_type
+    [[nodiscard]] static constexpr linear_index_type
     index(index_type n) noexcept
     {
         if constexpr (indexing == Indexing::zero_based)
-            return (n + 1)*(n + 3)*(2*n + 1)/24;
+            return linear_index_type((n + 1)*(n + 3)*(2*n + 1)/24);
         else
-            return n*(n + 1)*(n + 2)/6;
+            return linear_index_type(n*(n + 1)*(n + 2)/6);
     }
 
     /**
@@ -770,7 +783,10 @@ public:
         @param n
     */
     [[nodiscard]] static constexpr size_type
-    subextent(index_type n) noexcept { return size_type(n + 1); }
+    subextent(index_type n) noexcept
+    {
+        return size_type(n + 1);
+    }
 
     /**
         @brief Order of a subsequence at given index pair `(n,l)`.

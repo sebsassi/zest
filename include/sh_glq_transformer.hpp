@@ -118,7 +118,7 @@ public:
 
         auto fft_stride = grid_layout_type::fft_stride(order);
         m_pocketfft_stride_fft[0] = long(fft_stride[0]*sizeof(std::complex<double>));
-        m_pocketfft_stride_fft[1] = fft_stride[1]*sizeof(std::complex<double>);
+        m_pocketfft_stride_fft[1] = long(fft_stride[1]*sizeof(std::complex<double>));
     }
 
     /**
@@ -169,7 +169,7 @@ public:
 
         auto fft_stride = grid_layout_type::fft_stride(order);
         m_pocketfft_stride_fft[0] = long(fft_stride[0]*sizeof(std::complex<double>));
-        m_pocketfft_stride_fft[1] = fft_stride[1]*sizeof(std::complex<double>);
+        m_pocketfft_stride_fft[1] = long(fft_stride[1]*sizeof(std::complex<double>));
 
         m_order = order;
     }

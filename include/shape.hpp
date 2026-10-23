@@ -48,6 +48,7 @@ class NullShape
 public:
     using size_type = std::size_t;
     using index_type = size_type;
+    using linear_index_type = size_type;
     using index_range = EmptyIndexRange<index_type>;
     using extent_type = size_type;
 
@@ -137,6 +138,7 @@ public:
     using sequence_type = SequenceType;
     using size_type = sequence_type::size_type;
     using index_type = sequence_type::index_type;
+    using linear_index_type = sequence_type::linear_index_type;
     using index_range = sequence_type::index_range;
     using extent_type = size_type;
 
@@ -235,7 +237,7 @@ public:
 
         @param indices Indices mapped to the contiquous sequence.
     */
-    [[nodiscard]] static constexpr index_type
+    [[nodiscard]] static constexpr linear_index_type
     operator()(std::integral auto... indices) noexcept
         requires (0 < sizeof...(indices) && sizeof...(indices) <= rank)
     {
@@ -365,6 +367,7 @@ class TensorShape
 public:
     using size_type = std::size_t;
     using index_type = size_type;
+    using linear_index_type = size_type;
     using index_range = StandardIndexRange<size_type>;
     using extent_type = std::array<size_type, sizeof...(extent_params)>;
     using dynamic_extent_type
@@ -549,7 +552,7 @@ public:
 
         @param indices Indices mapped to the contiquous sequence.
     */
-    [[nodiscard]] constexpr index_type
+    [[nodiscard]] constexpr linear_index_type
     operator()(std::integral auto... indices) const noexcept
         requires (0 < sizeof...(indices) && sizeof...(indices) <= rank)
     {
@@ -627,6 +630,7 @@ class TensorShape<extent_params...>
 public:
     using size_type = std::size_t;
     using index_type = size_type;
+    using linear_index_type = size_type;
     using index_range = StandardIndexRange<size_type>;
     using extent_type = std::array<size_type, sizeof...(extent_params)>;
     using dynamic_extent_type = std::array<size_type, 0>;
@@ -678,19 +682,19 @@ public:
         return linear_extent;
     }
 
-    [[nodiscard]] static consteval size_type
+    [[nodiscard]] static constexpr size_type
     size() noexcept
     {
         return linear_extent;
     }
 
-    [[nodiscard]] static consteval dynamic_extent_type
+    [[nodiscard]] static constexpr dynamic_extent_type
     dynamic_extents() noexcept
     {
         return {};
     }
 
-    [[nodiscard]] static consteval extent_type
+    [[nodiscard]] static constexpr extent_type
     extents() noexcept
     {
         return static_extents;
@@ -704,7 +708,7 @@ public:
 
     template <std::size_t I>
         requires (I < rank)
-    [[nodiscard]] static consteval size_type
+    [[nodiscard]] static constexpr size_type
     extent() noexcept
     {
         return static_extents[I];
@@ -717,14 +721,14 @@ public:
         return subshape_impl(indices...);
     }
 
-    [[nodiscard]] static constexpr index_type
+    [[nodiscard]] static constexpr linear_index_type
     operator()(std::integral auto... indices) noexcept
         requires (0 < sizeof...(indices) && sizeof...(indices) <= rank)
     {
         return array::detail::index(static_extents, index_type(indices)...);
     }
 
-    [[nodiscard]] static consteval auto
+    [[nodiscard]] static constexpr auto
     indices() noexcept { return index_range{index_type{static_extents[0]}}; }
 
     [[nodiscard]] static constexpr auto
@@ -763,6 +767,7 @@ public:
     using inner_shape_type = InnerShape;
     using size_type = OuterShape::size_type;
     using index_type = OuterShape::index_type;
+    using linear_index_type = OuterShape::linear_index_type;
     using index_range = OuterShape::index_range;
     using extent_type
         = std::pair<typename OuterShape::extent_type, typename InnerShape::extent_type>;
@@ -907,7 +912,7 @@ public:
     /**
         @brief Size of the shape.
     */
-    [[nodiscard]] static consteval size_type
+    [[nodiscard]] static constexpr size_type
     size() noexcept requires (linear_extent != std::dynamic_extent)
     {
         return linear_extent;
@@ -964,7 +969,7 @@ public:
 
         @param indices Indices mapped to the contiquous sequence.
     */
-    [[nodiscard]] constexpr index_type
+    [[nodiscard]] constexpr linear_index_type
     operator()(std::integral auto... indices) const noexcept
         requires (0 < sizeof...(indices) && sizeof...(indices) <= rank)
     {
@@ -1031,7 +1036,7 @@ private:
         return subshape_type<sizeof...(indices)>(NullShape{});
     }
 
-    [[nodiscard]] constexpr index_type
+    [[nodiscard]] constexpr linear_index_type
     index(std::integral auto... indices) const noexcept
         requires (0 < sizeof...(indices) && sizeof...(indices) <= OuterShape::rank)
     {
@@ -1039,7 +1044,7 @@ private:
         return m_shapes.first(outer_index_type(indices)...)*m_shapes.second.size();
     }
 
-    [[nodiscard]] constexpr index_type
+    [[nodiscard]] constexpr linear_index_type
     index(std::integral auto... indices) const noexcept
         requires (OuterShape::rank < sizeof...(indices) && sizeof...(indices) <= rank)
     {

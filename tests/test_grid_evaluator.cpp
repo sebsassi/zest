@@ -33,12 +33,6 @@ constexpr bool is_close(double a, double b, double tol)
     return std::fabs(a - b) < tol;
 }
 
-constexpr bool is_close(
-    std::array<double, 2> a, std::array<double, 2> b, double tol)
-{
-    return std::fabs(a[0] - b[0]) < tol && std::fabs(a[1] - b[1]) < tol;
-}
-
 template <std::floating_point T>
 std::vector<T> linspace(T start, T stop, std::size_t count)
 {

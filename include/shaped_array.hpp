@@ -47,7 +47,9 @@ namespace zest
 */
 template <
     typename ElementType, typename ShapeType,
-    typename Allocator = std::allocator<ElementType>>
+    typename Allocator = std::allocator<ElementType>
+>
+    requires std::unsigned_integral<typename ShapeType::linear_index_type>
 class ShapedArray
 {
 public:

@@ -149,7 +149,7 @@ bool test_triangle_sequence_index_first_zero_based(std::size_t l)
 }
 
 bool test_triangle_sequence_index_both_symmetric(
-    int l, int m, int expected_linear_index)
+    int l, int m, std::size_t expected_linear_index)
 {
     using Sequence = zest::TriangleSequence<zest::Indexing::symmetric>;
 
@@ -289,7 +289,7 @@ bool test_parity_row_triangle_sequence_size_symmetric(
 }
 
 bool test_parity_row_triangle_sequence_index_both_symmetric(
-    int l, int m, int expected_linear_index)
+    int l, int m, std::size_t expected_linear_index)
 {
     using Sequence = zest::ParityRowTriangleSequence<zest::Indexing::symmetric>;
 
@@ -378,7 +378,7 @@ bool test_zernike_tetrahedral_sequence_size_symmetric(
 }
 
 bool test_zernike_tetrahedral_sequence_index_all_symmetric(
-    int n, int l, int m, int expected_linear_index)
+    int n, int l, int m, std::size_t expected_linear_index)
 {
         using Sequence = zest::ZernikeTetrahedralSequence<zest::Indexing::symmetric>;
 
