@@ -74,7 +74,7 @@ public:
 
         @return Always returns zero.
     */
-    [[nodiscard]] static consteval size_type
+    [[nodiscard]] static constexpr size_type
     size([[maybe_unused]] extent_type /*unused*/) noexcept
     {
         return 0;
@@ -85,7 +85,7 @@ public:
 
         @return Always returns zero.
     */
-    [[nodiscard]] static consteval size_type
+    [[nodiscard]] static constexpr size_type
     size() noexcept
     {
         return 0;
@@ -96,7 +96,7 @@ public:
 
         @return Always returns zero.
     */
-    [[nodiscard]] static consteval extent_type
+    [[nodiscard]] static constexpr extent_type
     extents() noexcept
     {
         return 0;
@@ -107,7 +107,7 @@ public:
 
         @return Returns a range with a single index zero.
     */
-    [[nodiscard]] static consteval index_range
+    [[nodiscard]] static constexpr index_range
     indices() noexcept
     {
         return index_range{};
