@@ -931,7 +931,7 @@ public:
     [[nodiscard]] constexpr OuterShape::extent_type
     order() const noexcept requires sequence_shaped<OuterShape>
     {
-        return m_shapes.first.extents();
+        return m_shapes.first.order();
     }
 
     /**
