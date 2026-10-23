@@ -418,6 +418,7 @@ private:
         const std::size_t south_offset = num_unique_nodes - 1;
         const std::size_t north_offset = central_offset;
 
+        using difference_type = std::vector<std::complex<double>>::difference_type;
         if constexpr (
             std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
@@ -425,14 +426,14 @@ private:
             {
                 const double weight = m_glq_weights[i];
                 std::span<const std::complex<double>> fft_south(
-                    m_ffts.begin() + (south_offset - i)*fft_order, fft_order);
+                    m_ffts.begin() + difference_type((south_offset - i)*fft_order), fft_order);
                 std::span<const std::complex<double>> fft_north(
-                    m_ffts.begin() + (north_offset + i)*fft_order, fft_order);
+                    m_ffts.begin() + difference_type((north_offset + i)*fft_order), fft_order);
 
                 std::span<std::complex<double>> symm_asymm_i(
-                    m_symm_asymm.begin() + 2*i*fft_order, fft_order);
+                    m_symm_asymm.begin() + difference_type(2*i*fft_order), fft_order);
                 std::span<std::complex<double>> asymm_symm_i(
-                    m_symm_asymm.begin() + (2*i + 1)*fft_order, fft_order);
+                    m_symm_asymm.begin() + difference_type((2*i + 1)*fft_order), fft_order);
 
                 for (std::size_t m = 0; m < fft_order; ++m)
                 {
@@ -456,18 +457,18 @@ private:
             std::span<std::complex<double>> symm_asymm(
                 m_symm_asymm.begin(), num_unique_nodes*fft_order);
             std::span<std::complex<double>> asymm_symm(
-                m_symm_asymm.begin() + num_unique_nodes*fft_order, num_unique_nodes*fft_order);
+                m_symm_asymm.begin() + difference_type(num_unique_nodes*fft_order), num_unique_nodes*fft_order);
 
             for (std::size_t m = 0; m < fft_order; ++m)
             {
                 const double sign = (m & 1) ? -1.0 : 1.0;
                 std::span<const std::complex<double>> fft_m(
-                    m_ffts.begin() + num_lat*m, num_lat);
+                    m_ffts.begin() + difference_type(num_lat*m), num_lat);
 
                 std::span<std::complex<double>> symm_asymm_m(
-                    symm_asymm.begin() + num_unique_nodes*m, num_unique_nodes);
+                    symm_asymm.begin() + difference_type(num_unique_nodes*m), num_unique_nodes);
                 std::span<std::complex<double>> asymm_symm_m(
-                    asymm_symm.begin() + num_unique_nodes*m, num_unique_nodes);
+                    asymm_symm.begin() + difference_type(num_unique_nodes*m), num_unique_nodes);
 
                 for (std::size_t i = 0; i < num_unique_nodes; ++i)
                 {
@@ -494,6 +495,7 @@ private:
         const std::size_t num_ass_leg = m_glq_weights.size();
 
         std::ranges::fill(expansion.flatten(), 0.0);
+        using difference_type = std::vector<std::complex<double>>::difference_type;
         if constexpr (
             std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
@@ -505,8 +507,10 @@ private:
                 {
                     auto ass_leg_l = ass_leg_i[l];
                     auto expansion_l = expansion[l];
+
                     std::span<const std::complex<double>> fft(
-                        m_symm_asymm.begin() + (2*i + (l & 1))*fft_order, fft_order);
+                        m_symm_asymm.begin() + difference_type((2*i + (l & 1))*fft_order), fft_order);
+
                     for (auto m : expansion_l.indices())
                     {
                         expansion_l[m, 0] += ass_leg_l[m]*fft[m].real();
@@ -527,13 +531,13 @@ private:
                 auto ass_leg_l = ass_leg[l];
                 std::span<const std::complex<double>> ffts;
                 ffts = std::span<const std::complex<double>>(
-                        m_symm_asymm.begin() + (l & 1)*num_ass_leg*fft_order,
+                        m_symm_asymm.begin() + difference_type((l & 1)*num_ass_leg*fft_order),
                         num_ass_leg*fft_order);
                 for (auto m : expansion_l.indices())
                 {
                     auto ass_leg_lm = ass_leg_l[m];
                     std::span<const std::complex<double>> fft(
-                        ffts.begin() + m*num_ass_leg, num_ass_leg);
+                        ffts.begin() + difference_type(m*num_ass_leg), num_ass_leg);
 
                     std::array<double, 2> coeff{};
                     switch (num_ass_leg & 3)
@@ -592,6 +596,7 @@ private:
 
         std::ranges::fill(m_symm_asymm, std::complex<double>{});
 
+        using difference_type = std::vector<std::complex<double>>::difference_type;
         if constexpr (
             std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
@@ -599,7 +604,7 @@ private:
             for (std::size_t i = 0; i < num_ass_leg; ++i)
             {
                 std::span<std::complex<double>> symm_asymm(
-                    m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
+                    m_symm_asymm.begin() + difference_type(2*i*fft_order), 2*fft_order);
                 auto ass_leg_i = ass_leg[i];
                 for (auto l : expansion.indices())
                 {
@@ -625,14 +630,13 @@ private:
             AssLegSpan<const double, std::dynamic_extent>
             ass_leg(m_ass_leg_grid, m_order, num_ass_leg);
 
-            std::span coeffs = expansion.flatten();
             for (auto l : expansion.indices())
             {
                 auto expansion_l = expansion[l];
                 auto ass_leg_l = ass_leg[l];
                 auto ass_leg_l0 = ass_leg_l[0];
                 std::span<std::complex<double>> symm_asymm(
-                    m_symm_asymm.begin() + (l & 1)*num_ass_leg*fft_order, num_ass_leg);
+                    m_symm_asymm.begin() + difference_type((l & 1)*num_ass_leg*fft_order), num_ass_leg);
                 for (std::size_t i = 0; i < num_ass_leg; ++i)
                 {
                     symm_asymm[i] += std::complex<double>{
@@ -644,7 +648,7 @@ private:
                 {
                     auto ass_leg_lm = ass_leg_l[m];
                     std::span<std::complex<double>> symm_asymm(
-                        m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_ass_leg,
+                        m_symm_asymm.begin() + difference_type(((l & 1)*fft_order + m)*num_ass_leg),
                         num_ass_leg);
                     for (std::size_t i = 0; i < num_ass_leg; ++i)
                     {
@@ -668,6 +672,7 @@ private:
 
         std::ranges::fill(m_symm_asymm, std::complex<double>{});
 
+        using difference_type = std::vector<std::complex<double>>::difference_type;
         if constexpr (
             std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
@@ -675,7 +680,7 @@ private:
             for (std::size_t i = 0; i < num_ass_leg; ++i)
             {
                 std::span<std::complex<double>> symm_asymm(
-                    m_symm_asymm.begin() + 2*i*fft_order, 2*fft_order);
+                    m_symm_asymm.begin() + difference_type(2*i*fft_order), 2*fft_order);
                 auto ass_leg_i = ass_leg[i];
                 for (auto l : expansion.indices())
                 {
@@ -707,7 +712,7 @@ private:
                 auto ass_leg_l = ass_leg[l];
                 auto ass_leg_l0 = ass_leg_l[0];
                 std::span<std::complex<double>> symm_asymm(
-                    m_symm_asymm.begin() + (l & 1)*num_ass_leg*fft_order, num_ass_leg);
+                    m_symm_asymm.begin() + difference_type((l & 1)*num_ass_leg*fft_order), num_ass_leg);
                 for (std::size_t i = 0; i < num_ass_leg; ++i)
                 {
                     symm_asymm[i] += std::complex<double>{
@@ -719,7 +724,7 @@ private:
                 {
                     auto ass_leg_lm = ass_leg_l[m];
                     std::span<std::complex<double>> symm_asymm(
-                        m_symm_asymm.begin() + ((l & 1)*fft_order + m)*num_ass_leg,
+                        m_symm_asymm.begin() + difference_type(((l & 1)*fft_order + m)*num_ass_leg),
                         num_ass_leg);
                     for (std::size_t i = 0; i < num_ass_leg; ++i)
                     {
@@ -743,20 +748,21 @@ private:
         const std::size_t south_offset = num_unique_nodes - 1;
         const std::size_t north_offset = central_offset;
 
+        using difference_type = std::vector<std::complex<double>>::difference_type;
         if constexpr (
             std::same_as<grid_layout_type, LatLonLayout<typename grid_layout_type::Alignment>>)
         {
             for (std::size_t i = 0; i < num_unique_nodes; ++i)
             {
                 std::span<const std::complex<double>> symm_asymm_i(
-                    m_symm_asymm.begin() + 2*i*fft_order, fft_order);
+                    m_symm_asymm.begin() + difference_type(2*i*fft_order), fft_order);
                 std::span<const std::complex<double>> asymm_symm_i(
-                    m_symm_asymm.begin() + (2*i + 1)*fft_order, fft_order);
+                    m_symm_asymm.begin() + difference_type((2*i + 1)*fft_order), fft_order);
 
                 std::span<std::complex<double>> fft_south(
-                    m_ffts.begin() + (south_offset - i)*fft_order, fft_order);
+                    m_ffts.begin() + difference_type((south_offset - i)*fft_order), fft_order);
                 std::span<std::complex<double>> fft_north(
-                    m_ffts.begin() + (north_offset + i)*fft_order, fft_order);
+                    m_ffts.begin() + difference_type((north_offset + i)*fft_order), fft_order);
 
                 for (std::size_t m = 0; m < fft_order; ++m)
                 {
@@ -772,18 +778,18 @@ private:
             std::span<std::complex<double>> symm_asymm(
                 m_symm_asymm.begin(), num_unique_nodes*fft_order);
             std::span<std::complex<double>> asymm_symm(
-                m_symm_asymm.begin() + num_unique_nodes*fft_order, num_unique_nodes*fft_order);
+                m_symm_asymm.begin() + difference_type(num_unique_nodes*fft_order), num_unique_nodes*fft_order);
 
             for (std::size_t m = 0; m < fft_order; ++m)
             {
                 const double sign = (m & 1) ? -1.0 : 1.0;
                 std::span<std::complex<double>> fft_m(
-                    m_ffts.begin() + num_lat*m, num_lat);
+                    m_ffts.begin() + difference_type(num_lat*m), num_lat);
 
                 std::span<const std::complex<double>> symm_asymm_m(
-                    symm_asymm.begin() + num_unique_nodes*m, num_unique_nodes);
+                    symm_asymm.begin() + difference_type(num_unique_nodes*m), num_unique_nodes);
                 std::span<const std::complex<double>> asymm_symm_m(
-                    asymm_symm.begin() + num_unique_nodes*m, num_unique_nodes);
+                    asymm_symm.begin() + difference_type(num_unique_nodes*m), num_unique_nodes);
 
                 for (std::size_t i = 0; i < num_unique_nodes; ++i)
                 {
